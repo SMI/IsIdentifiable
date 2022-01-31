@@ -4,9 +4,9 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Microservices.IsIdentifiable.Failures;
-using Microservices.IsIdentifiable.Reporting;
-using Microservices.IsIdentifiable.Rules;
+using IsIdentifiable.Failures;
+using IsIdentifiable.Reporting;
+using IsIdentifiable.Rules;
 using YamlDotNet.Serialization;
 
 namespace IsIdentifiableReviewer.Out

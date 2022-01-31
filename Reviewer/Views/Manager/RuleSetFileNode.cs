@@ -1,5 +1,5 @@
-﻿using Microservices.IsIdentifiable.Rules;
-using Microservices.IsIdentifiable.Runners;
+﻿using IsIdentifiable.Rules;
+using IsIdentifiable.Runners;
 using System.IO;
 using YamlDotNet.Serialization;
 

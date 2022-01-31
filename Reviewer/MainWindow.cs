@@ -6,11 +6,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using IsIdentifiable.Reporting;
 using IsIdentifiableReviewer.Out;
 using IsIdentifiableReviewer.Views;
 using IsIdentifiableReviewer.Views.Manager;
-using Microservices.IsIdentifiable.Reporting;
-using Smi.Common.Options;
 using Terminal.Gui;
 using YamlDotNet.Serialization;
 using Attribute = Terminal.Gui.Attribute;
@@ -87,7 +86,7 @@ G - creates a regex pattern that matches only the failing part(s)
 \c - replaces all characters with regex wildcards
 \d\c - replaces all digits and characters with regex wildcards";
 
-        public MainWindow(GlobalOptions globalOpts, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
+        public MainWindow(IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             Ignorer = ignorer;
             Updater = updater;
@@ -107,7 +106,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
             var viewMain = new View() { Width = Dim.Fill(), Height = Dim.Fill() };
             rulesView = new RulesView();
-            rulesManager = new AllRulesManagerView(globalOpts.IsIdentifiableOptions, opts);
+            rulesManager = new AllRulesManagerView(IsIdentifiableOptions, opts);
 
             _info = new Label("Info")
             {

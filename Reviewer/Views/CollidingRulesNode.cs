@@ -1,5 +1,5 @@
-﻿using Microservices.IsIdentifiable.Reporting;
-using Microservices.IsIdentifiable.Rules;
+﻿using IsIdentifiable.Reporting;
+using IsIdentifiable.Rules;
 using System;
 using System.Collections.Generic;
 using Terminal.Gui;

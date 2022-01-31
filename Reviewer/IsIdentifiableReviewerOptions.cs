@@ -1,6 +1,5 @@
 using CommandLine;
 using IsIdentifiableReviewer.Out;
-using Smi.Common.Options;
 using System.IO;
 
 namespace IsIdentifiableReviewer
@@ -8,7 +7,7 @@ namespace IsIdentifiableReviewer
     /// <summary>
     /// CLI options for the reviewer
     /// </summary>
-    public class IsIdentifiableReviewerOptions : CliOptions
+    public class IsIdentifiableReviewerOptions
     {
         private const string DefaultTargets = "Targets.yaml";
 
@@ -64,26 +63,5 @@ namespace IsIdentifiableReviewer
         /// </summary>
         [Option("theme", HelpText = "Sets the user interface to use a specific color palette yaml file")]
         public FileInfo Theme { get; set; }
-
-
-        public virtual void FillMissingWithValuesUsing(IsIdentifiableReviewerGlobalOptions globalOpts)
-        {
-            // if we don't have a value for it yet
-            if (string.IsNullOrWhiteSpace(TargetsFile) || TargetsFile == DefaultTargets)
-                // and global configs has got a value for it
-                if(!string.IsNullOrWhiteSpace(globalOpts.TargetsFile))
-                    TargetsFile = globalOpts.TargetsFile; // use the globals config value
-
-            if (string.IsNullOrWhiteSpace(IgnoreList) || IgnoreList == IgnoreRuleGenerator.DefaultFileName)
-                if (!string.IsNullOrWhiteSpace(globalOpts.IgnoreList))
-                    IgnoreList = globalOpts.IgnoreList;
-
-            if (string.IsNullOrWhiteSpace(RedList) || RedList == RowUpdater.DefaultFileName)
-                if (!string.IsNullOrWhiteSpace(globalOpts.RedList))
-                    RedList = globalOpts.RedList;
-
-            if (Theme == null && !string.IsNullOrWhiteSpace(globalOpts.Theme))
-                Theme = new FileInfo(globalOpts.Theme);
-        }
     }
 }

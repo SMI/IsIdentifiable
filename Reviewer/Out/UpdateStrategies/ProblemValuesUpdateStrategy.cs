@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using FAnsi.Discovery;
-using Microservices.IsIdentifiable.Failures;
-using Microservices.IsIdentifiable.Reporting;
-using Microservices.IsIdentifiable.Rules;
+using IsIdentifiable.Failures;
+using IsIdentifiable.Reporting;
+using IsIdentifiable.Rules;
 
 namespace IsIdentifiableReviewer.Out.UpdateStrategies
 {

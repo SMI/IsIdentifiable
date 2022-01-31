@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using Microservices.IsIdentifiable.Reporting;
-using Microservices.IsIdentifiable.Rules;
+using IsIdentifiable.Reporting;
+using IsIdentifiable.Rules;
 
 namespace IsIdentifiableReviewer.Out
 {

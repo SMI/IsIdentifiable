@@ -4,11 +4,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using IsIdentifiableReviewer.Out;
-using Microservices.IsIdentifiable.Options;
-using Microservices.IsIdentifiable.Reporting;
-using Microservices.IsIdentifiable.Reporting.Destinations;
-using Microservices.IsIdentifiable.Reporting.Reports;
-using Microservices.IsIdentifiable.Rules;
+using IsIdentifiable.Options;
+using IsIdentifiable.Reporting;
+using IsIdentifiable.Reporting.Destinations;
+using IsIdentifiable.Reporting.Reports;
+using IsIdentifiable.Rules;
 using NLog;
 using NLog.Fluent;
 

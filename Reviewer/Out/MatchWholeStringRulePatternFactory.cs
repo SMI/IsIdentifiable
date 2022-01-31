@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using Microservices.IsIdentifiable.Reporting;
+using IsIdentifiable.Reporting;
 
 namespace IsIdentifiableReviewer.Out
 {

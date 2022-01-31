@@ -1,4 +1,4 @@
-﻿using Microservices.IsIdentifiable.Rules;
+﻿using IsIdentifiable.Rules;
 using System.Collections.Generic;
 using System.IO;
 using Terminal.Gui;

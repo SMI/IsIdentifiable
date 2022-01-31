@@ -1,4 +1,4 @@
-﻿using Microservices.IsIdentifiable.Rules;
+﻿using IsIdentifiable.Rules;
 using System;
 using System.Collections;
 using System.Collections.Generic;

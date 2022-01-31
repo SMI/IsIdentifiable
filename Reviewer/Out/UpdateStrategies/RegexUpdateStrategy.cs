@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using FAnsi.Discovery;
-using Microservices.IsIdentifiable.Reporting;
-using Microservices.IsIdentifiable.Rules;
+using IsIdentifiable.Reporting;
+using IsIdentifiable.Rules;
 
 namespace IsIdentifiableReviewer.Out.UpdateStrategies
 {

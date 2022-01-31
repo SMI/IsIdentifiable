@@ -1,5 +1,5 @@
-﻿using Microservices.IsIdentifiable.Failures;
-using Microservices.IsIdentifiable.Reporting;
+﻿using IsIdentifiable.Failures;
+using IsIdentifiable.Reporting;
 using Terminal.Gui;
 using Terminal.Gui.Trees;
 

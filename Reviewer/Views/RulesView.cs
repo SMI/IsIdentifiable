@@ -1,7 +1,7 @@
 ﻿using IsIdentifiableReviewer.Out;
-using Microservices.IsIdentifiable.Failures;
-using Microservices.IsIdentifiable.Reporting;
-using Microservices.IsIdentifiable.Rules;
+using IsIdentifiable.Failures;
+using IsIdentifiable.Reporting;
+using IsIdentifiable.Rules;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

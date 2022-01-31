@@ -1,6 +1,6 @@
 ﻿using FAnsi;
 using FAnsi.Discovery;
-using Microservices.IsIdentifiable.Reporting;
+using IsIdentifiable.Reporting;
 
 namespace IsIdentifiableReviewer
 {

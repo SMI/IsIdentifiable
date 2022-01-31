@@ -2,10 +2,13 @@
   <PropertyGroup>
     <AssemblyName>IsIdentifiable</AssemblyName>
     <OutputType>Library</OutputType>
-	  <TargetFramework>net5.0</TargetFramework>
+	<TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Rules.template.yaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="lib\libtesseract.so.4.0.1-centos7" Link="x64\libtesseract41.so">

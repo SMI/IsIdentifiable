@@ -1,4 +1,4 @@
-﻿using Microservices.IsIdentifiable.Reporting;
+﻿using IsIdentifiable.Reporting;
 
 namespace IsIdentifiableReviewer.Out
 {

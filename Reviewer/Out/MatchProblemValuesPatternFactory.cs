@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Microservices.IsIdentifiable.Failures;
-using Microservices.IsIdentifiable.Reporting;
+using IsIdentifiable.Failures;
+using IsIdentifiable.Reporting;
 
 namespace IsIdentifiableReviewer.Out
 {

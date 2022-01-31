@@ -1,5 +1,5 @@
 ﻿using IsIdentifiableReviewer.Out;
-using Microservices.IsIdentifiable.Rules;
+using IsIdentifiable.Rules;
 using Terminal.Gui;
 using Terminal.Gui.Trees;
 

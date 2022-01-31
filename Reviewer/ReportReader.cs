@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Microservices.IsIdentifiable.Reporting;
-using Microservices.IsIdentifiable.Reporting.Reports;
+using IsIdentifiable.Reporting;
+using IsIdentifiable.Reporting.Reports;
 
 namespace IsIdentifiableReviewer
 {

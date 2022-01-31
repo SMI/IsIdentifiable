@@ -1,5 +1,5 @@
 ﻿using IsIdentifiableReviewer.Out;
-using Microservices.IsIdentifiable.Rules;
+using IsIdentifiable.Rules;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;

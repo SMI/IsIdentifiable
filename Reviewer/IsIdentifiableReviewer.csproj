@@ -3,11 +3,15 @@
     <AssemblyName>IsIdentifiableReviewer</AssemblyName>
     <OutputType>Library</OutputType>
     <RootNamespace>IsIdentifiableReviewer</RootNamespace>
+	  <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="ExampleReport.csv" />
     <None Remove="Targets.yaml" />
     <None Remove="theme.yaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ExampleReport.csv">
@@ -24,6 +28,6 @@
     <PackageReference Include="Terminal.Gui" Version="1.4.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\microservices\Microservices.IsIdentifiable\Microservices.IsIdentifiable.csproj" />
+    <ProjectReference Include="..\IsIdentifiable\IsIdentifiable.csproj" />
   </ItemGroup>
 </Project>
