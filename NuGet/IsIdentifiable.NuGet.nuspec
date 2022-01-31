@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>HIC.IsIdentifiable</id>
+    <version>$version$</version>
+    <title>HIC.IsIdentifiable</title>
+    <authors>Health Informatics Centre - University of Dundee</authors>
+    <owners>Health Informatics Centre - University of Dundee</owners>
+    <projectUrl>https://github.com/HicServices/FAnsiSql</projectUrl>
+    <license type="expression">GPL-3.0-or-later</license>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Library for spotting identifiable data in flat files, dicom files and relational databases (Sql Server, My Sql, Oracle).</description>
+    <copyright>Copyright 2019</copyright>
+    <tags>Identifiable,Detection</tags>
+    <dependencies>
+	<!-- TODO -->
+      <group targetFramework=".NETStandard2.0">
+      <dependency id="Microsoft.Data.SqlClient" version="3.0.0" />
+      <dependency id="MySqlConnector" version="1.3.11" />
+      <dependency id="Oracle.ManagedDataAccess.Core" version="2.19.101" />
+      <dependency id="System.ComponentModel.Composition" version="5.0.0" />
+      <dependency id="HIC.TypeGuesser" version="1.0.2" />
+      <dependency id="Npgsql" version="5.0.7" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+	<!-- TODO -->
+    <file src="bin\$configuration$\netstandard2.0\FAnsi*.dll" target="lib\netstandard2.0" />
+    <file src="bin\$configuration$\netstandard2.0\FAnsi*.pdb" target="lib\netstandard2.0" />
+    <file src="bin\$configuration$\netstandard2.0\FAnsi*.xml" target="lib\netstandard2.0" />
+  </files>
+</package>
