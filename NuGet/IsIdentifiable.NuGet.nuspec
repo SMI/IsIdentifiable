@@ -13,21 +13,22 @@
     <copyright>Copyright 2019</copyright>
     <tags>Identifiable,Detection</tags>
     <dependencies>
-	<!-- TODO -->
-      <group targetFramework=".NETStandard2.0">
-      <dependency id="Microsoft.Data.SqlClient" version="3.0.0" />
-      <dependency id="MySqlConnector" version="1.3.11" />
-      <dependency id="Oracle.ManagedDataAccess.Core" version="2.19.101" />
-      <dependency id="System.ComponentModel.Composition" version="5.0.0" />
-      <dependency id="HIC.TypeGuesser" version="1.0.2" />
-      <dependency id="Npgsql" version="5.0.7" />
+      <group targetFramework="net6.0">
+		  <dependency id="CommandLineParser" version="2.8.0" />
+		  <dependency id="CsvHelper" version="27.2.1" />
+		  <dependency id="fo-dicom.Drawing" version="4.0.7" />
+		  <dependency id="HIC.DicomTypeTranslation" version="3.0.0" />
+		  <dependency id="HIC.FAnsiSql" version="2.0.1" />
+		  <dependency id="Magick.NET-Q16-AnyCPU" version="8.6.1" />
+		  <dependency id="Microsoft.Extensions.Caching.Memory" version="5.0.0" />
+		  <dependency id="NLog" version="4.7.13" />
+		  <dependency id="System.IO.Abstractions" version="16.1.4" />
+		  <dependency id="System.IO.FileSystem" version="4.3.0" />
+		  <dependency id="Tesseract" version="4.1.0-beta1" />
       </group>
     </dependencies>
   </metadata>
   <files>
-	<!-- TODO -->
-    <file src="bin\$configuration$\netstandard2.0\FAnsi*.dll" target="lib\netstandard2.0" />
-    <file src="bin\$configuration$\netstandard2.0\FAnsi*.pdb" target="lib\netstandard2.0" />
-    <file src="bin\$configuration$\netstandard2.0\FAnsi*.xml" target="lib\netstandard2.0" />
+    <file src="bin\$configuration$\net6.0\**" target="lib\net6.0" />
   </files>
 </package>
