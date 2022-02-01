@@ -27,7 +27,7 @@ namespace IsIdentifiable.Reporting.Destinations
         /// <param name="options"></param>
         /// <param name="reportName"></param>
         /// <param name="addTimestampToFilename">True to add the time to the CSV filename generated</param>
-        public CsvDestination(IsIdentifiableAbstractOptions options, string reportName,bool addTimestampToFilename = true)
+        public CsvDestination(IsIdentifiableBaseOptions options, string reportName,bool addTimestampToFilename = true)
             : base(options)
         {
             var destDir = new DirectoryInfo(Options.DestinationCsvFolder);
@@ -40,7 +40,7 @@ namespace IsIdentifiable.Reporting.Destinations
                 Path.Combine(destDir.FullName, reportName + ".csv");
         }
 
-        public CsvDestination(IsIdentifiableAbstractOptions options, FileInfo file):base(options)
+        public CsvDestination(IsIdentifiableBaseOptions options, FileInfo file):base(options)
         {
             _reportPath = file.FullName;
         }

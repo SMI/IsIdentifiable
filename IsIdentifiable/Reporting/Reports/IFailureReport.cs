@@ -9,7 +9,7 @@ namespace IsIdentifiable.Reporting.Reports
         /// Set the destination for the report, based on the given options
         /// </summary>
         /// <param name="options"></param>
-        void AddDestinations(IsIdentifiableAbstractOptions options);
+        void AddDestinations(IsIdentifiableBaseOptions options);
 
         /// <summary>
         /// Call to indicate that you have processed <paramref name="numberDone"/> since you last called this method

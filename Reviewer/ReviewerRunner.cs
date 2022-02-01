@@ -12,10 +12,10 @@ namespace IsIdentifiable
 {
     public class ReviewerRunner
     {
-        private readonly IsIdentifiableAbstractOptions _analyserOpts;
+        private readonly IsIdentifiableBaseOptions _analyserOpts;
         private readonly IsIdentifiableReviewerOptions _reviewerOptions;
 
-        public ReviewerRunner(IsIdentifiableAbstractOptions analyserOpts, IsIdentifiableReviewerOptions reviewerOptions)
+        public ReviewerRunner(IsIdentifiableBaseOptions analyserOpts, IsIdentifiableReviewerOptions reviewerOptions)
         {
             this._analyserOpts = analyserOpts;
             this._reviewerOptions = reviewerOptions;
@@ -119,12 +119,12 @@ namespace IsIdentifiable
                     //run interactive
                     Application.Init();
 
-                    if (_reviewerOptions.Theme != null && _reviewerOptions.Theme.Exists)
+                    if (_reviewerOptions.Theme != null && File.Exists(_reviewerOptions.Theme))
                     {
                         try
                         {
                             var des = new Deserializer();
-                            var theme = des.Deserialize<TerminalGuiTheme>(File.ReadAllText(_reviewerOptions.Theme.FullName));
+                            var theme = des.Deserialize<TerminalGuiTheme>(File.ReadAllText(_reviewerOptions.Theme));
 
                             Colors.Base = theme.Base.GetScheme();
                             Colors.Dialog = theme.Dialog.GetScheme();

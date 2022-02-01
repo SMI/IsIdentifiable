@@ -25,7 +25,7 @@ namespace IsIdentifiable.Reporting.Reports
         /// Creates report destinations. Can be overridden to add headers or to initialize the destination in some way.
         /// </summary>
         /// <param name="opts"></param>
-        public virtual void AddDestinations(IsIdentifiableAbstractOptions opts)
+        public virtual void AddDestinations(IsIdentifiableBaseOptions opts)
         {
             IReportDestination destination;
 

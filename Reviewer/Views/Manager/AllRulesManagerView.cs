@@ -19,13 +19,13 @@ namespace IsIdentifiableReviewer.Views.Manager
     {
         private const string Analyser = "Analyser Rules";
         private const string Reviewer = "Reviewer Rules";
-        private readonly IsIdentifiableAbstractOptions _analyserOpts;
+        private readonly IsIdentifiableBaseOptions _analyserOpts;
         private readonly IsIdentifiableReviewerOptions _reviewerOpts;
         private RuleDetailView detailView;
         private TreeView<object> treeView;
 
 
-        public AllRulesManagerView(IsIdentifiableAbstractOptions analyserOpts , IsIdentifiableReviewerOptions reviewerOpts)
+        public AllRulesManagerView(IsIdentifiableBaseOptions analyserOpts , IsIdentifiableReviewerOptions reviewerOpts)
         {
             Width = Dim.Fill();
             Height = Dim.Fill();
@@ -167,8 +167,6 @@ namespace IsIdentifiableReviewer.Views.Manager
 
         public bool SupportsCanExpand => true;
 
-        public IsIdentifiableAbstractOptions AnalyserOpts => _analyserOpts;
-
         public bool CanExpand(object toExpand)
         {
             // These are the things that cannot be expanded upon
@@ -200,7 +198,7 @@ namespace IsIdentifiableReviewer.Views.Manager
         {
             if(ReferenceEquals(forObject,Analyser))
             {
-                if(!string.IsNullOrWhiteSpace(_analyserOpts.RulesDirectory))
+                if(!string.IsNullOrWhiteSpace(_analyserOpts?.RulesDirectory))
                 {
                     foreach (var f in Directory.GetFiles(_analyserOpts.RulesDirectory,"*.yaml"))
                     {
@@ -208,7 +206,7 @@ namespace IsIdentifiableReviewer.Views.Manager
                     }
                 }
 
-                if (!string.IsNullOrWhiteSpace(_analyserOpts.RulesFile))
+                if (!string.IsNullOrWhiteSpace(_analyserOpts?.RulesFile))
                 {
                     yield return new RuleSetFileNode(new FileInfo(_analyserOpts.RulesFile));
                 }

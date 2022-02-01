@@ -5,7 +5,7 @@ using CommandLine;
 namespace IsIdentifiable.Options
 {
     [Verb("file", HelpText = "Run tool on delimited textual data file e.g. csv")]
-    public class IsIdentifiableFileOptions : IsIdentifiableAbstractOptions
+    public class IsIdentifiableFileOptions : IsIdentifiableBaseOptions
     {
         
         [Option('f', HelpText = "Path to a file to be evaluated", Required = true)]

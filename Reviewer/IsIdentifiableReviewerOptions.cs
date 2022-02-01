@@ -1,5 +1,6 @@
 using CommandLine;
 using IsIdentifiableReviewer.Out;
+using System;
 using System.IO;
 
 namespace IsIdentifiableReviewer
@@ -63,6 +64,35 @@ namespace IsIdentifiableReviewer
         /// Sets the user interface to use a specific color palette yaml file
         /// </summary>
         [Option("theme", HelpText = "Sets the user interface to use a specific color palette yaml file")]
-        public FileInfo Theme { get; set; }
+        public string Theme { get; set; }
+
+
+        /// <summary>
+        /// Populates values in this instance where no value yet exists and there is a value in <paramref name="globalOpts"/>
+        /// to inherit.
+        /// </summary>
+        /// <param name="globalOpts"></param>
+        public virtual void InheritValuesFrom(IsIdentifiableReviewerOptions globalOpts)
+        {
+            if(globalOpts == null)
+                throw new ArgumentNullException(nameof(globalOpts));
+
+            // if we don't have a value for it yet
+            if (string.IsNullOrWhiteSpace(TargetsFile) || TargetsFile == DefaultTargets)
+                // and global configs has got a value for it
+                if (!string.IsNullOrWhiteSpace(globalOpts.TargetsFile))
+                    TargetsFile = globalOpts.TargetsFile; // use the globals config value
+
+            if (string.IsNullOrWhiteSpace(IgnoreList) || IgnoreList == IgnoreRuleGenerator.DefaultFileName)
+                if (!string.IsNullOrWhiteSpace(globalOpts.IgnoreList))
+                    IgnoreList = globalOpts.IgnoreList;
+
+            if (string.IsNullOrWhiteSpace(RedList) || RedList == RowUpdater.DefaultFileName)
+                if (!string.IsNullOrWhiteSpace(globalOpts.RedList))
+                    RedList = globalOpts.RedList;
+
+            if (Theme == null && !string.IsNullOrWhiteSpace(globalOpts.Theme))
+                Theme = globalOpts.Theme;
+        }
     }
 }

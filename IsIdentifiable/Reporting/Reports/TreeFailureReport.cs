@@ -31,7 +31,7 @@ namespace IsIdentifiable.Reporting.Reports
             _reportAggregateCounts = reportAggregateCounts;
         }
 
-        public override void AddDestinations(IsIdentifiableAbstractOptions opts)
+        public override void AddDestinations(IsIdentifiableBaseOptions opts)
         {
             base.AddDestinations(opts);
             Destinations.ForEach(d => d.WriteHeader(_headerRow));

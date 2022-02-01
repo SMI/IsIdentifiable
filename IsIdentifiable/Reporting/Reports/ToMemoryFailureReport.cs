@@ -8,7 +8,7 @@ namespace IsIdentifiable.Reporting.Reports
         public List<Failure> Failures { get; } = new List<Reporting.Failure>();
 
 
-        public void AddDestinations(IsIdentifiableAbstractOptions options)
+        public void AddDestinations(IsIdentifiableBaseOptions options)
         {
             
         }

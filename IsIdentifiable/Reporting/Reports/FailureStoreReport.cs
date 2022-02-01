@@ -41,7 +41,7 @@ namespace IsIdentifiable.Reporting.Reports
             _maxSize = maxSize;
         }
 
-        public override void AddDestinations(IsIdentifiableAbstractOptions opts)
+        public override void AddDestinations(IsIdentifiableBaseOptions opts)
         {
             base.AddDestinations(opts);
             Destinations.ForEach(d => d.WriteHeader((from dc in _dtAllFailures.Columns.Cast<DataColumn>() select dc.ColumnName).ToArray()));

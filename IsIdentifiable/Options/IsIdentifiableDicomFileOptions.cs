@@ -7,7 +7,7 @@ using CommandLine.Text;
 namespace IsIdentifiable.Options
 {
     [Verb("dir",HelpText = "Run tool on one or more dicom files and evaluate tag contents")]
-    public class IsIdentifiableDicomFileOptions : IsIdentifiableAbstractOptions
+    public class IsIdentifiableDicomFileOptions : IsIdentifiableBaseOptions
     {
         [Option('d', HelpText = "Directory in which to recursively search for dicom files", Required = true)]
         public string Directory { get; set; }

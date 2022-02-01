@@ -7,16 +7,32 @@ using FAnsi.Implementations.PostgreSql;
 using IsIdentifiable.Options;
 using IsIdentifiable.Runners;
 using IsIdentifiableReviewer;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+using YamlDotNet.Serialization;
 
 namespace IsIdentifiable
 {
     public static class Program
     {
+        const string SettingsFile = "ii-settings.yaml";
+        static GlobalOptions GlobalOptions;
+
         public static int Main(string[] args)
         {
+            
+            if(File.Exists(SettingsFile))
+            {
+                try
+                {
+                    var d = new Deserializer();
+                    GlobalOptions = d.Deserialize<GlobalOptions>(File.ReadAllText(SettingsFile));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Could not deserialize {SettingsFile}:{ex}");
+                    return 1;
+                }
+            }
+
             ParserSettings defaults = Parser.Default.Settings;
             var parser = new Parser(settings =>
             {
@@ -46,12 +62,17 @@ namespace IsIdentifiable
 
         private static int Run(IsIdentifiableReviewerOptions opts)
         {
-            var reviewer = new ReviewerRunner(null, opts);
+            Inherit(opts);
+
+            var reviewer = new ReviewerRunner(GlobalOptions?.IsIdentifiableOptions, opts);
             return reviewer.Run();
         }
 
+
         private static int Run(IsIdentifiableDicomFileOptions opts)
         {
+            Inherit(opts);
+
             using (var runner = new DicomFileRunner(opts))
                 return runner.Run();
         }
@@ -63,13 +84,32 @@ namespace IsIdentifiable
             ImplementationManager.Load<PostgreSqlImplementation>();
             ImplementationManager.Load<OracleImplementation>();
 
+            Inherit(opts);
+
             using (var runner = new DatabaseRunner(opts))
                 return runner.Run();
         }
         private static int Run(IsIdentifiableFileOptions opts)
         {
+            Inherit(opts);
+
             using (var runner = new FileRunner(opts))
                 return runner.Run();
         }
+        private static void Inherit(IsIdentifiableReviewerOptions opts)
+        {
+            if(GlobalOptions?.IsIdentifiableReviewerOptions != null)
+            {
+                opts.InheritValuesFrom(GlobalOptions.IsIdentifiableReviewerOptions);
+            }
+        }
+        private static void Inherit(IsIdentifiableBaseOptions opts)
+        {
+            if (GlobalOptions?.IsIdentifiableOptions != null)
+            {
+                opts.InheritValuesFrom(GlobalOptions.IsIdentifiableOptions);
+            }
+        }
+
     }
 }

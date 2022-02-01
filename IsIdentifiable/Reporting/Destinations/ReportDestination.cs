@@ -6,12 +6,12 @@ namespace IsIdentifiable.Reporting.Destinations
 {
     public abstract class ReportDestination : IReportDestination
     {
-        protected IsIdentifiableAbstractOptions Options { get; }
+        protected IsIdentifiableBaseOptions Options { get; }
 
         private readonly Regex _multiSpaceRegex = new Regex(" {2,}");
 
 
-        protected ReportDestination(IsIdentifiableAbstractOptions options)
+        protected ReportDestination(IsIdentifiableBaseOptions options)
         {
             Options = options;
         }
@@ -23,15 +23,13 @@ namespace IsIdentifiable.Reporting.Destinations
         public virtual void Dispose() { }
 
         /// <summary>
-        /// Returns o with whitespace stripped (if it is a string and <see cref="IsIdentifiableAbstractOptions.DestinationNoWhitespace"/> is set on command line options).
+        /// Returns o with whitespace stripped (if it is a string and <see cref="IsIdentifiableBaseOptions.DestinationNoWhitespace"/> is set on command line options).
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
         protected object StripWhitespace(object o)
         {
-            var s = o as string;
-
-            if (s != null && Options.DestinationNoWhitespace)
+            if (o is string s && (Options.DestinationNoWhitespace ?? false))
                 return _multiSpaceRegex.Replace(s.Replace("\t", "").Replace("\r", "").Replace("\n", ""), " ");
 
             return o;

@@ -10,10 +10,16 @@ namespace IsIdentifiable.Reporting.Destinations
         private readonly string _reportName;
         private DiscoveredTable _tbl;
 
-        public DatabaseDestination(IsIdentifiableAbstractOptions options, string reportName)
+        public DatabaseDestination(IsIdentifiableBaseOptions options, string reportName)
             : base(options)
         {
-            var targetDatabase = new DiscoveredServer(options.DestinationConnectionString, options.DestinationDatabaseType).GetCurrentDatabase();
+
+            if(options.DestinationDatabaseType == null)
+            {
+                throw new Exception($"{nameof(IsIdentifiableBaseOptions.DestinationDatabaseType)} must be specified to use this destination (it was null)");
+            }
+
+            var targetDatabase = new DiscoveredServer(options.DestinationConnectionString, options.DestinationDatabaseType.Value).GetCurrentDatabase();
 
             if (!targetDatabase.Exists())
                 throw new Exception("Destination database did not exist");
@@ -45,12 +51,13 @@ namespace IsIdentifiable.Reporting.Destinations
 
         private void StripWhiteSpace(DataTable items)
         {
-            if (!Options.DestinationNoWhitespace)
-                return;
+            if (Options.DestinationNoWhitespace ?? false)
+            {
+                foreach (DataRow row in items.Rows)
+                    foreach (DataColumn col in items.Columns)
+                        row[col] = StripWhitespace(row[col]);
+            }
 
-            foreach (DataRow row in items.Rows)
-                foreach (DataColumn col in items.Columns)
-                    row[col] = StripWhitespace(row[col]);
         }
     }
 }

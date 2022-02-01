@@ -7,7 +7,7 @@ namespace IsIdentifiable.Options
 {
 
     [Verb("db", HelpText = "Run tool on data held in a relational database table")]
-    public class IsIdentifiableRelationalDatabaseOptions : IsIdentifiableAbstractOptions
+    public class IsIdentifiableRelationalDatabaseOptions : IsIdentifiableBaseOptions
     {
         [Option('d', HelpText = "Full connection string to the database storing the table to be evaluated", Required = true)]
         public string DatabaseConnectionString { get; set; }

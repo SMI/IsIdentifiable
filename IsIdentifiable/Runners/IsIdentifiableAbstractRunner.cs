@@ -22,7 +22,7 @@ namespace IsIdentifiable.Runners
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IsIdentifiableAbstractOptions _opts;
+        private readonly IsIdentifiableBaseOptions _opts;
 
         public readonly List<IFailureReport> Reports = new List<IFailureReport>();
 
@@ -75,7 +75,7 @@ namespace IsIdentifiable.Runners
 
         /// <summary>
         /// List of columns/tags which should not be processed.  This is automatically handled by the <see cref="Validate"/> method.
-        /// <para>This is a case insensitive hash collection based on <see cref="IsIdentifiableAbstractOptions.SkipColumns"/></para>
+        /// <para>This is a case insensitive hash collection based on <see cref="IsIdentifiableBaseOptions.SkipColumns"/></para>
         /// </summary>
         private readonly HashSet<string> _skipColumns = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
 
@@ -121,23 +121,23 @@ namespace IsIdentifiable.Runners
         /// </summary>
         private Stopwatch _lifetime {get;}
 
-        protected IsIdentifiableAbstractRunner(IsIdentifiableAbstractOptions opts)
+        protected IsIdentifiableAbstractRunner(IsIdentifiableBaseOptions opts)
         {
             _lifetime = Stopwatch.StartNew();
             _opts = opts;
             _opts.ValidateOptions();
-            MaxValidationCacheSize = opts.MaxValidationCacheSize;
+            MaxValidationCacheSize = opts.MaxValidationCacheSize ?? IsIdentifiableBaseOptions.MaxValidationCacheSizeDefault;
 
             string targetName = _opts.GetTargetName();
 
-            if (opts.ColumnReport)
+            if (opts.ColumnReport ?? false)
                 Reports.Add(new ColumnFailureReport(targetName));
 
-            if (opts.ValuesReport)
+            if (opts.ValuesReport ?? false)
                 Reports.Add(new FailingValuesReport(targetName));
 
-            if (opts.StoreReport)
-                Reports.Add(new FailureStoreReport(targetName, _opts.MaxCacheSize));
+            if (opts.StoreReport ?? false)
+                Reports.Add(new FailureStoreReport(targetName, _opts.MaxCacheSize ?? IsIdentifiableBaseOptions.MaxCacheSizeDefault));
             
             if (!Reports.Any())
                 throw new Exception("No reports have been specified, use the relevant command line flag e.g. --ColumnReport");
@@ -371,11 +371,11 @@ namespace IsIdentifiable.Runners
             foreach (Match m in _chiRegex.Matches(fieldValue))
                 yield return new FailurePart(m.Value, FailureClassification.PrivateIdentifier, m.Index);
 
-            if (!_opts.IgnorePostcodes)
+            if (!(_opts.IgnorePostcodes ?? false))
                 foreach (Match m in _postcodeRegex.Matches(fieldValue))
                     yield return new FailurePart(m.Value, FailureClassification.Postcode, m.Index);
 
-            if (!_opts.IgnoreDatesInText)
+            if (!(_opts.IgnoreDatesInText ?? false))
             {
                 foreach (Match m in _dateYearFirst.Matches(fieldValue))
                     yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
@@ -434,10 +434,10 @@ namespace IsIdentifiable.Runners
                 source = new CsvWhitelist(_opts.WhitelistCsv);
                 _logger.Info($"Loaded a whitelist from {Path.GetFullPath(_opts.WhitelistCsv)}");
             }
-            else if (!string.IsNullOrWhiteSpace(_opts.WhitelistConnectionString))
+            else if (!string.IsNullOrWhiteSpace(_opts.WhitelistConnectionString) && _opts.WhitelistDatabaseType.HasValue)
             {
                 // If there's a database whitelist
-                DiscoveredTable tbl = GetServer(_opts.WhitelistConnectionString, _opts.WhitelistDatabaseType, _opts.WhitelistTableName);
+                DiscoveredTable tbl = GetServer(_opts.WhitelistConnectionString, _opts.WhitelistDatabaseType.Value, _opts.WhitelistTableName);
                 DiscoveredColumn col = tbl.DiscoverColumn(_opts.WhitelistColumn);
                 source = new DiscoveredColumnWhitelist(col);
                 _logger.Info($"Loaded a whitelist from {tbl.GetFullyQualifiedName()}");

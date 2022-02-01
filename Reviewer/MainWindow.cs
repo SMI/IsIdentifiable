@@ -87,7 +87,7 @@ G - creates a regex pattern that matches only the failing part(s)
 \c - replaces all characters with regex wildcards
 \d\c - replaces all digits and characters with regex wildcards";
 
-        public MainWindow(IsIdentifiableAbstractOptions analyserOpts, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
+        public MainWindow(IsIdentifiableBaseOptions analyserOpts, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             Ignorer = ignorer;
             Updater = updater;

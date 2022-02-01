@@ -54,7 +54,7 @@ namespace IsIdentifiable.Options
         {
             base.ValidateOptions();
 
-            if (ColumnReport)
+            if (ColumnReport ?? false)
                 throw new Exception("ColumnReport can't be generated from a MongoDB source");
         }
     }
