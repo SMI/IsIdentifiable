@@ -7,6 +7,7 @@ namespace IsIdentifiableReviewer
     /// <summary>
     /// CLI options for the reviewer
     /// </summary>
+    [Verb("review",HelpText = "Review or redact the StoreReport output of an IsIdentifiable run")]
     public class IsIdentifiableReviewerOptions
     {
         private const string DefaultTargets = "Targets.yaml";

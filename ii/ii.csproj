@@ -8,11 +8,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="ExampleReport.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="ExampleReport.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\IsIdentifiable\IsIdentifiable.csproj" />
+    <ProjectReference Include="..\Reviewer\IsIdentifiableReviewer.csproj" />
   </ItemGroup>
 
 </Project>

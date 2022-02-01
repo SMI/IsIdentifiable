@@ -1,6 +1,5 @@
 ﻿using IsIdentifiableReviewer.Out;
 using IsIdentifiable.Rules;
-using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Terminal.Gui;
 using Terminal.Gui.Trees;
+using IsIdentifiable.Options;
 
 namespace IsIdentifiableReviewer.Views.Manager
 {
@@ -19,13 +19,13 @@ namespace IsIdentifiableReviewer.Views.Manager
     {
         private const string Analyser = "Analyser Rules";
         private const string Reviewer = "Reviewer Rules";
-        private readonly IsIdentifiableOptions _analyserOpts;
+        private readonly IsIdentifiableAbstractOptions _analyserOpts;
         private readonly IsIdentifiableReviewerOptions _reviewerOpts;
         private RuleDetailView detailView;
         private TreeView<object> treeView;
 
 
-        public AllRulesManagerView(IsIdentifiableOptions analyserOpts , IsIdentifiableReviewerOptions reviewerOpts)
+        public AllRulesManagerView(IsIdentifiableAbstractOptions analyserOpts , IsIdentifiableReviewerOptions reviewerOpts)
         {
             Width = Dim.Fill();
             Height = Dim.Fill();
@@ -167,7 +167,7 @@ namespace IsIdentifiableReviewer.Views.Manager
 
         public bool SupportsCanExpand => true;
 
-        public IsIdentifiableOptions AnalyserOpts => _analyserOpts;
+        public IsIdentifiableAbstractOptions AnalyserOpts => _analyserOpts;
 
         public bool CanExpand(object toExpand)
         {

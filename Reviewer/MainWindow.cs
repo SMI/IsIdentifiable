@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
 using IsIdentifiableReviewer.Out;
 using IsIdentifiableReviewer.Views;
@@ -86,7 +87,7 @@ G - creates a regex pattern that matches only the failing part(s)
 \c - replaces all characters with regex wildcards
 \d\c - replaces all digits and characters with regex wildcards";
 
-        public MainWindow(IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
+        public MainWindow(IsIdentifiableAbstractOptions analyserOpts, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
         {
             Ignorer = ignorer;
             Updater = updater;
@@ -106,7 +107,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
             var viewMain = new View() { Width = Dim.Fill(), Height = Dim.Fill() };
             rulesView = new RulesView();
-            rulesManager = new AllRulesManagerView(IsIdentifiableOptions, opts);
+            rulesManager = new AllRulesManagerView(analyserOpts, opts);
 
             _info = new Label("Info")
             {

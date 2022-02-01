@@ -6,6 +6,7 @@ using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
 using IsIdentifiable.Options;
 using IsIdentifiable.Runners;
+using IsIdentifiableReviewer;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -31,17 +32,25 @@ namespace IsIdentifiable
             var res = parser.ParseArguments<IsIdentifiableRelationalDatabaseOptions,
                 IsIdentifiableDicomFileOptions,
                 IsIdentifiableMongoOptions,
-                IsIdentifiableFileOptions>(args)
+                IsIdentifiableFileOptions,
+                IsIdentifiableReviewerOptions>(args)
                 .MapResult(
                           (IsIdentifiableRelationalDatabaseOptions o) => Run(o),
                           (IsIdentifiableDicomFileOptions o) => Run(o),
                           (IsIdentifiableFileOptions o) => Run(o),
+                          (IsIdentifiableReviewerOptions o) => Run(o),
                 errors => 1);
             
             return res;
         }
 
-       private static int Run(IsIdentifiableDicomFileOptions opts)
+        private static int Run(IsIdentifiableReviewerOptions opts)
+        {
+            var reviewer = new ReviewerRunner(null, opts);
+            return reviewer.Run();
+        }
+
+        private static int Run(IsIdentifiableDicomFileOptions opts)
         {
             using (var runner = new DicomFileRunner(opts))
                 return runner.Run();
