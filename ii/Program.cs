@@ -14,7 +14,7 @@ namespace IsIdentifiable
     public static class Program
     {
         const string SettingsFile = "ii-settings.yaml";
-        static GlobalOptions GlobalOptions;
+        static GlobalOptions? GlobalOptions;
 
         public static int Main(string[] args)
         {

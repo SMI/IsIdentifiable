@@ -3,6 +3,7 @@
     <AssemblyName>IsIdentifiable</AssemblyName>
     <OutputType>Library</OutputType>
 	<TargetFramework>net6.0</TargetFramework>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Rules.template.yaml" />
@@ -37,5 +38,8 @@
     <PackageReference Include="System.IO.Abstractions" Version="16.1.4" />
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
     <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
 </Project>
