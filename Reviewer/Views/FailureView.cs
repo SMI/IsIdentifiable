@@ -12,17 +12,8 @@ namespace IsIdentifiableReviewer.Views
     {
         Attribute _attNormal;
         Attribute _attHighlight;
-        private Failure _currentFailure;
 
-        public Failure CurrentFailure
-        {
-            get => _currentFailure;
-            set
-            {
-                _currentFailure = value;
-                TriggerTerminalResized();
-            }
-        }
+        public Failure CurrentFailure { get; set; }
 
 
         public FailureView()
@@ -103,10 +94,6 @@ namespace IsIdentifiableReviewer.Views
                 Driver.AddStr(classification + field);
             }
 
-        }
-        private void TriggerTerminalResized()
-        {
-            typeof(Application).GetMethod("TerminalResized", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, null);
         }
     }
 }
