@@ -105,7 +105,7 @@ namespace IsIdentifiableTests.ServiceTests
 
         private object GetTestValue(System.Reflection.PropertyInfo gProp)
         {
-            if(gProp.PropertyType == typeof(int))
+            if(gProp.PropertyType == typeof(int) || Nullable.GetUnderlyingType(gProp.PropertyType) == typeof(int))
             {
                 return 5123;
             }
@@ -114,12 +114,12 @@ namespace IsIdentifiableTests.ServiceTests
             {
                 return "troll doll!";
             }
-            if (gProp.PropertyType == typeof(bool))
+            if (gProp.PropertyType == typeof(bool) || Nullable.GetUnderlyingType(gProp.PropertyType) == typeof(bool))
             {
                 return true;
             }
 
-            if (gProp.PropertyType == typeof(DatabaseType))
+            if (gProp.PropertyType == typeof(DatabaseType) || Nullable.GetUnderlyingType(gProp.PropertyType) == typeof(DatabaseType))
             {
                 return DatabaseType.MySql;
             }
@@ -129,7 +129,7 @@ namespace IsIdentifiableTests.ServiceTests
         }
         private object GetTestValue2(System.Reflection.PropertyInfo gProp)
         {
-            if (gProp.PropertyType == typeof(int))
+            if (gProp.PropertyType == typeof(int) || Nullable.GetUnderlyingType(gProp.PropertyType) == typeof(int))
             {
                 return 66456;
             }
@@ -138,12 +138,12 @@ namespace IsIdentifiableTests.ServiceTests
             {
                 return "rylyly?";
             }
-            if (gProp.PropertyType == typeof(bool))
+            if (gProp.PropertyType == typeof(bool) || Nullable.GetUnderlyingType(gProp.PropertyType) == typeof(bool))
             {
                 return false;
             }
 
-            if (gProp.PropertyType == typeof(DatabaseType))
+            if (gProp.PropertyType == typeof(DatabaseType) || Nullable.GetUnderlyingType(gProp.PropertyType) == typeof(DatabaseType))
             {
                 return DatabaseType.Oracle;
             }

@@ -101,7 +101,7 @@ namespace IsIdentifiable.Options
             if (string.IsNullOrWhiteSpace(WhitelistConnectionString))
                 WhitelistConnectionString = globalOpts.WhitelistConnectionString;
 
-            if (WhitelistDatabaseType == default(DatabaseType) && globalOpts.WhitelistDatabaseType.HasValue)
+            if (WhitelistDatabaseType == null && globalOpts.WhitelistDatabaseType.HasValue)
                 WhitelistDatabaseType = globalOpts.WhitelistDatabaseType.Value;
 
             if (string.IsNullOrWhiteSpace(WhitelistTableName))
@@ -113,13 +113,13 @@ namespace IsIdentifiable.Options
             if (string.IsNullOrWhiteSpace(WhitelistCsv))
                 WhitelistCsv = globalOpts.WhitelistCsv;
 
-            if (ColumnReport == default(bool) && globalOpts.ColumnReport.HasValue)
+            if (ColumnReport == null && globalOpts.ColumnReport.HasValue)
                 ColumnReport = globalOpts.ColumnReport.Value;
 
-            if (ValuesReport == default(bool) && globalOpts.ValuesReport.HasValue)
+            if (ValuesReport == null && globalOpts.ValuesReport.HasValue)
                 ValuesReport = globalOpts.ValuesReport.Value;
 
-            if (StoreReport == default(bool) && globalOpts.StoreReport.HasValue)
+            if (StoreReport == null && globalOpts.StoreReport.HasValue)
                 StoreReport = globalOpts.StoreReport.Value;
 
             if (string.IsNullOrWhiteSpace(DestinationCsvFolder))
@@ -128,22 +128,22 @@ namespace IsIdentifiable.Options
             if (string.IsNullOrWhiteSpace(DestinationCsvSeparator))
                 DestinationCsvSeparator = globalOpts.DestinationCsvSeparator;
 
-            if (DestinationNoWhitespace == default(bool) && globalOpts.DestinationNoWhitespace.HasValue)
+            if (DestinationNoWhitespace == null && globalOpts.DestinationNoWhitespace.HasValue)
                 DestinationNoWhitespace = globalOpts.DestinationNoWhitespace.Value;
 
             if (string.IsNullOrWhiteSpace(DestinationConnectionString))
                 DestinationConnectionString = globalOpts.DestinationConnectionString;
 
-            if (DestinationDatabaseType == default(DatabaseType) && globalOpts.DestinationDatabaseType.HasValue)
+            if (DestinationDatabaseType == null && globalOpts.DestinationDatabaseType.HasValue)
                 DestinationDatabaseType = globalOpts.DestinationDatabaseType.Value;
 
-            if (IgnorePostcodes == default(bool) && globalOpts.IgnorePostcodes.HasValue)
+            if (IgnorePostcodes == null && globalOpts.IgnorePostcodes.HasValue)
                 IgnorePostcodes = globalOpts.IgnorePostcodes.Value;
 
             if (string.IsNullOrWhiteSpace(SkipColumns))
                 SkipColumns = globalOpts.SkipColumns;
 
-            if (IgnoreDatesInText == default(bool) && globalOpts.IgnoreDatesInText.HasValue)
+            if (IgnoreDatesInText == null && globalOpts.IgnoreDatesInText.HasValue)
                 IgnoreDatesInText = globalOpts.IgnoreDatesInText.Value;
 
             if (MaxCacheSize == MaxCacheSizeDefault && globalOpts.MaxCacheSize.HasValue)

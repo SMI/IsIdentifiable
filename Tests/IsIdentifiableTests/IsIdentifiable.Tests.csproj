@@ -22,4 +22,9 @@
     <ProjectReference Include="..\..\IsIdentifiable\IsIdentifiable.csproj" />
     <ProjectReference Include="..\..\Reviewer\IsIdentifiableReviewer.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="TestDatabases.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

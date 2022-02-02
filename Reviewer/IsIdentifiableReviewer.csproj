@@ -8,7 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Targets.yaml" />
-    <None Remove="theme.template.yaml" />
+    <None Remove="theme.yaml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
@@ -17,7 +17,7 @@
     <Content Include="Targets.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="theme.template.yaml">
+    <Content Include="theme.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
