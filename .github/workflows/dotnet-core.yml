@@ -47,6 +47,8 @@ jobs:
       run: sudo -E /opt/mssql/bin/mssql-conf -n setup accept-eula
     - name: Install dependencies
       run: dotnet restore
+    - name: Fetch tessdata
+      run: ./data/tessdata/download.sh
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Test

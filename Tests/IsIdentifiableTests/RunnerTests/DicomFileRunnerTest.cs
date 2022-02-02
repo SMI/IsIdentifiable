@@ -15,7 +15,7 @@ namespace IsIdentifiableTests.RunnerTests
     {
         #region Fixture Methods
 
-        private const string DataDirectory = @"../../../../../../../data/";
+        private const string DataDirectory = @"../../../../../data/";
         private DirectoryInfo _tessDir;
 
         [OneTimeSetUp]
