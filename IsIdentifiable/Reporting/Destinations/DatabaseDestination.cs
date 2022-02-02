@@ -51,7 +51,7 @@ namespace IsIdentifiable.Reporting.Destinations
 
         private void StripWhiteSpace(DataTable items)
         {
-            if (Options.DestinationNoWhitespace ?? false)
+            if (Options.DestinationNoWhitespace)
             {
                 foreach (DataRow row in items.Rows)
                     foreach (DataColumn col in items.Columns)

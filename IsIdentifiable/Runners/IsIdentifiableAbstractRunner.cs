@@ -130,13 +130,13 @@ namespace IsIdentifiable.Runners
 
             string targetName = _opts.GetTargetName();
 
-            if (opts.ColumnReport ?? false)
+            if (opts.ColumnReport)
                 Reports.Add(new ColumnFailureReport(targetName));
 
-            if (opts.ValuesReport ?? false)
+            if (opts.ValuesReport)
                 Reports.Add(new FailingValuesReport(targetName));
 
-            if (opts.StoreReport ?? false)
+            if (opts.StoreReport)
                 Reports.Add(new FailureStoreReport(targetName, _opts.MaxCacheSize ?? IsIdentifiableBaseOptions.MaxCacheSizeDefault));
             
             if (!Reports.Any())
@@ -371,11 +371,11 @@ namespace IsIdentifiable.Runners
             foreach (Match m in _chiRegex.Matches(fieldValue))
                 yield return new FailurePart(m.Value, FailureClassification.PrivateIdentifier, m.Index);
 
-            if (!(_opts.IgnorePostcodes ?? false))
+            if (!_opts.IgnorePostcodes)
                 foreach (Match m in _postcodeRegex.Matches(fieldValue))
                     yield return new FailurePart(m.Value, FailureClassification.Postcode, m.Index);
 
-            if (!(_opts.IgnoreDatesInText ?? false))
+            if (!_opts.IgnoreDatesInText)
             {
                 foreach (Match m in _dateYearFirst.Matches(fieldValue))
                     yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);

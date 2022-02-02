@@ -25,13 +25,13 @@ namespace IsIdentifiable.Options
         public string WhitelistCsv { get; set; }
 
         [Option(HelpText = "Optional. Generate a report on the proportion of values failing validation (for each column)")]
-        public bool? ColumnReport { get; set; }
+        public bool ColumnReport { get; set; }
 
         [Option(HelpText = "Optional. Generate a report listing every unique value failing validation (and the column the value failed in)")]
-        public bool? ValuesReport { get; set; }
+        public bool ValuesReport { get; set; }
 
         [Option(HelpText = "Optional. Generate a full failure storage report that persists Failure objects in a manner that they can be retrieved.")]
-        public bool? StoreReport { get; set; }
+        public bool StoreReport { get; set; }
 
         [Option(HelpText = "Optional - If specified reports will be generated in the given folder.  If not specified, current directory is used (unless an alternate destination option is picked)")]
         public string DestinationCsvFolder { get; set; }
@@ -40,7 +40,7 @@ namespace IsIdentifiable.Options
         public string DestinationCsvSeparator { get; set; }
 
         [Option(HelpText = @"Optional - If specified all tabs, newlines (\r and \n) and 2+ spaces will be stripped from the values written as output (applies to all output formats)")]
-        public bool? DestinationNoWhitespace { get; set; }
+        public bool DestinationNoWhitespace { get; set; }
 
         [Option(HelpText = "Optional. Full connection string to the database in which to store the report results")]
         public string DestinationConnectionString { get; set; }
@@ -49,13 +49,13 @@ namespace IsIdentifiable.Options
         public DatabaseType? DestinationDatabaseType { get; set; }
 
         [Option(HelpText = "Optional. If specified postcodes will not be reported as failures")]
-        public bool? IgnorePostcodes { get; set; }
+        public bool IgnorePostcodes { get; set; }
 
         [Option(HelpText = "Optional. Comma separated list of columns/tags which should be ignored and not processed")]
         public string SkipColumns { get; set; }
 
         [Option(HelpText = "Optional. If set and using a 7 class NER model then DATE and TIME objects will not be considered failures.")]
-        public bool? IgnoreDatesInText { get; set; }
+        public bool IgnoreDatesInText { get; set; }
 
         [Option(HelpText = "Optional. Set to control the max size of the in-memory store of processed before the get written out to any destinations. Only makes sense for reports that don't perform any aggregation across the data", Default = MaxCacheSizeDefault)]
         public int? MaxCacheSize { get; set; } = MaxCacheSizeDefault;
@@ -113,14 +113,14 @@ namespace IsIdentifiable.Options
             if (string.IsNullOrWhiteSpace(WhitelistCsv))
                 WhitelistCsv = globalOpts.WhitelistCsv;
 
-            if (ColumnReport == null && globalOpts.ColumnReport.HasValue)
-                ColumnReport = globalOpts.ColumnReport.Value;
+            if (globalOpts.ColumnReport)
+                ColumnReport = true;
 
-            if (ValuesReport == null && globalOpts.ValuesReport.HasValue)
-                ValuesReport = globalOpts.ValuesReport.Value;
+            if (globalOpts.ValuesReport)
+                ValuesReport = true;
 
-            if (StoreReport == null && globalOpts.StoreReport.HasValue)
-                StoreReport = globalOpts.StoreReport.Value;
+            if (globalOpts.StoreReport)
+                StoreReport = true;
 
             if (string.IsNullOrWhiteSpace(DestinationCsvFolder))
                 DestinationCsvFolder = globalOpts.DestinationCsvFolder;
@@ -128,8 +128,8 @@ namespace IsIdentifiable.Options
             if (string.IsNullOrWhiteSpace(DestinationCsvSeparator))
                 DestinationCsvSeparator = globalOpts.DestinationCsvSeparator;
 
-            if (DestinationNoWhitespace == null && globalOpts.DestinationNoWhitespace.HasValue)
-                DestinationNoWhitespace = globalOpts.DestinationNoWhitespace.Value;
+            if (globalOpts.DestinationNoWhitespace)
+                DestinationNoWhitespace = true;
 
             if (string.IsNullOrWhiteSpace(DestinationConnectionString))
                 DestinationConnectionString = globalOpts.DestinationConnectionString;
@@ -137,14 +137,14 @@ namespace IsIdentifiable.Options
             if (DestinationDatabaseType == null && globalOpts.DestinationDatabaseType.HasValue)
                 DestinationDatabaseType = globalOpts.DestinationDatabaseType.Value;
 
-            if (IgnorePostcodes == null && globalOpts.IgnorePostcodes.HasValue)
-                IgnorePostcodes = globalOpts.IgnorePostcodes.Value;
+            if (globalOpts.IgnorePostcodes)
+                IgnorePostcodes = true;
 
             if (string.IsNullOrWhiteSpace(SkipColumns))
                 SkipColumns = globalOpts.SkipColumns;
 
-            if (IgnoreDatesInText == null && globalOpts.IgnoreDatesInText.HasValue)
-                IgnoreDatesInText = globalOpts.IgnoreDatesInText.Value;
+            if (globalOpts.IgnoreDatesInText)
+                IgnoreDatesInText = true;
 
             if (MaxCacheSize == MaxCacheSizeDefault && globalOpts.MaxCacheSize.HasValue)
                 MaxCacheSize = globalOpts.MaxCacheSize.Value;

@@ -29,7 +29,7 @@ namespace IsIdentifiable.Reporting.Destinations
         /// <returns></returns>
         protected object StripWhitespace(object o)
         {
-            if (o is string s && (Options.DestinationNoWhitespace ?? false))
+            if (o is string s && (Options.DestinationNoWhitespace))
                 return _multiSpaceRegex.Replace(s.Replace("\t", "").Replace("\r", "").Replace("\n", ""), " ");
 
             return o;
