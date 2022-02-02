@@ -27,4 +27,10 @@
     <ProjectReference Include="..\Reviewer\IsIdentifiableReviewer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
