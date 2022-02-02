@@ -1,0 +1,10 @@
+﻿<TestDatabases>
+	<Settings>
+		<AllowDatabaseCreation>True</AllowDatabaseCreation>
+		<TestScratchDatabase>FAnsiTests</TestScratchDatabase>
+	</Settings>
+	<TestDatabase>
+		<DatabaseType>MicrosoftSQLServer</DatabaseType>
+		<ConnectionString>server=(localdb)\MSSQLLocalDB;</ConnectionString>
+	</TestDatabase>
+</TestDatabases>
