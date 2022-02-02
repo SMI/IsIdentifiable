@@ -51,6 +51,8 @@ jobs:
       run: chmod +x ./data/tessdata/download.sh
     - name: Fetch tessdata
       run: ./data/tessdata/download.sh
+    - name: Move eng.traineddata
+      run:  mv eng.traineddata ./data/tessdata/eng.traineddata
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Test
