@@ -56,7 +56,7 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Test
-      run: dotnet test -l:"console;verbosity=normal" --no-restore
+      run: dotnet test --blame -l:"console;verbosity=normal" --no-restore
     - name: Pack
       run: |
         mkdir -p NuGet/bin
