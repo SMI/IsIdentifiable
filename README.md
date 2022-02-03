@@ -1,4 +1,6 @@
 # IsIdentifiable
+[![.NET Core](https://github.com/SMI/IsIdentifiable/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/SMI/IsIdentifiable/actions/workflows/dotnet-core.yml) [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/IsIdentifiable.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/IsIdentifiable/alerts/) [![NuGet Badge](https://buildstats.info/nuget/HIC.IsIdentifiable)](https://www.nuget.org/packages/HIC.IsIdentifiable/)
+
 A tool for detecting identifiable information in data sources.  Out of the box supports:
 
 - CSV
