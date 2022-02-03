@@ -8,11 +8,9 @@ using IsIdentifiable.Reporting;
 using IsIdentifiable.Rules;
 using Moq;
 using NUnit.Framework;
-using Tests.Common;
 
 namespace IsIdentifiableTests.ReviewerTests
 {
-    [Ignore("Try ignoring database tests")]
     class TestUpdater : DatabaseTests
     {
         [TestCase(DatabaseType.MySql)]
@@ -21,7 +19,7 @@ namespace IsIdentifiableTests.ReviewerTests
         [TestCase(DatabaseType.PostgreSql)]
         public void Test(DatabaseType dbType)
         {
-            var db = GetCleanedServer(dbType);
+            var db = GetTestDatabase(dbType,true);
             var dbname = db.GetRuntimeName();
 
             var failure = new Failure(
@@ -91,7 +89,7 @@ namespace IsIdentifiableTests.ReviewerTests
         [TestCase(DatabaseType.PostgreSql,false)]
         public void Test_RegexUpdateStrategy(DatabaseType dbType, bool provideCaptureGroup)
         {
-            var db = GetCleanedServer(dbType);
+            var db = GetTestDatabase(dbType,true);
             var dbname = db.GetRuntimeName();
 
             //the Failure was about Kansas and Toto
