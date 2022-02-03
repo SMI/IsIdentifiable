@@ -23,10 +23,10 @@ namespace IsIdentifiableReviewer.Out
         /// <summary>
         /// Default name for the true positive detection rules (for redacting with).  This file will be appended to as new rules are added.
         /// </summary>
-        public const string DefaultFileName = "RedList.yaml";
+        public const string DefaultFileName = "Reportlist.yaml";
 
         /// <summary>
-        /// Set to true to only output updates to redlist instead of trying to update the database.
+        /// Set to true to only output updates to Reportlist instead of trying to update the database.
         /// This is useful if you want to  run in manual mode to process everything then run unattended
         /// for the updates.
         /// </summary>
@@ -61,7 +61,7 @@ namespace IsIdentifiableReviewer.Out
         /// <param name="usingRule">Pass null to create a new rule or give value to reuse an existing rule</param>
         public void Update(DiscoveredServer server, Failure failure, IsIdentifiableRule usingRule)
         {
-            //there's no rule yet so create one (and add to RedList.yaml)
+            //there's no rule yet so create one (and add to Reportlist.yaml)
             if(usingRule == null)
                 usingRule = Add(failure,RuleAction.Report);
 

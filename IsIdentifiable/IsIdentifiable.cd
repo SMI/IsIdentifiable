@@ -170,19 +170,19 @@
       <FileName>Reporting\Reports\TreeFailureReport.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="IsIdentifiable.Whitelists.CsvWhitelist" Collapsed="true" BaseTypeListCollapsed="true">
+  <Class Name="IsIdentifiable.Allowlists.CsvAllowlist" Collapsed="true" BaseTypeListCollapsed="true">
     <Position X="1" Y="12.5" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AAEAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAA=</HashCode>
-      <FileName>Whitelists\CsvWhitelist.cs</FileName>
+      <FileName>Allowlists\CsvAllowlist.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
-  <Class Name="IsIdentifiable.Whitelists.DiscoveredColumnWhitelist" Collapsed="true" BaseTypeListCollapsed="true">
+  <Class Name="IsIdentifiable.Allowlists.DiscoveredColumnAllowlist" Collapsed="true" BaseTypeListCollapsed="true">
     <Position X="1" Y="11.75" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAIAAAAAAIAAAAAAAAABAAAAAAAAAAAA=</HashCode>
-      <FileName>Whitelists\DiscoveredColumnWhitelist.cs</FileName>
+      <FileName>Allowlists\DiscoveredColumnAllowlist.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -220,11 +220,11 @@
       <FileName>Reporting\Destinations\IReportDestination.cs</FileName>
     </TypeIdentifier>
   </Interface>
-  <Interface Name="IsIdentifiable.Whitelists.IWhitelistSource" Collapsed="true">
+  <Interface Name="IsIdentifiable.Allowlists.IAllowlistSource" Collapsed="true">
     <Position X="1" Y="10.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAA=</HashCode>
-      <FileName>Whitelists\IWhitelistSource.cs</FileName>
+      <FileName>Allowlists\IAllowlistSource.cs</FileName>
     </TypeIdentifier>
   </Interface>
   <Interface Name="IsIdentifiable.Rules.ICustomRule">

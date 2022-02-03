@@ -84,7 +84,7 @@ namespace IsIdentifiable
             }
 
             //for updater try to match the ProblemValue words
-            var updater = new RowUpdater(new FileInfo(_reviewerOptions.RedList))
+            var updater = new RowUpdater(new FileInfo(_reviewerOptions.Reportlist))
             {
                 RulesOnly = _reviewerOptions.OnlyRules,
                 RulesFactory = new MatchProblemValuesPatternFactory()

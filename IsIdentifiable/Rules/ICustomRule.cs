@@ -4,7 +4,7 @@ using IsIdentifiable.Failures;
 namespace IsIdentifiable.Rules
 {
     /// <summary>
-    /// A rule which may whitelist or report as a validation failure a given value
+    /// A rule which may Allowlist or report as a validation failure a given value
     /// during IsIdentifiable analysis
     /// </summary>
     public interface ICustomRule

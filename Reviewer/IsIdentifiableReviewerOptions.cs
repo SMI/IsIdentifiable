@@ -39,12 +39,12 @@ namespace IsIdentifiableReviewer
         )]
         public string IgnoreList { get; set; } = IgnoreRuleGenerator.DefaultFileName;
 
-        [Option('r', "redlist",
+        [Option('r', "Reportlist",
             Required = false,
             Default = RowUpdater.DefaultFileName,
             HelpText = "File containing rules for when to issue UPDATE statements"
         )]
-        public string RedList { get; set; } = RowUpdater.DefaultFileName;
+        public string Reportlist { get; set; } = RowUpdater.DefaultFileName;
 
 
         [Option('o', "only-rules",
@@ -87,9 +87,9 @@ namespace IsIdentifiableReviewer
                 if (!string.IsNullOrWhiteSpace(globalOpts.IgnoreList))
                     IgnoreList = globalOpts.IgnoreList;
 
-            if (string.IsNullOrWhiteSpace(RedList) || RedList == RowUpdater.DefaultFileName)
-                if (!string.IsNullOrWhiteSpace(globalOpts.RedList))
-                    RedList = globalOpts.RedList;
+            if (string.IsNullOrWhiteSpace(Reportlist) || Reportlist == RowUpdater.DefaultFileName)
+                if (!string.IsNullOrWhiteSpace(globalOpts.Reportlist))
+                    Reportlist = globalOpts.Reportlist;
 
             if (Theme == null && !string.IsNullOrWhiteSpace(globalOpts.Theme))
                 Theme = globalOpts.Theme;

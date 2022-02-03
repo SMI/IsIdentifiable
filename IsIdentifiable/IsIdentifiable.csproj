@@ -4,6 +4,7 @@
     <OutputType>Library</OutputType>
 	<TargetFramework>net6.0</TargetFramework>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Rules.template.yaml" />

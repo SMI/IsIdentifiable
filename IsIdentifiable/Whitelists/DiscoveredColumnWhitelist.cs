@@ -1,20 +1,20 @@
 using System.Collections.Generic;
 using FAnsi.Discovery;
 
-namespace IsIdentifiable.Whitelists
+namespace IsIdentifiable.Allowlists
 {
-    public class DiscoveredColumnWhitelist : IWhitelistSource
+    public class DiscoveredColumnAllowlist : IAllowlistSource
     {
         private readonly DiscoveredTable _discoveredTable;
         private DiscoveredColumn _column;
 
-        public DiscoveredColumnWhitelist(DiscoveredColumn col)
+        public DiscoveredColumnAllowlist(DiscoveredColumn col)
         {
             _discoveredTable = col.Table;
             _column = col;
         }
 
-        public IEnumerable<string> GetWhitelist()
+        public IEnumerable<string> GetAllowlist()
         {
             var colName = _column.GetRuntimeName();
 

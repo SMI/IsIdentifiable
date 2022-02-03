@@ -97,15 +97,15 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
 
             var fiOut = Path.Combine(TestContext.CurrentContext.WorkDirectory, "out.csv");
             
-            //cleanup any remnant whitelist or redlists
-            var fiWhitelist = Path.Combine(TestContext.CurrentContext.WorkDirectory,IgnoreRuleGenerator.DefaultFileName);
-            var fiRedlist = Path.Combine(TestContext.CurrentContext.WorkDirectory, RowUpdater.DefaultFileName);
+            //cleanup any remnant Allowlist or Reportlists
+            var fiAllowlist = Path.Combine(TestContext.CurrentContext.WorkDirectory,IgnoreRuleGenerator.DefaultFileName);
+            var fiReportlist = Path.Combine(TestContext.CurrentContext.WorkDirectory, RowUpdater.DefaultFileName);
 
-            if(File.Exists(fiWhitelist))
-                File.Delete(fiWhitelist);
+            if(File.Exists(fiAllowlist))
+                File.Delete(fiAllowlist);
             
-            if(File.Exists(fiRedlist))
-                File.Delete(fiRedlist);
+            if(File.Exists(fiReportlist))
+                File.Delete(fiReportlist);
             
             var reviewer = new UnattendedReviewer(new IsIdentifiableReviewerOptions()
             {
@@ -136,18 +136,18 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
 
             var fiOut = Path.Combine(TestContext.CurrentContext.WorkDirectory, "out.csv");
             
-            //cleanup any remnant whitelist or redlists
-            var fiWhitelist = Path.Combine(TestContext.CurrentContext.WorkDirectory,IgnoreRuleGenerator.DefaultFileName);
-            var fiRedlist = Path.Combine(TestContext.CurrentContext.WorkDirectory, RowUpdater.DefaultFileName);
+            //cleanup any remnant Allowlist or Reportlists
+            var fiAllowlist = Path.Combine(TestContext.CurrentContext.WorkDirectory,IgnoreRuleGenerator.DefaultFileName);
+            var fiReportlist = Path.Combine(TestContext.CurrentContext.WorkDirectory, RowUpdater.DefaultFileName);
 
-            if(File.Exists(fiWhitelist))
-                File.Delete(fiWhitelist);
+            if(File.Exists(fiAllowlist))
+                File.Delete(fiAllowlist);
             
-            if(File.Exists(fiRedlist))
-                File.Delete(fiRedlist);
+            if(File.Exists(fiReportlist))
+                File.Delete(fiReportlist);
 
-            //add a whitelist to ignore these
-            File.WriteAllText(fiWhitelist,
+            //add a Allowlist to ignore these
+            File.WriteAllText(fiAllowlist,
                 @"
 - Action: Ignore
   IfColumn: Narrative
@@ -162,7 +162,7 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
 
             Assert.AreEqual(0,reviewer.Run());
             
-            //headers only since whitelist eats the rest
+            //headers only since Allowlist eats the rest
             StringAssert.AreEqualIgnoringCase(@"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets",File.ReadAllText(fiOut).TrimEnd());
 
             Assert.AreEqual(1,reviewer.Total);
@@ -183,20 +183,20 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
 
             var fiOut = Path.Combine(TestContext.CurrentContext.WorkDirectory, "out.csv");
             
-            //cleanup any remnant whitelist or redlists
-            var fiWhitelist = Path.Combine(TestContext.CurrentContext.WorkDirectory,IgnoreRuleGenerator.DefaultFileName);
-            var fiRedlist = Path.Combine(TestContext.CurrentContext.WorkDirectory, RowUpdater.DefaultFileName);
+            //cleanup any remnant Allowlist or Reportlists
+            var fiAllowlist = Path.Combine(TestContext.CurrentContext.WorkDirectory,IgnoreRuleGenerator.DefaultFileName);
+            var fiReportlist = Path.Combine(TestContext.CurrentContext.WorkDirectory, RowUpdater.DefaultFileName);
 
-            if(File.Exists(fiWhitelist))
-                File.Delete(fiWhitelist);
+            if(File.Exists(fiAllowlist))
+                File.Delete(fiAllowlist);
             
-            if(File.Exists(fiRedlist))
-                File.Delete(fiRedlist);
+            if(File.Exists(fiReportlist))
+                File.Delete(fiReportlist);
 
-            //add a redlist to UPDATE these
+            //add a Reportlist to UPDATE these
             if(ruleCoversThis)
             {
-                File.WriteAllText(fiRedlist,
+                File.WriteAllText(fiReportlist,
                @"
 - Action: Ignore
   IfColumn: Narrative

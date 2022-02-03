@@ -9,20 +9,29 @@ namespace IsIdentifiable.Options
     /// </summary>
     public class IsIdentifiableBaseOptions
     {
-        [Option(HelpText = "Optional. Full connection string to the database storing the whitelist of valid entries")]
-        public string WhitelistConnectionString { get; set; }
+        /// <summary>
+        /// Optional. Full connection string to the database storing the Allowlist of valid entries
+        /// </summary>
+        [Option(HelpText = "Optional. Full connection string to the database storing the Allowlist of valid entries")]
+        public string AllowlistConnectionString { get; set; }
 
-        [Option(HelpText = "Optional. The DBMS provider of the whitelist table e.g. MySql")]
-        public DatabaseType? WhitelistDatabaseType { get; set; }
+        /// <summary>
+        /// Optional. The DBMS provider of the Allowlist table e.g. MySql
+        /// </summary>
+        [Option(HelpText = "Optional. The DBMS provider of the Allowlist table e.g. MySql")]
+        public DatabaseType? AllowlistDatabaseType { get; set; }
 
-        [Option(HelpText = "Optional. The unqualified name of the whitelist table")]
-        public string WhitelistTableName { get; set; }
+        /// <summary>
+        /// Optional. The unqualified name of the Allowlist table
+        /// </summary>
+        [Option(HelpText = "Optional. The unqualified name of the Allowlist table")]
+        public string AllowlistTableName { get; set; }
 
-        [Option(HelpText = "Optional. The column in WhitelistTableName which contains the whitelist elements")]
-        public string WhitelistColumn { get; set; }
+        [Option(HelpText = "Optional. The column in AllowlistTableName which contains the Allowlist elements")]
+        public string AllowlistColumn { get; set; }
 
-        [Option(HelpText = "Optional. Path to a CSV file containing a single untitled column of whitelist values")]
-        public string WhitelistCsv { get; set; }
+        [Option(HelpText = "Optional. Path to a CSV file containing a single untitled column of Allowlist values")]
+        public string AllowlistCsv { get; set; }
 
         [Option(HelpText = "Optional. Generate a report on the proportion of values failing validation (for each column)")]
         public bool ColumnReport { get; set; }
@@ -98,20 +107,20 @@ namespace IsIdentifiable.Options
         /// <param name="globalOpts"></param>
         public virtual void InheritValuesFrom(IsIdentifiableBaseOptions globalOpts)
         {
-            if (string.IsNullOrWhiteSpace(WhitelistConnectionString))
-                WhitelistConnectionString = globalOpts.WhitelistConnectionString;
+            if (string.IsNullOrWhiteSpace(AllowlistConnectionString))
+                AllowlistConnectionString = globalOpts.AllowlistConnectionString;
 
-            if (WhitelistDatabaseType == null && globalOpts.WhitelistDatabaseType.HasValue)
-                WhitelistDatabaseType = globalOpts.WhitelistDatabaseType.Value;
+            if (AllowlistDatabaseType == null && globalOpts.AllowlistDatabaseType.HasValue)
+                AllowlistDatabaseType = globalOpts.AllowlistDatabaseType.Value;
 
-            if (string.IsNullOrWhiteSpace(WhitelistTableName))
-                WhitelistTableName = globalOpts.WhitelistTableName;
+            if (string.IsNullOrWhiteSpace(AllowlistTableName))
+                AllowlistTableName = globalOpts.AllowlistTableName;
 
-            if (string.IsNullOrWhiteSpace(WhitelistColumn))
-                WhitelistColumn = globalOpts.WhitelistColumn;
+            if (string.IsNullOrWhiteSpace(AllowlistColumn))
+                AllowlistColumn = globalOpts.AllowlistColumn;
 
-            if (string.IsNullOrWhiteSpace(WhitelistCsv))
-                WhitelistCsv = globalOpts.WhitelistCsv;
+            if (string.IsNullOrWhiteSpace(AllowlistCsv))
+                AllowlistCsv = globalOpts.AllowlistCsv;
 
             if (globalOpts.ColumnReport)
                 ColumnReport = true;

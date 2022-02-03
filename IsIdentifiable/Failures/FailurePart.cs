@@ -1,9 +1,15 @@
-﻿using System;
+﻿using IsIdentifiable.Reporting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace IsIdentifiable.Failures
 {
+    /// <summary>
+    /// Part of a <see cref="Failure"/>.  Describes a section (e.g. a word) of the full cell that is marked as IsIdentifiable.
+    /// A <see cref="Failure"/> can have multiple <see cref="FailurePart"/> e.g. if it is free text with multiple failing
+    /// words.
+    /// </summary>
     public class FailurePart : IEquatable<FailurePart>
     {
         /// <summary>

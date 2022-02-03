@@ -1,4 +1,4 @@
-﻿# Rules are applied in this order: BasicRules, SocketRules, WhiteListRules
+﻿# Rules are applied in this order: BasicRules, SocketRules, AllowlistRules
 
 # SocketRules specify the connection to the nerd (Named Entity Recogniser daemon)
 
@@ -16,9 +16,9 @@ ConsensusRules:
           Host: 127.0.123.123
           Port: 567
 
-# WhiteListRules specify the failures which can be ignored
+# AllowlistRules specify the failures which can be ignored
 
-WhiteListRules:
+AllowlistRules:
  # Things which NER classifies as a Person but clearly are not
  - Action: Ignore
    IfPartPattern: ^SAFIRE$

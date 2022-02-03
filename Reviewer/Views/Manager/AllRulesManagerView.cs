@@ -152,7 +152,7 @@ namespace IsIdentifiableReviewer.Views.Manager
             {
                 return socketRule.Host + ":" + socketRule.Port;
             }
-            if (toRender is WhiteListRule ignoreRule)
+            if (toRender is AllowlistRule ignoreRule)
             {
                 return ignoreRule.IfPattern ?? ignoreRule.IfPartPattern;
             }
@@ -213,9 +213,9 @@ namespace IsIdentifiableReviewer.Views.Manager
             }
             if (ReferenceEquals(forObject,Reviewer))
             {
-                if(!string.IsNullOrWhiteSpace(_reviewerOpts.RedList))
+                if(!string.IsNullOrWhiteSpace(_reviewerOpts.Reportlist))
                 {
-                    yield return new RowUpdater(new FileInfo(_reviewerOpts.RedList));
+                    yield return new RowUpdater(new FileInfo(_reviewerOpts.Reportlist));
                 }
                 if (!string.IsNullOrWhiteSpace(_reviewerOpts.IgnoreList))
                 {
@@ -228,7 +228,7 @@ namespace IsIdentifiableReviewer.Views.Manager
                 
                 yield return new RuleTypeNode(ruleSet, nameof(RuleSet.BasicRules));
                 yield return new RuleTypeNode(ruleSet, nameof(RuleSet.SocketRules));
-                yield return new RuleTypeNode(ruleSet, nameof(RuleSet.WhiteListRules));
+                yield return new RuleTypeNode(ruleSet, nameof(RuleSet.AllowlistRules));
                 yield return new RuleTypeNode(ruleSet, nameof(RuleSet.ConsensusRules));                
             }
 

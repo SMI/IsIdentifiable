@@ -4,21 +4,21 @@ using System.IO;
 using CsvHelper;
 using CsvHelper.Configuration;
 
-namespace IsIdentifiable.Whitelists
+namespace IsIdentifiable.Allowlists
 {
     /// <summary>
-    /// A Whitelist source which returns the values in the first column of the provided Csv file.  The file must be properly escaped
+    /// A Allowlist source which returns the values in the first column of the provided Csv file.  The file must be properly escaped
     /// if it has commas in fields etc.  There must be no header record.
     /// </summary>
-    public class CsvWhitelist : IWhitelistSource
+    public class CsvAllowlist : IAllowlistSource
     {
         private readonly StreamReader _streamreader;
         private readonly CsvReader _reader;
 
-        public CsvWhitelist(string filePath)
+        public CsvAllowlist(string filePath)
         {
             if(!File.Exists(filePath))
-                throw new Exception("Could not find whitelist file at '" + filePath +"'");
+                throw new Exception("Could not find Allowlist file at '" + filePath +"'");
 
             _streamreader = new StreamReader(filePath);
             _reader = new CsvReader(_streamreader,new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture)
@@ -27,7 +27,7 @@ namespace IsIdentifiable.Whitelists
             });
         }
 
-        public IEnumerable<string> GetWhitelist()
+        public IEnumerable<string> GetAllowlist()
         {
             while (_reader.Read())
                 yield return _reader[0];

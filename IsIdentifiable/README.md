@@ -105,13 +105,13 @@ A failure is a fragment of text (or image) which contains identifiable data.
 It can either be ignored (because it is a false positive) or reported.
 
 Some rules come out of the box (e.g. CHI/Postcode/Date) but for the rest you must configure rules in a rules.yaml file.
-There are three classes of rule: BasicRules, SocketRules and WhiteListRules. See below for more details of each.
+There are three classes of rule: BasicRules, SocketRules and AllowlistRules. See below for more details of each.
 They are applied in that order, so if a value is Ignored in a Basic rule it will not be passed to any further rules.
-If a value fails in a SocketRule (eg. the NER daemon labels it as a Person), then a subsequent WhiteList rule can Ignore it.
-Not all Ignore rules go into the WhiteListRules section; this is intended only for white-listing fragments which NERd has incorrectly reported as failures.
+If a value fails in a SocketRule (eg. the NER daemon labels it as a Person), then a subsequent Allowlist rule can Ignore it.
+Not all Ignore rules go into the AllowlistRules section; this is intended only for white-listing fragments which NERd has incorrectly reported as failures.
 
-Rules can be read from one or more yaml files. Each file can have zero or one set of BasicRules, plus zero or one set of WhiteListRules.
-All of the BasicRules from all of the files will be merged to form a single set of BasicRules; similarly for WhiteListRules.
+Rules can be read from one or more yaml files. Each file can have zero or one set of BasicRules, plus zero or one set of AllowlistRules.
+All of the BasicRules from all of the files will be merged to form a single set of BasicRules; similarly for AllowlistRules.
 
 When running in service mode (as a microservice host) the rules are read from all `*.yaml` files found in the `IsIdentifiableRules` directory inside the data directory. The data directory path is defined in the program yaml file (which was specified with -y) using the key `IsIdentifiableOptions|DataDirectory`.
 
@@ -188,12 +188,12 @@ The Action for a White List rule must be Ignore because it is intended to allow 
 All of the constraints must match in order for the rule to Ignore the value.
 
 As soon as a value matches a white list rule no further white list rules are needed.
-Unlike a BasicRule whose Pattern matches the full value of a field (column or DICOM tag) the whitelist rule has two Patterns, IfPattern which has the same behaviour and IfPartPattern which matches only the substring that failed. This feature allows context to be specified, see the second example below.
-A whitelist rule can also match the failure classification (`PrivateIdentifier`, `Location`, `Person`, `Organization`, `Money`, `Percent`, `Date`, `Time`, `PixelText`, `Postcode`).
+Unlike a BasicRule whose Pattern matches the full value of a field (column or DICOM tag) the Allowlist rule has two Patterns, IfPattern which has the same behaviour and IfPartPattern which matches only the substring that failed. This feature allows context to be specified, see the second example below.
+A Allowlist rule can also match the failure classification (`PrivateIdentifier`, `Location`, `Person`, `Organization`, `Money`, `Percent`, `Date`, `Time`, `PixelText`, `Postcode`).
 For example, if SIEMENS has been reported as a Person found in the the Manufacturer column,
 
 ```yaml
-WhiteListRules:
+AllowlistRules:
  - Action: Ignore
    As: Person
    IfColumn: Manufacturer

@@ -21,7 +21,7 @@ namespace IsIdentifiable.Rules
 
         /// <summary>
         /// What to do if the rule is found to match the values being examined (e.g.
-        /// whitelist the value or report the value as a validation failure)
+        /// Allowlist the value or report the value as a validation failure)
         /// </summary>
         public RuleAction Action { get; set; }
 

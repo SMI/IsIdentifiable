@@ -49,7 +49,7 @@ namespace IsIdentifiableTests.ReviewerTests
             var col = tbl.DiscoverColumn("Narrative");
             col.DataType.Resize(1000);
 
-            var newRules = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "Redlist.yaml"));
+            var newRules = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "Reportlist.yaml"));
 
             //make sure repeat test runs work properly
             if(File.Exists(newRules.FullName))
@@ -120,7 +120,7 @@ namespace IsIdentifiableTests.ReviewerTests
             var col = tbl.DiscoverColumn("Narrative");
             col.DataType.Resize(1000);
 
-            var newRules = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "Redlist.yaml"));
+            var newRules = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "Reportlist.yaml"));
 
             //make sure repeat test runs work properly
             if(File.Exists(newRules.FullName))

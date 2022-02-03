@@ -11,7 +11,7 @@ using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Rules;
-using IsIdentifiable.Whitelists;
+using IsIdentifiable.Allowlists;
 using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using YamlDotNet.Serialization;
@@ -79,7 +79,7 @@ namespace IsIdentifiable.Runners
         /// </summary>
         private readonly HashSet<string> _skipColumns = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
 
-        private HashSet<string> _whiteList;
+        private HashSet<string> _Allowlist;
 
         /// <summary>
         /// Custom rules you want to apply e.g. always ignore column X if value is Y
@@ -87,9 +87,9 @@ namespace IsIdentifiable.Runners
         public List<ICustomRule> CustomRules { get; set; } = new List<ICustomRule>();
 
         /// <summary>
-        /// Custom whitelist rules you want to apply e.g. always ignore a failure if column is X AND value is Y
+        /// Custom Allowlist rules you want to apply e.g. always ignore a failure if column is X AND value is Y
         /// </summary>
-        public List<ICustomRule> CustomWhiteListRules { get; set; } = new List<ICustomRule>();
+        public List<ICustomRule> CustomAllowlistRules { get; set; } = new List<ICustomRule>();
 
         /// <summary>
         /// One cache per field in the data being evaluated, records the recent values passed to <see cref="Validate(string, string)"/> and the results to avoid repeated lookups
@@ -169,30 +169,30 @@ namespace IsIdentifiable.Runners
 
             SortRules();
 
-            IWhitelistSource source = null;
+            IAllowlistSource source = null;
 
             try
             {
-                source = GetWhitelistSource();
+                source = GetAllowlistSource();
             }
             catch (Exception e)
             {
-                throw new Exception("Error getting Whitelist Source", e);
+                throw new Exception("Error getting Allowlist Source", e);
             }
             
             if (source != null)
             {
-                _logger.Info("Fetching Whitelist...");
+                _logger.Info("Fetching Allowlist...");
                 try
                 {
-                    _whiteList = new HashSet<string>(source.GetWhitelist(),StringComparer.CurrentCultureIgnoreCase);
+                    _Allowlist = new HashSet<string>(source.GetAllowlist(),StringComparer.CurrentCultureIgnoreCase);
                 }
                 catch (Exception e)
                 {
-                    throw new Exception($"Error fetching values for IWhitelistSource {source.GetType().Name}", e);
+                    throw new Exception($"Error fetching values for IAllowlistSource {source.GetType().Name}", e);
                 }
 
-                _logger.Info($"Whitelist built with {_whiteList.Count} exact strings");
+                _logger.Info($"Allowlist built with {_Allowlist.Count} exact strings");
             }
         }
 
@@ -243,7 +243,7 @@ namespace IsIdentifiable.Runners
         {
             var builder = new DeserializerBuilder();
             builder.WithTagMapping("!SocketRule", typeof(SocketRule));
-            builder.WithTagMapping("!WhiteListRule", typeof(WhiteListRule));
+            builder.WithTagMapping("!AllowlistRule", typeof(AllowlistRule));
             builder.WithTagMapping("!IsIdentifiableRule", typeof(IsIdentifiableRule));
 
             return builder.Build();
@@ -270,8 +270,8 @@ namespace IsIdentifiable.Runners
             if(ruleSet.ConsensusRules != null)
                 CustomRules.AddRange(ruleSet.ConsensusRules);
 
-            if(ruleSet.WhiteListRules != null)
-                CustomWhiteListRules.AddRange(ruleSet.WhiteListRules);
+            if(ruleSet.AllowlistRules != null)
+                CustomAllowlistRules.AddRange(ruleSet.AllowlistRules);
         }
 
         // ReSharper disable once UnusedMemberInSuper.Global
@@ -326,8 +326,8 @@ namespace IsIdentifiable.Runners
             // Carets (^) are synonymous with space in some dicom tags
             fieldValue = fieldValue.Replace('^', ' ');
 
-            //if there is a whitelist and it says to ignore the (full string) value
-            if (_whiteList != null && _whiteList.Contains(fieldValue.Trim()))
+            //if there is a Allowlist and it says to ignore the (full string) value
+            if (_Allowlist != null && _Allowlist.Contains(fieldValue.Trim()))
                 yield break;
                     
             //for each custom rule
@@ -345,20 +345,20 @@ namespace IsIdentifiable.Runners
                     case RuleAction.Report:
                         foreach (var p in parts)
                         {
-                            bool whitelisted = false;
-                            foreach (WhiteListRule whiterule in CustomWhiteListRules)
+                            bool Allowlisted = false;
+                            foreach (AllowlistRule whiterule in CustomAllowlistRules)
                             {
-                                switch (whiterule.ApplyWhiteListRule(fieldName, fieldValue, p))
+                                switch (whiterule.ApplyAllowlistRule(fieldName, fieldValue, p))
                                 {
-                                    case RuleAction.Ignore: whitelisted = true; break;
+                                    case RuleAction.Ignore: Allowlisted = true; break;
                                     case RuleAction.None:
                                     case RuleAction.Report: break;
                                     default: throw new ArgumentOutOfRangeException();
                                 }
-                                if (whitelisted)
+                                if (Allowlisted)
                                     break;
                             }
-                            if (!whitelisted)
+                            if (!Allowlisted)
                                 yield return p;
                         }
                         break;
@@ -424,23 +424,23 @@ namespace IsIdentifiable.Runners
             Reports.ForEach(r => r.CloseReport());
         }
 
-        private IWhitelistSource GetWhitelistSource()
+        private IAllowlistSource GetAllowlistSource()
         {
-            IWhitelistSource source = null;
+            IAllowlistSource source = null;
 
-            if (!string.IsNullOrWhiteSpace(_opts.WhitelistCsv))
+            if (!string.IsNullOrWhiteSpace(_opts.AllowlistCsv))
             {
-                // If there's a file whitelist
-                source = new CsvWhitelist(_opts.WhitelistCsv);
-                _logger.Info($"Loaded a whitelist from {Path.GetFullPath(_opts.WhitelistCsv)}");
+                // If there's a file Allowlist
+                source = new CsvAllowlist(_opts.AllowlistCsv);
+                _logger.Info($"Loaded a Allowlist from {Path.GetFullPath(_opts.AllowlistCsv)}");
             }
-            else if (!string.IsNullOrWhiteSpace(_opts.WhitelistConnectionString) && _opts.WhitelistDatabaseType.HasValue)
+            else if (!string.IsNullOrWhiteSpace(_opts.AllowlistConnectionString) && _opts.AllowlistDatabaseType.HasValue)
             {
-                // If there's a database whitelist
-                DiscoveredTable tbl = GetServer(_opts.WhitelistConnectionString, _opts.WhitelistDatabaseType.Value, _opts.WhitelistTableName);
-                DiscoveredColumn col = tbl.DiscoverColumn(_opts.WhitelistColumn);
-                source = new DiscoveredColumnWhitelist(col);
-                _logger.Info($"Loaded a whitelist from {tbl.GetFullyQualifiedName()}");
+                // If there's a database Allowlist
+                DiscoveredTable tbl = GetServer(_opts.AllowlistConnectionString, _opts.AllowlistDatabaseType.Value, _opts.AllowlistTableName);
+                DiscoveredColumn col = tbl.DiscoverColumn(_opts.AllowlistColumn);
+                source = new DiscoveredColumnAllowlist(col);
+                _logger.Info($"Loaded a Allowlist from {tbl.GetFullyQualifiedName()}");
             }
 
             return source;

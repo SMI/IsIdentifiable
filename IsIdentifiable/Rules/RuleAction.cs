@@ -8,7 +8,7 @@
         None,
 
         /// <summary>
-        /// The value should be whitelisted and ignored by any downstream classifiers that might
+        /// The value should be Allowlisted and ignored by any downstream classifiers that might
         /// otherwise have an issue with it
         /// </summary>
         Ignore,

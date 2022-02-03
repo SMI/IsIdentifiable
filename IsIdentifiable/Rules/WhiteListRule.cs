@@ -14,7 +14,7 @@ namespace IsIdentifiable.Rules
     /// <summary>
     /// Expanded <see cref="IsIdentifiableRule"/> which works only for <see cref="RuleAction.Ignore"/>.  Should be run after main rules have picked up failures.  This class is designed to perform final checks on failures and discard based on <see cref="IsIdentifiableRule.IfPatternRegex"/> and/or <see cref="IfPartPatternRegex"/>
     /// </summary>
-    public class WhiteListRule : IsIdentifiableRule
+    public class AllowlistRule : IsIdentifiableRule
     {
         protected Regex IfPartPatternRegex;
         private string _ifPartPatternString;
@@ -48,7 +48,7 @@ namespace IsIdentifiable.Rules
         /// <summary>
         /// Creates a new instance with the <see cref="Action"/> Ignore
         /// </summary>
-        public WhiteListRule()
+        public AllowlistRule()
         {
             Action = RuleAction.Ignore;
         }
@@ -64,25 +64,25 @@ namespace IsIdentifiable.Rules
         /// <exception cref="NotSupportedException"></exception>
         public override RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
         {
-            throw new NotSupportedException("This method should not be used for WhiteListRule, use ApplyWhiteListRule instead");
+            throw new NotSupportedException("This method should not be used for AllowlistRule, use ApplyAllowlistRule instead");
         }
 
 
         /// <summary>
-        /// Test if this rule will whitelist the given field and failed part.
+        /// Test if this rule will Allowlist the given field and failed part.
         /// Returns None if rule does not match ALL constraints otherwise returns the rule action
-        /// which should be Ignore for a whitelist rule as Report is already true at this point.
+        /// which should be Ignore for a Allowlist rule as Report is already true at this point.
         /// </summary>
-        public RuleAction ApplyWhiteListRule(string fieldName, string fieldValue, FailurePart badPart)
+        public RuleAction ApplyAllowlistRule(string fieldName, string fieldValue, FailurePart badPart)
         {
             // FailurePart has got Classification, Word and Offset
             // (we can't access ProblemField, ProblemValue from Failure).
             // eg. we get:
             //   fieldName=ProtocolName fieldValue=324-58-2995/6 part.Word=324-58-2995 class=Location
-            //Console.WriteLine("WhiteListRule.Apply fieldName="+ fieldName + " fieldValue=" + fieldValue + " part.Word=" + badPart.Word + " class="+badPart.Classification);
+            //Console.WriteLine("AllowlistRule.Apply fieldName="+ fieldName + " fieldValue=" + fieldValue + " part.Word=" + badPart.Word + " class="+badPart.Classification);
 
             if(Action == RuleAction.Report)
-                throw new Exception("Illegal whitelist rule setup. Action Report makes no sense.");
+                throw new Exception("Illegal Allowlist rule setup. Action Report makes no sense.");
 
             // A column or field name is specified
             if (!string.IsNullOrWhiteSpace(IfColumn) && !string.Equals(IfColumn,fieldName,StringComparison.InvariantCultureIgnoreCase))
@@ -100,7 +100,7 @@ namespace IsIdentifiable.Rules
             if (IfPatternRegex!=null && !IfPatternRegex.Matches(fieldValue).Any())
                 return(RuleAction.None);
 
-            /*_logger.Debug("WhiteListing fieldName: "+ fieldName + " fieldValue: " + fieldValue + " part.Word: " + badPart.Word + " class: "+badPart.Classification
+            /*_logger.Debug("Allowlisting fieldName: "+ fieldName + " fieldValue: " + fieldValue + " part.Word: " + badPart.Word + " class: "+badPart.Classification
             + " due to rule: "
             + (_ifPattern == null ? "" : "Pattern: " + _ifPattern.ToString())
             + (IfPartPattern == null ? "" : " Part: " + IfPartPattern.ToString())

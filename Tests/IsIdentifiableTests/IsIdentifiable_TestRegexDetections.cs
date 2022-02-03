@@ -94,7 +94,7 @@ namespace IsIdentifiableTests
         [TestCase("DD3 7LB")]
         [TestCase("dd3 7lb")]
         [TestCase("dd37lb")]
-        public void IsIdentifiable_TestPostcodes_WhitelistDD3(string code)
+        public void IsIdentifiable_TestPostcodes_AllowlistDD3(string code)
         {
 
             var runner = new TestRunner("Patient lives at " + code);
