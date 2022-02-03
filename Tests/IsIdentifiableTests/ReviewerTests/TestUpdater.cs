@@ -12,6 +12,7 @@ using Tests.Common;
 
 namespace IsIdentifiableTests.ReviewerTests
 {
+    [Ignore("Try ignoring database tests")]
     class TestUpdater : DatabaseTests
     {
         [TestCase(DatabaseType.MySql)]
