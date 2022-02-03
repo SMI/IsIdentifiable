@@ -57,6 +57,12 @@ jobs:
       run: dotnet build --configuration Release --no-restore
     - name: Test
       run: dotnet test --blame -l:"console;verbosity=normal" --no-restore
+    - name: Package ii binary
+      run: |
+        (cd ii && dotnet publish --runtime win-x64 -c Release --self-contained true -o ../win-x64)
+        (cd ii && dotnet publish --runtime linux-x64 -c Release --self-contained true -o ../linux-x64)
+        (cd win-x64 && zip -9r ../ii-cli-win-x64.zip .)
+        (tar -zcvf ii-cli-linux-x64.tar.gz ./linux-x64 .)
     - name: Pack
       run: |
         mkdir -p NuGet/bin
@@ -72,10 +78,8 @@ jobs:
         retention-days: 1
     - name: Upload release binaries
       if: contains(github.ref,'refs/tags/')
-      uses: svenstaro/upload-release-action@v2
+      uses: alexellis/upload-assets@0.2.2
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        tag: ${{ github.ref }}
-        file: NuGet/bin/Release/*.nupkg
-        file_glob: true
-        overwrite: true
+        asset_paths: '["ii-cli-win-x64.zip","ii-cli-linux-x64.tar.gz"]'
