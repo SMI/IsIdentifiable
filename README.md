@@ -11,3 +11,25 @@ Rules base is driven by regular expressions and plugin services (e.g. Natural La
 
 - [Detector Documentation](./IsIdentifiable/README.md)
 - [Reviewer Documentation](./Reviewer/README.md)
+
+
+## Building
+
+To build and run tests you must first download the [NLP english data file for Tesseract](https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata) to the `data\tessdata\` directory.  Or use the following script:
+
+```
+ cd .\data\tessdata\
+ 
+ # Windows
+ ./download.ps1
+
+ # Linux
+ . ./download.sh
+```
+
+Then build and run (from the root of the repository)
+```
+dotnet build
+dotnet test
+```
+
