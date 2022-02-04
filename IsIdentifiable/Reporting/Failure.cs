@@ -7,6 +7,11 @@ using IsIdentifiable.Failures;
 
 namespace IsIdentifiable.Reporting
 {
+    /// <summary>
+    /// Describes all failing <see cref="Parts"/> of a single cell of data being evaluted
+    /// along with the <see cref="ResourcePrimaryKey"/> (if any) so that the row on which
+    /// the data was found can located (e.g. to perform  redaction).
+    /// </summary>
     public class Failure
     {
         /// <summary>
@@ -62,6 +67,13 @@ namespace IsIdentifiable.Reporting
                 string.Equals(ProblemField, other.ProblemField, StringComparison.CurrentCultureIgnoreCase);
         }
 
+        /// <summary>
+        /// Returns true if the <see cref="Parts"/> contain overlapping matches within the <see cref="ProblemValue"/>
+        /// </summary>
+        /// <param name="includeExactRangeMatches">Determines the return value when the overlapping parts are identical
+        /// e.g. a word being classified as 2 different identifiable <see cref="FailureClassification"/>.  When true
+        /// the return for exact overaps is true otherwise false</param>
+        /// <returns></returns>
         public bool HasOverlappingParts(bool includeExactRangeMatches)
         {
             //for each index in the word

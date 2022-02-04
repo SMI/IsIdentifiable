@@ -1,8 +1,12 @@
-﻿using System;
+﻿using IsIdentifiable.Reporting.Reports;
+using System;
 using System.Data;
 
 namespace IsIdentifiable.Reporting.Destinations
 {
+    /// <summary>
+    /// Describes a place to store the results of a <see cref="FailureReport"/> (e.g. CSV / Database)
+    /// </summary>
     public interface IReportDestination : IDisposable
     {
         /// <summary>

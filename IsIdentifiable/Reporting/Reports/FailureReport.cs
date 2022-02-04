@@ -5,6 +5,11 @@ using IsIdentifiable.Reporting.Destinations;
 
 namespace IsIdentifiable.Reporting.Reports
 {
+    /// <summary>
+    /// Abstract base for classes that aggregate or persist multiple
+    /// <see cref="Failure"/> instances detected when performing an IsIdentifiable
+    /// analysis on some data.
+    /// </summary>
     public abstract class FailureReport : IFailureReport
     {
         public readonly string _reportName;

@@ -6,14 +6,14 @@ using System.Linq;
 using CsvHelper;
 using CsvHelper.Configuration;
 using IsIdentifiable.Options;
-using NLog;
 
 namespace IsIdentifiable.Reporting.Destinations
 {
+    /// <summary>
+    /// <see cref="ReportDestination"/> that outputs IsIdentifiable reports to a text file
+    /// </summary>
     public class CsvDestination : ReportDestination
     {
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
         private string _reportPath;
         private StreamWriter _streamwriter;
         private CsvWriter _csvWriter;
