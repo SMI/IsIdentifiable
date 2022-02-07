@@ -6,7 +6,7 @@
     <title>SMI.IsIdentifiable</title>
     <authors>Universities of Dundee and Edinburgh</authors>
     <owners>Universities of Dundee and Edinburgh</owners>
-    <projectUrl>https://github.com/HicServices/FAnsiSql</projectUrl>
+    <projectUrl>https://github.com/SMI/IsIdentifiable</projectUrl>
     <license type="expression">GPL-3.0-or-later</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Library for spotting identifiable data in flat files, dicom files and relational databases (Sql Server, My Sql, Oracle).</description>
