@@ -12,8 +12,15 @@ namespace IsIdentifiable.Reporting.Reports
     /// </summary>
     public abstract class FailureReport : IFailureReport
     {
-        public readonly string _reportName;
+        /// <summary>
+        /// Short human readable name that describes the kind of aggregation or persistence of
+        /// <see cref="Failure"/> objects that this report conducts
+        /// </summary>
+        public readonly string ReportName;
 
+        /// <summary>
+        /// The output adapters to which this reports data will be written e.g. CSV, database etc
+        /// </summary>
         public List<IReportDestination> Destinations = new List<IReportDestination>();
 
 
@@ -23,7 +30,7 @@ namespace IsIdentifiable.Reporting.Reports
         /// <param name="targetName"></param>
         protected FailureReport(string targetName)
         {
-            _reportName = targetName + GetType().Name;
+            ReportName = targetName + GetType().Name;
         }
 
         /// <summary>
@@ -36,22 +43,29 @@ namespace IsIdentifiable.Reporting.Reports
 
             // Default is to write out CSV results
             if (!string.IsNullOrWhiteSpace(opts.DestinationCsvFolder))
-                destination = new CsvDestination(opts, _reportName);
+                destination = new CsvDestination(opts, ReportName);
             else if (!string.IsNullOrWhiteSpace(opts.DestinationConnectionString))
-                destination = new DatabaseDestination(opts, _reportName);
+                destination = new DatabaseDestination(opts, ReportName);
             else
             {
                 opts.DestinationCsvFolder = Environment.CurrentDirectory;
-                destination = new CsvDestination(opts, _reportName);
+                destination = new CsvDestination(opts, ReportName);
             }
 
             Destinations.Add(destination);
         }
 
+        /// <summary>
+        /// Override to log or flush output streams.  Called periodically.
+        /// </summary>
+        /// <param name="numberDone">Number of rows done since the last call to this method</param>
         public virtual void DoneRows(int numberDone) { }
 
+        /// <inheritdoc/>
         public abstract void Add(Failure failure);
 
+
+        /// <inheritdoc/>
         public void CloseReport()
         {
             CloseReportBase();
@@ -59,7 +73,8 @@ namespace IsIdentifiable.Reporting.Reports
         }
 
         /// <summary>
-        /// Writes out (the rest of) the report before exiting
+        /// Writes out (the rest of) the report before exiting.  Override to
+        /// flush output streams, close files, commit transactions etc.
         /// </summary>
         protected abstract void CloseReportBase();
     }

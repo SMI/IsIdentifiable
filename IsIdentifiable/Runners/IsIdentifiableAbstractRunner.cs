@@ -18,6 +18,11 @@ using YamlDotNet.Serialization;
 
 namespace IsIdentifiable.Runners
 {
+    /// <summary>
+    /// Base class for all classes which evaluate datasources to detect identifiable data.
+    /// Subclass to add support for new data sources.  Current sources include reading from
+    /// CSV files, Dicom files and database tables.
+    /// </summary>
     public abstract class IsIdentifiableAbstractRunner : IDisposable
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
@@ -409,7 +414,7 @@ namespace IsIdentifiable.Runners
         /// Tells all selected reports that the <paramref name="numberOfRowsDone"/> have been processed (this is a += operation 
         /// not substitution i.e. call it with 10 then 10 again then 10 leads to 30 rows done.
         /// </summary>
-        /// <param name="numberOfRowsDone"></param>
+        /// <param name="numberOfRowsDone">Number of rows done since the last call to this method</param>
         protected void DoneRows(int numberOfRowsDone)
         {
             Reports.ForEach(r => r.DoneRows(numberOfRowsDone));
