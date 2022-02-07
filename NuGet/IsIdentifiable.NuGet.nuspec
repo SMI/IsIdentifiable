@@ -19,7 +19,7 @@
 		  <dependency id="fo-dicom.Drawing" version="4.0.8" />
 		  <dependency id="HIC.DicomTypeTranslation" version="3.0.0" />
 		  <dependency id="HIC.FAnsiSql" version="2.0.2" />
-		  <dependency id="Magick.NET-Q16-AnyCPU" version="9.0.0" />
+		  <dependency id="Magick.NET-Q16-AnyCPU" version="9.1.0" />
 		  <dependency id="Microsoft.Extensions.Caching.Memory" version="6.0.0" />
 		  <dependency id="NLog" version="4.7.13" />
 		  <dependency id="System.IO.Abstractions" version="16.1.10" />
