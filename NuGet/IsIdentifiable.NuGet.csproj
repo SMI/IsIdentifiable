@@ -3,9 +3,9 @@
     <RootNamespace>NuGet</RootNamespace>
     <AssemblyName>NuGet</AssemblyName>
 	<TargetFramework>net6.0</TargetFramework>
-    <AssemblyTitle>SMI.IsIdentifiable</AssemblyTitle>
+    <AssemblyTitle>IsIdentifiable</AssemblyTitle>
     <Company>Health Informatics Centre, University of Dundee</Company>
-    <Product>SMI.IsIdentifiable</Product>
+    <Product>IsIdentifiable</Product>
     <Description>IsIdentifiable is Library for spotting identifiable data in flat files, dicom files and relational databases (Sql Server, My Sql, Oracle).</Description>
     <Copyright>Copyright 2019</Copyright>
     <Authors>Health Informatics Centre - University of Dundee</Authors>
