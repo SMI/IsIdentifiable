@@ -3,13 +3,13 @@
     <RootNamespace>NuGet</RootNamespace>
     <AssemblyName>NuGet</AssemblyName>
 	<TargetFramework>net6.0</TargetFramework>
-    <AssemblyTitle>HIC.IsIdentifiable</AssemblyTitle>
+    <AssemblyTitle>SMI.IsIdentifiable</AssemblyTitle>
     <Company>Health Informatics Centre, University of Dundee</Company>
-    <Product>HIC.IsIdentifiable</Product>
+    <Product>SMI.IsIdentifiable</Product>
     <Description>IsIdentifiable is Library for spotting identifiable data in flat files, dicom files and relational databases (Sql Server, My Sql, Oracle).</Description>
     <Copyright>Copyright 2019</Copyright>
     <Authors>Health Informatics Centre - University of Dundee</Authors>
-    <PackageId>HIC.IsIdentifiable</PackageId>
+    <PackageId>SMI.IsIdentifiable</PackageId>
     <PackageProjectUrl>https://github.com/HicServices/IsIdentifiable</PackageProjectUrl>
     <PackageTags>Ansi,SQL</PackageTags>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>

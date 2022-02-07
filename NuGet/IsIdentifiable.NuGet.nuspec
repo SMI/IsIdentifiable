@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
-    <id>HIC.IsIdentifiable</id>
+    <id>SMI.IsIdentifiable</id>
     <version>$version$</version>
-    <title>HIC.IsIdentifiable</title>
-    <authors>Health Informatics Centre - University of Dundee</authors>
-    <owners>Health Informatics Centre - University of Dundee</owners>
+    <title>SMI.IsIdentifiable</title>
+    <authors>Universities of Dundee and Edinburgh</authors>
+    <owners>Universities of Dundee and Edinburgh</owners>
     <projectUrl>https://github.com/HicServices/FAnsiSql</projectUrl>
     <license type="expression">GPL-3.0-or-later</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Library for spotting identifiable data in flat files, dicom files and relational databases (Sql Server, My Sql, Oracle).</description>
     <copyright>Copyright 2019</copyright>
-    <tags>Identifiable,Detection</tags>
+    <tags>Identifiable,Detection,Validation,NLP,OCR,Natural Language Processing,Optical Character Recognition</tags>
     <dependencies>
       <group targetFramework="net6.0">
 		  <dependency id="CommandLineParser" version="2.8.0" />
