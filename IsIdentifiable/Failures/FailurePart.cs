@@ -29,6 +29,14 @@ namespace IsIdentifiable.Failures
         /// </summary>
         public string Word { get; set; }
 
+        /// <summary>
+        /// Creates a new instance that describes that a part of a cell failed validation and
+        /// is considered identifiable.  The failing part is <paramref name="word"/> (although
+        /// if a detector matches multiple words it can be more than one.  
+        /// </summary>
+        /// <param name="word">Part of <see cref="Failure.ProblemValue"/> that is identifiable</param>
+        /// <param name="classification">The type of identifying information detected e.g. name, date</param>
+        /// <param name="offset">index into the parent <see cref="Failure.ProblemValue"/> that the <paramref name="word"/> starts at</param>
         public FailurePart(string word,FailureClassification classification,int offset =-1)
         {
             Word = word;
@@ -68,6 +76,12 @@ namespace IsIdentifiable.Failures
         }
 
         #region Equality
+
+        /// <summary>
+        /// Returns true if the <paramref name="other"/> has the same <see cref="Word"/> at the same <see cref="Offset"/>
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public bool Equals(FailurePart other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -76,6 +90,12 @@ namespace IsIdentifiable.Failures
         }
 
 
+        /// <summary>
+        /// Returns true if the <paramref name="obj"/> is a <see cref="FailurePart"/> and 
+        /// has the same <see cref="Word"/> at the same <see cref="Offset"/>
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
@@ -84,6 +104,11 @@ namespace IsIdentifiable.Failures
             return Equals((FailurePart) obj);
         }
 
+        /// <summary>
+        /// Generates a hash code using <see cref="Word"/> and <see cref="Offset"/> (consistent
+        /// with <see cref="Equals(FailurePart)"/>)
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             unchecked

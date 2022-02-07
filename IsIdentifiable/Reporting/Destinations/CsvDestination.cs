@@ -14,7 +14,11 @@ namespace IsIdentifiable.Reporting.Destinations
     /// </summary>
     public class CsvDestination : ReportDestination
     {
-        private string _reportPath;
+        /// <summary>
+        /// The location of the CSV output file created
+        /// </summary>
+        public string ReportPath { get; private set; }
+
         private StreamWriter _streamwriter;
         private CsvWriter _csvWriter;
 
@@ -22,7 +26,7 @@ namespace IsIdentifiable.Reporting.Destinations
         private bool _headerWritten;
 
         /// <summary>
-        /// 
+        /// Creates a new report destination in which values/aggregates are written to CSV (at <see cref="ReportPath"/>)
         /// </summary>
         /// <param name="options"></param>
         /// <param name="reportName"></param>
@@ -35,16 +39,26 @@ namespace IsIdentifiable.Reporting.Destinations
             if (!destDir.Exists)
                 destDir.Create();
 
-            _reportPath = addTimestampToFilename ?
+            ReportPath = addTimestampToFilename ?
                 Path.Combine(destDir.FullName, DateTime.UtcNow.ToString("yyyy-MM-dd-HH-mm") + "-" + reportName + ".csv") : 
                 Path.Combine(destDir.FullName, reportName + ".csv");
         }
 
+        /// <summary>
+        /// Creates new report destination in which values/aggregates are written to CSV <paramref name="file"/>
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="file"></param>
         public CsvDestination(IsIdentifiableBaseOptions options, FileInfo file):base(options)
         {
-            _reportPath = file.FullName;
+            ReportPath = file.FullName;
         }
 
+        /// <summary>
+        /// Writes the headings required by the report into the CSV at <see cref="ReportPath"/>.
+        /// If the file does not exist yet it will be automatically created
+        /// </summary>
+        /// <param name="headers"></param>
         public override void WriteHeader(params string[] headers)
         {
             lock (_oHeaderLock)
@@ -54,7 +68,7 @@ namespace IsIdentifiable.Reporting.Destinations
 
                 _headerWritten = true;
 
-                var csvFile = new FileInfo(_reportPath);
+                var csvFile = new FileInfo(ReportPath);
                 CsvConfiguration csvconf;
                 string sep = Options.DestinationCsvSeparator;
                 // If there is an overriding separator and it's not a comma, then use the users desired delimiter string
@@ -78,6 +92,10 @@ namespace IsIdentifiable.Reporting.Destinations
             }
         }
 
+        /// <summary>
+        /// Appends the report aggregates/items data to the CSV
+        /// </summary>
+        /// <param name="items"></param>
         public override void WriteItems(DataTable items)
         {
             if (!_headerWritten)
@@ -87,6 +105,9 @@ namespace IsIdentifiable.Reporting.Destinations
                 WriteRow(row.ItemArray);
         }
 
+        /// <summary>
+        /// Flushes and disposes of IO handles to <see cref="ReportPath"/>
+        /// </summary>
         public override void Dispose()
         {
             _csvWriter?.Dispose();

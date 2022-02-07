@@ -9,9 +9,33 @@ using IsIdentifiable.Failures;
 
 namespace IsIdentifiable.Rules
 {
+    /// <summary>
+    /// Describes a service that can be consulted by IsIdentifiable to evaluate 
+    /// data and feed back whether it is identifiable.  This is done over TCP
+    /// socket and allows using IsIdentifiable with natural language processing
+    /// services written in other languages e.g. spaCy
+    /// </summary>
+    /// <remarks>
+    /// The protocol is as follows 
+    /// Send:
+    /// "StringToValidate\0"
+    /// Read:
+    /// "Classification\0Index0\0BadWord\0"  (these triplets are repeated when multiple failing parts are detected in a single string validated)
+    /// "Classification1\0Index1\0BadWord1\0Classification2\0Index2\0BadWord2\0"
+    ///
+    /// Example:
+    /// "Person\000\0Dave\0" (the word Dave in the input string at index 0 is considered identifiable and is a 'Person')
+    /// </remarks>
     public class SocketRule : ICustomRule,IDisposable
     {
+        /// <summary>
+        /// The name of the server that is running the listening service e.g. localhost
+        /// </summary>
         public string Host { get; set; }
+
+        /// <summary>
+        /// The port of the server that is running the listening service
+        /// </summary>
         public int Port { get; set; }
         
         private TcpClient _tcp;
@@ -19,6 +43,16 @@ namespace IsIdentifiable.Rules
         private StreamWriter _write;
         private StreamReader _read;
 
+        /// <summary>
+        /// Sends the <paramref name="fieldValue"/> to the service listening on <see cref="Host"/>.  The
+        /// service is expected to reply indicating which parts of the field fail validation (are identifiable)
+        /// </summary>
+        /// <param name="fieldName">The column or tag name of the field being evaluated</param>
+        /// <param name="fieldValue">A single cell or dicom tag that is to be evaluated for identifiable information by the remote service</param>
+        /// <param name="badParts">When failing validation, this is a list of the sub words in the <paramref name="fieldValue"/> that
+        /// are identifiable according to the remote classification service</param>
+        /// <returns>Whether the full <paramref name="fieldValue"/> passed validation or should be reported</returns>
+        /// <exception cref="Exception"></exception>
         public RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
         {
             if (_stream == null)
@@ -54,6 +88,13 @@ namespace IsIdentifiable.Rules
             return badParts.Any() ? RuleAction.Report : RuleAction.None;
         }
 
+        /// <summary>
+        /// Parses the socket <paramref name="responseData"/> recieved from the remote <see cref="Host"/>
+        /// classification service into zero or more <see cref="FailurePart"/>
+        /// </summary>
+        /// <param name="responseData"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public IEnumerable<FailurePart> HandleResponse(string responseData)
         {
             int parts = 3;
@@ -85,6 +126,9 @@ namespace IsIdentifiable.Rules
             }
         }
 
+        /// <summary>
+        /// Closes and disposes the TCP stream to <see cref="Host"/>
+        /// </summary>
         public void Dispose()
         {
             _stream?.Dispose();

@@ -86,11 +86,19 @@ namespace IsIdentifiable.Options
             }
         }
 
+        /// <summary>
+        /// Returns the name of the root directory being evaluated
+        /// </summary>
+        /// <returns></returns>
         public override string GetTargetName()
         {
             return Directory == null ?"No Directory Specified":new DirectoryInfo(Directory).Name;
         }
 
+        /// <summary>
+        /// Checks that the options specified are compatible.  Throws if they are not.
+        /// </summary>
+        /// <exception cref="Exception">Thrown if options are incompatible</exception>
         public override void ValidateOptions()
         {
             base.ValidateOptions();

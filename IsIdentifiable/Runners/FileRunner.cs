@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
-using FAnsi.Discovery;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
@@ -13,6 +11,9 @@ using System.Globalization;
 
 namespace IsIdentifiable.Runners
 {
+    /// <summary>
+    /// Runner for reading data from CSV files and evaluating it for identifiable content
+    /// </summary>
     public class FileRunner : IsIdentifiableAbstractRunner
     {
         private readonly IsIdentifiableFileOptions _opts;

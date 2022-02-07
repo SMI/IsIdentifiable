@@ -35,6 +35,10 @@ namespace IsIdentifiable.Rules
         /// </summary>
         public FailureClassification As { get; set; }
         
+        /// <summary>
+        /// Combination of <see cref="IfPattern"/> and <see cref="CaseSensitive"/>.  Use this to validate
+        /// whether the rule should be applied.
+        /// </summary>
         protected Regex IfPatternRegex;
         private string _ifPatternString;
         private bool _caseSensitive;
