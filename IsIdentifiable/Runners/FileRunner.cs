@@ -19,11 +19,22 @@ namespace IsIdentifiable.Runners
         private readonly IsIdentifiableFileOptions _opts;
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
+        /// <summary>
+        /// Creates a new instance for reading the CSV <see cref="IsIdentifiableFileOptions.File"/>
+        /// and detecting identifiable data
+        /// </summary>
+        /// <param name="opts"></param>
         public FileRunner(IsIdentifiableFileOptions opts) : base(opts)
         {
             _opts = opts;
         }
 
+        /// <summary>
+        /// Opens <see cref="IsIdentifiableFileOptions.File"/> and evaluates all data within
+        /// for identifiable information.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public override int Run()
         {
             using( var fs = new StreamReader(_opts.File.OpenRead()))

@@ -15,6 +15,7 @@ using IsIdentifiable.Allowlists;
 using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using YamlDotNet.Serialization;
+using IsIdentifiable.Reporting;
 
 namespace IsIdentifiable.Runners
 {
@@ -29,6 +30,11 @@ namespace IsIdentifiable.Runners
 
         private readonly IsIdentifiableBaseOptions _opts;
 
+        /// <summary>
+        /// Collection of methods which will be used to aggregate or persist <see cref="Failure"/>
+        /// instances as they are detected by this runner.  A report may total up e.g. by column
+        /// or may just write all the values out in full (serialize) for later review
+        /// </summary>
         public readonly List<IFailureReport> Reports = new List<IFailureReport>();
 
         // DDMMYY + 4 digits 
@@ -126,6 +132,12 @@ namespace IsIdentifiable.Runners
         /// </summary>
         private Stopwatch _lifetime {get;}
 
+        /// <summary>
+        /// Creates an instance and sets up <see cref="Reports"/> and output formats as specified
+        /// in <paramref name="opts"/>
+        /// </summary>
+        /// <param name="opts"></param>
+        /// <exception cref="Exception"></exception>
         protected IsIdentifiableAbstractRunner(IsIdentifiableBaseOptions opts)
         {
             _lifetime = Stopwatch.StartNew();
@@ -201,6 +213,11 @@ namespace IsIdentifiable.Runners
             }
         }
 
+        /// <summary>
+        /// Sorts <see cref="CustomRules"/> according to their action.  This ensures that
+        /// <see cref="RuleAction.Ignore"/> rules operate before <see cref="RuleAction.Report"/>
+        /// preventing conflicting rules.
+        /// </summary>
         public void SortRules()
         {
             CustomRules = CustomRules.OrderByDescending(OrderWeight).ToList();
@@ -279,7 +296,11 @@ namespace IsIdentifiable.Runners
                 CustomAllowlistRules.AddRange(ruleSet.AllowlistRules);
         }
 
-        // ReSharper disable once UnusedMemberInSuper.Global
+        /// <summary>
+        /// When overridden fetches and evaluates all data from the source
+        /// and streams failing (identifiable) data reports to <see cref="Reports"/>
+        /// </summary>
+        /// <returns>0 for success</returns>
         public abstract int Run();
         
         /// <summary>
@@ -491,6 +512,11 @@ namespace IsIdentifiable.Runners
             return db;
         }
 
+        /// <summary>
+        /// Closes and disposes of resources including outputting final totals into logs
+        /// and disposing rules which require custom disposing (e.g. closing sockets to
+        /// NLP services).
+        /// </summary>
         public virtual void Dispose()
         {
             foreach (var d in CustomRules.OfType<IDisposable>()) 

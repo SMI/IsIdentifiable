@@ -1,5 +1,9 @@
 ﻿namespace IsIdentifiable.Rules
 {
+    /// <summary>
+    /// Describes what action should be taken by IsIdentifiable when evaluating
+    /// a string for identifiable information e.g.  Report or Ignore or do nothing.
+    /// </summary>
     public enum RuleAction
     {
         /// <summary>

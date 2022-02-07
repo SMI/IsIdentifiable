@@ -16,8 +16,14 @@ namespace IsIdentifiable.Rules
     /// </summary>
     public class AllowlistRule : IsIdentifiableRule
     {
+
+        /// <summary>
+        /// Combination of <see cref="IfPartPattern"/> and <see cref="CaseSensitive"/>.  Use this to validate
+        /// whether the rule should be applied.
+        /// </summary>
         protected Regex IfPartPatternRegex;
         private string _ifPartPatternString;
+
         /// <summary>
         /// The Regex pattern which should be used to match values a specific failing part
         /// </summary>

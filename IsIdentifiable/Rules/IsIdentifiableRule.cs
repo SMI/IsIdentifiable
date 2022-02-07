@@ -74,6 +74,16 @@ namespace IsIdentifiable.Rules
             IfPatternRegex = _ifPatternString == null ? null : new Regex(_ifPatternString, (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
         }
 
+        /// <summary>
+        /// Compares the <paramref name="fieldValue"/> with the <see cref="IfPattern"/>, <see cref="CaseSensitive"/> and any
+        /// other rule restrictions and returns whether this results in a match.  When matching returns the <see cref="Action"/>
+        /// (ignore or report as identifiable etc).
+        /// </summary>
+        /// <param name="fieldName">The field you are evaluating (column name or tag name)</param>
+        /// <param name="fieldValue">The value in the field</param>
+        /// <param name="badParts">The bits of the <paramref name="fieldValue"/> (if any) that resulted in the return value</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public virtual RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
         {
             badParts = null;

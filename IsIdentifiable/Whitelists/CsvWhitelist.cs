@@ -14,7 +14,15 @@ namespace IsIdentifiable.Allowlists
     {
         private readonly StreamReader _streamreader;
         private readonly CsvReader _reader;
+        private bool firstTime = true;
 
+        /// <summary>
+        /// Reads all values in <paramref name="filePath"/>.  The contents of each line
+        /// will be used as an 'ignore' value by IsIdentifiable (i.e. a list of false
+        /// positives or values that match rules but should be ignored anyway).
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <exception cref="Exception"></exception>
         public CsvAllowlist(string filePath)
         {
             if(!File.Exists(filePath))
@@ -27,12 +35,24 @@ namespace IsIdentifiable.Allowlists
             });
         }
 
+        /// <summary>
+        /// Returns all 
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<string> GetAllowlist()
         {
+            if (!firstTime)
+                throw new Exception("Allow list has already been read from file.  This method should only be called once");
+
             while (_reader.Read())
                 yield return _reader[0];
+
+            firstTime = false;
         }
 
+        /// <summary>
+        /// Closes the file and disposes of IO handles and streams
+        /// </summary>
         public void Dispose()
         {
             _reader.Dispose();
