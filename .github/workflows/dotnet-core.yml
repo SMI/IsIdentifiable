@@ -1,7 +1,7 @@
 name: .NET Core
 
 on:
-  [push,pull_request]
+  [push]
 
 env:
   MSSQL_SA_PASSWORD: "YourStrong!Passw0rd"
@@ -76,10 +76,12 @@ jobs:
       with:
         path: NuGet/bin/Release/*.nupkg
         retention-days: 1
-    - name: Upload release binaries
-      if: contains(github.ref,'refs/tags/')
-      uses: alexellis/upload-assets@0.2.2
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@2.2.1
+      if: contains(github.ref, 'refs/tags/v')
       with:
-        asset_paths: '["ii-cli-win-x64.zip","ii-cli-linux-x64.tar.gz"]'
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ii-cli-*
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
