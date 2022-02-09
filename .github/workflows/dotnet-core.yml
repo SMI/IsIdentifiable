@@ -64,6 +64,7 @@ jobs:
       run: |
          pip install pyinstaller
          (cd nlp && pyinstaller --onefile ner_daemon_spacy.py)
+         
     - name: Package ii binary
       run: |
         (cd ii && dotnet publish --runtime win-x64 -c Release --self-contained true -o ../win-x64)
@@ -81,7 +82,9 @@ jobs:
     - name: Store created nupkg files
       uses: actions/upload-artifact@v2
       with:
-        path: NuGet/bin/Release/*.nupkg
+        path: |
+            NuGet/bin/Release/*.nupkg
+            npl/dist/ner_daemon_spacy
         retention-days: 1
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@2.2.1
