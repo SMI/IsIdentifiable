@@ -42,7 +42,7 @@ import spacy
 import scispacy
 import threading
 import yaml
-
+from spacy.cli.download import download
 # ---------------------------------------------------------------------
 # Map from spaCy's output to a member of FailureClassification enum
 # so that it's compatible with the Stanford CoreNLP output in IsIdentifiable.
@@ -203,6 +203,12 @@ if __name__ == "__main__":
     port_num = int(args.port) if args.port else default_port
 
     spacy_models = args.model if args.model else [default_spacy_model]
+
+    try:
+       print(f"Downloading {spacy_models[0]}") 
+       download(spacy_models[0])
+    except:
+       print(f"Could not download model {spacy_models[0]}. Hopefully it is already installed") 
 
     if args.yaml:
         with open(args.yaml) as fd:

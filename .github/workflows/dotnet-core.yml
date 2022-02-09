@@ -67,6 +67,8 @@ jobs:
          pip install scispacy
          pip install pyyaml
          (cd nlp && pyinstaller --onefile ner_daemon_spacy.py)
+         chmod +x nlp/dist/ner_daemon_spacy
+         (cd nlp/dist && ner_daemon_spacy)        
          
     - name: Package ii binary
       run: |
