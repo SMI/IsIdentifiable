@@ -60,11 +60,12 @@ jobs:
       run: dotnet build --configuration Release --no-restore
     - name: Test
       run: dotnet test --blame -l:"console;verbosity=normal" --no-restore
-    - name: Package spaCy daemon
+    - name: Test and Package spaCy daemon
       run: |
          pip install pyinstaller
          pip install spacy
          pip install scispacy
+         (cd nlp && python test_ner_daemon_spacy.py)
          (cd nlp && pyinstaller --onefile ner_daemon_spacy.py)
          
     - name: Package ii binary
