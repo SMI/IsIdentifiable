@@ -38,19 +38,10 @@ import logging, logging.handlers
 import os
 import socket
 import sys
-# Describe how to use virtualenv if SpaCy not found
-try:
-    import spacy
-except:
-    raise Exception("Cannot load SpaCy module, try source $SMI_ROOT/lib/python3/virtualenvs/spacy2/$(hostname -s)/bin/activate")
-# Only issue a warning if SciSpaCy not found
-try:
-    import scispacy # not yet. Use model en_core_sci_md, or en_ner_bc5cdr_md
-except:
-    print('Warning: SciSpaCy not installed (do not try to use a scispacy language model)', file=sys.stderr)
+import spacy
+import scispacy
 import threading
 import yaml
-
 
 # ---------------------------------------------------------------------
 # Map from spaCy's output to a member of FailureClassification enum

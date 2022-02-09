@@ -63,6 +63,8 @@ jobs:
     - name: Package spaCy daemon
       run: |
          pip install pyinstaller
+         pip install spacy
+         pip install scispacy
          (cd nlp && pyinstaller --onefile ner_daemon_spacy.py)
          
     - name: Package ii binary
