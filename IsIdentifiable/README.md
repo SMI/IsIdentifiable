@@ -5,98 +5,49 @@ Primary Author: [Thomas](https://github.com/tznind)
 ## Contents
  1. [Overview](#overview)
  1. [Setup](#setup)
+ 1. [Optional Downloads](#optional-downloads)
  1. [Invocation](#invocation)
+ 1. [Examples](#examples)
  1. [Rules](#rules) 
     1. [Basic Rules](#basic-rules) 
     2. [Socket Rules](#socket-rules) 
     3. [Consensus Rules](#consensus-rules) 
-    4. [White List Rules](#white-list-rules) 
- 1. [Exchange and Queue Settings](#exchange-and-queue-settings)
- 1. [Expectations](#expectations)
+    4. [Allow List Rules](#allow-list-rules)
  1. [Class Diagram](#class-diagram)
 
 ## Overview
-This service evaluates 'data' for personally identifiable values (e.g. names).  It can source data from a veriety of places (e.g. databases, file system).
+This library evaluates 'data' for personally identifiable values (e.g. names).  It can source data from a veriety of places (e.g. databases, file system).
 
 ## Setup
 
-To run IsIdentifiable you must first build the microservice then download the required data models for NER and OCR.
-Rules must be placed into a suitable directory. Data and rules are supplied in the SmiServices data directory.
+To run IsIdentifiable you must first build the [ii] tool then download the required data models for NER and OCR.
 
-### Downloads
+Rules must be placed into a suitable directory.
 
-The following downloads are required to run the software:
+### Optional Downloads
+
+The following optional download expand the capabilities of the software:
 
 | File     | Destination |  Windows Script |  Linux Script  |
 |----------|-------------|-------- |------|
-| [Tesseract Data files (pixel OCR models)](https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata) | `./data/tessdata` |  [download.ps1](../../../data/tessdata/download.ps1)|  [download.sh](../../../data/tessdata/download.sh)|
-| [Stanford NER Classifiers](http://nlp.stanford.edu/software/stanford-ner-2016-10-31.zip)*    |  `./data/stanford-ner`     | [download.ps1](../../../data/stanford-ner/download.ps1)  | [download.sh](../../../data/stanford-ner/download.sh) |
+| [Tesseract Data files (pixel OCR models)](https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata)* | `./data/tessdata` |  [download.ps1](../data/tessdata/download.ps1)|  [download.sh](../data/tessdata/download.sh)|
+| [Stanford NER Classifiers](http://nlp.stanford.edu/software/stanford-ner-2016-10-31.zip)**    |  `./data/stanford-ner`     | [download.ps1](../data/stanford-ner/download.ps1)  | [download.sh](../data/stanford-ner/download.sh) |
 
-_*Required for NERDaemon_
+_*Only required for DICOM pixel text detection_
+_**Only required for NLP NERDaemon_
  
 ## Invocation
 
-IsIdentifiable can be run in one of several modes:
+IsIdentifiable can be run from the [ii] command line tool:
 
- * As a microservice host to process DICOM files named in RabbitMQ messages
- * Interactively to process a DICOM file or a directory of DICOM files
- * Interactively to process a every row of every column in a database table
+ * To process a DICOM file or a directory of DICOM files
+ * To process a every row of every column in a database table
 
-To run as a service use `dotnet IsIdentifiable.dll service -y default.yaml [options]`
-
-To run on files use `dotnet IsIdentifiable.dll dir -d /path/dir [--pattern *.dcm] [options]`
-
-To run on a database use `dotnet IsIdentifiable.dll db -d database -t table -p dbtype [options]`
+You can also link your code to the [nuget package](https://www.nuget.org/packages/IsIdentifiable/).  For example to add a new input type or operate as a service that evaluates data on demand.
 
 ### Examples
 
-```bash
-dotnet publish
-
-cd ./src/microservices/IsIdentifiable/bin/AnyCPU/Debug/netcoreapp2.2/
-
-#Generic help (lists modes)
-dotnet IsIdentifiable.dll --help
-
-#Specific help (for a given mode e.g. 'db')
-dotnet ./IsIdentifiable.dll db --help
-```
-
-An example command (evaluate all the images in `C:\MassiveImageArchive`) would be as follows:
-
-```
-dotnet IsIdentifiable.dll dir -d C:/MassiveImageArchive --storereport
-```
-
-The outputs of this (on some anonymised data):
-
-```
-Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets
-C:\MassiveImageArchive\DOI\000001.dcm,1.3.6.1.4.1.9590.100.1.2.64408251011211630124074907290278463475,"(0008,0005)",ISO_IR 100,ISO,Organization,0
-C:\MassiveImageArchive\DOI\000001.dcm,1.3.6.1.4.1.9590.100.1.2.64408251011211630124074907290278463475,"(0018,1016)",MathWorks,MathWorks,Organization,0
-C:\MassiveImageArchive\DOI\000001.dcm,1.3.6.1.4.1.9590.100.1.2.64408251011211630124074907290278463475,"(0018,1018)",MATLAB,MATLAB,Person,0
-C:\MassiveImageArchive\DOI\000001.dcm,1.3.6.1.4.1.9590.100.1.2.64408251011211630124074907290278463475,"(0020,0010)",DDSM,DDSM,Person,0
-C:\MassiveImageArchive\DOI\000002.dcm,1.3.6.1.4.1.9590.100.1.2.423893162212842428532864042250901777433,"(0008,0005)",ISO_IR 100,ISO,Organization,0
-C:\MassiveImageArchive\DOI\000002.dcm,1.3.6.1.4.1.9590.100.1.2.423893162212842428532864042250901777433,"(0018,1018)",MATLAB,MATLAB,Person,0
-C:\MassiveImageArchive\DOI\000002.dcm,1.3.6.1.4.1.9590.100.1.2.423893162212842428532864042250901777433,"(0020,0010)",DDSM,DDSM,Person,0
-C:\MassiveImageArchive\DOI\000003.dcm,1.3.6.1.4.1.9590.100.1.2.84709658512632788123980174250729731712,"(0008,0005)",ISO_IR 100,ISO,Organization,0
-C:\MassiveImageArchive\DOI\000003.dcm,1.3.6.1.4.1.9590.100.1.2.84709658512632788123980174250729731712,"(0018,1016)",MathWorks,MathWorks,Organization,0
-C:\MassiveImageArchive\DOI\000003.dcm,1.3.6.1.4.1.9590.100.1.2.84709658512632788123980174250729731712,"(0018,1018)",MATLAB,MATLAB,Person,0
-C:\MassiveImageArchive\DOI\000003.dcm,1.3.6.1.4.1.9590.100.1.2.84709658512632788123980174250729731712,"(0020,0010)",DDSM,DDSM,Person,0
-C:\MassiveImageArchive\DOI\Calc-Test_P_00038_LEFT_CC\1.3.6.1.4.1.9590.100.1.2.85935434310203356712688695661986996009\1.3.6.1.4.1.9590.100.1.2.374115997511889073021386151921807063992\000000.dcm,1.3.6.1.4.1.9590.100.1.2.289923739312470966435676008311959891294,"(0008,0005)",ISO_IR 100,ISO,Organization,0
-C:\MassiveImageArchive\DOI\Calc-Test_P_00038_LEFT_CC\1.3.6.1.4.1.9590.100.1.2.85935434310203356712688695661986996009\1.3.6.1.4.1.9590.100.1.2.374115997511889073021386151921807063992\000000.dcm,1.3.6.1.4.1.9590.100.1.2.289923739312470966435676008311959891294,"(0018,1016)",MathWorks,MathWorks,Organization,0
-C:\MassiveImageArchive\DOI\Calc-Test_P_00038_LEFT_CC\1.3.6.1.4.1.9590.100.1.2.85935434310203356712688695661986996009\1.3.6.1.4.1.9590.100.1.2.374115997511889073021386151921807063992\000000.dcm,1.3.6.1.4.1.9590.100.1.2.289923739312470966435676008311959891294,"(0018,1018)",MATLAB,MATLAB,Person,0
-C:\MassiveImageArchive\DOI\Calc-Test_P_00038_LEFT_CC\1.3.6.1.4.1.9590.100.1.2.85935434310203356712688695661986996009\1.3.6.1.4.1.9590.100.1.2.374115997511889073021386151921807063992\000000.dcm,1.3.6.1.4.1.9590.100.1.2.289923739312470966435676008311959891294,"(0020,0010)",DDSM,DDSM,Person,0
-[...]
-```
-
-You can run pixel data (OCR) by passing the `--tessdirectory` flag:
-
-```
-dotnet IsIdentifiable.dll dir -d C:\MassiveImageArchive --storereport --tessdirectory E:/SmiServices/data/tessdata/
-```
-
-The directory must be named `tessdata` and contain a file named `eng.traineddata`
+See [ii Usage Examples](../ii/README.md#Examples)
 
 ## Rules
 
@@ -108,7 +59,7 @@ Some rules come out of the box (e.g. CHI/Postcode/Date) but for the rest you mus
 There are three classes of rule: BasicRules, SocketRules and AllowlistRules. See below for more details of each.
 They are applied in that order, so if a value is Ignored in a Basic rule it will not be passed to any further rules.
 If a value fails in a SocketRule (eg. the NER daemon labels it as a Person), then a subsequent Allowlist rule can Ignore it.
-Not all Ignore rules go into the AllowlistRules section; this is intended only for white-listing fragments which NERd has incorrectly reported as failures.
+Not all Ignore rules go into the AllowlistRules section; this is intended only for allow-listing fragments which NERd has incorrectly reported as failures.
 
 Rules can be read from one or more yaml files. Each file can have zero or one set of BasicRules, plus zero or one set of AllowlistRules.
 All of the BasicRules from all of the files will be merged to form a single set of BasicRules; similarly for AllowlistRules.
@@ -179,15 +130,15 @@ ConsensusRules:
 
 Consensus rules are specifically designed for intersecting two or more over matching rules e.g. NLP classifications.  If only one rule flags something as identifiable it will be ignored (both must agree).
 
-### White List Rules
+### Allow List Rules
 
-White list rules are a last chance filter on the final output of all other rules.  They allow discarding rules based on the whole string or the specific failing part.
+Allow list rules are a last chance filter on the final output of all other rules.  They allow discarding rules based on the whole string or the specific failing part.
 
-The Action for a White List rule must be Ignore because it is intended to allow values previously reported to be ignored as false positives.
+The Action for a Allow List rule must be Ignore because it is intended to allow values previously reported to be ignored as false positives.
 
 All of the constraints must match in order for the rule to Ignore the value.
 
-As soon as a value matches a white list rule no further white list rules are needed.
+As soon as a value matches an allow list rule no further allow list rules are needed.
 Unlike a BasicRule whose Pattern matches the full value of a field (column or DICOM tag) the Allowlist rule has two Patterns, IfPattern which has the same behaviour and IfPartPattern which matches only the substring that failed. This feature allows context to be specified, see the second example below.
 A Allowlist rule can also match the failure classification (`PrivateIdentifier`, `Location`, `Person`, `Organization`, `Money`, `Percent`, `Date`, `Time`, `PixelText`, `Postcode`).
 For example, if SIEMENS has been reported as a Person found in the the Manufacturer column,
@@ -208,33 +159,7 @@ IfPattern: MR Brian And Skull
 
 Note that there is no need to specify ^ and $ in IfPattern as other text before or after it will not change the meaning.
 
-## Exchange and Queue Settings
-
-In order to run as a microservice you should call it with the `service` option
-
-| Read/Write | Type | Config setting |
-| ------------- | ------------- |------------- |
-| Read | ExtractFileMessage | IsIdentifiableOptions.QueueName |
-| Write | IsIdentifiableMessage | IsIdentifiableOptions.IsIdentifiableProducerOptions.ExchangeName |
-
-## Config
-
-| YAML Section  | Purpose |
-| ------------- | ------------- |
-| RabbitOptions | Describes the location of the rabbit server for sending messages to |
-| IsIdentifiableOptions | Describes what `IClassifier` to run and where the classifier models are stored. The key `DataDirectory` specifies the path to the data directory. The key `ClassifierType` specifies which classifier to run, typically `IsIdentifiable.Service.TesseractStanfordDicomFileClassifier` |
-
-## Expectations
-
-> TODO: 
-
-### Data Failure States
-
-> TODO: 
-
-### Environmental Failure States
- 
-> TODO: 
-
 ## Class Diagram
 ![Class Diagram](./IsIdentifiable.png)
+
+[ii]: ../ii/README.md
