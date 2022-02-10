@@ -77,6 +77,15 @@ class CustomRunner : IsIdentifiableAbstractRunner
 }
 ```
 
+Run your csproj with `dotnet run` and you should see the following
+
+```
+$> dotnet run
+Failures:1
+Bad Parts:2
+Bad Part 0:2Mar
+Bad Part 1:0101010101
+```
 
 ## Building
 
