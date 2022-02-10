@@ -48,7 +48,7 @@ runner.Run();
 Console.WriteLine("Failures:" + dest.Failures.Count);
 Console.WriteLine("Bad Parts:" + dest.Failures[0].Parts.Count);
 Console.WriteLine("Bad Part 0:" + dest.Failures[0].Parts[0].Word);
-Console.WriteLine("Bad Part 1:" + dest.Failures[1].Parts[1].Word);
+Console.WriteLine("Bad Part 1:" + dest.Failures[0].Parts[1].Word);
 
 class CustomRunner : IsIdentifiableAbstractRunner
 {
