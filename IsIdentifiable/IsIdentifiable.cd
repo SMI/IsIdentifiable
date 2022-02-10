@@ -24,6 +24,8 @@
     <AssociationLine Name="Reports" Type="IsIdentifiable.Reporting.Reports.IFailureReport" FixedFromPoint="true">
       <Path>
         <Point X="3" Y="4.665" />
+        <Point X="3.217" Y="4.665" Type="JumpStart" />
+        <Point X="3.383" Y="4.665" Type="JumpEnd" />
         <Point X="4.25" Y="4.665" />
         <Point X="4.25" Y="5.141" />
         <Point X="6.75" Y="5.141" />
@@ -33,7 +35,7 @@
       </Path>
     </AssociationLine>
     <TypeIdentifier>
-      <HashCode>IAAAAAAqACDAA0AABBBEwIAAIACoAABAAABAAADEYAI=</HashCode>
+      <HashCode>IAEAAAAqACDAB0AABFNEwIAAIACgAABAAAAAAACEYAY=</HashCode>
       <FileName>Runners\IsIdentifiableAbstractRunner.cs</FileName>
     </TypeIdentifier>
     <ShowAsCollectionAssociation>
@@ -43,49 +45,31 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="IsIdentifiable.Reporting.Destinations.CsvDestination" Collapsed="true">
-    <Position X="10" Y="11.5" Width="2" />
+    <Position X="10" Y="11.75" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAIAAACAAEIEAAAAAAAAAIAAAAABAAABgAAAAAAA=</HashCode>
+      <HashCode>AAAAAIAAACAAEIEAAEAAgAAAAAAAAABAAAAgAAAAAAA=</HashCode>
       <FileName>Reporting\Destinations\CsvDestination.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="IsIdentifiable.Reporting.Destinations.ReportDestination">
     <Position X="10.25" Y="8.75" Width="1.5" />
-    <AssociationLine Name="Options" Type="IsIdentifiable.Options.IsIdentifiableAbstractOptions" FixedFromPoint="true" FixedToPoint="true">
-      <Path>
-        <Point X="10.25" Y="9.312" />
-        <Point X="9.875" Y="9.312" />
-        <Point X="9.875" Y="5.938" />
-        <Point X="10.25" Y="5.938" />
-      </Path>
-    </AssociationLine>
     <TypeIdentifier>
       <HashCode>AAAAAAAAACAAEACAAAAAAAAAAAAAAAAAAAggAABAAAA=</HashCode>
       <FileName>Reporting\Destinations\ReportDestination.cs</FileName>
     </TypeIdentifier>
-    <ShowAsAssociation>
-      <Property Name="Options" />
-    </ShowAsAssociation>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="IsIdentifiable.Reporting.Destinations.DatabaseDestination" Collapsed="true">
-    <Position X="10" Y="12.25" Width="2" />
+    <Position X="10" Y="12.5" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAIAAAEAAAAAgAAAAAAAAAAAAAAAAAAAAABAA=</HashCode>
       <FileName>Reporting\Destinations\DatabaseDestination.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="IsIdentifiable.Options.IsIdentifiableAbstractOptions">
-    <Position X="10.25" Y="1.25" Width="2.25" />
-    <TypeIdentifier>
-      <HashCode>AFAABAAAgAAAABAAAQAACAAAAAQGBIkABACAAAEEACI=</HashCode>
-      <FileName>Options\IsIdentifiableAbstractOptions.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="IsIdentifiable.Options.IsIdentifiableDicomFileOptions">
     <Position X="13" Y="1.5" Width="2.5" />
     <TypeIdentifier>
-      <HashCode>ABAAABAAAAAIAAAAAAAAAAIQEAAAAAgAAAAAUAAAgAA=</HashCode>
+      <HashCode>ABACABAAAAAIAAAAAAAAAAIQEAAAAAgAAAAAUAAAgAA=</HashCode>
       <FileName>Options\IsIdentifiableDicomFileOptions.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -113,12 +97,12 @@
   <Class Name="IsIdentifiable.Runners.DicomFileRunner" Collapsed="true">
     <Position X="1" Y="9" Width="2" />
     <TypeIdentifier>
-      <HashCode>AIAAgAgAAASgAAAAggAAAAACIAAIAAABAAAAAAIAKAI=</HashCode>
+      <HashCode>AIAAgAgAAASgAAAAggAAAAQAIAAIAAABAAAEAAIAKAI=</HashCode>
       <FileName>Runners\DicomFileRunner.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="IsIdentifiable.Runners.IsIdentifiableMongoRunner" Collapsed="true">
-    <Position X="1" Y="10" Width="2" />
+    <Position X="1" Y="10" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AAAIAAAAAAAAAUAAAAAAEQAAIAEAAQIAIAACIAEAoAI=</HashCode>
       <FileName>Runners\IsIdentifiableMongoRunner.cs</FileName>
@@ -127,7 +111,7 @@
   <Class Name="IsIdentifiable.Reporting.Reports.FailureReport">
     <Position X="7" Y="6" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAIAAAAAAAAAAAAAAABAAAAAAAAAIAAEAAQAAAAARAA=</HashCode>
+      <HashCode>AAIAAAAAAAAAAAAAAABAAAAAAAAAIAAEAAQEAAAAQAA=</HashCode>
       <FileName>Reporting\Reports\FailureReport.cs</FileName>
     </TypeIdentifier>
     <ShowAsCollectionAssociation>
@@ -173,16 +157,16 @@
   <Class Name="IsIdentifiable.Allowlists.CsvAllowlist" Collapsed="true" BaseTypeListCollapsed="true">
     <Position X="1" Y="12.5" Width="2.5" />
     <TypeIdentifier>
-      <HashCode>AAEAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAA=</HashCode>
-      <FileName>Allowlists\CsvAllowlist.cs</FileName>
+      <HashCode>AAEAAAAAAGAAAAAAAAAAAAAAAAAAAAAAAAAIAACAAAA=</HashCode>
+      <FileName>Whitelists\CsvWhitelist.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="IsIdentifiable.Allowlists.DiscoveredColumnAllowlist" Collapsed="true" BaseTypeListCollapsed="true">
     <Position X="1" Y="11.75" Width="2.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAIAAAAAAIAAAAAAAAABAAAAAAAAAAAA=</HashCode>
-      <FileName>Allowlists\DiscoveredColumnAllowlist.cs</FileName>
+      <HashCode>AAAAAAAAACAAAIAAAAAAIAAAAAAAAAAAAAAIAAAAAAA=</HashCode>
+      <FileName>Whitelists\DiscoveredColumnWhitelist.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -206,6 +190,13 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
+  <Class Name="IsIdentifiable.Options.IsIdentifiableBaseOptions">
+    <Position X="9.5" Y="1" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AFIABASggAACABAAAQAACAAAAAQUBAgCBACQAAEEACI=</HashCode>
+      <FileName>Options\IsIdentifiableAbstractOptions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
   <Interface Name="IsIdentifiable.Reporting.Reports.IFailureReport">
     <Position X="7" Y="3.5" Width="1.5" />
     <TypeIdentifier>
@@ -223,8 +214,8 @@
   <Interface Name="IsIdentifiable.Allowlists.IAllowlistSource" Collapsed="true">
     <Position X="1" Y="10.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAA=</HashCode>
-      <FileName>Allowlists\IAllowlistSource.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAA=</HashCode>
+      <FileName>Whitelists\IWhitelistSource.cs</FileName>
     </TypeIdentifier>
   </Interface>
   <Interface Name="IsIdentifiable.Rules.ICustomRule">
