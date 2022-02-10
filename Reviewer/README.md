@@ -125,7 +125,7 @@ _Rules Manager View_
 | `<Delete>` | Removes a rule from the rulesbase |
 | `<Enter>` | Opens menu (if any) for interacting with rule(s) highlighted |
 
-[IsIdentifiable]: ../../microservices/IsIdentifiable/README.md
+[IsIdentifiable]: ../IsIdentifiable/README.md
 [PII]: https://en.wikipedia.org/wiki/Personal_data
 [SmiRunner]: ../Applications.SmiRunner/
 [Managing the rulebase]: #managing-the-rulebase
