@@ -26,28 +26,17 @@ There are 3 activities that can be undertaken using the reviewer:
 
 ## 2. Setup / Installation
 
-The application runs as a sub verb of `smi` (See [SmiRunner]). You can see the application help by running:
+The application runs as a sub verb of the CLI `ii` (See [SmiRunner]). You can see the application help by running:
 
 ```
-.\smi is-identifiable-reviewer --help
+.\ii review --help
 ```
-
-The following parts of the global yaml config file interact with this tool:
-
-| YAML Section  | Purpose |
-| ------------- | ------------- |
-| IsIdentifiableOptions | What files/directories to find the current rulesbase for the [IsIdentifiable] process.  This used when [Managing the rulebase] |
-| IsIdentifiableReviewerGlobalOptions |  |
-
-| Command Line Options | Purpose |
-| ------------- | ------------- |
-|IsIdentifiableReviewerOptions | Allows overriding of which yaml file is loaded and runtime arguments e.g. which table to redact / report to load|
 
 ## 3. Usage
 
 ### Reviewing the output of IsIdentifiable
 
-The IsIdentifiable tool applies NLP and the rules base to identify [PII] data in the database.  A sample output file is included: [ExampleReport](./ExampleReport.csv) is included.
+The [IsIdentifiable] tool applies NLP and the rules base to identify [PII] data in the database.  A sample output file is included: [ExampleReport](../ii/ExampleReport.csv) is included.
 
 Open the report using the `-f somefile.csv` command line option or `File->Open Report`.
 
@@ -107,7 +96,7 @@ The following flags should be combined to successfully redact the database:
 | -t | -t z:\temp\targets.yaml | Path to a file containing the connection string (and DMBS type) of the relational database server that has the table requiring redaction|
 
 ```bash
-smi.exe is-identifiable-reviewer -f ./ExampleReport.csv -u ./misses.csv -t z:\temp\targets.yaml
+ii.exe review -f ./ExampleReport.csv -u ./misses.csv -t z:\temp\targets.yaml
 ```
 _Example redaction command_
 
