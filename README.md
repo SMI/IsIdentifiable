@@ -15,6 +15,7 @@ Rules base is driven by regular expressions and plugin services (e.g. Natural La
 - [Detector Documentation](./IsIdentifiable/README.md)
 - [Reviewer Documentation](./Reviewer/README.md)
 
+There is a [standalone command line tool called ii](./ii/README.md) for running directly or you can use the [nuget package](https://www.nuget.org/packages/IsIdentifiable/) in your own code to evaluate data.
 
 ## Building
 
