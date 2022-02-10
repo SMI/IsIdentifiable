@@ -46,7 +46,7 @@ namespace IsIdentifiable.Reporting
         /// <param name="parts"></param>
         public Failure(IEnumerable<FailurePart> parts)
         {
-            Parts = new ReadOnlyCollection<FailurePart>(parts.ToList());
+            Parts = new ReadOnlyCollection<FailurePart>(parts.OrderBy(p=>p.Offset).ToList());
         }
 
 

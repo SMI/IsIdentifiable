@@ -136,9 +136,10 @@ namespace IsIdentifiable.Runners
         /// Creates an instance and sets up <see cref="Reports"/> and output formats as specified
         /// in <paramref name="opts"/>
         /// </summary>
-        /// <param name="opts"></param>
+        /// <param name="opts">Configuration class that stores where rules should be loaded from, whether to consider dates identifiable etc</param>
+        /// <param name="customReports">Any custom reports that should be added in addition to those specified in <paramref name="opts"/></param>
         /// <exception cref="Exception"></exception>
-        protected IsIdentifiableAbstractRunner(IsIdentifiableBaseOptions opts)
+        protected IsIdentifiableAbstractRunner(IsIdentifiableBaseOptions opts, params IFailureReport[] customReports)
         {
             _lifetime = Stopwatch.StartNew();
             _opts = opts;
@@ -152,10 +153,15 @@ namespace IsIdentifiable.Runners
 
             if (opts.ValuesReport)
                 Reports.Add(new FailingValuesReport(targetName));
-
+            
             if (opts.StoreReport)
                 Reports.Add(new FailureStoreReport(targetName, _opts.MaxCacheSize ?? IsIdentifiableBaseOptions.MaxCacheSizeDefault));
-            
+
+            // add custom reports
+            foreach (var report in customReports)
+                Reports.Add(report);
+
+            // complain if no reports
             if (!Reports.Any())
                 throw new Exception("No reports have been specified, use the relevant command line flag e.g. --ColumnReport");
 
