@@ -49,13 +49,12 @@ namespace IsIdentifiable
                 IsIdentifiableDicomFileOptions,
                 IsIdentifiableMongoOptions,
                 IsIdentifiableFileOptions,
-                IsIdentifiableMongoOptions,
                 IsIdentifiableReviewerOptions>(args)
                 .MapResult(
                           (IsIdentifiableRelationalDatabaseOptions o) => Run(o),
                           (IsIdentifiableDicomFileOptions o) => Run(o),
-                          (IsIdentifiableFileOptions o) => Run(o),
                           (IsIdentifiableMongoOptions o) => Run(o),
+                          (IsIdentifiableFileOptions o) => Run(o),
                           (IsIdentifiableReviewerOptions o) => Run(o),
                 errors => 1);
             
