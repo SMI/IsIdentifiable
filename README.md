@@ -1,5 +1,6 @@
 [![.NET Core](https://github.com/SMI/IsIdentifiable/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/SMI/IsIdentifiable/actions/workflows/dotnet-core.yml) [![Total alerts](https://img.shields.io/lgtm/alerts/g/SMI/IsIdentifiable.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/SMI/IsIdentifiable/alerts/) [![NuGet Badge](https://buildstats.info/nuget/IsIdentifiable)](https://www.nuget.org/packages/IsIdentifiable/)
 
+![Supports reading from MongoDb, Sql Server, MySql, PostgreSql, DICOM and CSV files](/sources.png)
 
 # IsIdentifiable
 A tool for detecting identifiable information in data sources.  Out of the box supports:
@@ -7,6 +8,7 @@ A tool for detecting identifiable information in data sources.  Out of the box s
 - CSV
 - DICOM
 - Relational Database Tables (Sql Server, MySql, Postgres, Oracle)
+- MongoDb
 
 ![Demo Video](/isidentifiable.gif)
 
