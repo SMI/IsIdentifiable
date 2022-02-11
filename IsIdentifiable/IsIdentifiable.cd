@@ -13,25 +13,28 @@
     <Position X="10.123" Y="0.5" Height="0.338" Width="3.282" />
   </Comment>
   <Class Name="IsIdentifiable.Runners.DatabaseRunner" Collapsed="true">
-    <Position X="1" Y="6.5" Width="2" />
+    <Position X="2.5" Y="10.25" Width="1.75" />
+    <InheritanceLine Type="IsIdentifiable.Runners.IsIdentifiableAbstractRunner" ManuallyRouted="true" FixedFromPoint="true">
+      <Path>
+        <Point X="2.5" Y="9.026" />
+        <Point X="2.5" Y="10.25" />
+        <Point X="3.375" Y="10.25" />
+      </Path>
+    </InheritanceLine>
     <TypeIdentifier>
       <HashCode>AAAAAQAAAAAAgAAAAAABAAAAIAAACAAAAAACAAAAIAI=</HashCode>
       <FileName>Runners\DatabaseRunner.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="IsIdentifiable.Runners.IsIdentifiableAbstractRunner">
-    <Position X="1" Y="1.5" Width="2" />
+    <Position X="1" Y="1.25" Width="2" />
     <AssociationLine Name="Reports" Type="IsIdentifiable.Reporting.Reports.IFailureReport" FixedFromPoint="true">
       <Path>
-        <Point X="3" Y="4.665" />
-        <Point X="3.217" Y="4.665" Type="JumpStart" />
-        <Point X="3.383" Y="4.665" Type="JumpEnd" />
-        <Point X="4.25" Y="4.665" />
-        <Point X="4.25" Y="5.141" />
-        <Point X="6.75" Y="5.141" />
-        <Point X="6.75" Y="5.43" />
-        <Point X="7.75" Y="5.43" />
-        <Point X="7.75" Y="5.18" />
+        <Point X="3" Y="4.415" />
+        <Point X="4.25" Y="4.415" />
+        <Point X="4.25" Y="2.25" />
+        <Point X="7.75" Y="2.25" />
+        <Point X="7.75" Y="3.5" />
       </Path>
     </AssociationLine>
     <TypeIdentifier>
@@ -83,29 +86,29 @@
   <Class Name="IsIdentifiable.Options.IsIdentifiableMongoOptions">
     <Position X="13.25" Y="6.5" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>gBAAQAAAAAEAAAAAAAAAAAAACAAAAAgAAAABQAABIAA=</HashCode>
+      <HashCode>ABAAQAAAAAEAAAAAAAAAAAAAAAAAAAgAACABQAABIAA=</HashCode>
       <FileName>Options\IsIdentifiableMongoOptions.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="IsIdentifiable.Options.IsIdentifiableRelationalDatabaseOptions">
-    <Position X="12.5" Y="10.25" Width="3" />
+    <Position X="12.5" Y="9.75" Width="3" />
     <TypeIdentifier>
       <HashCode>AAIAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAQQAAAgA=</HashCode>
       <FileName>Options\IsIdentifiableRelationalDatabaseOptions.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="IsIdentifiable.Runners.DicomFileRunner" Collapsed="true">
-    <Position X="1" Y="9" Width="2" />
+    <Position X="0.5" Y="9.5" Width="2" />
     <TypeIdentifier>
       <HashCode>AIAAgAgAAASgAAAAggAAAAQAIAAIAAABAAAEAAIAKAI=</HashCode>
       <FileName>Runners\DicomFileRunner.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="IsIdentifiable.Runners.IsIdentifiableMongoRunner" Collapsed="true">
-    <Position X="1" Y="10" Width="2.5" />
+  <Class Name="IsIdentifiable.Runners.MongoRunner" Collapsed="true">
+    <Position X="2.5" Y="9.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAAIAAAAAAAAAUAAAAAAEQAAIAEAAQIAIAACIAEAoAI=</HashCode>
-      <FileName>Runners\IsIdentifiableMongoRunner.cs</FileName>
+      <HashCode>AAAIABAAACAAAUAAAAAAEQAAIAEAAQIAAAACIAEAoAI=</HashCode>
+      <FileName>Runners\MongoRunner.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="IsIdentifiable.Reporting.Reports.FailureReport">
@@ -155,7 +158,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="IsIdentifiable.Allowlists.CsvAllowlist" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="1" Y="12.5" Width="2.5" />
+    <Position X="5.25" Y="12.25" Width="1.25" />
     <TypeIdentifier>
       <HashCode>AAEAAAAAAGAAAAAAAAAAAAAAAAAAAAAAAAAIAACAAAA=</HashCode>
       <FileName>Whitelists\CsvWhitelist.cs</FileName>
@@ -163,7 +166,7 @@
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="IsIdentifiable.Allowlists.DiscoveredColumnAllowlist" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="1" Y="11.75" Width="2.5" />
+    <Position X="3" Y="12.25" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAACAAAIAAAAAAIAAAAAAAAAAAAAAIAAAAAAA=</HashCode>
       <FileName>Whitelists\DiscoveredColumnWhitelist.cs</FileName>
@@ -171,7 +174,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="IsIdentifiable.Failures.FailurePart">
-    <Position X="4.25" Y="5.5" Width="1.5" />
+    <Position X="4.5" Y="5.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAEAAAAAAAAAAAAAwAQAAAAAAAAAAIAAAAAAAAAAgAA=</HashCode>
       <FileName>Failures\FailurePart.cs</FileName>
@@ -197,6 +200,13 @@
       <FileName>Options\IsIdentifiableAbstractOptions.cs</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="IsIdentifiable.Runners.FileRunner" Collapsed="true">
+    <Position X="0.5" Y="10.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAABAAAAIAAAAAAAAAAAAAAAIAI=</HashCode>
+      <FileName>Runners\FileRunner.cs</FileName>
+    </TypeIdentifier>
+  </Class>
   <Interface Name="IsIdentifiable.Reporting.Reports.IFailureReport">
     <Position X="7" Y="3.5" Width="1.5" />
     <TypeIdentifier>
@@ -212,7 +222,7 @@
     </TypeIdentifier>
   </Interface>
   <Interface Name="IsIdentifiable.Allowlists.IAllowlistSource" Collapsed="true">
-    <Position X="1" Y="10.75" Width="1.5" />
+    <Position X="4.75" Y="11.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAA=</HashCode>
       <FileName>Whitelists\IWhitelistSource.cs</FileName>
@@ -226,7 +236,7 @@
     </TypeIdentifier>
   </Interface>
   <Enum Name="IsIdentifiable.Failures.FailureClassification">
-    <Position X="4.25" Y="8.25" Width="2" />
+    <Position X="4.5" Y="8.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AIAQAAAAAAAAAAAAAAIAgAAAAAAAAQgBAAAACAEAIQA=</HashCode>
       <FileName>Failures\FailureClassification.cs</FileName>
