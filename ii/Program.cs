@@ -74,8 +74,8 @@ namespace IsIdentifiable
         {
             Inherit(opts);
 
-            using (var runner = new DicomFileRunner(opts))
-                return runner.Run();
+            using var runner = new DicomFileRunner(opts);
+            return runner.Run();
         }
 
         private static int Run(IsIdentifiableRelationalDatabaseOptions opts)
@@ -87,22 +87,22 @@ namespace IsIdentifiable
 
             Inherit(opts);
 
-            using (var runner = new DatabaseRunner(opts))
-                return runner.Run();
+            using var runner = new DatabaseRunner(opts);
+            return runner.Run();
         }
         private static int Run(IsIdentifiableFileOptions opts)
         {
             Inherit(opts);
 
-            using (var runner = new FileRunner(opts))
-                return runner.Run();
+            using var runner = new FileRunner(opts);
+            return runner.Run();
         }
         private static int Run(IsIdentifiableMongoOptions opts)
         {
             Inherit(opts);
 
-            using (var runner = new MongoRunner(opts))
-                return runner.Run();
+            using var runner = new MongoRunner(opts);
+            return runner.Run();
         }
         private static void Inherit(IsIdentifiableReviewerOptions opts)
         {

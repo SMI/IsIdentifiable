@@ -69,7 +69,7 @@ namespace IsIdentifiable.Runners
                 Reports.Add(_treeReport);
             }
 
-            var mongoClient = new MongoClient(opts.ConnectionString);
+            var mongoClient = new MongoClient(opts.MongoConnectionString);
 
             IMongoDatabase db = TryGetDatabase(mongoClient,_opts.DatabaseName);
             _collection = TryGetCollection(db, _opts.CollectionName);
@@ -125,7 +125,7 @@ namespace IsIdentifiable.Runners
                     IEnumerable<BsonDocument> batch = cursor.Current;
                     var batchCount = 0;
 
-                    var batchFailures = new List<Reporting.Failure>();
+                    var batchFailures = new List<Failure>();
                     var oListLock = new object();
                     var oLogLock = new object();
 
@@ -200,10 +200,10 @@ namespace IsIdentifiable.Runners
 
 
 
-        private IList<Reporting.Failure> ProcessDataset(ObjectId documentId, DicomDataset ds, string tagTree = "")
+        private IList<Failure> ProcessDataset(ObjectId documentId, DicomDataset ds, string tagTree = "")
         {
             var nodeCounts = new Dictionary<string, int>();
-            var failures = new List<Reporting.Failure>();
+            var failures = new List<Failure>();
 
             ds.TryGetString(DicomTag.Modality, out string modality);
             bool hasImageType = ds.TryGetValues(DicomTag.ImageType, out string[] imageTypeArr);
@@ -220,13 +220,12 @@ namespace IsIdentifiable.Runners
             {
                 string kw = item.Tag.DictionaryEntry.Keyword;
 
-                var asSequence = item as DicomSequence;
-                if (asSequence != null)
+                if (item is DicomSequence asSequence)
                 {
                     for (var i = 0; i < asSequence.Count(); ++i)
                     {
-                        DicomDataset subDataset = asSequence.ElementAt(i);
-                        string newTagTree = tagTree + kw + "[" + i + "]->";
+                        var subDataset = asSequence.ElementAt(i);
+                        var newTagTree = $"{tagTree}{kw}[{i}]->";
                         failures.AddRange(ProcessDataset(documentId, subDataset, newTagTree));
                     }
 
@@ -281,8 +280,10 @@ namespace IsIdentifiable.Runners
 
         private IMongoCollection<BsonDocument> TryGetCollection(IMongoDatabase database, string collectionName)
         {
-            ListCollectionNamesOptions listOptions = new ListCollectionNamesOptions();
-            listOptions.Filter = new BsonDocument("name", collectionName);
+            ListCollectionNamesOptions listOptions = new ListCollectionNamesOptions
+            {
+                Filter = new BsonDocument("name", collectionName)
+            };
 
             if (!database.ListCollectionNames(listOptions).Any())
                 throw new MongoException("Collection \'" + collectionName + "\' does not exist in database " + database.DatabaseNamespace);
