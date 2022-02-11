@@ -8,6 +8,7 @@ A tool for detecting identifiable information in data sources.  Out of the box s
 - CSV
 - DICOM
 - Relational Database Tables (Sql Server, MySql, Postgres, Oracle)
+- MongoDb
 
 ![Demo Video](/isidentifiable.gif)
 
