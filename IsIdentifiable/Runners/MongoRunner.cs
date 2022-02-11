@@ -69,11 +69,7 @@ namespace IsIdentifiable.Runners
                 Reports.Add(_treeReport);
             }
 
-            var mongoClient = new MongoClient(new MongoClientSettings
-            {
-                Server = new MongoServerAddress(_opts.HostName, _opts.Port),
-                ApplicationName = "IsIdentifiable"
-            });
+            var mongoClient = new MongoClient(opts.ConnectionString);
 
             IMongoDatabase db = TryGetDatabase(mongoClient,_opts.DatabaseName);
             _collection = TryGetCollection(db, _opts.CollectionName);
