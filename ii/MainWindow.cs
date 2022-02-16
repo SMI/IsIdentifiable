@@ -20,7 +20,7 @@ namespace IsIdentifiable
         /// <summary>
         /// The report CSV file that is currently open
         /// </summary>
-        public ReportReader CurrentReport { get; set; }
+        public ReportReader? CurrentReport { get; set; }
 
         /// <summary>
         /// Generates suggested ignore rules for false positives
@@ -77,7 +77,7 @@ namespace IsIdentifiable
 
         public View Body { get; private set; }
 
-        Task taskToLoadNext;
+        Task? taskToLoadNext;
         private const string PatternHelp = @"x - clears currently typed pattern
 F - creates a regex pattern that matches the full input value
 G - creates a regex pattern that matches only the failing part(s)
@@ -321,7 +321,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
         private void Next()
         {
-            if(_valuePane.CurrentFailure == null)
+            if(_valuePane.CurrentFailure == null || CurrentReport == null)
                 return;
 
             spinner.Visible = true;
@@ -398,7 +398,7 @@ G - creates a regex pattern that matches only the failing part(s)
         }
         private void Update()
         {
-            if(_valuePane.CurrentFailure == null)
+            if(_valuePane.CurrentFailure == null || CurrentReport == null)
                 return;
 
             if (taskToLoadNext != null && !taskToLoadNext.IsCompleted)
