@@ -13,6 +13,11 @@ namespace IsIdentifiable.Redacting.UpdateStrategies
     public abstract class UpdateStrategy : IUpdateStrategy
     {
         /// <summary>
+        /// The value to substitute for PII when updating the database.  Defaults to SMI_REDACTED.
+        /// </summary>
+        public string RedactionWord { get; set; } = "SMI_REDACTED";
+
+        /// <summary>
         /// Override to generate one or more SQL statements that will fully redact a given <see cref="Failure"/> in the <paramref name="table"/>
         /// </summary>
         /// <param name="table"></param>
@@ -40,7 +45,7 @@ namespace IsIdentifiable.Redacting.UpdateStrategies
 
             return $@"update {table.GetFullyQualifiedName()} 
                 SET {syntax.EnsureWrapped(failure.ProblemField)} = 
-                REPLACE({syntax.EnsureWrapped(failure.ProblemField)},'{syntax.Escape(word)}', 'SMI_REDACTED')
+                REPLACE({syntax.EnsureWrapped(failure.ProblemField)},'{syntax.Escape(word)}', '{syntax.Escape(RedactionWord)}')
                 WHERE {primaryKeys[table].GetFullyQualifiedName()} = '{syntax.Escape(failure.ResourcePrimaryKey)}'";
         }
     }
