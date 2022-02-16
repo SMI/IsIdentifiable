@@ -1,5 +1,6 @@
 using CommandLine;
 using IsIdentifiable.Redacting;
+using IsIdentifiable.Reporting.Reports;
 using System;
 using System.IO;
 
@@ -13,18 +14,27 @@ namespace IsIdentifiable.Options
     {
         private const string DefaultTargets = "Targets.yaml";
 
+        /// <summary>
+        /// The CSV list of failures to process.  Must be in the format of a <see cref="FailureStoreReport"/>
+        /// </summary>
         [Option('f', "file",
             Required = false,
             HelpText = "[Optional] Pre load an existing failures file"
         )]
         public string FailuresCsv { get; set; }
 
+        /// <summary>
+        /// The output path to put unredacted but unignored results (did not match any 'review stage' rules)
+        /// </summary>
         [Option('u', "unattended",
             Required = false,
             HelpText = "[Optional] Runs the application automatically processing existing update/ignore rules.  Failures not matching either are written to a new file with this path"
         )]
         public string UnattendedOutputPath { get; set; }
 
+        /// <summary>
+        /// Location of database connection strings file (for issuing UPDATE statements)
+        /// </summary>
         [Option('t', "targets",
             Required = false,
             Default = DefaultTargets,
@@ -32,6 +42,9 @@ namespace IsIdentifiable.Options
         )]
         public string TargetsFile { get; set; } = DefaultTargets;
 
+        /// <summary>
+        /// File containing rules for ignoring PII during redaction
+        /// </summary>
         [Option('i', "ignore",
             Required = false,
             Default = IgnoreRuleGenerator.DefaultFileName,
@@ -39,6 +52,9 @@ namespace IsIdentifiable.Options
         )]
         public string IgnoreList { get; set; } = IgnoreRuleGenerator.DefaultFileName;
 
+        /// <summary>
+        /// Rules for identifying which sub parts of a PII match should be redacted
+        /// </summary>
         [Option('r', "Reportlist",
             Required = false,
             Default = RowUpdater.DefaultFileName,
@@ -47,10 +63,13 @@ namespace IsIdentifiable.Options
         public string Reportlist { get; set; } = RowUpdater.DefaultFileName;
 
 
+        /// <summary>
+        /// True to create new redacting/ignore rules but not do any redacting UPDATES
+        /// </summary>
         [Option('o', "only-rules",
             Required = false,
             Default = false,
-            HelpText = "Specify to make GUI UPDATE choices only create new rules instead of going to database"
+            HelpText = "True to create new redacting/ignore rules but not do any redacting UPDATES"
         )]
         public bool OnlyRules { get; set; }
 

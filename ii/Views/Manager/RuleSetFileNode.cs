@@ -38,7 +38,7 @@ namespace IsIdentifiable.Views.Manager
             return _ruleSet = deserializer.Deserialize<RuleSet>(yaml);
         }
 
-        public void Save(FileInfo toFile = null)
+        public void Save(FileInfo? toFile = null)
         {
             if (_ruleSet == null)
             {
