@@ -1,4 +1,4 @@
-﻿using IsIdentifiableReviewer;
+﻿using IsIdentifiable;
 using NUnit.Framework;
 using System.IO;
 using Terminal.Gui;

@@ -26,8 +26,8 @@
 	  </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\ii\ii.csproj" />
     <ProjectReference Include="..\..\IsIdentifiable\IsIdentifiable.csproj" />
-    <ProjectReference Include="..\..\Reviewer\IsIdentifiableReviewer.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="TestData\burned-in-text-test.dcm">
