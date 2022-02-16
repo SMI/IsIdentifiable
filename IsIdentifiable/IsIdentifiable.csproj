@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>IsIdentifiable</AssemblyName>
     <OutputType>Library</OutputType>
-	<TargetFramework>net6.0</TargetFramework>
+	<TargetFramework>netstandard2.1</TargetFramework>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>

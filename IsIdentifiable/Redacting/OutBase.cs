@@ -196,11 +196,14 @@ namespace IsIdentifiable.Redacting
             if (Equals(oldText, newText))
                 return false;
 
-            //write to a new temp file
-            File.WriteAllText(RulesFile.FullName + ".tmp", newText);
+            string temp = RulesFile.FullName + ".tmp";
 
-            //then hot swap them using in-place replacement added in .Net 3.0
-            File.Move(RulesFile.FullName + ".tmp", RulesFile.FullName, true);
+            //write to a new temp file
+            File.WriteAllText(temp, newText);
+
+            //then hot swap them
+            File.Copy(temp, RulesFile.FullName,true);
+            File.Delete(temp);
 
             return true;
         }
