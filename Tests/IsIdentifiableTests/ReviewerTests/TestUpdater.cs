@@ -1,13 +1,13 @@
 ﻿using System.Data;
 using System.IO;
 using FAnsi;
-using IsIdentifiableReviewer.Out;
-using IsIdentifiableReviewer.Out.UpdateStrategies;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Rules;
 using Moq;
 using NUnit.Framework;
+using IsIdentifiable.Redacting;
+using IsIdentifiable.Redacting.UpdateStrategies;
 
 namespace IsIdentifiableTests.ReviewerTests
 {

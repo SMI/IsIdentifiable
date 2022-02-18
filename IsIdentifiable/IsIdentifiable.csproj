@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>IsIdentifiable</AssemblyName>
     <OutputType>Library</OutputType>
-	<TargetFramework>net6.0</TargetFramework>
+	<TargetFramework>netstandard2.1</TargetFramework>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
@@ -38,8 +38,5 @@
     <PackageReference Include="System.IO.Abstractions" Version="16.1.10" />
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
     <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
 </Project>

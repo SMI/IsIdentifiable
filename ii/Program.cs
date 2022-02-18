@@ -5,8 +5,8 @@ using FAnsi.Implementations.MySql;
 using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
 using IsIdentifiable.Options;
+using IsIdentifiable.Redacting;
 using IsIdentifiable.Runners;
-using IsIdentifiableReviewer;
 using YamlDotNet.Serialization;
 
 namespace IsIdentifiable
