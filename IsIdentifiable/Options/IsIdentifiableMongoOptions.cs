@@ -13,35 +13,28 @@ namespace IsIdentifiable.Options
     public class IsIdentifiableMongoOptions : IsIdentifiableDicomOptions
     {
         /// <summary>
-        /// The MongoDB hostname or IP.  Defaults to localhost
-        /// </summary>
-        [Option('h', "mongo-host", Required = false, HelpText = "The MongoDB hostname or IP", Default = "localhost")]
-        public string HostName { get; set; }
-
-        /// <summary>
-        /// The port MongoDb is running on.  Defaults to 27017
-        /// </summary>
-        [Option('p', "mongo-port", Required = false, HelpText = "The MongoDB port", Default = 27017)]
-        public int Port { get; set; }
-
-        /// <summary>
-        /// The database to connect to
+        /// The relational database to connect to
         /// </summary>
         [Option('d',"db", Required = true, HelpText = "The database to scan")]
         public string DatabaseName { get; set; }
 
+
         /// <summary>
         /// The name of the collection which should be queried
         /// </summary>
-
         [Option('l',"coll", Required = true, HelpText = "The collection to scan")]
         public string CollectionName { get; set; }
+
+        /// <summary>
+        /// The MongoDB database to connect to
+        /// </summary>
+        [Option('m', Required = true, HelpText = "The connection string to the MongoDb server")]
+        public string MongoConnectionString { get; set; }
 
         /// <summary>
         /// The query to run against the <see cref="CollectionName"/> to extract a subset of records
         /// to evaluate.  Can be null.
         /// </summary>
-
         [Option('q', "query-file", Required = false, HelpText = "The file to build the reprocessing query from")]
         public string QueryFile { get; set; }
 
@@ -68,8 +61,7 @@ namespace IsIdentifiable.Options
             {
                 yield return new Example("Run on a MongoDB database", new IsIdentifiableMongoOptions
                 {
-                    HostName = "localhost",
-                    Port = 1234,
+                    MongoConnectionString = "mongodb://mongodb0.example.com:27017",
                     DatabaseName = "dicom",
                     CollectionName = "images",
                     MongoDbBatchSize = 5000
