@@ -31,7 +31,7 @@
     <PackageReference Include="fo-dicom.Drawing" Version="[4.0.8]" />
     <PackageReference Include="HIC.DicomTypeTranslation" Version="3.0.0" />
     <PackageReference Include="HIC.FAnsiSql" Version="2.0.2" />
-	<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="9.1.2" />
+	<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="10.0.0" />
 	<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
     <PackageReference Include="NLog" Version="4.7.13" />
     <PackageReference Include="System.IO.Abstractions" Version="16.1.15" />
