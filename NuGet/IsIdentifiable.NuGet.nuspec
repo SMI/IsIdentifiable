@@ -18,7 +18,7 @@
 		  <dependency id="CsvHelper" version="27.2.1" />
 		  <dependency id="fo-dicom.Drawing" version="4.0.8" />
 		  <dependency id="HIC.DicomTypeTranslation" version="3.0.0" />
-		  <dependency id="HIC.FAnsiSql" version="2.0.2" />
+		  <dependency id="HIC.FAnsiSql" version="2.0.3" />
 		  <dependency id="Magick.NET-Q16-AnyCPU" version="10.0.0" />
 		  <dependency id="Microsoft.Extensions.Caching.Memory" version="6.0.1" />
 		  <dependency id="NLog" version="4.7.13" />
