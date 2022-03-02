@@ -41,7 +41,7 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable>
 
         _runner.Run(toProcess);
 
-        return toProcess
+        return toProcess;
     }
 }
 
