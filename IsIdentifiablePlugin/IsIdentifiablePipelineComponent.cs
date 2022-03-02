@@ -35,8 +35,8 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable>
         if(_runner == null)
         {
             var deserializer = new Deserializer();
-            var opts = deserializer.Deserialize<IsIdentifiableBaseOptions>(File.ReadAllText(YamlConfigFile));
-            _runner = new CustomRunner(opts);
+            var opts = deserializer.Deserialize<GlobalOptions>(File.ReadAllText(YamlConfigFile));
+            _runner = new CustomRunner(opts.IsIdentifiableOptions);
         }
 
         _runner.Run(toProcess);
