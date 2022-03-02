@@ -3,6 +3,7 @@ using IsIdentifiable.Reporting;
 using IsIdentifiable.Runners;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.DataFlowPipeline;
+using ReusableLibraryCode.Checks;
 using ReusableLibraryCode.Progress;
 using System.Data;
 using YamlDotNet.Serialization;
@@ -13,9 +14,9 @@ namespace IsIdentifiablePlugin;
 /// Pipeline component that validates data that is flowing through an RDMP
 /// pipeline for PII (personally identifiable information)
 /// </summary>
-public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable>
+public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , ICheckable
 {
-    private CustomRunner _runner;
+    private CustomRunner? _runner;
 
     [DemandsInitialization("YAML file with the IsIdentifiable rules (regex, NLP, report formats etc)",Mandatory = true)]
     public string YamlConfigFile { get; set; }
@@ -25,6 +26,13 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable>
         
     }
 
+    public void Check(ICheckNotifier notifier)
+    {
+        CreateRunner();
+        _runner.Dispose();
+        _runner = null;
+    }
+
     public void Dispose(IDataLoadEventListener listener, Exception pipelineFailureExceptionIfAny)
     {
         _runner?.Dispose();
@@ -32,16 +40,21 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable>
 
     public DataTable ProcessPipelineData(DataTable toProcess, IDataLoadEventListener listener, GracefulCancellationToken cancellationToken)
     {
-        if(_runner == null)
+        CreateRunner();
+
+        _runner.Run(toProcess);
+
+        return toProcess;
+    }
+
+    private void CreateRunner()
+    {
+        if (_runner == null)
         {
             var deserializer = new Deserializer();
             var opts = deserializer.Deserialize<GlobalOptions>(File.ReadAllText(YamlConfigFile));
             _runner = new CustomRunner(opts.IsIdentifiableOptions);
         }
-
-        _runner.Run(toProcess);
-
-        return toProcess;
     }
 }
 
