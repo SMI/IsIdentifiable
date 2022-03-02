@@ -11,6 +11,6 @@
         </dependencies>
     </metadata>
     <files>
-    <file src="bin\Debug\net6.0\*" target="lib\main" />	
+    <file src="bin\Debug\net6.0\publish\*" target="lib\main" />	
     </files>
 </package>
