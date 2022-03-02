@@ -28,7 +28,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '6.0.x'
     - name: Add MSFT code signing key
@@ -66,7 +66,7 @@ jobs:
     - name: Pack
       run: |
         mkdir -p NuGet/bin
-        ln -sf Release/net6.0 NuGet/bin/
+        ln -sf Release/netstandard2.1 NuGet/bin/
         dotnet pack NuGet/IsIdentifiable.NuGet.csproj -c Release --include-source --include-symbols --nologo -p:NuspecFile=`pwd`/NuGet/IsIdentifiable.NuGet.nuspec -p:NuspecProperties=Version=$(fgrep AssemblyInformationalVersion SharedAssemblyInfo.cs|cut -d'"' -f2)\;configuration=Release  -p:SymbolPackageFormat=snupkg
     - name: Nuget push
       if: contains(github.ref,'refs/tags/')

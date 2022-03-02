@@ -18,17 +18,17 @@
 		  <dependency id="CsvHelper" version="27.2.1" />
 		  <dependency id="fo-dicom.Drawing" version="4.0.8" />
 		  <dependency id="HIC.DicomTypeTranslation" version="3.0.0" />
-		  <dependency id="HIC.FAnsiSql" version="2.0.2" />
-		  <dependency id="Magick.NET-Q16-AnyCPU" version="9.1.1" />
-		  <dependency id="Microsoft.Extensions.Caching.Memory" version="6.0.0" />
-		  <dependency id="NLog" version="4.7.13" />
-		  <dependency id="System.IO.Abstractions" version="16.1.10" />
+		  <dependency id="HIC.FAnsiSql" version="2.0.3" />
+		  <dependency id="Magick.NET-Q16-AnyCPU" version="10.0.0" />
+		  <dependency id="Microsoft.Extensions.Caching.Memory" version="6.0.1" />
+		  <dependency id="NLog" version="4.7.14" />
+		  <dependency id="System.IO.Abstractions" version="16.1.15" />
 		  <dependency id="System.IO.FileSystem" version="4.3.0" />
 		  <dependency id="Tesseract" version="4.1.0-beta1" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\$configuration$\net6.0\**" target="lib\net6.0" />
+    <file src="bin\$configuration$\netstandard2.1\**" target="lib\netstandard2.1" />
   </files>
 </package>
