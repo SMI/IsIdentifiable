@@ -2,6 +2,10 @@
 
 # [Unreleased]
 
+# [0.0.4] - 2022-03-03
+
+- Added IsIdentifiable RDMP plugin
+
 # [0.0.3] - 2022-03-01
 
 - Added `UpdateStrategy.RedactionWord` to customise the substitution value for PII when updating the database
@@ -17,7 +21,8 @@
 
 Initial version
 
-[Unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.0.3..main
+[Unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.0.4..main
+[0.0.4]: https://github.com/SMI/IsIdentifiable/compare/v0.0.3..v0.0.4
 [0.0.3]: https://github.com/SMI/IsIdentifiable/compare/v0.0.2..v0.0.3
 [0.0.2]: https://github.com/SMI/IsIdentifiable/releases/tag/v0.0.2
 [0.0.1]: https://github.com/SMI/IsIdentifiable/releases/tag/v0.0.1
