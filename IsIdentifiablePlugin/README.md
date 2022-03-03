@@ -10,7 +10,6 @@ You can build IsIdentifiablePlugin by running the following (use the Version num
 ```bash
 cd IsIdentifiablePlugin
 dotnet publish --self-contained false
-dotnet publish --self-contained false
 nuget pack ./IsIdentifiablePlugin.nuspec -Properties Configuration=Debug -IncludeReferencedProjects -Symbols -Version 0.0.1
 ```
 
