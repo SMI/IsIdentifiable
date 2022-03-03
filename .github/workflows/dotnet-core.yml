@@ -74,7 +74,7 @@ jobs:
         cd IsIdentifiablePlugin
         dotnet publish --self-contained false
         nuget pack ./IsIdentifiablePlugin.nuspec -Properties Configuration=Debug -IncludeReferencedProjects -Symbols -Version $(grep AssemblyInformationalVersion ../SharedAssemblyInfo.cs | cut -d'"' -f2)
-        cp ./IsIdentifiablePlugin$(grep AssemblyInformationalVersion ../SharedAssemblyInfo.cs | cut -d'"' -f2).nupkg ../release/IsIdentifiablePlugin$(grep AssemblyInformationalVersion ../SharedAssemblyInfo.cs | cut -d'"' -f2).nupkg
+        cp ./IsIdentifiablePlugin.$(grep AssemblyInformationalVersion ../SharedAssemblyInfo.cs | cut -d'"' -f2).nupkg ../release/IsIdentifiablePlugin.$(grep AssemblyInformationalVersion ../SharedAssemblyInfo.cs | cut -d'"' -f2).nupkg
         cd ..
     - name: Nuget push
       if: contains(github.ref,'refs/tags/')
