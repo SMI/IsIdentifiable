@@ -2,7 +2,9 @@
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Runners;
 using Rdmp.Core.Curation.Data;
+using Rdmp.Core.DataExport.DataExtraction.Commands;
 using Rdmp.Core.DataFlowPipeline;
+using Rdmp.Core.DataFlowPipeline.Requirements;
 using ReusableLibraryCode.Checks;
 using ReusableLibraryCode.Progress;
 using System.Data;
@@ -14,9 +16,10 @@ namespace IsIdentifiablePlugin;
 /// Pipeline component that validates data that is flowing through an RDMP
 /// pipeline for PII (personally identifiable information)
 /// </summary>
-public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , ICheckable
+public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , ICheckable, IPipelineOptionalRequirement<ExtractCommand>
 {
     private CustomRunner? _runner;
+    private string? _targetName;
 
     [DemandsInitialization("YAML file with the IsIdentifiable rules (regex, NLP, report formats etc)",Mandatory = true)]
     public string YamlConfigFile { get; set; }
@@ -28,11 +31,8 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , I
 
     public void Check(ICheckNotifier notifier)
     {
-        CreateRunner("Checking");
-        notifier.OnCheckPerformed(new CheckEventArgs($"Created IsIdentifiable runner successfully",CheckResult.Success));
-
-        _runner?.Dispose();
-        _runner = null;
+        LoadYamlConfigFile();
+        notifier.OnCheckPerformed(new CheckEventArgs($"Read YamlConfigFile successfully",CheckResult.Success));
     }
 
     public void Dispose(IDataLoadEventListener listener, Exception pipelineFailureExceptionIfAny)
@@ -40,9 +40,16 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , I
         _runner?.Dispose();
     }
 
+    public void PreInitialize(ExtractCommand value, IDataLoadEventListener listener)
+    {
+        // if we are being used in the context of data extraction then name the
+        // report files by the name of the dataset/global being extracted
+        _targetName = value.ToString();
+    }
+
     public DataTable ProcessPipelineData(DataTable toProcess, IDataLoadEventListener listener, GracefulCancellationToken cancellationToken)
     {
-        CreateRunner(toProcess.TableName);
+        CreateRunner(_targetName ?? toProcess.TableName);
 
         _runner.Run(toProcess);
 
@@ -53,11 +60,7 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , I
     {
         if (_runner == null)
         {
-            var deserializer = new Deserializer();
-            var opts = deserializer.Deserialize<GlobalOptions>(File.ReadAllText(YamlConfigFile));
-
-            if (opts.IsIdentifiableOptions == null)
-                throw new Exception($"Yaml file {YamlConfigFile} did not contain IsIdentifiableOptions");
+            var opts = LoadYamlConfigFile();
 
             if (!string.IsNullOrWhiteSpace(targetName))
                 opts.IsIdentifiableOptions.TargetName = targetName;
@@ -65,13 +68,27 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , I
             _runner = new CustomRunner(opts.IsIdentifiableOptions);
         }
     }
+
+    private GlobalOptions LoadYamlConfigFile()
+    {
+
+        var deserializer = new Deserializer();
+        var opts = deserializer.Deserialize<GlobalOptions>(File.ReadAllText(YamlConfigFile));
+
+        if (opts.IsIdentifiableOptions == null)
+            throw new Exception($"Yaml file {YamlConfigFile} did not contain IsIdentifiableOptions");
+        
+        return opts;
+    }
 }
 
 class CustomRunner : IsIdentifiableAbstractRunner
 {
+    private readonly IsIdentifiableBaseOptions options;
+
     public CustomRunner(IsIdentifiableBaseOptions options) : base(options)
     {
-        
+        this.options = options;
     }
     public void Run(DataTable dt)
     {
@@ -91,7 +108,14 @@ class CustomRunner : IsIdentifiableAbstractRunner
                 // Pass all parts as a Failure to the destination reports
                 if (badParts.Any())
                 {
-                    AddToReports(new Failure(badParts));
+                    var f = new Failure(badParts)
+                    {
+                        ProblemField = col.ColumnName,
+                        ProblemValue = val.ToString(),
+                        Resource = options.GetTargetName()
+                    };
+
+                    AddToReports(f);
                 }
                 
             }
