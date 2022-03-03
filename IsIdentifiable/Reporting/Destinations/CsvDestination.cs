@@ -116,7 +116,7 @@ namespace IsIdentifiable.Reporting.Destinations
 
         private void WriteRow(IEnumerable<object> rowItems)
         {
-            foreach (string item in rowItems)
+            foreach (var item in rowItems)
                 _csvWriter.WriteField(StripWhitespace(item));
 
             _csvWriter.NextRecord();

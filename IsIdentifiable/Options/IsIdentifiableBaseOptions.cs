@@ -143,6 +143,12 @@ namespace IsIdentifiable.Options
         /// </summary>
         public const int MaxValidationCacheSizeDefault = 1_000_000;
 
+
+        /// <summary>
+        /// Default for <see cref="TargetName"/>
+        /// </summary>
+        public const string TargetNameDefault = "Unknown";
+
         /// <summary>
         /// <para>
         /// The value returned by <see cref="GetTargetName"/> that describes where these options
@@ -153,7 +159,7 @@ namespace IsIdentifiable.Options
         /// <para>Only applies to <see cref="IsIdentifiableBaseOptions"/>.  Other options may override
         /// <see cref="GetTargetName"/> and so not respect this property.</para>
         /// </summary>
-        public string TargetName { get; set; } = "Unknown";
+        public string TargetName { get; set; } = TargetNameDefault;
 
         /// <summary>
         /// Returns a short string with no spaces or punctuation that describes the target.  This will be used
@@ -185,6 +191,9 @@ namespace IsIdentifiable.Options
 
             if (AllowlistDatabaseType == null && globalOpts.AllowlistDatabaseType.HasValue)
                 AllowlistDatabaseType = globalOpts.AllowlistDatabaseType.Value;
+
+            if(TargetName == TargetNameDefault && globalOpts.TargetName != null && globalOpts.TargetName != TargetNameDefault)
+                TargetName = globalOpts.TargetName;
 
             if (string.IsNullOrWhiteSpace(AllowlistTableName))
                 AllowlistTableName = globalOpts.AllowlistTableName;
