@@ -144,13 +144,25 @@ namespace IsIdentifiable.Options
         public const int MaxValidationCacheSizeDefault = 1_000_000;
 
         /// <summary>
+        /// <para>
+        /// The value returned by <see cref="GetTargetName"/> that describes where these options
+        /// point.  Will be used to describe report outputs in a manner meaningful to the user.
+        /// For example with the name of the table that was read for data.  Defaults to "Unknown".
+        /// </para>
+        /// 
+        /// <para>Only applies to <see cref="IsIdentifiableBaseOptions"/>.  Other options may override
+        /// <see cref="GetTargetName"/> and so not respect this property.</para>
+        /// </summary>
+        public string TargetName { get; set; } = "Unknown";
+
+        /// <summary>
         /// Returns a short string with no spaces or punctuation that describes the target.  This will be used
         /// for naming output reports e.g. "biochemistry" , "mydir" etc
         /// </summary>
         /// <returns></returns>
         public virtual string GetTargetName()
         {
-            return "Unknown";
+            return TargetName;
         }
 
         /// <summary>
