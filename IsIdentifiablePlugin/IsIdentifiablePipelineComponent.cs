@@ -28,8 +28,10 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , I
 
     public void Check(ICheckNotifier notifier)
     {
-        CreateRunner();
-        _runner.Dispose();
+        CreateRunner("Checking");
+        notifier.OnCheckPerformed(new CheckEventArgs($"Created IsIdentifiable runner successfully",CheckResult.Success));
+
+        _runner?.Dispose();
         _runner = null;
     }
 
@@ -40,19 +42,26 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , I
 
     public DataTable ProcessPipelineData(DataTable toProcess, IDataLoadEventListener listener, GracefulCancellationToken cancellationToken)
     {
-        CreateRunner();
+        CreateRunner(toProcess.TableName);
 
         _runner.Run(toProcess);
 
         return toProcess;
     }
 
-    private void CreateRunner()
+    private void CreateRunner(string targetName)
     {
         if (_runner == null)
         {
             var deserializer = new Deserializer();
             var opts = deserializer.Deserialize<GlobalOptions>(File.ReadAllText(YamlConfigFile));
+
+            if (opts.IsIdentifiableOptions == null)
+                throw new Exception($"Yaml file {YamlConfigFile} did not contain IsIdentifiableOptions");
+
+            if (!string.IsNullOrWhiteSpace(targetName))
+                opts.IsIdentifiableOptions.TargetName = targetName;
+
             _runner = new CustomRunner(opts.IsIdentifiableOptions);
         }
     }
@@ -62,6 +71,7 @@ class CustomRunner : IsIdentifiableAbstractRunner
 {
     public CustomRunner(IsIdentifiableBaseOptions options) : base(options)
     {
+        
     }
     public void Run(DataTable dt)
     {
