@@ -37,12 +37,6 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '6.0.x'
-    - name: Get version
-      id: version
-      shell: cmd
-      run: |
-          for /f tokens^=1^,2^ delims^=^" %%i in (SharedAssemblyInfo.cs) do @if "%%i"=="[assembly: AssemblyVersion(" echo ::set-output name=version::%%j
-          for /f tokens^=2^,4^ delims^=^" %%i in (IsIdentifiablePlugin/IsIdentifiablePlugin.csproj) do @if "%%i"=="HIC.RDMP.Plugin" echo ::set-output name=rdmpversion::%%j
     - name: Add MSFT code signing key
       run: wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
     - name: Add MSFT package repo
@@ -79,8 +73,8 @@ jobs:
       run: |
         cd IsIdentifiablePlugin
         dotnet publish --self-contained false
-        nuget pack ./IsIdentifiablePlugin.nuspec -Properties Configuration=Debug -IncludeReferencedProjects -Symbols -Version ${{ steps.version.outputs.version }}
-        cp ./IsIdentifiablePlugin${{ steps.version.outputs.version }}.nupkg ../release/IsIdentifiablePlugin${{ steps.version.outputs.version }}.nupkg
+        nuget pack ./IsIdentifiablePlugin.nuspec -Properties Configuration=Debug -IncludeReferencedProjects -Symbols -Version $(grep AssemblyInformationalVersion SharedAssemblyInfo.cs | cut -d'"' -f2)
+        cp ./IsIdentifiablePlugin$(grep AssemblyInformationalVersion ../SharedAssemblyInfo.cs | cut -d'"' -f2).nupkg ../release/IsIdentifiablePlugin$(grep AssemblyInformationalVersion ../SharedAssemblyInfo.cs | cut -d'"' -f2).nupkg
         cd ..
     - name: Nuget push
       if: contains(github.ref,'refs/tags/')
