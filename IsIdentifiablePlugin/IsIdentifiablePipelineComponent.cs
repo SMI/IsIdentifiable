@@ -49,24 +49,27 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , I
 
     public DataTable ProcessPipelineData(DataTable toProcess, IDataLoadEventListener listener, GracefulCancellationToken cancellationToken)
     {
-        CreateRunner(_targetName ?? toProcess.TableName);
-
-        _runner.Run(toProcess);
+        if(toProcess.Rows.Count > 0)
+        {
+            CreateRunner(_targetName ?? toProcess.TableName);
+            _runner.Run(toProcess);
+        }
 
         return toProcess;
     }
 
     private void CreateRunner(string targetName)
     {
-        if (_runner == null)
-        {
-            var opts = LoadYamlConfigFile();
+        if (_runner != null)
+            return;
+        
+        var opts = LoadYamlConfigFile();
 
-            if (!string.IsNullOrWhiteSpace(targetName))
-                opts.IsIdentifiableOptions.TargetName = targetName;
+        if (!string.IsNullOrWhiteSpace(targetName))
+            opts.IsIdentifiableOptions.TargetName = targetName;
 
-            _runner = new CustomRunner(opts.IsIdentifiableOptions);
-        }
+        _runner = new CustomRunner(opts.IsIdentifiableOptions);
+        
     }
 
     private GlobalOptions LoadYamlConfigFile()
