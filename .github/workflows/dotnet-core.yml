@@ -61,13 +61,21 @@ jobs:
       run: |
         (cd ii && dotnet publish --runtime win-x64 -c Release --self-contained true -o ../win-x64)
         (cd ii && dotnet publish --runtime linux-x64 -c Release --self-contained true -o ../linux-x64)
-        (cd win-x64 && zip -9r ../ii-cli-win-x64.zip .)
-        (tar -zcvf ii-cli-linux-x64.tar.gz ./linux-x64)
+        mkdir release
+        (cd win-x64 && zip -9r ../release/ii-cli-win-x64.zip .)
+        (tar -zcvf ./release/ii-cli-linux-x64.tar.gz ./linux-x64)
     - name: Pack
       run: |
         mkdir -p NuGet/bin
         ln -sf Release/netstandard2.1 NuGet/bin/
         dotnet pack NuGet/IsIdentifiable.NuGet.csproj -c Release --include-source --include-symbols --nologo -p:NuspecFile=`pwd`/NuGet/IsIdentifiable.NuGet.nuspec -p:NuspecProperties=Version=$(fgrep AssemblyInformationalVersion SharedAssemblyInfo.cs|cut -d'"' -f2)\;configuration=Release  -p:SymbolPackageFormat=snupkg
+    - name: Package RDMP Plugin
+      run: |
+        cd IsIdentifiablePlugin
+        dotnet publish --self-contained false
+        nuget pack ./IsIdentifiablePlugin.nuspec -Properties Configuration=Debug -IncludeReferencedProjects -Symbols -Version $(grep AssemblyInformationalVersion ../SharedAssemblyInfo.cs | cut -d'"' -f2)
+        cp ./IsIdentifiablePlugin.$(grep AssemblyInformationalVersion ../SharedAssemblyInfo.cs | cut -d'"' -f2).nupkg ../release/IsIdentifiablePlugin.$(grep AssemblyInformationalVersion ../SharedAssemblyInfo.cs | cut -d'"' -f2).nupkg
+        cd ..
     - name: Nuget push
       if: contains(github.ref,'refs/tags/')
       run: dotnet nuget push NuGet/bin/Release/IsIdentifiable.*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }} --skip-duplicate
@@ -81,7 +89,7 @@ jobs:
       if: contains(github.ref, 'refs/tags/v')
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ii-cli-*
+        file: release/*
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true

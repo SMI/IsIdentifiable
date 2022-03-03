@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+    <metadata>
+        <id>IsIdentifiablePlugin</id>
+        <version>0.0.1</version>
+        <authors>Me</authors>
+        <description>RDMP Plugin that runs the IsIdentifiable tool</description>
+        <dependencies>
+            <!-- Make sure this matches your running RDMP major/minor versions-->
+            <dependency id="HIC.RDMP.Plugin" version="7.0" />
+        </dependencies>
+    </metadata>
+    <files>
+    <file src="bin\Debug\net6.0\publish\*" target="lib\main" />	
+    </files>
+</package>

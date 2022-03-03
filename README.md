@@ -60,13 +60,24 @@ class CustomRunner : IsIdentifiableAbstractRunner
 
     public override int Run()
     {
+        var field = "SomeText";
+        var content = "Patient DoB is 2Mar he is my best buddy. CHI number is 0101010101";
+
         // validate some example data we might have fetched
-        var badParts = Validate("SomeText", "Patient DoB is 2Mar he is my best buddy. CHI number is 0101010101");
+        var badParts = Validate(field,content);
 
-        // You can ignore or adjust these if you want before passing to destination reports
+        // You can ignore or adjust these badParts if you want before passing to destination reports
+        if(badParts.Any())
+        {
+            var f = new Failure(badParts)
+            {
+                ProblemField = field,
+                ProblemValue = content,
+            };
 
-        // Pass all parts as a Failure to the destination reports
-        AddToReports(new Failure(badParts));
+            // Pass all parts as a Failure to the destination reports
+            AddToReports(f);
+        }
 
         // Record progress
         DoneRows(1);
