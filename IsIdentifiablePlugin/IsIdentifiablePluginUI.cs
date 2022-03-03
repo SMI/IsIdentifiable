@@ -15,7 +15,7 @@ class IsIdentifiablePluginUI : PluginUserInterface
     {
         if (o is Catalogue c)
         {
-            yield return new ExecuteCommandRunIsIdentifiable(BasicActivator, c) { SuggestedCategory = "IsIdentifiable"};
+            yield return new ExecuteCommandRunIsIdentifiable(BasicActivator, c, null) { SuggestedCategory = "IsIdentifiable"};
         }
     }
 }
