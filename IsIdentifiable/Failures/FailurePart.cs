@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Equ;
 
 namespace IsIdentifiable.Failures
 {
@@ -10,7 +11,7 @@ namespace IsIdentifiable.Failures
     /// A <see cref="Failure"/> can have multiple <see cref="FailurePart"/> e.g. if it is free text with multiple failing
     /// words.
     /// </summary>
-    public class FailurePart : IEquatable<FailurePart>
+    public class FailurePart : MemberwiseEquatable<FailurePart>
     {
         /// <summary>
         /// The classification of the failure e.g. CHI, PERSON, TextInPixel
@@ -74,48 +75,5 @@ namespace IsIdentifiable.Failures
 
             return false;
         }
-
-        #region Equality
-
-        /// <summary>
-        /// Returns true if the <paramref name="other"/> has the same <see cref="Word"/> at the same <see cref="Offset"/>
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public bool Equals(FailurePart other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Offset == other.Offset && Word == other.Word;
-        }
-
-
-        /// <summary>
-        /// Returns true if the <paramref name="obj"/> is a <see cref="FailurePart"/> and 
-        /// has the same <see cref="Word"/> at the same <see cref="Offset"/>
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((FailurePart) obj);
-        }
-
-        /// <summary>
-        /// Generates a hash code using <see cref="Word"/> and <see cref="Offset"/> (consistent
-        /// with <see cref="Equals(FailurePart)"/>)
-        /// </summary>
-        /// <returns></returns>
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (Offset * 397) ^ (Word != null ? Word.GetHashCode() : 0);
-            }
-        }
-        #endregion
     }
 }
