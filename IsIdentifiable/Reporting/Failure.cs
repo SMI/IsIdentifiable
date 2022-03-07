@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using Equ;
 using IsIdentifiable.Failures;
 
 namespace IsIdentifiable.Reporting
@@ -12,7 +13,7 @@ namespace IsIdentifiable.Reporting
     /// along with the <see cref="ResourcePrimaryKey"/> (if any) so that the row on which
     /// the data was found can located (e.g. to perform  redaction).
     /// </summary>
-    public class Failure
+    public class Failure : MemberwiseEquatable<Failure>
     {
         /// <summary>
         /// Each sub part of <see cref="ProblemValue"/> that the system had a problem with
@@ -65,32 +66,6 @@ namespace IsIdentifiable.Reporting
             return
                 string.Equals(ProblemValue, other.ProblemValue, StringComparison.CurrentCultureIgnoreCase) &&
                 string.Equals(ProblemField, other.ProblemField, StringComparison.CurrentCultureIgnoreCase);
-        }
-
-        /// <summary>
-        /// Returns true if the <see cref="Parts"/> contain overlapping matches within the <see cref="ProblemValue"/>
-        /// </summary>
-        /// <param name="includeExactRangeMatches">Determines the return value when the overlapping parts are identical
-        /// e.g. a word being classified as 2 different identifiable <see cref="FailureClassification"/>.  When true
-        /// the return for exact overaps is true otherwise false</param>
-        /// <returns></returns>
-        public bool HasOverlappingParts(bool includeExactRangeMatches)
-        {
-            //for each index in the word
-            for (int i = 0; i < ProblemValue.Length; i++)
-                if (includeExactRangeMatches)
-                {
-                    if (Parts.Count(p => p.Includes(i)) > 1)  //if 2+ parts include this cell then we have overlapping parts
-                        return true;
-                }
-                else
-                {
-                    if (Parts.Distinct().Count(p => p.Includes(i)) > 1)  //if 2+ parts include this cell then we have overlapping parts
-                        return true;
-                }
-                    
-
-            return false;
         }
 
         /// <summary>
