@@ -7,119 +7,118 @@ using IsIdentifiable.Reporting.Destinations;
 using IsIdentifiable.Reporting.Reports;
 using NUnit.Framework;
 
-namespace IsIdentifiableTests
+namespace IsIdentifiableTests;
+
+internal class TestDestinations
 {
-    internal class TestDestinations
+    [Test]
+    public void TestCsvDestination_Normal()
     {
-        [Test]
-        public void TestCsvDestination_Normal()
-        {
-            var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
+        var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
 
-            var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationCsvFolder = outDir.FullName };
-            var dest = new CsvDestination(opts, "test",false);
+        var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationCsvFolder = outDir.FullName };
+        var dest = new CsvDestination(opts, "test",false);
 
-            var report = new TestFailureReport(dest);
-            report.WriteToDestinations();
-            report.CloseReport();
+        var report = new TestFailureReport(dest);
+        report.WriteToDestinations();
+        report.CloseReport();
 
-            string fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
-            fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
+        string fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
+        fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
 
-            TestHelpers.AreEqualIgnoringLineEndings(@"col1,col2
+        TestHelpers.AreEqualIgnoringLineEndings(@"col1,col2
 ""cell1 with some new 
  lines and 	 tabs"",cell2
 ", fileCreatedContents);
-        }
-
-        [Test]
-        public void TestCsvDestination_NormalButNoWhitespace()
-        {
-            var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
-
-            var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationNoWhitespace = true, DestinationCsvFolder = outDir.FullName };
-            var dest = new CsvDestination(opts, "test",false);
-            
-            var report = new TestFailureReport(dest);
-            report.WriteToDestinations();
-            report.CloseReport();
-
-            var fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
-            fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
-
-            TestHelpers.AreEqualIgnoringLineEndings(@"col1,col2
-cell1 with some new lines and tabs,cell2
-", fileCreatedContents);
-        }
-
-        [Test]
-        public void TestCsvDestination_Tabs()
-        {
-            var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
-
-            var opts = new IsIdentifiableRelationalDatabaseOptions
-            {
-                // This is slash t, not an tab
-                DestinationCsvSeparator = "\\t",
-                DestinationNoWhitespace = true,
-                DestinationCsvFolder = outDir.FullName
-            };
-
-            var dest = new CsvDestination(opts, "test",false);
-            
-            var report = new TestFailureReport(dest);
-            report.WriteToDestinations();
-            report.CloseReport();
-
-            string fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
-            fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
-
-            TestHelpers.AreEqualIgnoringLineEndings(@"col1	col2
-cell1 with some new lines and tabs	cell2
-", fileCreatedContents);
-        }
-
-        [Test]
-        public void TestCsvDestination_DisposeWithoutUsing()
-        {
-            var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
-
-            var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationCsvFolder = outDir.FullName };
-            var dest = new CsvDestination(opts, "test", false);
-            dest.Dispose();
-        }
     }
 
-    internal class TestFailureReport : IFailureReport
+    [Test]
+    public void TestCsvDestination_NormalButNoWhitespace()
     {
-        private readonly IReportDestination _dest;
+        var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
 
-        private readonly DataTable _dt = new DataTable();
+        var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationNoWhitespace = true, DestinationCsvFolder = outDir.FullName };
+        var dest = new CsvDestination(opts, "test",false);
+            
+        var report = new TestFailureReport(dest);
+        report.WriteToDestinations();
+        report.CloseReport();
 
-        public TestFailureReport(IReportDestination dest)
+        var fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
+        fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
+
+        TestHelpers.AreEqualIgnoringLineEndings(@"col1,col2
+cell1 with some new lines and tabs,cell2
+", fileCreatedContents);
+    }
+
+    [Test]
+    public void TestCsvDestination_Tabs()
+    {
+        var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
+
+        var opts = new IsIdentifiableRelationalDatabaseOptions
         {
-            _dest = dest;
+            // This is slash t, not an tab
+            DestinationCsvSeparator = "\\t",
+            DestinationNoWhitespace = true,
+            DestinationCsvFolder = outDir.FullName
+        };
 
-            _dt.Columns.Add("col1");
-            _dt.Columns.Add("col2");
-            _dt.Rows.Add("cell1 with some new \r\n lines and \t tabs", "cell2");
-        }
+        var dest = new CsvDestination(opts, "test",false);
+            
+        var report = new TestFailureReport(dest);
+        report.WriteToDestinations();
+        report.CloseReport();
+
+        string fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
+        fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
+
+        TestHelpers.AreEqualIgnoringLineEndings(@"col1	col2
+cell1 with some new lines and tabs	cell2
+", fileCreatedContents);
+    }
+
+    [Test]
+    public void TestCsvDestination_DisposeWithoutUsing()
+    {
+        var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
+
+        var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationCsvFolder = outDir.FullName };
+        var dest = new CsvDestination(opts, "test", false);
+        dest.Dispose();
+    }
+}
+
+internal class TestFailureReport : IFailureReport
+{
+    private readonly IReportDestination _dest;
+
+    private readonly DataTable _dt = new DataTable();
+
+    public TestFailureReport(IReportDestination dest)
+    {
+        _dest = dest;
+
+        _dt.Columns.Add("col1");
+        _dt.Columns.Add("col2");
+        _dt.Rows.Add("cell1 with some new \r\n lines and \t tabs", "cell2");
+    }
 
 
-        public void AddDestinations(IsIdentifiableBaseOptions options) { }
+    public void AddDestinations(IsIdentifiableBaseOptions options) { }
 
-        public void DoneRows(int numberDone) { }
+    public void DoneRows(int numberDone) { }
 
-        public void Add(Failure failure) { }
+    public void Add(Failure failure) { }
 
-        public void CloseReport()
-        {
-            _dest.Dispose();
-        }
+    public void CloseReport()
+    {
+        _dest.Dispose();
+    }
 
-        public void WriteToDestinations()
-        {
-            _dest.WriteItems(_dt);
-        }
+    public void WriteToDestinations()
+    {
+        _dest.WriteItems(_dt);
     }
 }

@@ -2,44 +2,43 @@
 using System.Collections.Generic;
 using System.Data;
 
-namespace IsIdentifiable.Reporting.Reports
+namespace IsIdentifiable.Reporting.Reports;
+
+internal class FailingValuesReport : FailureReport
 {
-    internal class FailingValuesReport : FailureReport
+    private readonly object _oFailuresLock = new object();
+    private readonly Dictionary<string, HashSet<string>> _failures = new Dictionary<string, HashSet<string>>();
+
+    public FailingValuesReport(string targetName)
+        : base(targetName) { }
+
+    public override void Add(Failure failure)
     {
-        private readonly object _oFailuresLock = new object();
-        private readonly Dictionary<string, HashSet<string>> _failures = new Dictionary<string, HashSet<string>>();
-
-        public FailingValuesReport(string targetName)
-            : base(targetName) { }
-
-        public override void Add(Failure failure)
+        lock (_oFailuresLock)
         {
+            if (!_failures.ContainsKey(failure.ProblemField))
+                _failures.Add(failure.ProblemField, new HashSet<string>(StringComparer.CurrentCultureIgnoreCase));
+
+            _failures[failure.ProblemField].Add(failure.ProblemValue);
+        }
+    }
+
+    protected override void CloseReportBase()
+    {
+        using (var dt = new DataTable())
+        {
+            dt.Columns.Add("Field");
+            dt.Columns.Add("Value");
+
+
             lock (_oFailuresLock)
-            {
-                if (!_failures.ContainsKey(failure.ProblemField))
-                    _failures.Add(failure.ProblemField, new HashSet<string>(StringComparer.CurrentCultureIgnoreCase));
+                foreach (KeyValuePair<string, HashSet<string>> kvp in _failures)
+                foreach (string v in kvp.Value)
+                    dt.Rows.Add(kvp.Key, v);
 
-                _failures[failure.ProblemField].Add(failure.ProblemValue);
-            }
+            foreach (var d in Destinations)
+                d.WriteItems(dt);
         }
-
-        protected override void CloseReportBase()
-        {
-            using (var dt = new DataTable())
-            {
-                dt.Columns.Add("Field");
-                dt.Columns.Add("Value");
-
-
-                lock (_oFailuresLock)
-                    foreach (KeyValuePair<string, HashSet<string>> kvp in _failures)
-                    foreach (string v in kvp.Value)
-                        dt.Rows.Add(kvp.Key, v);
-
-                foreach (var d in Destinations)
-                    d.WriteItems(dt);
-            }
             
-        }
     }
 }

@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dicom;
+using FellowOakDicom;
 using DicomTypeTranslation;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
@@ -16,371 +16,374 @@ using MongoDB.Driver;
 using NLog;
 
 
-namespace IsIdentifiable.Runners
+namespace IsIdentifiable.Runners;
+
+/// <summary>
+/// Evaluates data in a mongodb collection
+/// </summary>
+public class MongoRunner : IsIdentifiableAbstractRunner
 {
-    /// <summary>
-    /// Evaluates data in a mongodb collection
-    /// </summary>
-    public class MongoRunner : IsIdentifiableAbstractRunner
+    private const string SEP = "#";
+
+    private readonly ILogger _logger;
+
+    private readonly IsIdentifiableMongoOptions _opts;
+
+    private readonly TreeFailureReport _treeReport;
+
+    private readonly IMongoCollection<BsonDocument> _collection;
+
+    private readonly string _queryString;
+
+    private readonly FindOptions<BsonDocument> _findOptionsBase = new FindOptions<BsonDocument>
     {
-        private const string SEP = "#";
+        NoCursorTimeout = true
+    };
 
-        private readonly ILogger _logger;
+    private readonly ParallelOptions _parallelOptions = new ParallelOptions
+    {
+        MaxDegreeOfParallelism = Environment.ProcessorCount > 1 ? Environment.ProcessorCount / 2 : 1
+    };
 
-        private readonly IsIdentifiableMongoOptions _opts;
 
-        private readonly TreeFailureReport _treeReport;
+    private Task _runnerTask;
+    private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
+    private bool _stopping;
 
-        private readonly IMongoCollection<BsonDocument> _collection;
+    private readonly MongoDbFailureFactory _factory;
 
-        private readonly string _queryString;
+    /// <summary>
+    /// Creates a new instance and prepares to fetch data from the MongoDb instance
+    /// specified in <paramref name="opts"/>
+    /// </summary>
+    /// <param name="opts"></param>
+    public MongoRunner(IsIdentifiableMongoOptions opts)
+        : base(opts)
+    {
+        _logger = LogManager.GetLogger(GetType().Name);
+        _opts = opts;
 
-        private readonly FindOptions<BsonDocument> _findOptionsBase = new FindOptions<BsonDocument>
+        if (opts.TreeReport)
         {
-            NoCursorTimeout = true
-        };
-
-        private readonly ParallelOptions _parallelOptions = new ParallelOptions
-        {
-            MaxDegreeOfParallelism = Environment.ProcessorCount > 1 ? Environment.ProcessorCount / 2 : 1
-        };
-
-
-        private Task _runnerTask;
-        private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
-        private bool _stopping;
-
-        private readonly MongoDbFailureFactory _factory;
-
-        /// <summary>
-        /// Creates a new instance and prepares to fetch data from the MongoDb instance
-        /// specified in <paramref name="opts"/>
-        /// </summary>
-        /// <param name="opts"></param>
-        public MongoRunner(IsIdentifiableMongoOptions opts)
-            : base(opts)
-        {
-            _logger = LogManager.GetLogger(GetType().Name);
-            _opts = opts;
-
-            if (opts.TreeReport)
-            {
-                _treeReport = new TreeFailureReport(opts.GetTargetName());
-                Reports.Add(_treeReport);
-            }
-
-            var mongoClient = new MongoClient(opts.MongoConnectionString);
-
-            IMongoDatabase db = TryGetDatabase(mongoClient,_opts.DatabaseName);
-            _collection = TryGetCollection(db, _opts.CollectionName);
-
-            if (!string.IsNullOrWhiteSpace(_opts.QueryFile))
-                _queryString = File.ReadAllText(_opts.QueryFile);
-
-            // if specified, batch size must be g.t. 1:
-            // https://docs.mongodb.com/manual/reference/method/cursor.batchSize/
-            if (_opts.MongoDbBatchSize > 1)
-                _findOptionsBase.BatchSize = _opts.MongoDbBatchSize;
-
-            _factory = new MongoDbFailureFactory();
-
-            if (_opts.UseMaxThreads)
-                _parallelOptions.MaxDegreeOfParallelism = -1;
+            _treeReport = new TreeFailureReport(opts.GetTargetName());
+            Reports.Add(_treeReport);
         }
 
-        /// <summary>
-        /// Connects to the MongoDb and evaluates all data in the collection/filter specified
-        /// </summary>
-        /// <returns></returns>
-        public override int Run()
+        var mongoClient = new MongoClient(opts.MongoConnectionString);
+
+        IMongoDatabase db = TryGetDatabase(mongoClient,_opts.DatabaseName);
+        _collection = TryGetCollection(db, _opts.CollectionName);
+
+        if (!string.IsNullOrWhiteSpace(_opts.QueryFile))
+            _queryString = File.ReadAllText(_opts.QueryFile);
+
+        // if specified, batch size must be g.t. 1:
+        // https://docs.mongodb.com/manual/reference/method/cursor.batchSize/
+        if (_opts.MongoDbBatchSize > 1)
+            _findOptionsBase.BatchSize = _opts.MongoDbBatchSize;
+
+        _factory = new MongoDbFailureFactory();
+
+        if (_opts.UseMaxThreads)
+            _parallelOptions.MaxDegreeOfParallelism = -1;
+    }
+
+    /// <summary>
+    /// Connects to the MongoDb and evaluates all data in the collection/filter specified
+    /// </summary>
+    /// <returns></returns>
+    public override int Run()
+    {
+        _runnerTask = RunQuery();
+        _runnerTask.Wait();
+
+        return 0;
+    }
+
+    private async Task RunQuery()
+    {
+        _logger.Info($"Using MaxDegreeOfParallelism: {_parallelOptions.MaxDegreeOfParallelism}");
+
+        var totalProcessed = 0;
+        var failedToRebuildCount = 0;
+
+        _logger.Debug("Performing query");
+        DateTime start = DateTime.Now;
+
+        using (IAsyncCursor<BsonDocument> cursor = await MongoQueryParser.GetCursor(_collection, _findOptionsBase, _queryString))
         {
-            _runnerTask = RunQuery();
-            _runnerTask.Wait();
+            _logger.Info("Query completed in {0:g}. Starting checks with cursor", (DateTime.Now - start));
+            _logger.Info(
+                $"Batch size is: {(_findOptionsBase.BatchSize.HasValue ? _findOptionsBase.BatchSize.ToString() : "unspecified")}");
 
-            return 0;
-        }
+            start = DateTime.Now;
 
-        private async Task RunQuery()
-        {
-            _logger.Info("Using MaxDegreeOfParallelism: " + _parallelOptions.MaxDegreeOfParallelism);
-
-            var totalProcessed = 0;
-            var failedToRebuildCount = 0;
-
-            _logger.Debug("Performing query");
-            DateTime start = DateTime.Now;
-
-            using (IAsyncCursor<BsonDocument> cursor = await MongoQueryParser.GetCursor(_collection, _findOptionsBase, _queryString))
+            //Note: Can only check for the cancellation request every time we start to process a new batch
+            while (await cursor.MoveNextAsync() && !_tokenSource.IsCancellationRequested)
             {
-                _logger.Info("Query completed in {0:g}. Starting checks with cursor", (DateTime.Now - start));
-                _logger.Info("Batch size is: " + (_findOptionsBase.BatchSize.HasValue ? _findOptionsBase.BatchSize.ToString() : "unspecified"));
+                _logger.Debug("Received new batch");
 
-                start = DateTime.Now;
+                IEnumerable<BsonDocument> batch = cursor.Current;
+                var batchCount = 0;
 
-                //Note: Can only check for the cancellation request every time we start to process a new batch
-                while (await cursor.MoveNextAsync() && !_tokenSource.IsCancellationRequested)
+                var batchFailures = new List<Failure>();
+                var oListLock = new object();
+                var oLogLock = new object();
+
+                Parallel.ForEach(batch, _parallelOptions, document =>
                 {
-                    _logger.Debug("Received new batch");
+                    ObjectId documentId = document["_id"].AsObjectId;
+                    DicomDataset ds;
 
-                    IEnumerable<BsonDocument> batch = cursor.Current;
-                    var batchCount = 0;
-
-                    var batchFailures = new List<Failure>();
-                    var oListLock = new object();
-                    var oLogLock = new object();
-
-                    Parallel.ForEach(batch, _parallelOptions, document =>
+                    try
                     {
-                        ObjectId documentId = document["_id"].AsObjectId;
-                        DicomDataset ds;
-
-                        try
-                        {
-                            ds = DicomTypeTranslaterWriter.BuildDicomDataset(document);
-                        }
-                        catch (Exception e)
-                        {
-                            // Log any documents we couldn't process due to errors in rebuilding the dataset
-                            lock (oLogLock)
-                                _logger.Log(LogLevel.Error, e,
-                                    "Could not reconstruct dataset from document " + documentId);
-
-                            Interlocked.Increment(ref failedToRebuildCount);
-
-                            return;
-                        }
-
-                        // Validate the dataset against our rules
-                        IList<Reporting.Failure> documentFailures = ProcessDataset(documentId, ds);
-
-                        if (documentFailures.Any())
-                            lock (oListLock)
-                                batchFailures.AddRange(documentFailures);
-
-                        Interlocked.Increment(ref batchCount);
-                    });
-
-                    batchFailures.ForEach(AddToReports);
-
-                    totalProcessed += batchCount;
-                    _logger.Debug($"Processed {totalProcessed} documents total");
-
-                    DoneRows(batchCount);
-                }
-            }
-
-            TimeSpan queryTime = DateTime.Now - start;
-            _logger.Info("Processing finished or cancelled, total time elapsed: " + queryTime.ToString("g"));
-
-            _logger.Info("{0} documents were processed in total", totalProcessed);
-
-            if (failedToRebuildCount > 0)
-                _logger.Warn("{0} documents could not be reconstructed into DicomDatasets", failedToRebuildCount);
-
-            _logger.Info("Writing out reports...");
-            CloseReports();
-        }
-
-        /// <summary>
-        /// Closes any connections or ongoing queries to MongoDb
-        /// and shuts down the class
-        /// </summary>
-        public override void Dispose()
-        {
-            base.Dispose();
-
-            if (_stopping)
-                return;
-
-            _stopping = true;
-
-            _logger.Info("Cancelling the running query");
-            _tokenSource.Cancel();
-        }
-
-
-
-        private IList<Failure> ProcessDataset(ObjectId documentId, DicomDataset ds, string tagTree = "")
-        {
-            var nodeCounts = new Dictionary<string, int>();
-            var failures = new List<Failure>();
-
-            ds.TryGetString(DicomTag.Modality, out string modality);
-            bool hasImageType = ds.TryGetValues(DicomTag.ImageType, out string[] imageTypeArr);
-
-            var imageTypeStr = "";
-
-            if (hasImageType)
-                imageTypeStr = string.Join(@"\\", imageTypeArr.Take(2));
-
-            // Prefix the Modality and ImageType tags to allow grouping. This is a temporary solution until the reporting API supports grouping.
-            string groupPrefix = modality + SEP + imageTypeStr + SEP;
-
-            foreach (DicomItem item in ds)
-            {
-                string kw = item.Tag.DictionaryEntry.Keyword;
-
-                if (item is DicomSequence asSequence)
-                {
-                    for (var i = 0; i < asSequence.Count(); ++i)
+                        ds = DicomTypeTranslaterWriter.BuildDicomDataset(document);
+                    }
+                    catch (Exception e)
                     {
-                        var subDataset = asSequence.ElementAt(i);
-                        var newTagTree = $"{tagTree}{kw}[{i}]->";
-                        failures.AddRange(ProcessDataset(documentId, subDataset, newTagTree));
+                        // Log any documents we couldn't process due to errors in rebuilding the dataset
+                        lock (oLogLock)
+                            _logger.Log(LogLevel.Error, e,
+                                "Could not reconstruct dataset from document " + documentId);
+
+                        Interlocked.Increment(ref failedToRebuildCount);
+
+                        return;
                     }
 
-                    continue;
-                }
+                    // Validate the dataset against our rules
+                    IList<Reporting.Failure> documentFailures = ProcessDataset(documentId, ds);
 
-                var element = ds.GetDicomItem<DicomElement>(item.Tag);
-                string fullTagPath = groupPrefix + tagTree + kw;
+                    if (documentFailures.Any())
+                        lock (oListLock)
+                            batchFailures.AddRange(documentFailures);
 
-                //TODO OverlayRows...
-                if (!nodeCounts.ContainsKey(fullTagPath))
-                    nodeCounts.Add(fullTagPath, 1);
-                else
-                    nodeCounts[fullTagPath]++;
+                    Interlocked.Increment(ref batchCount);
+                });
 
-                if (element.Count == 0)
-                    continue;
+                batchFailures.ForEach(AddToReports);
 
-                // If it is not a (multi-)string element, continue
-                if (!element.ValueRepresentation.IsString)
-                    continue;
+                totalProcessed += batchCount;
+                _logger.Debug($"Processed {totalProcessed} documents total");
 
-                // For each string in the element
-                //TODO This is slow and should be refactored
-                foreach (string s in ds.GetValues<string>(element.Tag))
+                DoneRows(batchCount);
+            }
+        }
+
+        TimeSpan queryTime = DateTime.Now - start;
+        _logger.Info($"Processing finished or cancelled, total time elapsed: {queryTime:g}");
+
+        _logger.Info("{0} documents were processed in total", totalProcessed);
+
+        if (failedToRebuildCount > 0)
+            _logger.Warn("{0} documents could not be reconstructed into DicomDatasets", failedToRebuildCount);
+
+        _logger.Info("Writing out reports...");
+        CloseReports();
+    }
+
+    /// <summary>
+    /// Closes any connections or ongoing queries to MongoDb
+    /// and shuts down the class
+    /// </summary>
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        if (_stopping)
+            return;
+
+        _stopping = true;
+
+        _logger.Info("Cancelling the running query");
+        _tokenSource.Cancel();
+    }
+
+
+
+    private IList<Failure> ProcessDataset(ObjectId documentId, DicomDataset ds, string tagTree = "")
+    {
+        var nodeCounts = new Dictionary<string, int>();
+        var failures = new List<Failure>();
+
+        ds.TryGetString(DicomTag.Modality, out string modality);
+        bool hasImageType = ds.TryGetValues(DicomTag.ImageType, out string[] imageTypeArr);
+
+        var imageTypeStr = "";
+
+        if (hasImageType)
+            imageTypeStr = string.Join(@"\\", imageTypeArr.Take(2));
+
+        // Prefix the Modality and ImageType tags to allow grouping. This is a temporary solution until the reporting API supports grouping.
+        string groupPrefix = modality + SEP + imageTypeStr + SEP;
+
+        foreach (DicomItem item in ds)
+        {
+            string kw = item.Tag.DictionaryEntry.Keyword;
+
+            if (item is DicomSequence asSequence)
+            {
+                for (var i = 0; i < asSequence.Count(); ++i)
                 {
-                    List<FailurePart> parts = Validate(kw, s).ToList();
-
-                    if (parts.Any())
-                        failures.Add(_factory.Create(documentId, fullTagPath, s, parts));
+                    var subDataset = asSequence.ElementAt(i);
+                    var newTagTree = $"{tagTree}{kw}[{i}]->";
+                    failures.AddRange(ProcessDataset(documentId, subDataset, newTagTree));
                 }
+
+                continue;
             }
 
-            AddNodeCounts(nodeCounts);
+            var element = ds.GetDicomItem<DicomElement>(item.Tag);
+            string fullTagPath = groupPrefix + tagTree + kw;
 
-            return failures;
-        }
+            //TODO OverlayRows...
+            if (!nodeCounts.ContainsKey(fullTagPath))
+                nodeCounts.Add(fullTagPath, 1);
+            else
+                nodeCounts[fullTagPath]++;
 
-        private void AddNodeCounts(IDictionary<string, int> nodeCounts)
-        {
-            if (_treeReport != null)
-                _treeReport.AddNodeCounts(nodeCounts);
-        }
+            if (element.Count == 0)
+                continue;
 
-        private IMongoDatabase TryGetDatabase(MongoClient client, string dbName)
-        {
-            if (!client.ListDatabaseNames().ToList().Contains(dbName))
-                throw new MongoException("Database \'" + dbName + "\' does not exist on the server");
+            // If it is not a (multi-)string element, continue
+            if (!element.ValueRepresentation.IsString)
+                continue;
 
-            return client.GetDatabase(dbName);
-        }
-
-        private IMongoCollection<BsonDocument> TryGetCollection(IMongoDatabase database, string collectionName)
-        {
-            ListCollectionNamesOptions listOptions = new ListCollectionNamesOptions
+            // For each string in the element
+            //TODO This is slow and should be refactored
+            foreach (string s in ds.GetValues<string>(element.Tag))
             {
-                Filter = new BsonDocument("name", collectionName)
-            };
+                List<FailurePart> parts = Validate(kw, s).ToList();
 
-            if (!database.ListCollectionNames(listOptions).Any())
-                throw new MongoException("Collection \'" + collectionName + "\' does not exist in database " + database.DatabaseNamespace);
-
-            return database.GetCollection<BsonDocument>(collectionName);
+                if (parts.Any())
+                    failures.Add(_factory.Create(documentId, fullTagPath, s, parts));
+            }
         }
 
-        private class MongoQueryParser
+        AddNodeCounts(nodeCounts);
+
+        return failures;
+    }
+
+    private void AddNodeCounts(IDictionary<string, int> nodeCounts)
+    {
+        if (_treeReport != null)
+            _treeReport.AddNodeCounts(nodeCounts);
+    }
+
+    private IMongoDatabase TryGetDatabase(MongoClient client, string dbName)
+    {
+        if (!client.ListDatabaseNames().ToList().Contains(dbName))
+            throw new MongoException($"Database '{dbName}' does not exist on the server");
+
+        return client.GetDatabase(dbName);
+    }
+
+    private IMongoCollection<BsonDocument> TryGetCollection(IMongoDatabase database, string collectionName)
+    {
+        ListCollectionNamesOptions listOptions = new ListCollectionNamesOptions
         {
-            private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+            Filter = new BsonDocument("name", collectionName)
+        };
 
-            public static async Task<IAsyncCursor<BsonDocument>> GetCursor(IMongoCollection<BsonDocument> coll, FindOptions<BsonDocument> findOptions, string jsonQuery)
+        if (!database.ListCollectionNames(listOptions).Any())
+            throw new MongoException(
+                $"Collection '{collectionName}' does not exist in database {database.DatabaseNamespace}");
+
+        return database.GetCollection<BsonDocument>(collectionName);
+    }
+
+    private class MongoQueryParser
+    {
+        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
+        public static async Task<IAsyncCursor<BsonDocument>> GetCursor(IMongoCollection<BsonDocument> coll, FindOptions<BsonDocument> findOptions, string jsonQuery)
+        {
+            if (string.IsNullOrWhiteSpace(jsonQuery))
             {
-                if (string.IsNullOrWhiteSpace(jsonQuery))
-                {
-                    _logger.Info("No query specified, fetching all records in collection");
-                    return await coll.FindAsync(FilterDefinition<BsonDocument>.Empty, findOptions);
-                }
+                _logger.Info("No query specified, fetching all records in collection");
+                return await coll.FindAsync(FilterDefinition<BsonDocument>.Empty, findOptions);
+            }
 
-                BsonDocument docQuery;
+            BsonDocument docQuery;
 
+            try
+            {
+                docQuery = BsonSerializer.Deserialize<BsonDocument>(jsonQuery);
+                _logger.Info($"Deserialized BsonDocument from string: {docQuery}");
+            }
+            catch (FormatException e)
+            {
+                throw new ApplicationException("Could not deserialize the string into a json object", e);
+            }
+
+            // Required
+
+            if (!TryParseDocumentProperty(docQuery, "find", out BsonDocument find))
+                throw new ApplicationException("Parsed document did not contain a \"find\" node");
+
+            // Optional
+
+            if (TryParseDocumentProperty(docQuery, "sort", out BsonDocument sort))
+                findOptions.Sort = sort;
+
+            if (TryParseIntProperty(docQuery, "limit", out int limit))
+                findOptions.Limit = limit;
+
+            if (TryParseIntProperty(docQuery, "skip", out int skip))
+                findOptions.Skip = skip;
+
+
+            return await coll.FindAsync(find, findOptions);
+        }
+
+        private static bool TryParseDocumentProperty(BsonDocument docQuery, string propertyName, out BsonDocument propertyDocument)
+        {
+            if (docQuery.TryGetValue(propertyName, out BsonValue value))
                 try
                 {
-                    docQuery = BsonSerializer.Deserialize<BsonDocument>(jsonQuery);
-                    _logger.Info("Deserialized BsonDocument from string: " + docQuery);
-                }
-                catch (FormatException e)
-                {
-                    throw new ApplicationException("Could not deserialize the string into a json object", e);
-                }
-
-                // Required
-
-                if (!TryParseDocumentProperty(docQuery, "find", out BsonDocument find))
-                    throw new ApplicationException("Parsed document did not contain a \"find\" node");
-
-                // Optional
-
-                if (TryParseDocumentProperty(docQuery, "sort", out BsonDocument sort))
-                    findOptions.Sort = sort;
-
-                if (TryParseIntProperty(docQuery, "limit", out int limit))
-                    findOptions.Limit = limit;
-
-                if (TryParseIntProperty(docQuery, "skip", out int skip))
-                    findOptions.Skip = skip;
-
-
-                return await coll.FindAsync(find, findOptions);
-            }
-
-            private static bool TryParseDocumentProperty(BsonDocument docQuery, string propertyName, out BsonDocument propertyDocument)
-            {
-                if (docQuery.TryGetValue(propertyName, out BsonValue value))
-                    try
-                    {
-                        propertyDocument = value.AsBsonDocument;
-                        _logger.Info("Parsed document " + propertyDocument + " for property " + propertyName);
-
-                        return true;
-                    }
-                    catch (InvalidCastException e)
-                    {
-                        throw new ApplicationException("Could not cast value " + value + " to a document for property " + propertyName, e);
-                    }
-
-                _logger.Info("No document found for property " + propertyName);
-                propertyDocument = null;
-
-                return false;
-            }
-
-            private static bool TryParseIntProperty(BsonDocument docQuery, string propertyName, out int propertyValue)
-            {
-                if (docQuery.TryGetValue(propertyName, out BsonValue value))
-                {
-                    try
-                    {
-                        propertyValue = value.AsInt32;
-                        _logger.Info("Parsed value " + propertyValue + " for property " + propertyName);
-                    }
-                    catch (InvalidCastException e)
-                    {
-                        throw new ApplicationException("Could not cast value " + value + " to an int for property " + propertyName, e);
-                    }
-
-                    if (propertyValue < 0)
-                        throw new ApplicationException("Property value for " + propertyName + " must be greater than 0");
+                    propertyDocument = value.AsBsonDocument;
+                    _logger.Info($"Parsed document {propertyDocument} for property {propertyName}");
 
                     return true;
                 }
+                catch (InvalidCastException e)
+                {
+                    throw new ApplicationException(
+                        $"Could not cast value {value} to a document for property {propertyName}", e);
+                }
 
-                _logger.Info("No value found for property " + propertyName);
-                propertyValue = -1;
+            _logger.Info($"No document found for property {propertyName}");
+            propertyDocument = null;
 
-                return false;
+            return false;
+        }
+
+        private static bool TryParseIntProperty(BsonDocument docQuery, string propertyName, out int propertyValue)
+        {
+            if (docQuery.TryGetValue(propertyName, out BsonValue value))
+            {
+                try
+                {
+                    propertyValue = value.AsInt32;
+                    _logger.Info($"Parsed value {propertyValue} for property {propertyName}");
+                }
+                catch (InvalidCastException e)
+                {
+                    throw new ApplicationException(
+                        $"Could not cast value {value} to an int for property {propertyName}", e);
+                }
+
+                if (propertyValue < 0)
+                    throw new ApplicationException($"Property value for {propertyName} must be greater than 0");
+
+                return true;
             }
+
+            _logger.Info($"No value found for property {propertyName}");
+            propertyValue = -1;
+
+            return false;
         }
     }
 }

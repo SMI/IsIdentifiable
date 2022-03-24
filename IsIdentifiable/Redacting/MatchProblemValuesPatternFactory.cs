@@ -4,50 +4,49 @@ using System.Text.RegularExpressions;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Reporting;
 
-namespace IsIdentifiable.Redacting
+namespace IsIdentifiable.Redacting;
+
+/// <summary>
+/// <see cref="IRulePatternFactory"/> which generates <see cref="Regex"/> rule patterns that match only the <see cref="FailurePart.Word"/> and allowing anything between/before
+/// </summary>
+public class MatchProblemValuesPatternFactory : IRulePatternFactory
 {
+    private MatchWholeStringRulePatternFactory _fallback = new MatchWholeStringRulePatternFactory();
+
     /// <summary>
-    /// <see cref="IRulePatternFactory"/> which generates <see cref="Regex"/> rule patterns that match only the <see cref="FailurePart.Word"/> and allowing anything between/before
+    /// Returns a pattern that matches <see cref="FailurePart.Word"/> in <see cref="Failure.ProblemValue"/>.  If the word appears at the start/end of the value then ^ or $ is used.  When there are multiple failing parts anything is permitted inbweteen i.e. .*
     /// </summary>
-    public class MatchProblemValuesPatternFactory : IRulePatternFactory
+    /// <param name="sender"></param>
+    /// <param name="failure"></param>
+    /// <returns></returns>
+    public string GetPattern(object sender, Failure failure)
     {
-        private MatchWholeStringRulePatternFactory _fallback = new MatchWholeStringRulePatternFactory();
+        StringBuilder sb = new StringBuilder();
 
-        /// <summary>
-        /// Returns a pattern that matches <see cref="FailurePart.Word"/> in <see cref="Failure.ProblemValue"/>.  If the word appears at the start/end of the value then ^ or $ is used.  When there are multiple failing parts anything is permitted inbweteen i.e. .*
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="failure"></param>
-        /// <returns></returns>
-        public string GetPattern(object sender, Failure failure)
+
+        var minOffset = failure.Parts.Min(p => p.Offset);
+        var maxPartEnding = failure.Parts.Max(p => p.Offset + p.Word.Length);
+
+        if (minOffset == 0)
+            sb.Append("^");
+
+        foreach (var p in failure.ConflateParts())
         {
-            StringBuilder sb = new StringBuilder();
+            //match with capture group the given Word
+            sb.Append($"({Regex.Escape(p)})");
 
+            sb.Append(".*");
+        }
 
-            var minOffset = failure.Parts.Min(p => p.Offset);
-            var maxPartEnding = failure.Parts.Max(p => p.Offset + p.Word.Length);
-
-            if (minOffset == 0)
-                sb.Append("^");
-
-            foreach (var p in failure.ConflateParts())
-            {
-                //match with capture group the given Word
-                sb.Append("(" + Regex.Escape(p) + ")");
-
-                sb.Append(".*");
-            }
-
-            // If there is a failure part that ends at the end of the input string then the pattern should have a terminator
-            // to denote that we only care about problem values ending in this pattern (user can always override that decision)
-            if (maxPartEnding == failure.ProblemValue.Length)
-            {
-                return sb.ToString(0, sb.Length - 2) + '$';
-            }
-            else
-            {
-                return sb.ToString(0, sb.Length - 2);
-            }
+        // If there is a failure part that ends at the end of the input string then the pattern should have a terminator
+        // to denote that we only care about problem values ending in this pattern (user can always override that decision)
+        if (maxPartEnding == failure.ProblemValue.Length)
+        {
+            return $"{sb.ToString(0, sb.Length - 2)}$";
+        }
+        else
+        {
+            return sb.ToString(0, sb.Length - 2);
         }
     }
 }
