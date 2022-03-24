@@ -57,11 +57,11 @@ public class DicomFileRunnerTest
         {
             ColumnReport = true,
             TessDirectory = _tessDir.FullName,
-        };
 
-        // NOTE(rkm 2020-11-16) The test image should report 3 bits of text with lengths 123, 127, and 170.
-        // If we ignore less than 170 then only 1 bit of text should be reported.
-        opts.IgnoreTextLessThan = ignoreShortText ? 170 : 0U;
+            // If we ignore less than 170 then only 1 bit of text should be reported.
+            // NOTE(rkm 2020-11-16) The test image should report 3 bits of text with lengths 123, 127, and 170.
+            IgnoreTextLessThan = ignoreShortText ? 170 : 0U
+        };
 
         string fileName = Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(DicomFileRunnerTest), "f1.dcm");
         TestData.Create(new FileInfo(fileName), TestData.BURNED_IN_TEXT_IMG);
