@@ -1,20 +1,19 @@
 ﻿using Terminal.Gui;
 using Terminal.Gui.Trees;
 
-namespace IsIdentifiable.Views
+namespace IsIdentifiable.Views;
+
+internal class TreeNodeWithCount : TreeNode
 {
-    internal class TreeNodeWithCount : TreeNode
+    public string Heading { get; }
+
+    public TreeNodeWithCount(string heading)
     {
-        public string Heading { get; }
+        Heading = heading;
+    }
 
-        public TreeNodeWithCount(string heading)
-        {
-            Heading = heading;
-        }
-
-        public override string ToString()
-        {
-            return Heading + $" ({Children.Count:N0})";
-        }
+    public override string ToString()
+    {
+        return $"{Heading} ({Children.Count:N0})";
     }
 }

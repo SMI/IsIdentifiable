@@ -9,178 +9,177 @@ using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Destinations;
 
-namespace IsIdentifiable.Reporting.Reports
+namespace IsIdentifiable.Reporting.Reports;
+
+/// <summary>
+/// <para>
+/// <see cref="FailureReport"/> that persists all data in all <see cref="Failure"/> seen into
+/// the given <see cref="IReportDestination"/> such that it can be reassembled later (persistence).
+/// </para>
+/// <para>This report should be used when you want to capture all output in a human readable format
+/// but also be able to reload the <see cref="Failure"/> for later processing e.g. by the reviewer</para>
+/// </summary>
+public class FailureStoreReport : FailureReport
 {
+    private readonly object _odtLock = new object();
+    private readonly DataTable _dtAllFailures;
+
+    private readonly int _maxSize;
+
+    private readonly string[] _headerRow = { "Resource", "ResourcePrimaryKey", "ProblemField", "ProblemValue", "PartWords", "PartClassifications", "PartOffsets" };
+
+    private const string Separator = "###";
+
     /// <summary>
-    /// <para>
-    /// <see cref="FailureReport"/> that persists all data in all <see cref="Failure"/> seen into
-    /// the given <see cref="IReportDestination"/> such that it can be reassembled later (persistence).
-    /// </para>
-    /// <para>This report should be used when you want to capture all output in a human readable format
-    /// but also be able to reload the <see cref="Failure"/> for later processing e.g. by the reviewer</para>
+    /// Creates a new report aimed at the given resource (e.g. "MR_ImageTable")
     /// </summary>
-    public class FailureStoreReport : FailureReport
+    /// <param name="targetName"></param>
+    /// <param name="maxSize">Max size of the internal store before writing out to file</param>
+    public FailureStoreReport(string targetName, int maxSize)
+        : base(targetName)
     {
-        private readonly object _odtLock = new object();
-        private readonly DataTable _dtAllFailures;
+        _dtAllFailures = new DataTable();
 
-        private readonly int _maxSize;
+        foreach (string s in _headerRow)
+            _dtAllFailures.Columns.Add(s);
 
-        private readonly string[] _headerRow = { "Resource", "ResourcePrimaryKey", "ProblemField", "ProblemValue", "PartWords", "PartClassifications", "PartOffsets" };
+        if (maxSize < 0)
+            throw new ArgumentException("maxSize must be positive");
 
-        private const string Separator = "###";
+        _maxSize = maxSize;
+    }
 
-        /// <summary>
-        /// Creates a new report aimed at the given resource (e.g. "MR_ImageTable")
-        /// </summary>
-        /// <param name="targetName"></param>
-        /// <param name="maxSize">Max size of the internal store before writing out to file</param>
-        public FailureStoreReport(string targetName, int maxSize)
-            : base(targetName)
-        {
-            _dtAllFailures = new DataTable();
+    /// <summary>
+    /// Adds all destinations described in <paramref name="opts"/> to the list of output
+    /// locations for this report.  Also writes the report headers to the destinations.
+    /// </summary>
+    /// <param name="opts"></param>
+    public override void AddDestinations(IsIdentifiableBaseOptions opts)
+    {
+        base.AddDestinations(opts);
+        Destinations.ForEach(d => d.WriteHeader((from dc in _dtAllFailures.Columns.Cast<DataColumn>() select dc.ColumnName).ToArray()));
+    }
 
-            foreach (string s in _headerRow)
-                _dtAllFailures.Columns.Add(s);
-
-            if (maxSize < 0)
-                throw new ArgumentException("maxSize must be positive");
-
-            _maxSize = maxSize;
-        }
-
-        /// <summary>
-        /// Adds all destinations described in <paramref name="opts"/> to the list of output
-        /// locations for this report.  Also writes the report headers to the destinations.
-        /// </summary>
-        /// <param name="opts"></param>
-        public override void AddDestinations(IsIdentifiableBaseOptions opts)
-        {
-            base.AddDestinations(opts);
-            Destinations.ForEach(d => d.WriteHeader((from dc in _dtAllFailures.Columns.Cast<DataColumn>() select dc.ColumnName).ToArray()));
-        }
-
-        /// <summary>
-        /// Adds a custom <paramref name="destination"/> as an output adapter for this
-        /// report.  Immediately calls <see cref="IReportDestination.WriteHeader(string[])"/>
-        /// with the report headers.
-        /// </summary>
-        /// <param name="destination"></param>
-        public void AddDestination(IReportDestination destination)
-        {
-            Destinations.Add(destination);
-            destination.WriteHeader((from dc in _dtAllFailures.Columns.Cast<DataColumn>() select dc.ColumnName).ToArray());
-        }
+    /// <summary>
+    /// Adds a custom <paramref name="destination"/> as an output adapter for this
+    /// report.  Immediately calls <see cref="IReportDestination.WriteHeader(string[])"/>
+    /// with the report headers.
+    /// </summary>
+    /// <param name="destination"></param>
+    public void AddDestination(IReportDestination destination)
+    {
+        Destinations.Add(destination);
+        destination.WriteHeader((from dc in _dtAllFailures.Columns.Cast<DataColumn>() select dc.ColumnName).ToArray());
+    }
         
-        /// <summary>
-        /// Writes the <paramref name="failure"/> to all <see cref="Destinations"/>.  The full
-        /// contents of the <see cref="Failure"/> are written such that it can be reloaded
-        /// later on from the outputted representation (deserialized)
-        /// </summary>
-        /// <param name="failure"></param>
-        public override void Add(Failure failure)
+    /// <summary>
+    /// Writes the <paramref name="failure"/> to all <see cref="Destinations"/>.  The full
+    /// contents of the <see cref="Failure"/> are written such that it can be reloaded
+    /// later on from the outputted representation (deserialized)
+    /// </summary>
+    /// <param name="failure"></param>
+    public override void Add(Failure failure)
+    {
+        lock (_odtLock)
         {
-            lock (_odtLock)
+            _dtAllFailures.Rows.Add(
+                failure.Resource,
+                failure.ResourcePrimaryKey,
+                failure.ProblemField,
+                failure.ProblemValue,
+                string.Join(Separator, failure.Parts.Select(p => p.Word)),
+                string.Join(Separator, failure.Parts.Select(p => p.Classification)),
+                string.Join(Separator, failure.Parts.Select(p => p.Offset)));
+
+            if (_dtAllFailures.Rows.Count < _maxSize)
+                return;
+
+            CloseReportBase();
+            _dtAllFailures.Clear();
+        }
+    }
+
+    /// <summary>
+    /// Writes the current batch of failures to all destinations.  This method
+    /// is designed to be called multiple times (i.e. it is not a dispose pattern)
+    /// </summary>
+    protected override void CloseReportBase()
+    {
+        Destinations.ForEach(d => d.WriteItems(_dtAllFailures));
+    }
+
+    /// <summary>
+    /// Opens a file generated by this class (when using <see cref="CsvDestination"/>) and parses
+    /// the contents of the file to generate all the <see cref="Failure"/> recorded in it.
+    /// </summary>
+    /// <param name="oldFile">CSV file containing <see cref="Failure"/> instances serialized by this class</param>
+    /// <returns></returns>
+    public IEnumerable<Failure> Deserialize(FileInfo oldFile)
+    {
+        return Deserialize(oldFile,(s)=>{ },CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Opens a file generated by this class (when using <see cref="CsvDestination"/>) and parses
+    /// the contents of the file to generate all the <see cref="Failure"/> recorded in it.
+    /// </summary>
+    /// <param name="oldFile">CSV file containing <see cref="Failure"/> instances serialized by this class</param>
+    /// <param name="loadedRows">Action to call periodically as records are read from the file (for
+    /// when the file is very big and you want to show progress etc)</param>
+    /// <param name="token">Cancellation token for aborting the file deserialication (and closing the file again)</param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public IEnumerable<Failure> Deserialize(FileInfo oldFile,Action<int> loadedRows, CancellationToken token)
+    {
+        int lineNumber = 0;
+
+        using (var sr = new StreamReader(File.OpenRead(oldFile.FullName)))
+        using (var r = new CsvReader(sr,System.Globalization.CultureInfo.CurrentCulture))
+        {
+            if(r.Read())
+                r.ReadHeader();
+            else
+                yield break;
+            lineNumber ++;
+            // "Resource", "ResourcePrimaryKey", "ProblemField", "ProblemValue", "PartWords", "PartClassifications", "PartOffsets" 
+
+            while (r.Read())
             {
-                _dtAllFailures.Rows.Add(
-                    failure.Resource,
-                    failure.ResourcePrimaryKey,
-                    failure.ProblemField,
-                    failure.ProblemValue,
-                    string.Join(Separator, failure.Parts.Select(p => p.Word)),
-                    string.Join(Separator, failure.Parts.Select(p => p.Classification)),
-                    string.Join(Separator, failure.Parts.Select(p => p.Offset)));
+                token.ThrowIfCancellationRequested();
 
-                if (_dtAllFailures.Rows.Count < _maxSize)
-                    return;
+                lineNumber++;
+                var parts = new List<FailurePart>();
 
-                CloseReportBase();
-                _dtAllFailures.Clear();
-            }
-        }
-
-        /// <summary>
-        /// Writes the current batch of failures to all destinations.  This method
-        /// is designed to be called multiple times (i.e. it is not a dispose pattern)
-        /// </summary>
-        protected override void CloseReportBase()
-        {
-            Destinations.ForEach(d => d.WriteItems(_dtAllFailures));
-        }
-
-        /// <summary>
-        /// Opens a file generated by this class (when using <see cref="CsvDestination"/>) and parses
-        /// the contents of the file to generate all the <see cref="Failure"/> recorded in it.
-        /// </summary>
-        /// <param name="oldFile">CSV file containing <see cref="Failure"/> instances serialized by this class</param>
-        /// <returns></returns>
-        public IEnumerable<Failure> Deserialize(FileInfo oldFile)
-        {
-            return Deserialize(oldFile,(s)=>{ },CancellationToken.None);
-        }
-
-        /// <summary>
-        /// Opens a file generated by this class (when using <see cref="CsvDestination"/>) and parses
-        /// the contents of the file to generate all the <see cref="Failure"/> recorded in it.
-        /// </summary>
-        /// <param name="oldFile">CSV file containing <see cref="Failure"/> instances serialized by this class</param>
-        /// <param name="loadedRows">Action to call periodically as records are read from the file (for
-        /// when the file is very big and you want to show progress etc)</param>
-        /// <param name="token">Cancellation token for aborting the file deserialication (and closing the file again)</param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public IEnumerable<Failure> Deserialize(FileInfo oldFile,Action<int> loadedRows, CancellationToken token)
-        {
-            int lineNumber = 0;
-
-            using (var sr = new StreamReader(File.OpenRead(oldFile.FullName)))
-            using (var r = new CsvReader(sr,System.Globalization.CultureInfo.CurrentCulture))
-            {
-                if(r.Read())
-                    r.ReadHeader();
-                else
-                    yield break;
-                lineNumber ++;
-                // "Resource", "ResourcePrimaryKey", "ProblemField", "ProblemValue", "PartWords", "PartClassifications", "PartOffsets" 
-
-                while (r.Read())
+                try
                 {
-                    token.ThrowIfCancellationRequested();
 
-                    lineNumber++;
-                    var parts = new List<FailurePart>();
+                    var words = r["PartWords"].Split(Separator);
+                    var classes = r["PartClassifications"].Split(Separator);
+                    var offsets = r["PartOffsets"].Split(Separator);
 
-                    try
-                    {
-
-                        var words = r["PartWords"].Split(Separator);
-                        var classes = r["PartClassifications"].Split(Separator);
-                        var offsets = r["PartOffsets"].Split(Separator);
-
-                        for(int i = 0 ; i < words.Length; i++)
-                            parts.Add(new FailurePart(words[i],
-                                (FailureClassification) Enum.Parse(typeof(FailureClassification), classes[i], true),
-                                int.Parse(offsets[i])));
-                    }
-                    catch (Exception e)
-                    {
-                        throw new Exception("Error Deserializing line " + lineNumber, e);
-                    }
-
-                    yield return new Failure( parts)
-                    {
-                        Resource = r["Resource"],
-                        ResourcePrimaryKey = r["ResourcePrimaryKey"],
-                        ProblemField = r["ProblemField"],
-                        ProblemValue = r["ProblemValue"],
-                    };
-
-                    if(lineNumber % 1000 == 0)
-                        loadedRows(lineNumber);
+                    for(int i = 0 ; i < words.Length; i++)
+                        parts.Add(new FailurePart(words[i],
+                            (FailureClassification) Enum.Parse(typeof(FailureClassification), classes[i], true),
+                            int.Parse(offsets[i])));
+                }
+                catch (Exception e)
+                {
+                    throw new Exception($"Error Deserializing line {lineNumber}", e);
                 }
 
-                loadedRows(lineNumber);
+                yield return new Failure( parts)
+                {
+                    Resource = r["Resource"],
+                    ResourcePrimaryKey = r["ResourcePrimaryKey"],
+                    ProblemField = r["ProblemField"],
+                    ProblemValue = r["ProblemValue"],
+                };
+
+                if(lineNumber % 1000 == 0)
+                    loadedRows(lineNumber);
             }
+
+            loadedRows(lineNumber);
         }
     }
 }

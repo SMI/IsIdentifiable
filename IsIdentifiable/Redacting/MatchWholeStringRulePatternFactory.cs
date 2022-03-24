@@ -1,22 +1,21 @@
 ﻿using System.Text.RegularExpressions;
 using IsIdentifiable.Reporting;
 
-namespace IsIdentifiable.Redacting
+namespace IsIdentifiable.Redacting;
+
+/// <summary>
+/// <see cref="IRulePatternFactory"/> that generates Regex rule patterns that match the full <see cref="Failure.ProblemValue"/> (entire cell value) only.
+/// </summary>
+public class MatchWholeStringRulePatternFactory : IRulePatternFactory
 {
     /// <summary>
-    /// <see cref="IRulePatternFactory"/> that generates Regex rule patterns that match the full <see cref="Failure.ProblemValue"/> (entire cell value) only.
+    /// Returns a Regex pattern that matches the full cell value represented by the <paramref name="failure"/> exactly (with no permitted leading/trailing content)
     /// </summary>
-    public class MatchWholeStringRulePatternFactory : IRulePatternFactory
+    /// <param name="sender"></param>
+    /// <param name="failure"></param>
+    /// <returns></returns>
+    public string GetPattern(object sender, Failure failure)
     {
-        /// <summary>
-        /// Returns a Regex pattern that matches the full cell value represented by the <paramref name="failure"/> exactly (with no permitted leading/trailing content)
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="failure"></param>
-        /// <returns></returns>
-        public string GetPattern(object sender, Failure failure)
-        {
-            return "^" + Regex.Escape(failure.ProblemValue) + "$";
-        }
+        return $"^{Regex.Escape(failure.ProblemValue)}$";
     }
 }

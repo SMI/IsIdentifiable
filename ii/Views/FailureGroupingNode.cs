@@ -3,19 +3,18 @@ using System.Linq;
 using Terminal.Gui;
 using Terminal.Gui.Trees;
 
-namespace IsIdentifiable.Views
+namespace IsIdentifiable.Views;
+
+internal class FailureGroupingNode : TreeNodeWithCount
 {
-    internal class FailureGroupingNode : TreeNodeWithCount
+    public string Group {get;}
+    public OutstandingFailureNode[] Failures {get;}
+
+    public FailureGroupingNode(string group, OutstandingFailureNode[] failures):base(group)
     {
-        public string Group {get;}
-        public OutstandingFailureNode[] Failures {get;}
+        this.Group = group;
+        this.Failures = failures;
 
-        public FailureGroupingNode(string group, OutstandingFailureNode[] failures):base(group)
-        {
-            this.Group = group;
-            this.Failures = failures;
-
-            Children = failures.OrderByDescending(f=>f.NumberOfTimesReported).Cast<ITreeNode>().ToList();
-        }
+        Children = failures.OrderByDescending(f=>f.NumberOfTimesReported).Cast<ITreeNode>().ToList();
     }
 }

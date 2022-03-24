@@ -4,18 +4,17 @@ using System.Linq;
 using Terminal.Gui;
 using Terminal.Gui.Trees;
 
-namespace IsIdentifiable.Views
+namespace IsIdentifiable.Views;
+
+internal class DuplicateRulesNode : TreeNode
 {
-    internal class DuplicateRulesNode : TreeNode
+    public IsIdentifiableRule[] Rules { get; }
+
+    public DuplicateRulesNode(string pattern, IsIdentifiableRule[] rules)
     {
-        public IsIdentifiableRule[] Rules { get; }
+        Rules = rules;
 
-        public DuplicateRulesNode(string pattern, IsIdentifiableRule[] rules)
-        {
-            Rules = rules;
-
-            Text = $"{pattern} ({Rules.Length})";
-        }
-
+        Text = $"{pattern} ({Rules.Length})";
     }
+
 }
