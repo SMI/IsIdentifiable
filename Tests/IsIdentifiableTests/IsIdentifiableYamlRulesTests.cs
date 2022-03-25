@@ -6,14 +6,14 @@ using IsIdentifiable.Rules;
 using NUnit.Framework;
 using YamlDotNet.Serialization;
 
-namespace IsIdentifiableTests
+namespace IsIdentifiableTests;
+
+class IsIdentifiableRuleTests
 {
-    class IsIdentifiableRuleTests
+    [Test]
+    public void TestYamlDeserialization_OfRules()
     {
-        [Test]
-        public void TestYamlDeserialization_OfRules()
-        {
-            string yaml = @"
+        string yaml = @"
 BasicRules: 
   # Ignore any values in the column Modality
   - Action: Ignore
@@ -34,153 +34,152 @@ SocketRules:
     Port: 8080
  ";
 
-            var deserializer = new Deserializer();
-            var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
+        var deserializer = new Deserializer();
+        var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
 
 
-            Assert.AreEqual(3,ruleSet.BasicRules.Count);
+        Assert.AreEqual(3,ruleSet.BasicRules.Count);
 
-            Assert.AreEqual(RuleAction.Ignore,ruleSet.BasicRules[0].Action);
+        Assert.AreEqual(RuleAction.Ignore,ruleSet.BasicRules[0].Action);
 
             
-            Assert.AreEqual(1,ruleSet.SocketRules.Count);
+        Assert.AreEqual(1,ruleSet.SocketRules.Count);
 
-            Assert.AreEqual("127.0.123.123",ruleSet.SocketRules[0].Host);
-            Assert.AreEqual(8080,ruleSet.SocketRules[0].Port);
+        Assert.AreEqual("127.0.123.123",ruleSet.SocketRules[0].Host);
+        Assert.AreEqual(8080,ruleSet.SocketRules[0].Port);
 
-        }
+    }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public void TestOneRule_IsColumnMatch_NoPattern(bool isReport)
+    [TestCase(true)]
+    [TestCase(false)]
+    public void TestOneRule_IsColumnMatch_NoPattern(bool isReport)
+    {
+        var rule = new IsIdentifiableRule()
         {
-            var rule = new IsIdentifiableRule()
-            {
-                Action = isReport ? RuleAction.Report : RuleAction.Ignore,
-                IfColumn = "Modality",
-                As = FailureClassification.Date
-            };
+            Action = isReport ? RuleAction.Report : RuleAction.Ignore,
+            IfColumn = "Modality",
+            As = FailureClassification.Date
+        };
 
-            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("MODALITY","CT", out IEnumerable<FailurePart> bad));
+        Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("MODALITY","CT", out IEnumerable<FailurePart> bad));
             
-            if(isReport)
-                Assert.AreEqual(FailureClassification.Date,bad.Single().Classification);
-            else
-                Assert.IsEmpty(bad);
+        if(isReport)
+            Assert.AreEqual(FailureClassification.Date,bad.Single().Classification);
+        else
+            Assert.IsEmpty(bad);
 
-            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _));
-        }
+        Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _));
+    }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public void Test_RegexMultipleMatches(bool isReport)
+    [TestCase(true)]
+    [TestCase(false)]
+    public void Test_RegexMultipleMatches(bool isReport)
+    {
+        var rule = new IsIdentifiableRule()
         {
-            var rule = new IsIdentifiableRule()
-            {
-                Action = isReport ? RuleAction.Report : RuleAction.Ignore,
-                IfColumn = "Modality",
-                IfPattern = "[0-9],",
-                As = FailureClassification.Date
-            };
+            Action = isReport ? RuleAction.Report : RuleAction.Ignore,
+            IfColumn = "Modality",
+            IfPattern = "[0-9],",
+            As = FailureClassification.Date
+        };
 
-            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("MODALITY","1,2,3", out IEnumerable<FailurePart> bad));
+        Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("MODALITY","1,2,3", out IEnumerable<FailurePart> bad));
 
-            if (isReport)
-            {
-                var b = bad.ToArray();
+        if (isReport)
+        {
+            var b = bad.ToArray();
 
-                Assert.AreEqual(2,b.Length);
+            Assert.AreEqual(2,b.Length);
 
-                Assert.AreEqual("1,",b[0].Word);
-                Assert.AreEqual(FailureClassification.Date,b[0].Classification);
-                Assert.AreEqual(0,b[0].Offset);
+            Assert.AreEqual("1,",b[0].Word);
+            Assert.AreEqual(FailureClassification.Date,b[0].Classification);
+            Assert.AreEqual(0,b[0].Offset);
 
-                Assert.AreEqual("2,",b[1].Word);
-                Assert.AreEqual(FailureClassification.Date,b[1].Classification);
-                Assert.AreEqual(2,b[1].Offset);
-            }
-            else
-                Assert.IsEmpty(bad);
-
-            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _));
+            Assert.AreEqual("2,",b[1].Word);
+            Assert.AreEqual(FailureClassification.Date,b[1].Classification);
+            Assert.AreEqual(2,b[1].Offset);
         }
+        else
+            Assert.IsEmpty(bad);
+
+        Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _));
+    }
         
-        [TestCase(true)]
-        [TestCase(false)]
-        public void TestOneRule_IsColumnMatch_WithPattern(bool isReport)
+    [TestCase(true)]
+    [TestCase(false)]
+    public void TestOneRule_IsColumnMatch_WithPattern(bool isReport)
+    {
+        var rule = new IsIdentifiableRule()
         {
-            var rule = new IsIdentifiableRule()
-            {
-                Action = isReport ? RuleAction.Report : RuleAction.Ignore,
-                IfColumn = "Modality",
-                IfPattern = "^CT$",
-                As = FailureClassification.Date
-            };
+            Action = isReport ? RuleAction.Report : RuleAction.Ignore,
+            IfColumn = "Modality",
+            IfPattern = "^CT$",
+            As = FailureClassification.Date
+        };
 
-            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("Modality","CT", out _));
-            Assert.AreEqual(RuleAction.None,rule.Apply("Modality","MR", out _));
-            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _));
-        }
+        Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("Modality","CT", out _));
+        Assert.AreEqual(RuleAction.None,rule.Apply("Modality","MR", out _));
+        Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _));
+    }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public void TestOneRule_NoColumn_WithPattern(bool isReport)
+    [TestCase(true)]
+    [TestCase(false)]
+    public void TestOneRule_NoColumn_WithPattern(bool isReport)
+    {
+        var rule = new IsIdentifiableRule()
         {
-            var rule = new IsIdentifiableRule()
-            {
-                Action = isReport ? RuleAction.Report : RuleAction.Ignore,
-                IfPattern = "^CT$",
-                As = FailureClassification.Date
-            };
+            Action = isReport ? RuleAction.Report : RuleAction.Ignore,
+            IfPattern = "^CT$",
+            As = FailureClassification.Date
+        };
 
-            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("Modality","CT", out _));
-            Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("ImageType","CT", out _)); //ignore both because no restriction on column
-            Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _));
-        }
+        Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("Modality","CT", out _));
+        Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("ImageType","CT", out _)); //ignore both because no restriction on column
+        Assert.AreEqual(RuleAction.None,rule.Apply("ImageType","PRIMARY", out _));
+    }
 
-        [Test]
-        public void TestAreIdentical()
-        {
-            var rule1 = new IsIdentifiableRule();
-            var rule2 = new IsIdentifiableRule();
+    [Test]
+    public void TestAreIdentical()
+    {
+        var rule1 = new IsIdentifiableRule();
+        var rule2 = new IsIdentifiableRule();
 
-            Assert.IsTrue(rule1.AreIdentical(rule2));
+        Assert.IsTrue(rule1.AreIdentical(rule2));
             
-            rule2.IfPattern = "\r\n";
-            Assert.IsFalse(rule1.AreIdentical(rule2));
-            rule1.IfPattern = "\r\n";
-            Assert.IsTrue(rule1.AreIdentical(rule2));
+        rule2.IfPattern = "\r\n";
+        Assert.IsFalse(rule1.AreIdentical(rule2));
+        rule1.IfPattern = "\r\n";
+        Assert.IsTrue(rule1.AreIdentical(rule2));
 
             
-            rule2.IfColumn = "MyCol";
-            Assert.IsFalse(rule1.AreIdentical(rule2));
-            rule1.IfColumn = "MyCol";
-            Assert.IsTrue(rule1.AreIdentical(rule2));
+        rule2.IfColumn = "MyCol";
+        Assert.IsFalse(rule1.AreIdentical(rule2));
+        rule1.IfColumn = "MyCol";
+        Assert.IsTrue(rule1.AreIdentical(rule2));
 
-            rule2.Action = RuleAction.Ignore;
-            rule1.Action = RuleAction.Report;
-            Assert.IsFalse(rule1.AreIdentical(rule2,true));
-            Assert.IsTrue(rule1.AreIdentical(rule2,false));
+        rule2.Action = RuleAction.Ignore;
+        rule1.Action = RuleAction.Report;
+        Assert.IsFalse(rule1.AreIdentical(rule2,true));
+        Assert.IsTrue(rule1.AreIdentical(rule2,false));
             
-            rule2.Action = RuleAction.Report;
-            rule1.Action = RuleAction.Report;
-            Assert.IsTrue(rule1.AreIdentical(rule2,false));
-            Assert.IsTrue(rule1.AreIdentical(rule2,true));
-        }
+        rule2.Action = RuleAction.Report;
+        rule1.Action = RuleAction.Report;
+        Assert.IsTrue(rule1.AreIdentical(rule2,false));
+        Assert.IsTrue(rule1.AreIdentical(rule2,true));
+    }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public void TestOneRule_NoColumn_NoPattern(bool isReport)
+    [TestCase(true)]
+    [TestCase(false)]
+    public void TestOneRule_NoColumn_NoPattern(bool isReport)
+    {
+        //rule is to ignore everything
+        var rule = new IsIdentifiableRule()
         {
-            //rule is to ignore everything
-            var rule = new IsIdentifiableRule()
-            {
-                Action = isReport ? RuleAction.Report : RuleAction.Ignore,
-            };
+            Action = isReport ? RuleAction.Report : RuleAction.Ignore,
+        };
 
-            var ex = Assert.Throws<Exception>(()=>rule.Apply("Modality","CT", out _));
+        var ex = Assert.Throws<Exception>(()=>rule.Apply("Modality","CT", out _));
 
-            Assert.AreEqual("Illegal rule setup.  You must specify either a column or a pattern (or both)",ex.Message);
-        }
+        Assert.AreEqual("Illegal rule setup.  You must specify either a column or a pattern (or both)",ex.Message);
     }
 }

@@ -13,6 +13,7 @@
     <PackageProjectUrl>https://github.com/HicServices/IsIdentifiable</PackageProjectUrl>
     <PackageTags>Ansi,SQL</PackageTags>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <LangVersion>10.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />

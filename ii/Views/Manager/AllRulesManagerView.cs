@@ -4,242 +4,241 @@ using Terminal.Gui.Trees;
 using IsIdentifiable.Options;
 using IsIdentifiable.Redacting;
 
-namespace IsIdentifiable.Views.Manager
+namespace IsIdentifiable.Views.Manager;
+
+/// <summary>
+/// View allowing editing and viewing of all rules for both IsIdentifiable and IsIdentifiableReviewer
+/// </summary>
+class AllRulesManagerView : View, ITreeBuilder<object>
 {
-    /// <summary>
-    /// View allowing editing and viewing of all rules for both IsIdentifiable and IsIdentifiableReviewer
-    /// </summary>
-    class AllRulesManagerView : View, ITreeBuilder<object>
+    private const string Analyser = "Analyser Rules";
+    private const string Reviewer = "Reviewer Rules";
+    private readonly IsIdentifiableBaseOptions _analyserOpts;
+    private readonly IsIdentifiableReviewerOptions _reviewerOpts;
+    private RuleDetailView detailView;
+    private TreeView<object> treeView;
+
+
+    public AllRulesManagerView(IsIdentifiableBaseOptions analyserOpts , IsIdentifiableReviewerOptions reviewerOpts)
     {
-        private const string Analyser = "Analyser Rules";
-        private const string Reviewer = "Reviewer Rules";
-        private readonly IsIdentifiableBaseOptions _analyserOpts;
-        private readonly IsIdentifiableReviewerOptions _reviewerOpts;
-        private RuleDetailView detailView;
-        private TreeView<object> treeView;
+        Width = Dim.Fill();
+        Height = Dim.Fill();
 
+        this._analyserOpts = analyserOpts;
+        this._reviewerOpts = reviewerOpts;
 
-        public AllRulesManagerView(IsIdentifiableBaseOptions analyserOpts , IsIdentifiableReviewerOptions reviewerOpts)
+        treeView = new TreeView<object>(this);
+        treeView.Width = Dim.Percent(50);
+        treeView.Height = Dim.Fill();
+        treeView.AspectGetter = NodeAspectGetter;
+        treeView.AddObject(Analyser);
+        treeView.AddObject(Reviewer);
+        Add(treeView);
+
+        detailView = new RuleDetailView()
         {
-            Width = Dim.Fill();
-            Height = Dim.Fill();
+            X = Pos.Right(treeView),
+            Y = 0,
+            Width = Dim.Fill(),
+            Height = Dim.Fill()
+        };
+        Add(detailView);
 
-            this._analyserOpts = analyserOpts;
-            this._reviewerOpts = reviewerOpts;
+        treeView.SelectionChanged += Tv_SelectionChanged;
+        treeView.ObjectActivated += Tv_ObjectActivated;
+        treeView.KeyPress += Tv_KeyPress;
+    }
 
-            treeView = new TreeView<object>(this);
-            treeView.Width = Dim.Percent(50);
-            treeView.Height = Dim.Fill();
-            treeView.AspectGetter = NodeAspectGetter;
-            treeView.AddObject(Analyser);
-            treeView.AddObject(Reviewer);
-            Add(treeView);
+    /// <summary>
+    /// Rebuilds the tree and refreshes rules to match the current state of rules on disk
+    /// </summary>
+    /// <returns></returns>
+    public void RebuildTree()
+    {
+        treeView.RebuildTree();
+    }
 
-            detailView = new RuleDetailView()
+    private void Tv_KeyPress(KeyEventEventArgs obj)
+    {
+        try
+        {
+            if (obj.KeyEvent.Key == Key.DeleteChar)
             {
-                X = Pos.Right(treeView),
-                Y = 0,
-                Width = Dim.Fill(),
-                Height = Dim.Fill()
-            };
-            Add(detailView);
+                var allSelected = treeView.GetAllSelectedObjects().ToArray();
 
-            treeView.SelectionChanged += Tv_SelectionChanged;
-            treeView.ObjectActivated += Tv_ObjectActivated;
-            treeView.KeyPress += Tv_KeyPress;
-        }
-
-        /// <summary>
-        /// Rebuilds the tree and refreshes rules to match the current state of rules on disk
-        /// </summary>
-        /// <returns></returns>
-        public void RebuildTree()
-        {
-            treeView.RebuildTree();
-        }
-
-        private void Tv_KeyPress(KeyEventEventArgs obj)
-        {
-            try
-            {
-                if (obj.KeyEvent.Key == Key.DeleteChar)
+                // if all the things selected are rules
+                if (allSelected.All(s=>s is ICustomRule))
                 {
-                    var allSelected = treeView.GetAllSelectedObjects().ToArray();
+                    // and the unique parents among them
+                    var parents = allSelected.Select(r => treeView.GetParent(r)).Distinct().ToArray();
 
-                    // if all the things selected are rules
-                    if (allSelected.All(s=>s is ICustomRule))
+                    //is only 1 and it is an OutBase (rules file)
+                    // then it is a Reviewer rule being deleted
+                    if(parents.Length == 1 && parents[0] is OutBase outBase)
                     {
-                        // and the unique parents among them
-                        var parents = allSelected.Select(r => treeView.GetParent(r)).Distinct().ToArray();
-
-                        //is only 1 and it is an OutBase (rules file)
-                        // then it is a Reviewer rule being deleted
-                        if(parents.Length == 1 && parents[0] is OutBase outBase)
+                        if(MessageBox.Query("Delete Rules", $"Delete {allSelected.Length} rules?", "Yes", "No") == 0)
                         {
-                            if(MessageBox.Query("Delete Rules", $"Delete {allSelected.Length} rules?", "Yes", "No") == 0)
+                            foreach(var r in allSelected.Cast<IsIdentifiableRule>())
                             {
-                                foreach(var r in allSelected.Cast<IsIdentifiableRule>())
-                                {
-                                    // remove the rules
-                                    outBase.Rules.Remove(r);
-                                }
-
-                                // and save;
-                                outBase.Save();
-                                treeView.RefreshObject(outBase);
-                            }
-                        }
-
-                        //is only 1 and it is an Analyser rule under a RuleTypeNode
-                        if (parents.Length == 1 && parents[0] is RuleTypeNode ruleTypeNode)
-                        {
-                            foreach(ICustomRule rule in allSelected)
-                            {
-                                ruleTypeNode.Rules.Remove(rule);
+                                // remove the rules
+                                outBase.Rules.Remove(r);
                             }
 
-                            ruleTypeNode.Parent.Save();
-                            treeView.RefreshObject(ruleTypeNode);
+                            // and save;
+                            outBase.Save();
+                            treeView.RefreshObject(outBase);
                         }
+                    }
+
+                    //is only 1 and it is an Analyser rule under a RuleTypeNode
+                    if (parents.Length == 1 && parents[0] is RuleTypeNode ruleTypeNode)
+                    {
+                        foreach(ICustomRule rule in allSelected)
+                        {
+                            ruleTypeNode.Rules.Remove(rule);
+                        }
+
+                        ruleTypeNode.Parent.Save();
+                        treeView.RefreshObject(ruleTypeNode);
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                MainWindow.ShowException("Failed to delete", ex);
-            }
+        }
+        catch (Exception ex)
+        {
+            MainWindow.ShowException("Failed to delete", ex);
+        }
+    }
+
+    private void Tv_ObjectActivated(ObjectActivatedEventArgs<object> obj)
+    {
+        if (obj.ActivatedObject is Exception ex)
+        {
+            MainWindow.ShowException("Exception Details", ex);
+        }
+    }
+
+    private void Tv_SelectionChanged(object sender, SelectionChangedEventArgs<object> e)
+    {
+        if(e.NewValue is ICustomRule r)
+        {
+            detailView.SetupFor(r);
+        }
+        if (e.NewValue is OutBase rulesFile)
+        {
+            detailView.SetupFor(rulesFile,rulesFile.RulesFile);
         }
 
-        private void Tv_ObjectActivated(ObjectActivatedEventArgs<object> obj)
+        if(e.NewValue is RuleSetFileNode rsf)
         {
-            if (obj.ActivatedObject is Exception ex)
-            {
-                MainWindow.ShowException("Exception Details", ex);
-            }
+            detailView.SetupFor(rsf,rsf.File);
+        }
+    }
+
+    private string NodeAspectGetter(object toRender)
+    {
+        if(toRender is IsIdentifiableRule basicrule)
+        {
+            return basicrule.IfPattern;
         }
 
-        private void Tv_SelectionChanged(object sender, SelectionChangedEventArgs<object> e)
+        if (toRender is SocketRule socketRule)
         {
-            if(e.NewValue is ICustomRule r)
-            {
-                detailView.SetupFor(r);
-            }
-            if (e.NewValue is OutBase rulesFile)
-            {
-                detailView.SetupFor(rulesFile,rulesFile.RulesFile);
-            }
-
-            if(e.NewValue is RuleSetFileNode rsf)
-            {
-                detailView.SetupFor(rsf,rsf.File);
-            }
+            return $"{socketRule.Host}:{socketRule.Port}";
+        }
+        if (toRender is AllowlistRule ignoreRule)
+        {
+            return ignoreRule.IfPattern ?? ignoreRule.IfPartPattern;
         }
 
-        private string NodeAspectGetter(object toRender)
+        if(toRender is OutBase outBase)
         {
-            if(toRender is IsIdentifiableRule basicrule)
-            {
-                return basicrule.IfPattern;
-            }
-
-            if (toRender is SocketRule socketRule)
-            {
-                return socketRule.Host + ":" + socketRule.Port;
-            }
-            if (toRender is AllowlistRule ignoreRule)
-            {
-                return ignoreRule.IfPattern ?? ignoreRule.IfPartPattern;
-            }
-
-            if(toRender is OutBase outBase)
-            {
-                return outBase.RulesFile.Name;
-            }
-
-            return toRender.ToString();
+            return outBase.RulesFile.Name;
         }
 
-        public bool SupportsCanExpand => true;
+        return toRender.ToString();
+    }
 
-        public bool CanExpand(object toExpand)
+    public bool SupportsCanExpand => true;
+
+    public bool CanExpand(object toExpand)
+    {
+        // These are the things that cannot be expanded upon
+        if (toExpand is Exception)
+            return false;
+
+        if (toExpand is ICustomRule)
+            return false;
+
+        //everything else can be expanded
+        return true;
+    }
+
+    public IEnumerable<object> GetChildren(object forObject)
+    {
+        try
         {
-            // These are the things that cannot be expanded upon
-            if (toExpand is Exception)
-                return false;
-
-            if (toExpand is ICustomRule)
-                return false;
-
-            //everything else can be expanded
-            return true;
+            return GetChildrenImpl(forObject).ToArray();
         }
-
-        public IEnumerable<object> GetChildren(object forObject)
+        catch (Exception ex)
         {
-            try
-            {
-                return GetChildrenImpl(forObject).ToArray();
-            }
-            catch (Exception ex)
-            {
-                // if there is an error getting children e.g. file doesn't exist, put the
-                // Exception object directly into the tree
-                return new object[] { ex };
-            }
+            // if there is an error getting children e.g. file doesn't exist, put the
+            // Exception object directly into the tree
+            return new object[] { ex };
         }
+    }
 
-        private IEnumerable<object> GetChildrenImpl(object forObject)
+    private IEnumerable<object> GetChildrenImpl(object forObject)
+    {
+        if(ReferenceEquals(forObject,Analyser))
         {
-            if(ReferenceEquals(forObject,Analyser))
+            if(!string.IsNullOrWhiteSpace(_analyserOpts?.RulesDirectory))
             {
-                if(!string.IsNullOrWhiteSpace(_analyserOpts?.RulesDirectory))
+                foreach (var f in Directory.GetFiles(_analyserOpts.RulesDirectory,"*.yaml"))
                 {
-                    foreach (var f in Directory.GetFiles(_analyserOpts.RulesDirectory,"*.yaml"))
-                    {
-                        yield return new RuleSetFileNode(new FileInfo(f));
-                    }
-                }
-
-                if (!string.IsNullOrWhiteSpace(_analyserOpts?.RulesFile))
-                {
-                    yield return new RuleSetFileNode(new FileInfo(_analyserOpts.RulesFile));
-                }
-            }
-            if (ReferenceEquals(forObject,Reviewer))
-            {
-                if(!string.IsNullOrWhiteSpace(_reviewerOpts.Reportlist))
-                {
-                    yield return new RowUpdater(new FileInfo(_reviewerOpts.Reportlist));
-                }
-                if (!string.IsNullOrWhiteSpace(_reviewerOpts.IgnoreList))
-                {
-                    yield return new IgnoreRuleGenerator(new FileInfo(_reviewerOpts.IgnoreList));
+                    yield return new RuleSetFileNode(new FileInfo(f));
                 }
             }
 
-            if (forObject is RuleSetFileNode ruleSet)
+            if (!string.IsNullOrWhiteSpace(_analyserOpts?.RulesFile))
             {
+                yield return new RuleSetFileNode(new FileInfo(_analyserOpts.RulesFile));
+            }
+        }
+        if (ReferenceEquals(forObject,Reviewer))
+        {
+            if(!string.IsNullOrWhiteSpace(_reviewerOpts.Reportlist))
+            {
+                yield return new RowUpdater(new FileInfo(_reviewerOpts.Reportlist));
+            }
+            if (!string.IsNullOrWhiteSpace(_reviewerOpts.IgnoreList))
+            {
+                yield return new IgnoreRuleGenerator(new FileInfo(_reviewerOpts.IgnoreList));
+            }
+        }
+
+        if (forObject is RuleSetFileNode ruleSet)
+        {
                 
-                yield return new RuleTypeNode(ruleSet, nameof(RuleSet.BasicRules));
-                yield return new RuleTypeNode(ruleSet, nameof(RuleSet.SocketRules));
-                yield return new RuleTypeNode(ruleSet, nameof(RuleSet.AllowlistRules));
-                yield return new RuleTypeNode(ruleSet, nameof(RuleSet.ConsensusRules));                
-            }
+            yield return new RuleTypeNode(ruleSet, nameof(RuleSet.BasicRules));
+            yield return new RuleTypeNode(ruleSet, nameof(RuleSet.SocketRules));
+            yield return new RuleTypeNode(ruleSet, nameof(RuleSet.AllowlistRules));
+            yield return new RuleTypeNode(ruleSet, nameof(RuleSet.ConsensusRules));                
+        }
 
-            if(forObject is RuleTypeNode ruleType)
+        if(forObject is RuleTypeNode ruleType)
+        {
+            foreach(var r in ruleType.Rules)
             {
-                foreach(var r in ruleType.Rules)
-                {
-                    yield return r;
-                }
+                yield return r;
             }
+        }
 
-            if (forObject is OutBase outBase)
+        if (forObject is OutBase outBase)
+        {
+            foreach (var r in outBase.Rules)
             {
-                foreach (var r in outBase.Rules)
-                {
-                    yield return r;
-                }
+                yield return r;
             }
         }
     }
