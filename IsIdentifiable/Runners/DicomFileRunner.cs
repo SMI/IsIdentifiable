@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using FellowOakDicom;
 using FellowOakDicom.Imaging;
+using FellowOakDicom.Imaging.ImageSharp;
 using DicomTypeTranslation;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
@@ -14,10 +15,9 @@ using IsIdentifiable.Reporting.Reports;
 using NLog;
 using Tesseract;
 using ImageMagick;
+using Microsoft.Extensions.DependencyInjection;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using Rectangle = System.Drawing.Rectangle; // dotnet add package Magick.NET-Q16-AnyCPU
 
 namespace IsIdentifiable.Runners;
 
@@ -60,8 +60,9 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
 
         //OR if using fo-dicom.Native DICOM codecs
         // (see https://github.com/fo-dicom/fo-dicom/issues/631)
-        // Don't use WinForms, that makes us Windows-only! ImageManager.SetImplementation(new WinFormsImageManager());
-
+        // Don't use WinForms, that makes us Windows-only! ImageManager.SetImplementation(new WinFormsImageManager()); 
+        new DicomSetupBuilder().RegisterServices(s=>s.AddImageManager<ImageSharpImageManager>()).Build();
+ 
         //if there is a value we are treating as a zero date
         if (!string.IsNullOrWhiteSpace(_opts.ZeroDate))
             _zeroDate = DateTime.Parse(_opts.ZeroDate);
@@ -232,7 +233,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
 
         try
         {
-            var dicomImage = new DicomImage(ds).RenderImage().AsSharpImage();
+            var dicomImage = new DicomImage(fi.FullName).RenderImage().AsSharpImage();
             using var memStreamOut = new MemoryStream();
             using var mi = new MagickImage();
             using (var ms = new MemoryStream())
