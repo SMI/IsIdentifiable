@@ -20,7 +20,7 @@
 		  <dependency id="fo-dicom.Imaging.ImageSharp" version="5.0.2" />
 		  <dependency id="HIC.DicomTypeTranslation" version="4.0.0" />
 		  <dependency id="HIC.FAnsiSql" version="2.0.3" />
-		  <dependency id="Magick.NET-Q16-AnyCPU" version="10.1.0" />
+		  <dependency id="Magick.NET-Q16-AnyCPU" version="11.0.0" />
 		  <dependency id="Microsoft.Extensions.Caching.Memory" version="6.0.1" />
 		  <dependency id="NLog" version="4.7.14" />
 		  <dependency id="System.IO.Abstractions" version="16.1.25" />
