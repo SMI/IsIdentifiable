@@ -230,7 +230,7 @@ if __name__ == "__main__":
 
     setup_logging(log_dir = logs_root)
     logging.debug(f'using yaml {args.yaml}')
-    logging.debug(f'using port {bindip}:{port_num}')
+    logging.debug(f'using port {host_name}:{port_num}')
     logging.debug(f'using model {spacy_models}')
 
-    ThreadedServer(bindip, port_num, spacy_model_list = spacy_models).run()
+    ThreadedServer(host_name, port_num, spacy_model_list = spacy_models).run()
