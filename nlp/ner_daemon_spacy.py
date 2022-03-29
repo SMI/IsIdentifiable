@@ -61,6 +61,7 @@ spacy_entity_to_FailureClassification_map = {
     'PERSON': 'PERSON',    # People, including fictional.
     'NORP': '',            # Nationalities or religious or political groups.
     'FAC': '',             # Buildings, airports, highways, bridges, etc.
+    'ORG': 'ORGANIZATION', # Companies, agencies, institutions, etc.
     'GPE': 'LOCATION',     # Countries, cities, states.
     'LOC': '',             # Non-GPE locations, mountain ranges, bodies of water.
     'PRODUCT': '',         # Objects, vehicles, foods, etc. (Not services.)
