@@ -192,9 +192,8 @@ class ThreadedServer(object):
                 self.lock.release()
                 client.send(b'\0\0')
                 client.close()
+                self.lock.release()
                 return False
-        self.lock.release()
-        return
 
 
 # ---------------------------------------------------------------------
