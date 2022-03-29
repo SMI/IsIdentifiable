@@ -62,7 +62,7 @@ internal class ExecuteCommandRunIsIdentifiable : BasicCommandExecution
         dbOpts.TableName = _table.GetRuntimeName();
 
         var runner = new DatabaseRunner(dbOpts);
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
         BasicActivator.Wait("Evaluating Table", Task.Run(()=>
         {
