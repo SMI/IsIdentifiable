@@ -46,7 +46,7 @@ except:
 # Only issue a warning if SciSpaCy not found
 try:
     import scispacy # not yet. Use model en_core_sci_md, or en_ner_bc5cdr_md
-except:
+except Exception:
     print('Warning: SciSpaCy not installed (do not try to use a scispacy language model)', file=sys.stderr)
 import threading
 import yaml
@@ -61,7 +61,6 @@ spacy_entity_to_FailureClassification_map = {
     'PERSON': 'PERSON',    # People, including fictional.
     'NORP': '',            # Nationalities or religious or political groups.
     'FAC': '',             # Buildings, airports, highways, bridges, etc.
-    'ORG': 'ORGANIZATION', # Companies, agencies, institutions, etc.
     'GPE': 'LOCATION',     # Countries, cities, states.
     'LOC': '',             # Non-GPE locations, mountain ranges, bodies of water.
     'PRODUCT': '',         # Objects, vehicles, foods, etc. (Not services.)
@@ -193,9 +192,8 @@ class ThreadedServer(object):
                 self.lock.release()
                 client.send(b'\0\0')
                 client.close()
+                self.lock.release()
                 return False
-        self.lock.release()
-        return
 
 
 # ---------------------------------------------------------------------
@@ -231,7 +229,7 @@ if __name__ == "__main__":
 
     setup_logging(log_dir = logs_root)
     logging.debug(f'using yaml {args.yaml}')
-    logging.debug(f'using port {host_name}:{port_num}')
+    logging.debug(f'using port {bindip}:{port_num}')
     logging.debug(f'using model {spacy_models}')
 
-    ThreadedServer(host_name, port_num, spacy_model_list = spacy_models).run()
+    ThreadedServer(bindip, port_num, spacy_model_list = spacy_models).run()
