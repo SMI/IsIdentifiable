@@ -201,11 +201,13 @@ class ThreadedServer(object):
 if __name__ == "__main__":
     """ Main program
     """
+    bindip='127.0.0.1'
     parser = argparse.ArgumentParser(description = prog_name)
     parser.add_argument('-d', '--download', dest='download', action="store", help='Download a SpaCy language model and exit')
     parser.add_argument('-y', '--yaml', dest='yaml', action="store", help='the default.yaml config file')
     parser.add_argument('-m', '--model', dest='model', action="append", help='a SpaCy language model')
     parser.add_argument('-p', '--port', dest='port', action="store", help='port number, default 1881')
+    parser.add_argument('-i', '--ip', dest='bindip', action="store", help='IP address/hostname to bind to, default 127.0.0.1')
     args = parser.parse_args()
 
     if args.download:
@@ -228,7 +230,7 @@ if __name__ == "__main__":
 
     setup_logging(log_dir = logs_root)
     logging.debug(f'using yaml {args.yaml}')
-    logging.debug(f'using port {host_name}:{port_num}')
+    logging.debug(f'using port {bindip}:{port_num}')
     logging.debug(f'using model {spacy_models}')
 
-    ThreadedServer(host_name, port_num, spacy_model_list = spacy_models).run()
+    ThreadedServer(bindip, port_num, spacy_model_list = spacy_models).run()
