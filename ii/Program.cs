@@ -34,7 +34,7 @@ public static class Program
         }
 
         ParserSettings defaults = Parser.Default.Settings;
-        using var parser = new Parser(settings =>
+        var parser = new Parser(settings =>
         {
             settings.CaseInsensitiveEnumValues = true;
             settings.CaseSensitive = false;
