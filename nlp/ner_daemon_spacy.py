@@ -46,7 +46,7 @@ except:
 # Only issue a warning if SciSpaCy not found
 try:
     import scispacy # not yet. Use model en_core_sci_md, or en_ner_bc5cdr_md
-except Exception:
+except:
     print('Warning: SciSpaCy not installed (do not try to use a scispacy language model)', file=sys.stderr)
 import threading
 import yaml
