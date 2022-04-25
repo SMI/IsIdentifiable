@@ -33,6 +33,12 @@ jobs:
         java-version: '11'
         components: 'native-image'
         github-token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/cache@v2
+      with:
+        path: ${{ github.workspace }}/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v2
       with:
