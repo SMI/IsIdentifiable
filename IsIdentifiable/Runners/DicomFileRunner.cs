@@ -233,45 +233,50 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
 
         try
         {
-            var dicomImage = new DicomImage(fi.FullName).RenderImage().AsSharpImage();
-            using var memStreamOut = new MemoryStream();
-            using var mi = new MagickImage();
-            using (var ms = new MemoryStream())
+            var dicomImageObj = new DicomImage(fi.FullName);
+            var numFrames = dicomImageObj.NumberOfFrames;
+            for (var frameNum=0; frameNum < numFrames; frameNum++)
             {
-                dicomImage.SaveAsBmp(ms);
-                ms.Position = 0;
-                mi.Read(ms);
-                Process(ms, fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
-            }
+                var dicomImage = dicomImageObj.RenderImage(frameNum).AsSharpImage();
+                using var memStreamOut = new MemoryStream();
+                using var mi = new MagickImage();
+                using (var ms = new MemoryStream())
+                {
+                    dicomImage.SaveAsBmp(ms);
+                    ms.Position = 0;
+                    mi.Read(ms);
+                    Process(ms, fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
+                }
 
-            // Threshold the image to monochrome using a window size of 25 square
-            // The size 25 was determined empirically based on real images (could be larger, less effective if smaller)
-            mi.AdaptiveThreshold(25, 25);
-            // Write out to memory, can't reuse memStreamIn here as it breaks
-            mi.Write(memStreamOut);
-            memStreamOut.Position = 0;
-            Process(memStreamOut,fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
-            // Tesseract only works with black text on white background so run again negated
-            mi.Negate();
-            memStreamOut.Position = 0;
-            mi.Write(memStreamOut);
-            memStreamOut.Position = 0;
-            Process(memStreamOut, fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
+                // Threshold the image to monochrome using a window size of 25 square
+                // The size 25 was determined empirically based on real images (could be larger, less effective if smaller)
+                mi.AdaptiveThreshold(25, 25);
+                // Write out to memory, can't reuse memStreamIn here as it breaks
+                mi.Write(memStreamOut);
+                memStreamOut.Position = 0;
+                Process(memStreamOut,fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
+                // Tesseract only works with black text on white background so run again negated
+                mi.Negate();
+                memStreamOut.Position = 0;
+                mi.Write(memStreamOut);
+                memStreamOut.Position = 0;
+                Process(memStreamOut, fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
 
-            // Need to threshold and possibly negate the image for best results
-            // Magick.NET won't read from Bitmap directly in .net core so go via MemoryStream
+                // Need to threshold and possibly negate the image for best results
+                // Magick.NET won't read from Bitmap directly in .net core so go via MemoryStream
 
-            //if user wants to rotate the image 90, 180 and 270 degrees
-            // XXX this is done after negation, maybe needs to be done with and without negation?
-            if (!_opts.Rotate) return;
-            for (var i = 0; i < 3; i++)
-            {
-                //rotate image 90 degrees and run OCR again
-                using var ms = new MemoryStream();
-                dicomImage.Mutate(x => x.Rotate(RotateMode.Rotate90));
-                dicomImage.SaveAsBmp(ms);
-                ms.Position = 0;
-                Process(ms, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, (i + 1) * 90);
+                //if user wants to rotate the image 90, 180 and 270 degrees
+                // XXX this is done after negation, maybe needs to be done with and without negation?
+                if (!_opts.Rotate) return;
+                for (var i = 0; i < 3; i++)
+                {
+                    //rotate image 90 degrees and run OCR again
+                    using var ms = new MemoryStream();
+                    dicomImage.Mutate(x => x.Rotate(RotateMode.Rotate90));
+                    dicomImage.SaveAsBmp(ms);
+                    ms.Position = 0;
+                    Process(ms, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, (i + 1) * 90);
+                }
             }
         }
         catch (Exception e)
