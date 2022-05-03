@@ -279,6 +279,38 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                     ProcessBitmapMemStream(ms, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, (i + 1) * 90);
                 }
             }
+            // Process all of the Overlays
+            //   Each overlay can have multiple frames
+            var groups = new List<ushort>();
+            groups.AddRange(ds.Where(x => x.Tag.Group >= 0x6000 && x.Tag.Group <= 0x60FF &&
+                x.Tag.Element == 0x0010).Select(x => x.Tag.Group));
+            foreach (var group in groups) {
+                // ensure that 6000 group is actually an overlay group
+                // by checking that OverlayRows is a number
+                // XXX why?
+                _logger.Info($" Found Overlay {group-0x6000} in '{fi.FullName}'");
+                //var xx = ds.GetValue<DicomItem>(new DicomTag(group, 0x0010), 0);
+                //_logger.Info($" Found OverlayRows VR {xx}");
+                //if (ds.GetValue<DicomElement>(new DicomTag(group, 0x0010), 0).ValueRepresentation != DicomVR.US)
+                //    continue;
+                // Check NumberOfFramesInOverlay, if present
+                var numframes = ds.GetValueOrDefault<ushort>(new DicomTag(group, 0x0015), 0, 0);
+                _logger.Info($"  Got number of frames {numframes} in overlay {group} from '{fi.FullName}'");
+                // Check OverlayBitPosition, normally 0, or bit position for old-style
+                var bitpos = ds.GetValue<ushort>(new DicomTag(group, 0x0102), 0);
+                if (bitpos > 0) _logger.Info($"  Got old-style overlay {group-0x6000} in bit position {bitpos} from '{fi.FullName}'");
+                try {
+                    // See https://fo-dicom.github.io/stable/v5/api/FellowOakDicom.Imaging.DicomOverlayData.html
+                    DicomOverlayData overlay = new DicomOverlayData(ds, group);
+                    _logger.Info($"  Got DicomOverlayData {group-0x6000} from '{fi.FullName}'");
+                    // XXX how to get multiple frames?
+                }
+                catch (Exception e)
+                {
+                    _logger.Error(e, $"Could not get DicomOverlayData from '{fi.FullName}'");
+                    // XXX
+                }
+            }
         }
         catch (Exception e)
         {
