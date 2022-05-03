@@ -267,8 +267,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
 
                 //if user wants to rotate the image 90, 180 and 270 degrees
                 // XXX this is done after negation, maybe needs to be done with and without negation?
-                if (!_opts.Rotate) return;
-                for (var i = 0; i < 3; i++)
+                if (_opts.Rotate) for (var i = 0; i < 3; i++)
                 {
                     //rotate image 90 degrees and run OCR again
                     using var ms = new MemoryStream();
