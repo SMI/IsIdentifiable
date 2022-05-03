@@ -231,12 +231,14 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         // Don't go looking for images in structured reports
         if (modality == "SR") return;
 
+        _logger.Info($"Processing '{fi.FullName}'");
         try
         {
             var dicomImageObj = new DicomImage(fi.FullName);
             var numFrames = dicomImageObj.NumberOfFrames;
             for (var frameNum=0; frameNum < numFrames; frameNum++)
             {
+                _logger.Info($" Frame {frameNum} in '{fi.FullName}'");
                 var dicomImage = dicomImageObj.RenderImage(frameNum).AsSharpImage();
                 using var memStreamOut = new MemoryStream();
                 using var mi = new MagickImage();
