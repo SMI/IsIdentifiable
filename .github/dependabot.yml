@@ -12,7 +12,7 @@ updates:
   - tznind
   - jas88
 - package-ecosystem: maven
-  direction: "/nlp/uk.ac.dundee.hic.nerd"
+  directory: "/nlp/uk.ac.dundee.hic.nerd"
   schedule:
     interval: daily
   reviewers:
