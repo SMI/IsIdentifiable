@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
@@ -239,6 +240,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
             for (var frameNum=0; frameNum < numFrames; frameNum++)
             {
                 _logger.Info($" Frame {frameNum} in '{fi.FullName}'");
+                dicomImageObj.OverlayColor = 0xffffff; // white, as default magenta not good for tesseract
                 var dicomImage = dicomImageObj.RenderImage(frameNum).AsSharpImage();
                 using var memStreamOut = new MemoryStream();
                 using var mi = new MagickImage();
@@ -261,6 +263,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                 mi.Negate();
                 memStreamOut.Position = 0;
                 mi.Write(memStreamOut);
+                mi.Write($"{fi.FullName}.frame{frameNum}.png", MagickFormat.Png); // XXX debugging
                 memStreamOut.Position = 0;
                 ProcessBitmapMemStream(memStreamOut, fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
 
@@ -268,7 +271,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                 // Magick.NET won't read from Bitmap directly in .net core so go via MemoryStream
 
                 //if user wants to rotate the image 90, 180 and 270 degrees
-                // XXX this is done after negation, maybe needs to be done with and without negation?
+                // XXX this is done from the dicomImage, maybe need to threshold/negate here too?
                 if (_opts.Rotate) for (var i = 0; i < 3; i++)
                 {
                     //rotate image 90 degrees and run OCR again
@@ -279,37 +282,72 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                     ProcessBitmapMemStream(ms, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, (i + 1) * 90);
                 }
             }
-            // Process all of the Overlays
-            //   Each overlay can have multiple frames
+
+            // Process all of the Overlays and all of their frames
+
+            // Get a set of 'group' identifiers from 0x6000 to 0x60FE if group.0x0010 exists.
+            // Each group will be an overlay. Note only even numbers exist, so max 16 overlays.
             var groups = new List<ushort>();
             groups.AddRange(ds.Where(x => x.Tag.Group >= 0x6000 && x.Tag.Group <= 0x60FF &&
                 x.Tag.Element == 0x0010).Select(x => x.Tag.Group));
-            foreach (var group in groups) {
-                // ensure that 6000 group is actually an overlay group
-                // by checking that OverlayRows is a number
-                // XXX why?
+
+            foreach (var group in groups)
+            {
                 _logger.Info($" Found Overlay {group-0x6000} in '{fi.FullName}'");
-                //var xx = ds.GetValue<DicomItem>(new DicomTag(group, 0x0010), 0);
-                //_logger.Info($" Found OverlayRows VR {xx}");
-                //if (ds.GetValue<DicomElement>(new DicomTag(group, 0x0010), 0).ValueRepresentation != DicomVR.US)
-                //    continue;
+
                 // Check NumberOfFramesInOverlay, if present
                 var numframes = ds.GetValueOrDefault<ushort>(new DicomTag(group, 0x0015), 0, 0);
-                _logger.Info($"  Got number of frames {numframes} in overlay {group} from '{fi.FullName}'");
-                // Check OverlayBitPosition, normally 0, or bit position for old-style
+                _logger.Info($"  Got number of frames {numframes} in overlay {group-0x6000}");
+
+                // Check OverlayBitPosition, normally 0, or bit position for old-style embedded
                 var bitpos = ds.GetValue<ushort>(new DicomTag(group, 0x0102), 0);
-                if (bitpos > 0) _logger.Info($"  Got old-style overlay {group-0x6000} in bit position {bitpos} from '{fi.FullName}'");
-                try {
-                    // See https://fo-dicom.github.io/stable/v5/api/FellowOakDicom.Imaging.DicomOverlayData.html
-                    DicomOverlayData overlay = new DicomOverlayData(ds, group);
-                    _logger.Info($"  Got DicomOverlayData {group-0x6000} from '{fi.FullName}'");
-                    // XXX how to get multiple frames?
-                }
-                catch (Exception e)
+                if (bitpos > 0) _logger.Info($"  Got 'embedded' overlay {group-0x6000} in bit position {bitpos}");
+
+                // Load the overlay info for this group
+                // See https://fo-dicom.github.io/stable/v5/api/FellowOakDicom.Imaging.DicomOverlayData.html
+                DicomOverlayData overlay = new DicomOverlayData(ds, group);
+
+                // Get overlay as black on white, best for tesseract
+                byte[] overlayBytes = overlay.Data.Data; // not GetOverlayDataS32(255, 0) which returns int[]
+                _logger.Info($"  Got overlay pixel array {overlay.Columns} x {overlay.Rows} bytes={overlayBytes.Length}");
+
+                // Get multiple frames?
+                var numoverlayframes = overlay.NumberOfFrames;
+                var overlayframesize = overlay.Rows * overlay.Columns;
+                _logger.Info($"  Overlay pixel array has {numframes} frames");
+
+                var overlayBits = new BitArray(overlayBytes);
+                // XXX can we simply multiply height by numframes to make one very long image?
+                // assuming the frame data is simply concatenated in the overlaydata.
+                // Not sure if this holds true for widths which are not a multiple of 8.
+                for (int ovframenum = 0; ovframenum < numoverlayframes; ovframenum++)
                 {
-                    _logger.Error(e, $"Could not get DicomOverlayData from '{fi.FullName}'");
-                    // XXX
+                    var overlayBuf = new byte[overlayframesize];
+                    for (int ii=0; ii<overlayframesize; ii++)
+                    {
+                        if (overlayBits.Get((ovframenum * overlayframesize) + ii))
+                            overlayBuf[ii] = 0;   // black text
+                        else
+                            overlayBuf[ii] = 255; // on a white background
+                    }
+
+                    // Convert each frame into a BMP, then into a MemoryStream
+                    MagickReadSettings msett = new MagickReadSettings();
+                    msett.ColorType = ColorType.Grayscale;
+                    msett.Width = overlay.Columns;
+                    msett.Height = overlay.Rows;
+                    msett.Depth = 8;
+                    msett.Format = MagickFormat.Gray; 
+                    using var magick_image = new MagickImage(overlayBuf, msett);
+                    // Write to a file, format Png or Png00 or Png8 ???
+                    magick_image.Write($"{fi.FullName}.ov{group-0x6000}.frame{ovframenum}.png", MagickFormat.Png);
+                    using var memStreamOut = new MemoryStream();
+                    memStreamOut.Position = 0;
+                    magick_image.Write(memStreamOut, MagickFormat.Pgm); // Bmp is buggy so use Pgm
+                    memStreamOut.Position = 0;
+                    ProcessBitmapMemStream(memStreamOut, fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
                 }
+                
             }
         }
         catch (Exception e)
