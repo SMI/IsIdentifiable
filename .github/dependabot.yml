@@ -8,12 +8,12 @@ updates:
   directory: "/"
   schedule:
     interval: daily
+  reviewers:
+  - tznind
+  - jas88
 - package-ecosystem: maven
   direction: "/nlp/uk.ac.dundee.hic.nerd"
   schedule:
     interval: daily
-open-pull-requests-limit: 10
-target-branch: main
-reviewers:
-- tznind
-- jas88
+  reviewers:
+  - jas88
