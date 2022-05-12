@@ -51,6 +51,8 @@ jobs:
         sudo mysqld_safe --port=3306 --skip-grant-tables --skip-name-resolve &
         sleep 5
         tail /var/log/mysql/error.log
+    - name: Setup upterm session
+      uses: lhotari/action-upterm@v1
     - name: Install MS SQL Server
       run: |
         wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
