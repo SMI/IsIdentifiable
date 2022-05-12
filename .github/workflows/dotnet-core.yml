@@ -37,13 +37,13 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '6.0.x'
-    - name: MySQL
+    - name: Start MySQL
       run: |
         sed -i'' -e 's/Password=;/Password=pgpass4291;/' Tests/IsIdentifiableTests/TestDatabases.xml
         sudo mkdir -p /var/run/mysqld
         sudo chown mysql:mysql /var/run/mysqld
         sudo mysqld_safe --port=3306 --skip-grant-tables &
-    - name: Install Sql Server
+    - name: Install MS SQL Server
       run: |
         wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
         sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/18.04/mssql-server-2019.list)"
@@ -51,7 +51,7 @@ jobs:
         sudo -E /opt/mssql/bin/mssql-conf -n setup accept-eula
     - name: Fetch tessdata
       run: |
-        bash /data/tessdata/download.sh
+        bash data/tessdata/download.sh
         mv eng.traineddata ./data/tessdata/eng.traineddata
     - name: Build
       run: dotnet build --configuration Release --no-restore --nologo
