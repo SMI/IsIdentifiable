@@ -11,7 +11,7 @@ env:
 jobs:  
   build:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres:latest
@@ -35,7 +35,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: actions/cache@v3
       with:
-        path: ${{ github.workspace }}/.nuget/packages
+        path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
         restore-keys: |
           ${{ runner.os }}-nuget-
@@ -43,30 +43,41 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '6.0.x'
-    - name: Add MSFT code signing key
-      run: wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-    - name: Add MSFT package repo
-      run: sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/18.04/mssql-server-2019.list)"
-    - name: MySQL
+    - uses: actions/setup-java@v3
+      with:
+        distribution: 'adopt'
+        java-version: '11'
+        cache: 'maven'
+    - name: Start MySQL
       run: |
         sed -i'' -e 's/Password=;/Password=pgpass4291;/' Tests/IsIdentifiableTests/TestDatabases.xml
+        sed -i'' -e 's/Uid=root;Pwd=;/Uid=root;Pwd=root;AllowPublicKeyRetrieval=True;/' Tests/IsIdentifiableTests/TestDatabases.xml
         sudo mkdir -p /var/run/mysqld
         sudo chown mysql:mysql /var/run/mysqld
-        sudo mysqld_safe --port=3306 --skip-grant-tables &
-    - name: Install Sql Server
-      run: sudo apt-get install -y --no-install-recommends postgresql mssql-tools mssql-server
-    - name: Configure Sql Server
-      run: sudo -E /opt/mssql/bin/mssql-conf -n setup accept-eula
-    - name: Fix download.sh runability
-      run: chmod +x ./data/tessdata/download.sh
+        sudo mysqld_safe --port=3306 &
+    - name: Install MS SQL Server
+      run: |
+        wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+        sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/18.04/mssql-server-2019.list)"
+        sudo apt-get install -y --no-install-recommends postgresql mssql-tools mssql-server
+        sudo -E /opt/mssql/bin/mssql-conf -n setup accept-eula
     - name: Fetch tessdata
-      run: ./data/tessdata/download.sh
-    - name: Move eng.traineddata
-      run:  mv eng.traineddata ./data/tessdata/eng.traineddata
+      run: |
+        bash data/tessdata/download.sh
+        mv eng.traineddata ./data/tessdata/eng.traineddata
     - name: Build
       run: dotnet build --configuration Release --nologo
     - name: Test
       run: dotnet test --blame -l:"console;verbosity=normal" --nologo
+    - name: Build Java NERD
+      run: |
+        cd nlp/uk.ac.dundee.hic.nerd
+        mvn -B -q clean compile assembly:single
+        java -jar target/nerd-0.0.1-SNAPSHOT.jar &
+        timeout 30 sh -c 'until nc -z 127.0.0.1 1881; do sleep 1; done'
+        printf "University of Dundee\0Fred Bloggs\0Ninewells Hospital\0person\0woman\0man\0camera\0tv\0" | nc -N 127.0.0.1 1881
+        kill $!
+        mv target/nerd-0.0.1-SNAPSHOT.jar ../../release/
     - name: Package ii binary
       run: |
         dotnet publish ii/ii.csproj -nologo --runtime win-x64 -c Release --self-contained true -o win-x64 -p:PublishSingleFile=true -p:GenerateDocumentationFile=false -p:DebugType=embedded
