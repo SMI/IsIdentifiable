@@ -4,7 +4,7 @@ extraction:
       dotnet:
         version: 6.0.300
   java:
-    java_version: 11
     index:
+      java_version: 11
       build_command:
         - mvn -f nlp/uk.ac.dundee.hic.nerd/pom.xml package
