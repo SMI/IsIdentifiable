@@ -54,7 +54,7 @@ jobs:
         bash data/tessdata/download.sh
         mv eng.traineddata ./data/tessdata/eng.traineddata
     - name: Build
-      run: dotnet build --configuration Release --no-restore --nologo
+      run: dotnet build --configuration Release --nologo
     - name: Test
       run: dotnet test --blame -l:"console;verbosity=normal" --no-restore --nologo
     - name: Package ii binary
