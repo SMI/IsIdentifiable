@@ -27,12 +27,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: graalvm/setup-graalvm@v1
+    - uses: actions/setup-java@v3
       with:
-        version: 'latest'
+        distribution: 'adopt'
         java-version: '11'
-        components: 'native-image'
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        cache: 'maven'
     - uses: actions/cache@v3
       with:
         path: ~/.nuget/packages
@@ -43,11 +42,6 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '6.0.x'
-    - uses: actions/setup-java@v3
-      with:
-        distribution: 'adopt'
-        java-version: '11'
-        cache: 'maven'
     - name: Start MySQL
       run: |
         sed -i'' -e 's/Password=;/Password=pgpass4291;/' Tests/IsIdentifiableTests/TestDatabases.xml
