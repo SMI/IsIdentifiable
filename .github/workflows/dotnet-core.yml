@@ -43,6 +43,7 @@ jobs:
         sudo mkdir -p /var/run/mysqld
         sudo chown mysql:mysql /var/run/mysqld
         sudo mysqld_safe --port=3306 --skip-grant-tables --skip-name-resolve &
+        sleep 5
         tail /var/log/mysql/error.log
     - name: Install MS SQL Server
       run: |
