@@ -37,6 +37,11 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '6.0.x'
+    - uses: actions/setup-java@v3
+      with:
+        distribution: 'adopt'
+        java-version: '11'
+        cache: 'maven'
     - name: Start MySQL
       run: |
         sed -i'' -e 's/Password=;/Password=pgpass4291;/' Tests/IsIdentifiableTests/TestDatabases.xml
@@ -58,11 +63,20 @@ jobs:
       run: dotnet build --configuration Release --nologo
     - name: Test
       run: dotnet test --blame -l:"console;verbosity=normal" --no-restore --nologo
+    - name: Build Java NERD
+      run: |
+        cd nlp/uk.ac.dundee.hic.nerd
+        mvn -B -q clean compile assembly:single
+        java -jar target/nerd-0.0.1-SNAPSHOT.jar &
+        timeout 30 sh -c 'until nc -z 127.0.0.1 1881; do sleep 1; done'
+        printf "University of Dundee\0Fred Bloggs\0Ninewells Hospital\0person\0woman\0man\0camera\0tv\0" | nc -N 127.0.0.1 1881
+        kill $!
+        mkdir -p ../../release
+        mv target/nerd-0.0.1-SNAPSHOT.jar ../../release/
     - name: Package ii binary
       run: |
         (cd ii && dotnet publish --runtime win-x64 -c Release --self-contained true -o ../win-x64)
         (cd ii && dotnet publish --runtime linux-x64 -c Release --self-contained true -o ../linux-x64)
-        mkdir release
         (cd win-x64 && zip -9r ../release/ii-cli-win-x64.zip .)
         (tar -zcvf ./release/ii-cli-linux-x64.tar.gz ./linux-x64)
     - name: Pack
