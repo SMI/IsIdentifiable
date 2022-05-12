@@ -48,7 +48,7 @@ jobs:
         sed -i'' -e 's/Uid=root;Pwd=;/Uid=root;Pwd=root;AllowPublicKeyRetrieval=True;/' Tests/IsIdentifiableTests/TestDatabases.xml
         sudo mkdir -p /var/run/mysqld
         sudo chown mysql:mysql /var/run/mysqld
-        sudo mysqld_safe --port=3306 --skip-grant-tables &
+        sudo mysqld_safe --port=3306 --skip-grant-tables --skip-name-resolve &
     - name: Install MS SQL Server
       run: |
         wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
