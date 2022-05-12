@@ -2,4 +2,9 @@ extraction:
   csharp:
     index:
       dotnet:
-        version: 6.0.101
+        version: 6.0.300
+  java:
+    java_version: 11
+    index:
+      build_command:
+        - mvn -f nlp/uk.ac.dundee.hic.nerd/pom.xml package
