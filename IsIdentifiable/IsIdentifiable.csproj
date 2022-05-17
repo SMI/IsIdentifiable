@@ -35,7 +35,7 @@
     <PackageReference Include="HIC.FAnsiSql" Version="2.0.4" />
 	<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="11.1.1" />
 	<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
-    <PackageReference Include="NLog" Version="4.7.15" />
+    <PackageReference Include="NLog" Version="5.0.0" />
     <PackageReference Include="System.IO.Abstractions" Version="17.0.10" />
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
     <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
