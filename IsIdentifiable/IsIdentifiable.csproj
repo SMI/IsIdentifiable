@@ -33,7 +33,7 @@
     <PackageReference Include="fo-dicom.Imaging.ImageSharp" Version="5.0.2" />
     <PackageReference Include="HIC.DicomTypeTranslation" Version="4.0.0" />
     <PackageReference Include="HIC.FAnsiSql" Version="2.0.4" />
-	<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="11.1.1" />
+	<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="11.1.2" />
 	<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
     <PackageReference Include="NLog" Version="5.0.0" />
     <PackageReference Include="System.IO.Abstractions" Version="17.0.12" />
