@@ -8,7 +8,7 @@
 | Package | Source Code | Version | License | Purpose | Additional Risk Assessment |
 | ------- | ------------| --------| ------- | ------- | -------------------------- |
 | coverlet.collector | [GitHub](https://github.com/coverlet-coverage/coverlet) | [3.0.3](https://www.nuget.org/packages/coverlet.collector/3.0.3) | [MIT](https://opensource.org/licenses/MIT) | Collects code coverage information | |
-| CommandLineParser | [GitHub](https://github.com/commandlineparser/commandline) | [2.8.0](https://www.nuget.org/packages/CommandLineParser/2.8.0) | [MIT](https://opensource.org/licenses/MIT) | Allows command line arguments for main client application and CLI executables |
+| CommandLineParser | [GitHub](https://github.com/commandlineparser/commandline) | [2.9.1](https://www.nuget.org/packages/CommandLineParser/2.9.1) | [MIT](https://opensource.org/licenses/MIT) | Allows command line arguments for main client application and CLI executables |
 | CsvHelper | [GitHub](https://github.com/JoshClose/CsvHelper) | [27.2.1](https://www.nuget.org/packages/CsvHelper/27.2.1) | MS-PL / Apache 2.0 | Enables reading/writing CSV files |
 | [Equ](https://github.com/thedmi/Equ) | [GitHub](https://github.com/thedmi/Equ) | [2.3.0](https://www.nuget.org/packages/Equ/2.3.0) | [MIT](https://opensource.org/licenses/MIT) | Simplifies object comparators |
 | [NLog](https://nlog-project.org/) | [GitHub](https://github.com/NLog/NLog) | [5.0.0](https://www.nuget.org/packages/NLog/5.0.0) | [BSD 3-Clause](https://github.com/NLog/NLog/blob/dev/LICENSE.txt) | Flexible user configurable logging | |
