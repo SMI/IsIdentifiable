@@ -17,7 +17,7 @@
 		  <dependency id="CommandLineParser" version="2.9.1" />
 		  <dependency id="Equ" version="2.3.0" />
 		  <dependency id="CsvHelper" version="27.2.1" />
-		  <dependency id="fo-dicom.Imaging.ImageSharp" version="5.0.2" />
+		  <dependency id="fo-dicom.Imaging.ImageSharp" version="5.0.3" />
 		  <dependency id="HIC.DicomTypeTranslation" version="4.0.0" />
 		  <dependency id="HIC.FAnsiSql" version="2.0.4" />
 		  <dependency id="Magick.NET-Q16-AnyCPU" version="11.1.2" />
