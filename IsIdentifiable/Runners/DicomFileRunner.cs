@@ -293,15 +293,11 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
 
             foreach (var group in groups)
             {
-                _logger.Info($" Found Overlay {group-0x6000} in '{fi.FullName}'");
-
                 // Check NumberOfFramesInOverlay, if present
                 var numframes = ds.GetValueOrDefault<ushort>(new DicomTag(group, 0x0015), 0, 0);
-                _logger.Info($"  Got number of frames {numframes} in overlay {group-0x6000}");
 
                 // Check OverlayBitPosition, normally 0, or bit position for old-style embedded
                 var bitpos = ds.GetValue<ushort>(new DicomTag(group, 0x0102), 0);
-                if (bitpos > 0) _logger.Info($"  Got 'embedded' overlay {group-0x6000} in bit position {bitpos}");
 
                 // Load the overlay info for this group
                 // See https://fo-dicom.github.io/stable/v5/api/FellowOakDicom.Imaging.DicomOverlayData.html
@@ -309,12 +305,11 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
 
                 // Get overlay as black on white, best for tesseract
                 byte[] overlayBytes = overlay.Data.Data; // not GetOverlayDataS32(255, 0) which returns int[]
-                _logger.Info($"  Got overlay pixel array {overlay.Columns} x {overlay.Rows} bytes={overlayBytes.Length}");
 
                 // Get multiple frames?
                 var numoverlayframes = overlay.NumberOfFrames;
                 var overlayframesize = overlay.Rows * overlay.Columns;
-                _logger.Info($"  Overlay pixel array has {numframes} frames");
+                _logger.Debug($"Overlay {group-0x6000} in '{fi.FullName}' bitpos={bitpos}, {overlay.Columns}x{overlay.Rows} x{numframes} frames, bytes={overlayBytes.Length}");
 
                 var overlayBits = new BitArray(overlayBytes);
                 // XXX can we simply multiply height by numframes to make one very long image?
@@ -340,7 +335,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                     msett.Format = MagickFormat.Gray; 
                     using var magick_image = new MagickImage(overlayBuf, msett);
                     // Write to a file, format Png or Png00 or Png8 ???
-                    magick_image.Write($"{fi.FullName}.ov{group-0x6000}.frame{ovframenum}.png", MagickFormat.Png);
+                    //magick_image.Write($"{fi.FullName}.ov{group-0x6000}.frame{ovframenum}.png", MagickFormat.Png);
                     using var memStreamOut = new MemoryStream();
                     memStreamOut.Position = 0;
                     magick_image.Write(memStreamOut, MagickFormat.Pgm); // Bmp is buggy so use Pgm
