@@ -30,7 +30,7 @@ The following optional download expand the capabilities of the software:
 
 | File     | Destination |  Windows Script |  Linux Script  |
 |----------|-------------|-------- |------|
-| [Tesseract Data files (pixel OCR models)](https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata)* | `./data/tessdata` |  [download.ps1](../data/tessdata/download.ps1)|  [download.sh](../data/tessdata/download.sh)|
+| [Tesseract Data files (pixel OCR models)](https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata)* | `./data/tessdata` |  [download.ps1](../data/tessdata/download.ps1)|  [download.sh](../data/tessdata/download.sh)|
 | [Stanford NER Classifiers](http://nlp.stanford.edu/software/stanford-ner-2016-10-31.zip)**    |  `./data/stanford-ner`     | [download.ps1](../data/stanford-ner/download.ps1)  | [download.sh](../data/stanford-ner/download.sh) |
 
 _*Only required for DICOM pixel text detection_
