@@ -396,7 +396,10 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         byte[] bytes;
         using (MemoryStream ms = new())
         {
-            mi.Write(ms,forcePgm?MagickFormat.Pgm:MagickFormat.Bmp);
+            if (forcePgm)
+                mi.Write(ms,MagickFormat.Pgm);
+            else
+                mi.Write(ms);
             bytes = ms.ToArray();
         }
         ProcessBitmapMemStream(bytes,fi,dicomFile,sopID,studyID,seriesID,modality,imageType,rotationIfAny);
