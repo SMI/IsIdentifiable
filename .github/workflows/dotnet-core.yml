@@ -63,8 +63,8 @@ jobs:
       run: dotnet test --blame -l:"console;verbosity=normal" --nologo
     - name: Package ii binary
       run: |
-        (cd ii && dotnet publish --runtime win-x64 -c Release --self-contained true -o ../win-x64)
-        (cd ii && dotnet publish --runtime linux-x64 -c Release --self-contained true -o ../linux-x64)
+        dotnet publish ii/ii.csproj -nologo --runtime win-x64 -c Release --self-contained true -o win-x64 -p:PublishSingleFile=true -p:GenerateDocumentationFile=false -p:DebugType=embedded
+        dotnet publish ii/ii.csproj -nologo --runtime linux-x64 -c Release --self-contained true -o linux-x64 -p:PublishSingleFile=true -p:GenerateDocumentationFile=false -p:DebugType=embedded
         (cd win-x64 && zip -9r ../ii-cli-win-x64.zip .)
         (tar -zcvf ii-cli-linux-x64.tar.gz ./linux-x64)
     - name: Pack
