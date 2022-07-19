@@ -203,10 +203,15 @@ if __name__ == "__main__":
     """ Main program
     """
     parser = argparse.ArgumentParser(description = prog_name)
+    parser.add_argument('-d', '--download', dest='download', action="store", help='Download a SpaCy language model and exit')
     parser.add_argument('-y', '--yaml', dest='yaml', action="store", help='the default.yaml config file')
     parser.add_argument('-m', '--model', dest='model', action="append", help='a SpaCy language model')
     parser.add_argument('-p', '--port', dest='port', action="store", help='port number, default 1881')
     args = parser.parse_args()
+
+    if args.download:
+      spacy.cli.download(args.download)
+      quit()
 
     host_name=''
     port_num = int(args.port) if args.port else default_port
