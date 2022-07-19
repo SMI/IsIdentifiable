@@ -8,6 +8,7 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ii", "ii\ii.csproj", "{20854F5A-3288-4D65-A412-7EE58198133A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IsIdentifiableReviewer", "Reviewer\IsIdentifiableReviewer.csproj", "{AEBD704D-9C89-4AE6-ABC1-8B8B44379591}"
+(removing Reviewer csproj))
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IsIdentifiable.Tests", "Tests\IsIdentifiableTests\IsIdentifiable.Tests.csproj", "{1B93CDDA-A1DD-439D-9E02-F97D8708DC8E}"
 EndProject
@@ -37,10 +38,6 @@ Global
 		{E9F91008-7915-4BE5-806A-35F766F9B0DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9F91008-7915-4BE5-806A-35F766F9B0DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9F91008-7915-4BE5-806A-35F766F9B0DC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AEBD704D-9C89-4AE6-ABC1-8B8B44379591}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AEBD704D-9C89-4AE6-ABC1-8B8B44379591}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AEBD704D-9C89-4AE6-ABC1-8B8B44379591}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AEBD704D-9C89-4AE6-ABC1-8B8B44379591}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1B93CDDA-A1DD-439D-9E02-F97D8708DC8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1B93CDDA-A1DD-439D-9E02-F97D8708DC8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B93CDDA-A1DD-439D-9E02-F97D8708DC8E}.Release|Any CPU.ActiveCfg = Release|Any CPU

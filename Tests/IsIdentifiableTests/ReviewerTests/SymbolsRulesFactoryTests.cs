@@ -1,8 +1,8 @@
 ﻿using System;
-using IsIdentifiableReviewer.Out;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Reporting;
 using NUnit.Framework;
+using IsIdentifiable.Redacting;
 
 namespace IsIdentifiableTests.ReviewerTests
 {

@@ -1,4 +1,4 @@
-﻿using IsIdentifiableReviewer;
+﻿using IsIdentifiable.Options;
 using NUnit.Framework;
 
 namespace IsIdentifiableTests.ReviewerTests

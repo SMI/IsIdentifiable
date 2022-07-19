@@ -1,5 +1,4 @@
 ﻿using IsIdentifiable.Options;
-using IsIdentifiableReviewer;
 
 namespace IsIdentifiable
 {

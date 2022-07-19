@@ -5,9 +5,10 @@ using FAnsi.Implementations.MicrosoftSQL;
 using FAnsi.Implementations.MySql;
 using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
-using IsIdentifiableReviewer;
-using IsIdentifiableReviewer.Out;
+using IsIdentifiable;
 using NUnit.Framework;
+using IsIdentifiable.Options;
+using IsIdentifiable.Redacting;
 
 namespace IsIdentifiableTests.ReviewerTests
 {
