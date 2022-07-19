@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IsIdentifiable", "IsIdentif
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ii", "ii\ii.csproj", "{20854F5A-3288-4D65-A412-7EE58198133A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IsIdentifiable.NuGet", "NuGet\IsIdentifiable.NuGet.csproj", "{E9F91008-7915-4BE5-806A-35F766F9B0DC}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IsIdentifiableReviewer", "Reviewer\IsIdentifiableReviewer.csproj", "{AEBD704D-9C89-4AE6-ABC1-8B8B44379591}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IsIdentifiable.Tests", "Tests\IsIdentifiableTests\IsIdentifiable.Tests.csproj", "{1B93CDDA-A1DD-439D-9E02-F97D8708DC8E}"

@@ -27,6 +27,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: graalvm/setup-graalvm@v1
+      with:
+        version: 'latest'
+        java-version: '11'
+        components: 'native-image'
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
@@ -45,8 +51,6 @@ jobs:
       run: sudo apt-get install -y --no-install-recommends postgresql mssql-tools mssql-server
     - name: Configure Sql Server
       run: sudo -E /opt/mssql/bin/mssql-conf -n setup accept-eula
-    - name: Install dependencies
-      run: dotnet restore
     - name: Fix download.sh runability
       run: chmod +x ./data/tessdata/download.sh
     - name: Fetch tessdata
@@ -54,9 +58,9 @@ jobs:
     - name: Move eng.traineddata
       run:  mv eng.traineddata ./data/tessdata/eng.traineddata
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --configuration Release --nologo
     - name: Test
-      run: dotnet test --blame -l:"console;verbosity=normal" --no-restore
+      run: dotnet test --blame -l:"console;verbosity=normal" --nologo
     - name: Package ii binary
       run: |
         (cd ii && dotnet publish --runtime win-x64 -c Release --self-contained true -o ../win-x64)
@@ -64,17 +68,14 @@ jobs:
         (cd win-x64 && zip -9r ../ii-cli-win-x64.zip .)
         (tar -zcvf ii-cli-linux-x64.tar.gz ./linux-x64)
     - name: Pack
-      run: |
-        mkdir -p NuGet/bin
-        ln -sf Release/net6.0 NuGet/bin/
-        dotnet pack NuGet/IsIdentifiable.NuGet.csproj -c Release --include-source --include-symbols --nologo -p:NuspecFile=`pwd`/NuGet/IsIdentifiable.NuGet.nuspec -p:NuspecProperties=Version=$(fgrep AssemblyInformationalVersion SharedAssemblyInfo.cs|cut -d'"' -f2)\;configuration=Release  -p:SymbolPackageFormat=snupkg
+      run: dotnet pack IsIdentifiable/IsIdentifiable.csproj -c Release  -p:PackageVersion=$(fgrep AssemblyVersion SharedAssemblyInfo.cs|cut -d'"' -f2) --nologo --include-source -o .
     - name: Nuget push
       if: contains(github.ref,'refs/tags/')
-      run: dotnet nuget push NuGet/bin/Release/IsIdentifiable.*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }} --skip-duplicate
+      run: dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }} --skip-duplicate
     - name: Store created nupkg files
       uses: actions/upload-artifact@v2
       with:
-        path: NuGet/bin/Release/*.nupkg
+        path: *.nupkg
         retention-days: 1
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@2.2.1
