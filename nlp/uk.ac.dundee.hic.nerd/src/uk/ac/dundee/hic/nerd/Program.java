@@ -26,9 +26,17 @@ import edu.stanford.nlp.ling.CoreLabel;
  */
 public class Program {
 	private final ServerSocket listener;
-	private final CRFClassifier<CoreLabel> c;
+	private static CRFClassifier<CoreLabel> c;
 	private final HashSet<String> classifications=new HashSet<String>(Arrays.asList(new String[] {"PERSON","LOCATION","ORGANIZATION"}));
 	private volatile static boolean shutdown=false;
+
+	static {
+		try {
+			c=CRFClassifier.getClassifier(new GZIPInputStream(Program.class.getResourceAsStream("/english.all.3class.distsim.crf.ser.gz")));
+		} catch(Exception e) {
+			System.err.println(e);
+		}
+	}
 
 	/**
 	 * Shut down the listening socket and set the termination condition
@@ -56,9 +64,6 @@ public class Program {
 				shutdown();
 			}
 		});
-		InputStream stream = Program.class.getResourceAsStream("/english.all.3class.distsim.crf.ser.gz");
-		assert(stream!=null);
-		c=CRFClassifier.getClassifier(new GZIPInputStream(stream));
 	}
 	
 	/**
