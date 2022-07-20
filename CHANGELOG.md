@@ -2,6 +2,28 @@
 
 # [Unreleased]
 
+# [0.0.5] - 2022-07-20
+
+## Dependencies
+
+- New dependency Equ 2.3.0
+- New dependency fo-dicom.Imaging.ImageSharp 5.0.3
+- Bump CommandLineParser from 2.8.0 to 2.9.1
+- Bump CsvHelper from 27.2.1 to 28.0.1
+- Bump HIC.DicomTypeTranslation from 3.0.0 to 4.0.1
+- Bump HIC.FAnsiSql from 2.0.3 to 2.0.4
+- Bump HIC.RDMP.Plugin from 7.0.7 to 7.0.14
+- Bump MSTest.TestAdapter from 2.2.8 to 2.2.10
+- Bump MSTest.TestFramework from 2.2.8 to 2.2.10
+- Bump Magick.NET-Q16-AnyCPU from 10.0.0 to 11.3.0
+- Bump Microsoft.NET.Test.Sdk from 17.1.0 to 17.2.0
+- Bump Moq from 4.17.1 to 4.18.1
+- Bump NLog from 4.7.14 to 5.0.1
+- Bump NUnit from 3.13.2 to 3.13.3
+- Bump System.IO.Abstractions from 16.1.15 to 17.0.23
+- Bump Terminal.Gui from 1.4.0 to 1.6.4
+- Removed dependency fo-dicom.Drawing 4.0.8
+
 # [0.0.4] - 2022-03-03
 
 - Added IsIdentifiable RDMP plugin
@@ -21,7 +43,8 @@
 
 Initial version
 
-[Unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.0.4..main
+[Unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.0.5..main
+[0.0.5]: https://github.com/SMI/IsIdentifiable/compare/v0.0.4..v0.0.5
 [0.0.4]: https://github.com/SMI/IsIdentifiable/compare/v0.0.3..v0.0.4
 [0.0.3]: https://github.com/SMI/IsIdentifiable/compare/v0.0.2..v0.0.3
 [0.0.2]: https://github.com/SMI/IsIdentifiable/releases/tag/v0.0.2
