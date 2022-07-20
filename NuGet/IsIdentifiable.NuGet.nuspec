@@ -23,7 +23,7 @@
 		  <dependency id="Magick.NET-Q16-AnyCPU" version="11.3.0" />
 		  <dependency id="Microsoft.Extensions.Caching.Memory" version="6.0.1" />
 		  <dependency id="NLog" version="5.0.1" />
-		  <dependency id="System.IO.Abstractions" version="17.0.23" />
+		  <dependency id="System.IO.Abstractions" version="17.0.24" />
 		  <dependency id="System.IO.FileSystem" version="4.3.0" />
 		  <dependency id="Tesseract" version="4.1.0-beta1" />
       </group>
