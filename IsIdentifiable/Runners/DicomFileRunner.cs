@@ -328,6 +328,8 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                     using var magick_image = new MagickImage(overlayBuf, msett);
                     // Write to a file, format Png or Png00 or Png8 ???
                     //magick_image.Write($"{fi.FullName}.ov{group-0x6000}.frame{ovframenum}.png", MagickFormat.Png);
+                    // Tesseract only works with black text on white background so run again negated
+                    magick_image.Negate();
                     ProcessBitmapMemStream(magick_image,true, fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
                 }
                 
