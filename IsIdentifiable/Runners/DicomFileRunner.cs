@@ -14,11 +14,12 @@ using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Reports;
 using NLog;
-using Tesseract;
+using TesseractOCR;
 using ImageMagick;
 using Microsoft.Extensions.DependencyInjection;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using TesseractOCR.Enums;
 
 namespace IsIdentifiable.Runners;
 
@@ -34,7 +35,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     private readonly Logger _logger = LogManager.GetCurrentClassLogger();
     private readonly DicomFileFailureFactory factory = new DicomFileFailureFactory();
 
-    private readonly TesseractEngine _tesseractEngine;
+    private readonly Engine _tesseractEngine;
     private readonly PixelTextFailureReport _tesseractReport;
 
     private DateTime? _zeroDate = null;
@@ -85,7 +86,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
             if (!languageFile.Exists)
                 throw new FileNotFoundException($"Could not find tesseract models file ('{languageFile.FullName}')",languageFile.FullName);
 
-            _tesseractEngine = new TesseractEngine(dir.FullName, "eng", EngineMode.Default)
+            _tesseractEngine = new Engine(dir.FullName, "eng", EngineMode.Default)
             {
                 DefaultPageSegMode = PageSegMode.Auto
             };
@@ -358,12 +359,12 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         float meanConfidence;
         string text;
 
-        using (var page = _tesseractEngine.Process(Pix.LoadFromMemory(bytes)))
+        using (var page = _tesseractEngine.Process(TesseractOCR.Pix.Image.LoadFromMemory(bytes)))
         {
-            text = page.GetText();
+            text = page.Text;
             text = Regex.Replace(text, @"\t|\n|\r", " ");   // XXX abrooks surely more useful to have a space?
             text = text.Trim();
-            meanConfidence = page.GetMeanConfidence();
+            meanConfidence = page.MeanConfidence;
         }
 
         //if we find some text
