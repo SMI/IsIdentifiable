@@ -23,7 +23,9 @@ internal class PixelTextFailureReport : FailureReport
         "MeanConfidence",
         "TextLength",
         "PixelText",
-        "Rotation"
+        "Rotation",
+        "Frame",
+        "Overlay"
     };
 
     public PixelTextFailureReport(string targetName)
@@ -44,7 +46,7 @@ internal class PixelTextFailureReport : FailureReport
     }
 
     //TODO Replace argument list with object
-    public void FoundPixelData(IFileInfo fi, string sopID, string studyID, string seriesID, string modality, string[] imageType, float meanConfidence, int textLength, string pixelText, int rotation)
+    public void FoundPixelData(IFileInfo fi, string sopID, string studyID, string seriesID, string modality, string[] imageType, float meanConfidence, int textLength, string pixelText, int rotation, int frame, int overlay)
     {
         DataRow dr = _dt.Rows.Add();
 
@@ -68,5 +70,7 @@ internal class PixelTextFailureReport : FailureReport
         dr["TextLength"] = textLength;
         dr["PixelText"] = pixelText;
         dr["Rotation"] = rotation;
+        dr["Frame"] = frame;
+        dr["Overlay"] = overlay;
     }
 }

@@ -247,16 +247,16 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                     dicomImage.SaveAsBmp(ms);
                     ms.Position = 0;
                     mi.Read(ms);
-                    ProcessBitmapMemStream(ms.ToArray(), fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
+                    ProcessBitmapMemStream(ms.ToArray(), fi, dicomFile, sopID, studyID, seriesID, modality, imageType, 0, frameNum);
                 }
 
                 // Threshold the image to monochrome using a window size of 25 square
                 // The size 25 was determined empirically based on real images (could be larger, less effective if smaller)
                 mi.AdaptiveThreshold(25, 25);
-                ProcessBitmapMemStream(mi,false,fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
+                ProcessBitmapMemStream(mi,false,fi, dicomFile, sopID, studyID, seriesID, modality, imageType, 0, frameNum);
                 // Tesseract only works with black text on white background so run again negated
                 mi.Negate();
-                ProcessBitmapMemStream(mi,false, fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
+                ProcessBitmapMemStream(mi,false, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, 0, frameNum);
 
                 // Need to threshold and possibly negate the image for best results
                 // Magick.NET won't read from Bitmap directly in .net core so go via MemoryStream
@@ -272,7 +272,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                     dicomImage.Mutate(x => x.Rotate(RotateMode.Rotate90));
                     dicomImage.SaveAsBmp(ms);
                     ProcessBitmapMemStream(ms.ToArray(), fi, dicomFile, sopID, studyID, seriesID, modality, imageType,
-                        (i + 1) * 90);
+                        (i + 1) * 90, frameNum);
                 }
             }
 
@@ -328,7 +328,9 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                     using var magick_image = new MagickImage(overlayBuf, msett);
                     // Write to a file, format Png or Png00 or Png8 ???
                     //magick_image.Write($"{fi.FullName}.ov{group-0x6000}.frame{ovframenum}.png", MagickFormat.Png);
-                    ProcessBitmapMemStream(magick_image,true, fi, dicomFile, sopID, studyID, seriesID, modality, imageType);
+                    // Tesseract only works with black text on white background so run again negated
+                    magick_image.Negate();
+                    ProcessBitmapMemStream(magick_image,true, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, 0, group, ovframenum);
                 }
                 
             }
@@ -350,7 +352,8 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     }
 
     private void ProcessBitmapMemStream(byte [] bytes, IFileInfo fi, DicomFile dicomFile, string sopID,
-        string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0)
+        string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0,
+        int frame = -1, int overlay = -1)
     {
         float meanConfidence;
         string text;
@@ -374,7 +377,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         {
             var f = factory.Create(fi, dicomFile, text, problemField, new[] { new FailurePart(text, FailureClassification.PixelText) });
             AddToReports(f);
-            _tesseractReport.FoundPixelData(fi, sopID, studyID, seriesID, modality, imageType, meanConfidence, text.Length, text, rotationIfAny);
+            _tesseractReport.FoundPixelData(fi, sopID, studyID, seriesID, modality, imageType, meanConfidence, text.Length, text, rotationIfAny, frame, overlay);
         }
     }
     
@@ -391,7 +394,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     /// <param name="modality"></param>
     /// <param name="imageType"></param>
     /// <param name="rotationIfAny"></param>
-    private void ProcessBitmapMemStream(MagickImage mi,bool forcePgm, IFileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0)
+    private void ProcessBitmapMemStream(MagickImage mi,bool forcePgm, IFileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0, int frame = -1, int overlay = -1)
     {
         byte[] bytes;
         using (MemoryStream ms = new())
@@ -402,7 +405,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                 mi.Write(ms);
             bytes = ms.ToArray();
         }
-        ProcessBitmapMemStream(bytes,fi,dicomFile,sopID,studyID,seriesID,modality,imageType,rotationIfAny);
+        ProcessBitmapMemStream(bytes,fi,dicomFile,sopID,studyID,seriesID,modality,imageType,rotationIfAny, frame, overlay);
     }
 
     /// <summary>
