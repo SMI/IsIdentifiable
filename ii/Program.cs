@@ -56,7 +56,9 @@ public static class Program
                 (IsIdentifiableMongoOptions o) => Run(o),
                 (IsIdentifiableFileOptions o) => Run(o),
                 (IsIdentifiableReviewerOptions o) => Run(o),
-                errors => 1);
+                
+                // return exit code 0 for user requests for help
+                errors => args.Any(a=>a.Equals("--help",StringComparison.InvariantCultureIgnoreCase)) ? 0: 1);
             
         return res;
     }
