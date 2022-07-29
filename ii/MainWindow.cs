@@ -430,7 +430,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
     private void OpenReport()
     {
-        var ofd = new OpenDialog("Load CSV Report", "Enter file path to load")
+        using var ofd = new OpenDialog("Load CSV Report", "Enter file path to load")
         {
             AllowedFileTypes = new[] {".csv"}, 
             CanChooseDirectories = false,
@@ -457,12 +457,12 @@ G - creates a regex pattern that matches only the failing part(s)
 
         var cts = new CancellationTokenSource();
 
-        var btn = new Button("Cancel");
+        using var btn = new Button("Cancel");
         Action cancelFunc = ()=>{cts.Cancel();};
         Action closeFunc = ()=>{Application.RequestStop();};
         btn.Clicked += cancelFunc;
 
-        var dlg = new Dialog("Opening",MainWindow.DlgWidth,5,btn);
+        using var dlg = new Dialog("Opening",MainWindow.DlgWidth,5,btn);
         var rows = new Label($"Loaded: 0 rows"){
             Width = Dim.Fill() };
         dlg.Add(rows);
@@ -540,7 +540,7 @@ G - creates a regex pattern that matches only the failing part(s)
         var result = default(T);
         bool optionChosen = false;
 
-        var dlg = new Dialog(title, Math.Min(Console.WindowWidth,DlgWidth), DlgHeight);
+        using var dlg = new Dialog(title, Math.Min(Console.WindowWidth,DlgWidth), DlgHeight);
             
         var line = DlgHeight - (DlgBoundary)*2 - options.Length;
 
@@ -603,7 +603,7 @@ G - creates a regex pattern that matches only the failing part(s)
     {
         bool optionChosen = false;
 
-        var dlg = new Dialog(title, Math.Min(Console.WindowWidth,DlgWidth), DlgHeight);
+        using var dlg = new Dialog(title, Math.Min(Console.WindowWidth,DlgWidth), DlgHeight);
 
         var line = DlgHeight - (DlgBoundary)*2 - 2;
 

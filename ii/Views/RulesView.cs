@@ -212,7 +212,7 @@ class RulesView : View
 
     private void Activate(OutstandingFailureNode ofn)
     {
-        var ignore = new Button("Ignore");
+        using var ignore = new Button("Ignore");
         ignore.Clicked += ()=> {
             try
             {
@@ -226,7 +226,7 @@ class RulesView : View
             Application.RequestStop();
         };
 
-        var update = new Button("Update");
+        using var update = new Button("Update");
         update.Clicked += ()=>{
             try
             {
@@ -240,10 +240,10 @@ class RulesView : View
             Application.RequestStop();
         };
             
-        var cancel = new Button("Cancel");
+        using var cancel = new Button("Cancel");
         cancel.Clicked += ()=>{Application.RequestStop();};
 
-        var dlg = new Dialog("Failure",MainWindow.DlgWidth,MainWindow.DlgHeight,ignore,update,cancel);
+        using var dlg = new Dialog("Failure",MainWindow.DlgWidth,MainWindow.DlgHeight,ignore,update,cancel);
 
         var lbl = new FailureView(){
             X = 0,
@@ -341,12 +341,12 @@ class RulesView : View
 
         var cts = new CancellationTokenSource();
 
-        var btn = new Button("Cancel");
+        using var btn = new Button("Cancel");
         Action cancelFunc = ()=>{cts.Cancel();};
         Action closeFunc = ()=>{Application.RequestStop();};
         btn.Clicked += cancelFunc;
 
-        var dlg = new Dialog("Evaluating",MainWindow.DlgWidth,6,btn);
+        using var dlg = new Dialog("Evaluating",MainWindow.DlgWidth,6,btn);
 
         var stage = new Label("Evaluating Failures"){Width = Dim.Fill(), X = 0,Y = 0};
         var progress = new ProgressBar(){Height= 2,Width = Dim.Fill(), X=0,Y = 1};
