@@ -183,10 +183,22 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         if (!string.IsNullOrWhiteSpace(opts.RulesDirectory))
         {
             DirectoryInfo di = new DirectoryInfo(opts.RulesDirectory);
+            bool loadedAtLeastOne = false;
             foreach (var fi in di.GetFiles("*.yaml"))
             {
                 _logger.Info($"Loading rules from {fi.Name}");
-                LoadRules(File.ReadAllText(fi.FullName));
+                var any = LoadRules(File.ReadAllText(fi.FullName));
+
+                if(!any)
+                {
+                    _logger.Warn($"Rules file {fi.FullName} had no rules in it");
+                }
+                loadedAtLeastOne = loadedAtLeastOne || any; 
+            }
+
+            if(!loadedAtLeastOne)
+            {
+                throw new Exception($"RulesDirectory {opts.RulesDirectory} did not contain any rules files containing rules");
             }
         }
 
@@ -271,24 +283,43 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// which are added to <see cref="CustomRules"/>
     /// </summary>
     /// <param name="yaml"></param>
-    public void LoadRules(string yaml)
+    /// <returns>True if the yaml read was deserialized into a <see cref="RuleSet"/> with at least 1 rule</returns>
+    public bool LoadRules(string yaml)
     {
+        bool result = false;
+
         _logger.Info("Loading Rules Yaml");
         _logger.Debug($"Loading Rules Yaml:{Environment.NewLine}{yaml}");
         var deserializer = GetDeserializer();
         var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
 
         if(ruleSet.BasicRules != null)
+        {
             CustomRules.AddRange(ruleSet.BasicRules);
+            result = result || ruleSet.BasicRules.Any();
+        }
+            
 
         if(ruleSet.SocketRules != null)
+        {
             CustomRules.AddRange(ruleSet.SocketRules);
+            result = result || ruleSet.SocketRules.Any();
+        }
 
-        if(ruleSet.ConsensusRules != null)
+        if (ruleSet.ConsensusRules != null)
+        {
             CustomRules.AddRange(ruleSet.ConsensusRules);
+            result = result || ruleSet.ConsensusRules.Any();
+        }
+            
 
         if(ruleSet.AllowlistRules != null)
+        {
             CustomAllowlistRules.AddRange(ruleSet.AllowlistRules);
+            result = result || ruleSet.AllowlistRules.Any();
+        }
+
+        return result;
     }
 
     /// <summary>
