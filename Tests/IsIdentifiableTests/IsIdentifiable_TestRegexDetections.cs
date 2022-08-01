@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using IsIdentifiable.Failures;
@@ -307,6 +308,62 @@ BasicRules:
         Assert.AreEqual(0, runner.ResultsOfValidate.Count);
     }
 
+    [Test]
+    public void TestEmptyRulesDir()
+    {
+        var emptyDir = Path.Combine(TestContext.CurrentContext.WorkDirectory, "empty");
+        Directory.CreateDirectory(emptyDir);
+
+        Assert.IsEmpty(Directory.GetFiles(emptyDir, "*.yaml"),"Expected the empty dir not to have any rules yaml files");
+
+        var testOpts = new TestOpts
+        {
+            RulesDirectory = emptyDir
+        };
+
+        var ex = Assert.Throws<Exception>(()=> new TestRunner("fff", testOpts));
+        StringAssert.Contains(" did not contain any rules files containing rules", ex.Message);
+    }
+    [Test]
+    public void TestMissingRulesDir()
+    {
+        var missingDir = Path.Combine(TestContext.CurrentContext.WorkDirectory, "hahaIdontexist");
+        
+        var testOpts = new TestOpts
+        {
+            RulesDirectory = missingDir
+        };
+
+        var ex = Assert.Throws<DirectoryNotFoundException>(() => new TestRunner("fff", testOpts));
+        StringAssert.Contains("Could not find a part of the path", ex.Message);
+        StringAssert.Contains("hahaIdontexist", ex.Message);
+    }
+
+    [TestCase("#this is an empty yaml file with no rules")]
+    [TestCase("SocketRules:")]
+    public void TestOnlyEmptyRulesFilesInDir(string yaml)
+    {
+        var emptyishDir = Path.Combine(TestContext.CurrentContext.WorkDirectory, "emptyish");
+        Directory.CreateDirectory(emptyishDir);
+
+        var rulePath = Path.Combine(emptyishDir,"Somerules.yaml");
+
+        //notice that this file is empty
+        File.WriteAllText(rulePath, yaml);
+
+        Assert.IsNotEmpty(Directory.GetFiles(emptyishDir, "*.yaml"));
+
+        var testOpts = new TestOpts
+        {
+            RulesDirectory = emptyishDir
+        };
+
+        var ex = Assert.Throws<Exception>(() => new TestRunner("fff", testOpts));
+        StringAssert.Contains(" did not contain any rules files containing rules", ex.Message);
+    }
+
+
+
     private class TestRunner : IsIdentifiableAbstractRunner
     {
         public string FieldToTest {get;set; }
@@ -345,7 +402,8 @@ BasicRules:
         }
         public override string GetTargetName()
         {
-            return "abc";
+            // avoids collisions where multiple output reports are attempted at the same second
+            return Guid.NewGuid().ToString();
         }
     }
 }
