@@ -402,7 +402,8 @@ BasicRules:
         }
         public override string GetTargetName()
         {
-            return "abc";
+            // avoids collisions where multiple output reports are attempted at the same second
+            return Guid.NewGuid().ToString();
         }
     }
 }
