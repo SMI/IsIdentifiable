@@ -293,6 +293,10 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         var deserializer = GetDeserializer();
         var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
 
+        // an empty or comments only yaml file will give a null return value
+        if (ruleSet == null)
+            return false;
+
         if(ruleSet.BasicRules != null)
         {
             CustomRules.AddRange(ruleSet.BasicRules);

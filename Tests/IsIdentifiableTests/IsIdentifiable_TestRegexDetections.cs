@@ -339,6 +339,29 @@ BasicRules:
         StringAssert.Contains("hahaIdontexist", ex.Message);
     }
 
+    [TestCase("#this is an empty yaml file with no rules")]
+    [TestCase("SocketRules:")]
+    public void TestOnlyEmptyRulesFilesInDir(string yaml)
+    {
+        var emptyishDir = Path.Combine(TestContext.CurrentContext.WorkDirectory, "emptyish");
+        Directory.CreateDirectory(emptyishDir);
+
+        var rulePath = Path.Combine(emptyishDir,"Somerules.yaml");
+
+        //notice that this file is empty
+        File.WriteAllText(rulePath, yaml);
+
+        Assert.IsNotEmpty(Directory.GetFiles(emptyishDir, "*.yaml"));
+
+        var testOpts = new TestOpts
+        {
+            RulesDirectory = emptyishDir
+        };
+
+        var ex = Assert.Throws<Exception>(() => new TestRunner("fff", testOpts));
+        StringAssert.Contains(" did not contain any rules files containing rules", ex.Message);
+    }
+
 
 
     private class TestRunner : IsIdentifiableAbstractRunner
