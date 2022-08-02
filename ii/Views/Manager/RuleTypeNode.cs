@@ -9,9 +9,9 @@ namespace IsIdentifiable.Views.Manager;
 internal class RuleTypeNode
 {
     public RuleSetFileNode Parent { get; set; }
-    private PropertyInfo prop;
+    private PropertyInfo? prop;
 
-    public IList Rules { get; internal set; }
+    public IList? Rules { get; internal set; }
 
     /// <summary>
     /// Creates a new instance 
@@ -27,11 +27,11 @@ internal class RuleTypeNode
         }
 
         Parent = ruleSet;
-        Rules = (IList)prop.GetValue(ruleSet.GetRuleSet());
+        Rules = (IList?)prop.GetValue(ruleSet.GetRuleSet());
     }
 
     public override string ToString()
     {
-        return prop.Name;
+        return prop?.Name ?? "Unknown Property";
     }
 }

@@ -16,16 +16,16 @@ namespace IsIdentifiable.Views;
 
 class RulesView : View
 {
-    public ReportReader CurrentReport { get; private set; }
-    public IgnoreRuleGenerator Ignorer { get; private set; }
-    public RowUpdater Updater { get; private set; }
+    public ReportReader? CurrentReport { get; private set; }
+    public IgnoreRuleGenerator? Ignorer { get; private set; }
+    public RowUpdater? Updater { get; private set; }
 
     private TreeView _treeView;
 
     /// <summary>
     /// When the user bulk ignores many records at once how should the ignore patterns be generated
     /// </summary>
-    private IRulePatternFactory bulkIgnorePatternFactory;
+    private IRulePatternFactory? bulkIgnorePatternFactory;
 
 
     Label lblInitialSummary;
@@ -78,7 +78,7 @@ class RulesView : View
             // if it is now covered by an existing rule! Like maybe they have 500 outstanding failures 
             // and on the first one they add a rule .* (ignore EVERYTHING) then we had better disappear the rest of the tree too
 
-            var ignoreRule = Ignorer.Rules.FirstOrDefault(r => r.Apply(ofn.Failure.ProblemField, ofn.Failure.ProblemValue, out _) != RuleAction.None);
+            var ignoreRule = Ignorer?.Rules.FirstOrDefault(r => r.Apply(ofn.Failure.ProblemField, ofn.Failure.ProblemValue, out _) != RuleAction.None);
 
             if (ignoreRule != null)
             {
@@ -86,7 +86,7 @@ class RulesView : View
                 return;
             }
 
-            var updateRule = Updater.Rules.FirstOrDefault(r => r.Apply(ofn.Failure.ProblemField, ofn.Failure.ProblemValue, out _) != RuleAction.None);
+            var updateRule = Updater?.Rules.FirstOrDefault(r => r.Apply(ofn.Failure.ProblemField, ofn.Failure.ProblemValue, out _) != RuleAction.None);
 
             if(updateRule != null)
             {
@@ -182,6 +182,9 @@ class RulesView : View
 
     private void Delete(CollidingRulesNode crn)
     {
+        if(Ignorer == null || Updater == null)
+            return;
+
         var answer = MessageBox.Query("Delete Rules","Which colliding rule do you want to delete?","Ignore","Update","Both","Cancel");
 
         if(answer == 0 || answer == 2)
@@ -260,11 +263,17 @@ class RulesView : View
 
     private void Update(OutstandingFailureNode ofn)
     {
+        if(Updater == null)
+            throw new Exception("Cannot update failure because Updater class has not been set");
+
         Updater.Add(ofn.Failure);
         Remove(ofn);
     }
     private void Ignore(OutstandingFailureNode ofn, bool isBulkIgnore)
     {
+        if(Ignorer == null)
+            throw new Exception("Cannot ignore because no Ignorer class has been set");
+
         if (isBulkIgnore)
         {
             Ignorer.Add(ofn.Failure, bulkIgnorePatternFactory);
@@ -384,6 +393,14 @@ class RulesView : View
         
     private void EvaluateRuleCoverageAsync(Label stage,ProgressBar progress, Label textProgress, CancellationToken token,TreeNodeWithCount colliding,TreeNodeWithCount ignore,TreeNodeWithCount update,TreeNodeWithCount outstanding)
     {
+        if(CurrentReport == null)
+            return;
+
+        if(Ignorer == null)
+            throw new Exception("No Ignorer class set");
+        if(Updater == null)
+            throw new Exception("No Updater class set");
+
         ConcurrentDictionary<IsIdentifiableRule,int> rulesUsed = new ConcurrentDictionary<IsIdentifiableRule, int>();
         ConcurrentDictionary<string,OutstandingFailureNode> outstandingFailures = new ConcurrentDictionary<string, OutstandingFailureNode>();
             

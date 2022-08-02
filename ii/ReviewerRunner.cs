@@ -6,10 +6,10 @@ namespace IsIdentifiable.Redacting;
 
 public class ReviewerRunner
 {
-    private readonly IsIdentifiableBaseOptions _analyserOpts;
+    private readonly IsIdentifiableBaseOptions? _analyserOpts;
     private readonly IsIdentifiableReviewerOptions _reviewerOptions;
 
-    public ReviewerRunner(IsIdentifiableBaseOptions analyserOpts, IsIdentifiableReviewerOptions reviewerOptions)
+    public ReviewerRunner(IsIdentifiableBaseOptions? analyserOpts, IsIdentifiableReviewerOptions reviewerOptions)
     {
         _analyserOpts = analyserOpts;
         _reviewerOptions = reviewerOptions;
