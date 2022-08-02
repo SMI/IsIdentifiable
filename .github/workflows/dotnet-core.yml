@@ -81,19 +81,19 @@ jobs:
         (tar -zcvf ./release/ii-cli-linux-x64.tar.gz ./linux-x64)
     - name: Test ii binary
       run: |
-         mkdir ./testii &&
-         cp ./release/ii-cli-linux-x64.tar.gz ./testii/ &&
-         cd ./testii &&
-         tar -xvf ./ii-cli-linux-x64.tar.gz &&
-         cd .. &&
-         ./testii/linux-x64/ii --help &&
+         set -e
+         mkdir ./testii
+         cp ./release/ii-cli-linux-x64.tar.gz ./testii/
+         cd ./testii
+         tar -xvf ./ii-cli-linux-x64.tar.gz
+         cd ..
+         ./testii/linux-x64/ii --help
 
-         wget https://github.com/HicServices/BadMedicine.Dicom/releases/download/v0.0.14/baddicom-linux-x64-v0.0.14.tar.gz &&
-         tar -xvf ./baddicom-linux-x64-v0.0.14.tar.gz &&
-         ./linux-x64/BadDicom -s 100 ./testdicoms/ 10 10 CT &&
+         wget https://github.com/HicServices/BadMedicine.Dicom/releases/download/v0.0.14/baddicom-linux-x64-v0.0.14.tar.gz
+         tar -xvf ./baddicom-linux-x64-v0.0.14.tar.gz
+         ./linux-x64/BadDicom -s 100 ./testdicoms/ 10 10 CT
                   
          ./testii/linux-x64/ii dir -d ./testdicoms --tessdirectory ./data/tessdata/ --storereport 
-
 
     - name: Pack
       run: |
