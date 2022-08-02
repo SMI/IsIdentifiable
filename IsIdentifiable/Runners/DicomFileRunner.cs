@@ -394,6 +394,8 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     /// <param name="modality"></param>
     /// <param name="imageType"></param>
     /// <param name="rotationIfAny"></param>
+    /// <param name="frame"></param>
+    /// <param name="overlay"></param>
     private void ProcessBitmapMemStream(MagickImage mi,bool forcePgm, IFileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0, int frame = -1, int overlay = -1)
     {
         byte[] bytes;

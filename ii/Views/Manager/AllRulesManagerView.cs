@@ -13,7 +13,7 @@ class AllRulesManagerView : View, ITreeBuilder<object>
 {
     private const string Analyser = "Analyser Rules";
     private const string Reviewer = "Reviewer Rules";
-    private readonly IsIdentifiableBaseOptions _analyserOpts;
+    private readonly IsIdentifiableBaseOptions? _analyserOpts;
     private readonly IsIdentifiableReviewerOptions _reviewerOpts;
     private RuleDetailView detailView;
     private TreeView<object> treeView;
@@ -118,7 +118,7 @@ class AllRulesManagerView : View, ITreeBuilder<object>
         }
     }
 
-    private void Tv_SelectionChanged(object sender, SelectionChangedEventArgs<object> e)
+    private void Tv_SelectionChanged(object? sender, SelectionChangedEventArgs<object> e)
     {
         if(e.NewValue is ICustomRule r)
         {
@@ -156,7 +156,7 @@ class AllRulesManagerView : View, ITreeBuilder<object>
             return outBase.RulesFile.Name;
         }
 
-        return toRender.ToString();
+        return toRender.ToString() ?? "";
     }
 
     public bool SupportsCanExpand => true;

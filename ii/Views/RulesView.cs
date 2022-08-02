@@ -64,7 +64,7 @@ class RulesView : View
     }
 
 
-    private void _treeView_SelectionChanged(object sender, SelectionChangedEventArgs<ITreeNode> e)
+    private void _treeView_SelectionChanged(object? sender, SelectionChangedEventArgs<ITreeNode> e)
     {
         if(e.NewValue != null)
         {
