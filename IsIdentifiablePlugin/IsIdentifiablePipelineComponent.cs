@@ -21,9 +21,11 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , I
     private CustomRunner? _runner;
     private string? _targetName;
 
+// RDMP will handle this, dont complain that it isn't marked nullable
+#pragma warning disable CS8618
     [DemandsInitialization("YAML file with the IsIdentifiable rules (regex, NLP, report formats etc)",Mandatory = true)]
     public string YamlConfigFile { get; set; }
-
+#pragma warning restore CS8618
     public void Abort(IDataLoadEventListener listener)
     {
         
@@ -52,6 +54,10 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , I
         if(toProcess.Rows.Count > 0)
         {
             CreateRunner(_targetName ?? toProcess.TableName);
+
+            if(_runner == null)
+                throw new Exception("CreateRunner was called but no _runner was created");
+
             _runner.Run(toProcess);
         }
 
@@ -63,7 +69,13 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , I
         if (_runner != null)
             return;
         
-        var opts = LoadYamlConfigFile();
+        var opts = LoadYamlConfigFile() 
+            ?? throw new Exception("No options were loaded from yaml ");
+
+        if(opts.IsIdentifiableOptions == null)
+        {
+            throw new Exception($"Yaml file did not contain IsIdentifiableOptions");
+        }
 
         if (!string.IsNullOrWhiteSpace(targetName))
             opts.IsIdentifiableOptions.TargetName = targetName;
@@ -78,7 +90,7 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , I
         var deserializer = new Deserializer();
         var opts = deserializer.Deserialize<GlobalOptions>(File.ReadAllText(YamlConfigFile));
 
-        if (opts.IsIdentifiableOptions == null)
+        if (opts == null || opts.IsIdentifiableOptions == null)
             throw new Exception($"Yaml file {YamlConfigFile} did not contain IsIdentifiableOptions");
         
         return opts;

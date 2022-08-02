@@ -10,10 +10,10 @@ namespace IsIdentifiablePlugin;
 internal class ExecuteCommandRunIsIdentifiable : BasicCommandExecution
 {
     private readonly ICatalogue _catalogue;
-    private readonly FileInfo _configYaml;
-    private ITableInfo _table;
+    private readonly FileInfo? _configYaml;
+    private ITableInfo? _table;
 
-    public ExecuteCommandRunIsIdentifiable(IBasicActivateItems activator, ICatalogue catalogue, FileInfo configYaml ) : base(activator)
+    public ExecuteCommandRunIsIdentifiable(IBasicActivateItems activator, ICatalogue catalogue, FileInfo? configYaml ) : base(activator)
     {
         this._catalogue = catalogue;
         this._configYaml = configYaml;
@@ -33,6 +33,9 @@ internal class ExecuteCommandRunIsIdentifiable : BasicCommandExecution
         base.Execute();
 
         var file = _configYaml;
+        
+        if(_table == null)
+            throw new System.Exception("No table picked to run on");
 
         if (file == null)
         {
@@ -48,7 +51,7 @@ internal class ExecuteCommandRunIsIdentifiable : BasicCommandExecution
         var deserializer = new Deserializer();
         var baseOptions = deserializer.Deserialize<GlobalOptions>(File.ReadAllText(file.FullName));
 
-        if (baseOptions.IsIdentifiableOptions == null)
+        if (baseOptions == null || baseOptions.IsIdentifiableOptions == null)
             throw new Exception($"Yaml file did not contain IsIdentifiableOptions");
 
         // use the settings in the users file

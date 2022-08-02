@@ -85,7 +85,7 @@ G - creates a regex pattern that matches only the failing part(s)
 \c - replaces all characters with regex wildcards
 \d\c - replaces all digits and characters with regex wildcards";
 
-    public MainWindow(IsIdentifiableBaseOptions analyserOpts, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
+    public MainWindow(IsIdentifiableBaseOptions? analyserOpts, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
     {
         Ignorer = ignorer;
         Updater = updater;
@@ -226,7 +226,7 @@ G - creates a regex pattern that matches only the failing part(s)
         Body = tabView;
     }
 
-    private void TabView_SelectedTabChanged(object sender, TabView.TabChangedEventArgs e)
+    private void TabView_SelectedTabChanged(object? sender, TabView.TabChangedEventArgs e)
     {
         // sync the rules up in case people are adding new ones using the other UIs
         rulesManager.RebuildTree();
@@ -272,7 +272,12 @@ G - creates a regex pattern that matches only the failing part(s)
 
         try
         {
-            GoTo(int.Parse(_gotoTextField.Text.ToString()));
+            var val = _gotoTextField.Text?.ToString();
+            if(val != null)
+            {
+                GoTo(int.Parse(val));
+            }
+
         }
         catch (FormatException)
         {
@@ -297,7 +302,7 @@ G - creates a regex pattern that matches only the failing part(s)
             
     }
 
-    private void SetupToShow(Failure f)
+    private void SetupToShow(Failure? f)
     {
         _valuePane.CurrentFailure = f;
 
@@ -375,7 +380,7 @@ G - creates a regex pattern that matches only the failing part(s)
         
     private void Ignore()
     {
-        if(_valuePane.CurrentFailure == null)
+        if(_valuePane.CurrentFailure == null || CurrentReport == null)
             return;
 
         if(taskToLoadNext!= null && !taskToLoadNext.IsCompleted)
@@ -441,7 +446,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
         var f = ofd.FilePaths?.SingleOrDefault();
 
-        Exception ex = null;
+        Exception? ex = null;
         OpenReport(f, (e) => ex = e);
 
         if(ex != null)
@@ -450,7 +455,7 @@ G - creates a regex pattern that matches only the failing part(s)
         }
     }
 
-    private void OpenReport(string path, Action<Exception> exceptionHandler)
+    private void OpenReport(string? path, Action<Exception> exceptionHandler)
     {
         if ( path == null)
             return;
@@ -525,17 +530,17 @@ G - creates a regex pattern that matches only the failing part(s)
             e2 = e2.InnerException;
         }
 
-        if(GetChoice(msg, sb.ToString(), out string chosen, "Ok", stackTraceOption))
+        if(GetChoice(msg, sb.ToString(), out string? chosen, "Ok", stackTraceOption))
             if(string.Equals(chosen,stackTraceOption))
                 ShowMessage("Stack Trace",e.ToString());
 
     }
-    public static bool GetChoice<T>(string title, string body, out T chosen, params T[] options)
+    public static bool GetChoice<T>(string title, string body, out T? chosen, params T[] options)
     {
         return RunDialog(title, body, out chosen, options);
     }
 
-    public static bool RunDialog<T>(string title, string message,out T chosen, params T[] options)
+    public static bool RunDialog<T>(string title, string message,out T? chosen, params T[] options)
     {
         var result = default(T);
         bool optionChosen = false;
@@ -577,7 +582,7 @@ G - creates a regex pattern that matches only the failing part(s)
         {
             T v1 = (T) value;
 
-            string name = value.ToString();
+            string name = value?.ToString() ?? "";
 
             var btn = new Button(0, line++, name);
             btn.Clicked += () =>
@@ -696,7 +701,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
         Application.Run(dlg);
 
-        chosen = txt.Text?.ToString();
+        chosen = txt.Text?.ToString() ?? "";
         return optionChosen;
     }
          
@@ -741,7 +746,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
             if (!regex.IsMatch(failure.ProblemValue))
             {
-                GetChoice("Pattern Match Failure","The provided pattern did not match the original ProblemValue.  Try a different pattern?",out string retry,new []{"Yes","No"});
+                GetChoice("Pattern Match Failure","The provided pattern did not match the original ProblemValue.  Try a different pattern?",out string? retry,new []{"Yes","No"});
 
                 if (retry == "Yes")
                     return GetPattern(sender,failure);
