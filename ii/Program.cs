@@ -4,6 +4,7 @@ using FAnsi.Implementations.MicrosoftSQL;
 using FAnsi.Implementations.MySql;
 using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
+using FellowOakDicom;
 using IsIdentifiable.Options;
 using IsIdentifiable.Redacting;
 using IsIdentifiable.Runners;
@@ -32,6 +33,9 @@ public static class Program
                 return 1;
             }
         }
+        
+        // Disable fo-dicom's DICOM validation globally from here
+        new DicomSetupBuilder().SkipValidation();
 
         ParserSettings defaults = Parser.Default.Settings;
         using var parser = new Parser(settings =>
@@ -76,7 +80,10 @@ public static class Program
     {
         Inherit(opts);
 
-        using var runner = new DicomFileRunner(opts);
+        using var runner = new DicomFileRunner(opts)
+        {
+            ThrowOnError = false
+        };
         return runner.Run();
     }
 
