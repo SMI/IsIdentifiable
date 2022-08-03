@@ -14,12 +14,11 @@
     <Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="lib\libtesseract41.so" Link="x64\libtesseract41.so" Pack="true" PackageCopyToOutput="true" PackagePath="x64">
+    <NativeLibs Include="$(MSBuildThisFileDirectory)**\*.dll" />
+    <None Include="@(NativeLibs)">
+      <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="lib\libleptonica-1.80.0.so" Link="x64\libleptonica-1.80.0.so" Pack="true" PackageCopyToOutput="true" PackagePath="x64">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
     <Content Include="Rules.template.yaml" Pack="true" PackageCopyToOutput="true">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
