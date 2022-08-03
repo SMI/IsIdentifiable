@@ -22,6 +22,11 @@ public class MatchProblemValuesPatternFactory : IRulePatternFactory
     /// <returns></returns>
     public string GetPattern(object sender, Failure failure)
     {
+        // source is image pixel data
+        if (failure.ProblemField?.StartsWith(DicomFileRunner.PixelData) ?? false)
+            return $"^{Regex.Escape(failure.ProblemValue)}$";
+
+
         StringBuilder sb = new StringBuilder();
 
         var minOffset = failure.Parts.Min(p => p.Offset);
