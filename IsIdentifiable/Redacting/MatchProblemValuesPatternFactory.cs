@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Reporting;
+using IsIdentifiable.Runners;
 
 namespace IsIdentifiable.Redacting;
 
@@ -23,7 +24,6 @@ public class MatchProblemValuesPatternFactory : IRulePatternFactory
     {
         StringBuilder sb = new StringBuilder();
 
-
         var minOffset = failure.Parts.Min(p => p.Offset);
         var maxPartEnding = failure.Parts.Max(p => p.Offset + p.Word.Length);
 
@@ -37,6 +37,10 @@ public class MatchProblemValuesPatternFactory : IRulePatternFactory
 
             sb.Append(".*");
         }
+
+        // source is image pixel data
+        if (failure.ProblemField.StartsWith(DicomFileRunner.PixelData))
+            return sb.ToString();
 
         // If there is a failure part that ends at the end of the input string then the pattern should have a terminator
         // to denote that we only care about problem values ending in this pattern (user can always override that decision)
