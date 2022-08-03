@@ -50,6 +50,17 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     /// </summary>
     public const string PixelData = "PixelData";
 
+    /// The number of errors (could not open file etc).  These are system level errors
+    /// not validation failures.  Any errors result in nonzero exit code
+    /// </summary>
+    private int errors = 0;
+        
+
+    /// <summary>
+    /// Determines system behaviour when invalid files are encountered 
+    /// </summary>
+    public bool ThrowOnError {get;set;} = true;
+
     /// <summary>
     /// Creates a new instance based on the <paramref name="opts"/>.  Options include what
     /// reports to write out, wether to perform OCR etc.
@@ -123,14 +134,33 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
 
         CloseReports();
 
-        return 0;
+        return errors;
     }
 
     private void ProcessDirectory(string root)
     {
         //deal with files first
         foreach (var file in Directory.GetFiles(root, _opts.Pattern))
-            ValidateDicomFile(_fileSystem.FileInfo.FromFileName(file));
+        {
+            try
+            {
+                ValidateDicomFile(_fileSystem.FileInfo.FromFileName(file));
+            }
+            catch(Exception ex)
+            {
+                if(ThrowOnError)
+                {
+                    throw;
+                }
+                else
+                {
+                    _logger.Error(ex,$"Failed to validate {file}");
+                    errors++;
+                }
+                
+            }
+        }
+            
 
         //now directories
         foreach (var directory in Directory.GetDirectories(root))
