@@ -39,7 +39,7 @@ public class MatchProblemValuesPatternFactory : IRulePatternFactory
         }
 
         // source is image pixel data
-        if (failure.ProblemField.StartsWith(DicomFileRunner.PixelData))
+        if (failure.ProblemField?.StartsWith(DicomFileRunner.PixelData) ?? false)
             return sb.ToString();
 
         // If there is a failure part that ends at the end of the input string then the pattern should have a terminator
