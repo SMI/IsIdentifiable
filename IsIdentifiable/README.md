@@ -6,6 +6,8 @@ Primary Author: [Thomas](https://github.com/tznind)
  1. [Overview](#overview)
  1. [Setup](#setup)
  1. [Optional Downloads](#optional-downloads)
+ 1. [NLP]
+    1. [SpaCy Classifier](#spacy-classifier)
  1. [Invocation](#invocation)
  1. [Examples](#examples)
  1. [Rules](#rules) 
@@ -36,6 +38,29 @@ The following optional download expand the capabilities of the software:
 _*Only required for DICOM pixel text detection_
 _**Only required for NLP NERDaemon_
  
+## NLP
+
+IsIdentifiable has some basic rules based on regular expressions (Postcode, Dates etc) but to
+get the most out of it you will want to use one of the Natural Language Processing (NLP) daemons.
+
+There are 2 daemons supplied but it is easy to write your own.  Daemons listen on a local or remote
+port and are passed data for classification as it is streamed.
+
+### SpaCy Classifier
+
+To use the SpaCy classifier you will need Python 3 and the SpaCy library
+
+```
+sudo apt-get install python3.9
+pip install -U spacy
+pip install -U scispacy
+python3 -m spacy download en_core_web_sm
+```
+
+Next run [ner_daemon_spacy.py](../nlp/ner_daemon_spacy.py)
+
+
+
 ## Invocation
 
 IsIdentifiable can be run from the [ii] command line tool:
