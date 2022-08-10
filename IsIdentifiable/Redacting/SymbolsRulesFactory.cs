@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using IsIdentifiable.Reporting;
+using IsIdentifiable.Runners;
 
 namespace IsIdentifiable.Redacting;
 
@@ -47,6 +48,10 @@ public class SymbolsRulesFactory : IRulePatternFactory
         // failures should really have parts!
         if (!failure.Parts.Any())
             throw new ArgumentException("Failure had no Parts");
+
+        // source is image pixel data
+        if (failure.ProblemField?.StartsWith(DicomFileRunner.PixelData) ?? false)
+            return $"^{Regex.Escape(failure.ProblemValue)}$";
 
         StringBuilder sb = new StringBuilder();
 
