@@ -6,7 +6,7 @@ Primary Author: [Thomas](https://github.com/tznind)
  1. [Overview](#overview)
  1. [Setup](#setup)
  1. [Optional Downloads](#optional-downloads)
- 1. [NLP]
+ 1. [NLP](#nlp)
     1. [SpaCy Classifier](#spacy-classifier)
  1. [Invocation](#invocation)
  1. [Examples](#examples)
