@@ -44,6 +44,12 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     private readonly uint _ignoreTextLessThan;
 
     /// <summary>
+    /// String used for <see cref="Failure.ProblemField"/> when reporting that the failure
+    /// is based on optical character recognition on DICOM pixel data.  May include a suffix
+    /// e.g. where found text is detected in a rotated image
+    /// </summary>
+    public const string PixelData = "PixelData";
+
     /// The number of errors (could not open file etc).  These are system level errors
     /// not validation failures.  Any errors result in nonzero exit code
     /// </summary>
@@ -400,7 +406,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         //if we find some text
         if (string.IsNullOrWhiteSpace(text)) return;
 
-        var problemField = rotationIfAny != 0 ? $"PixelData{rotationIfAny}" : "PixelData";
+        var problemField = rotationIfAny != 0 ? $"{PixelData}{rotationIfAny}" : PixelData;
                 
         if(text.Length < _ignoreTextLessThan)
             _logger.Debug($"Ignoring pixel data discovery in {fi.Name} of length {text.Length} because it is below the threshold {_ignoreTextLessThan}");
