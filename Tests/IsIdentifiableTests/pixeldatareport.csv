@@ -1,0 +1,79 @@
+﻿Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets
+/home/thomas/testdicoms2/gdcmConformanceTests/CT_OSIRIX_OddOverlay.dcm,1.3.12.2.1107.5.1.4.51771.30050005122714151602300000095,PixelData,"12  w ! i  e  16  17  it  19  P B \ B K e N 10 iR 0 ) f "" LB 1 1 1 1 LB 1 1 G w 3 In 1     =2  P  4  22 i  P     P        INRINET] INRINET] IARINEN] INRINET] INRINET] INRINET] INRINET] INRINEN]  028 PLe 30 e e 33 2y 35 1] O L @ L @ L G L 6 1] @ L @ L  INRINET] INRINET] INRINET] INRINET] INRINET] INRINEN] ITNINET     @  Bl  Y4  o  it        m  e  Gx     45  2","12  w ! i  e  16  17  it  19  P B \ B K e N 10 iR 0 ) f "" LB 1 1 1 1 LB 1 1 G w 3 In 1     =2  P  4  22 i  P     P        INRINET] INRINET] IARINEN] INRINET] INRINET] INRINET] INRINET] INRINEN]  028 PLe 30 e e 33 2y 35 1] O L @ L @ L G L 6 1] @ L @ L  INRINET] INRINET] INRINET] INRINET] INRINET] INRINEN] ITNINET     @  Bl  Y4  o  it        m  e  Gx     45  2",PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/CT_OSIRIX_OddOverlay.dcm,1.3.12.2.1107.5.1.4.51771.30050005122714151602300000095,PixelData,LY  R     LV  13  R  i  L  LK  Rt  R     20  pal  22  23  24  25  26|  27     28  29  30  31  ey  s  L  ko     kS  37  et  Y  40  M  >  43        X     L5     46     47     Eh     Ll     50     Bl,LY  R     LV  13  R  i  L  LK  Rt  R     20  pal  22  23  24  25  26|  27     28  29  30  31  ey  s  L  ko     kS  37  et  Y  40  M  >  43        X     L5     46     47     Eh     Ll     50     Bl,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ALOKA_SSD-8-MONO2-RLE-SQ.dcm,1.2.392.200039.101.4.2011238.10.20010504.94521.10,PixelData,R ),R ),PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ALOKA_SSD-8-MONO2-RLE-SQ.dcm,1.2.392.200039.101.4.2011238.10.20010504.94521.10,PixelData,L  T i R,L  T i R,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ALOKA_SSD-8-MONO2-RLE-SQ.dcm,1.2.392.200039.101.4.2011238.10.20010504.94521.10,PixelData,SBENL  T 1 RO8 G55 C5,SBENL  T 1 RO8 G55 C5,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/alphatest_argb.dcm,1.2.826.0.1.3680043.2.1143.1939094838812427550747410528603429009,PixelData,-,-,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/alphatest_argb.dcm,1.2.826.0.1.3680043.2.1143.1939094838812427550747410528603429009,PixelData,.,.,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/pvrg.dcm,1.2.826.0.1.3680043.2.1143.9054775502028712111861167027303360949,PixelData,S,S,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/XA_GE_JPEG_02_with_Overlays.dcm,1.2.840.113619.2.16.1.86.1139308956.0.48995.1,PixelData,RISV L7 sy DR DIBIE Egts  [ i JUIL ],RISV L7 sy DR DIBIE Egts  [ i JUIL ],PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/XA_GE_JPEG_02_with_Overlays.dcm,1.2.840.113619.2.16.1.86.1139308956.0.48995.1,PixelData,RISV L7 sy DR DIBIE Egts [ i  JUIL ],RISV L7 sy DR DIBIE Egts [ i  JUIL ],PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/XA_GE_JPEG_02_with_Overlays.dcm,1.2.840.113619.2.16.1.86.1139308956.0.48995.1,PixelData,"MONTSOURIS MAZHAR, TSMAEL DR DIBIE #7189 07-FEU-2006  10:42:26","MONTSOURIS MAZHAR, TSMAEL DR DIBIE #7189 07-FEU-2006  10:42:26",PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,|,|,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,|,|,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,b,b,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,oo,oo,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,),),PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,),),PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,),),PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,0,0,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,),),PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,aﬁ,aﬁ,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,0,0,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,8,8,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,8,8,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,),),PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,"vy  Sy,","vy  Sy,",PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,R s g W“:e&'w W,R s g W“:e&'w W,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,K W,K W,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,LR,LR,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,. L,. L,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,g Vi,g Vi,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,R foa P,R foa P,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,L€,L€,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ROMEXIS_EnhancedCT_Invalid.dcm,2.16.840.1.113669.632.10.20090212.133248234.260615.740,PixelData,4,4,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,QPR     83  B  B4,QPR     83  B  B4,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,QPR       83  B,QPR       83  B,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,111202001 16:47:12       53  -53,111202001 16:47:12       53  -53,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,QPR     83  B  B4,QPR     83  B  B4,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,QPR       83  B,QPR       83  B,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,111202001 16:47:12       53  -53,111202001 16:47:12       53  -53,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,QPR        83  B  B4,QPR        83  B  B4,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,QPR       83  B,QPR       83  B,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,111202001 16:47:12       53  -53,111202001 16:47:12       53  -53,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,QPR  IEN     83  B  B4,QPR  IEN     83  B  B4,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,QPR  83  B,QPR  83  B,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,111202001 16:47:12  53  -53,111202001 16:47:12  53  -53,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,QPR     83  B  B4,QPR     83  B  B4,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,QPR       83  B,QPR       83  B,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,111202001 16:47:12       53  -53,111202001 16:47:12       53  -53,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,QPR     83  B  B4,QPR     83  B  B4,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,QPR,QPR,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,111202001 16:47:12,111202001 16:47:12,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,QPR     83  B  B4,QPR     83  B  B4,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,QPR,QPR,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ECHOPAC7_RLE_Problem.dcm,1.2.840.113619.2.118.1741332444.1030950570.0.51,PixelData,111202001 16:47:12,111202001 16:47:12,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/gdcm-US-ALOKA-16-LUT.dcm,1.2.392.200039.102.3.1096.10.20020524.114049.826,PixelData,9123 5.0 RIS G66 C6 A2 9123 5.0 RIS G63 C6 A2 3:PELVIS DUA: 94%,9123 5.0 RIS G66 C6 A2 9123 5.0 RIS G63 C6 A2 3:PELVIS DUA: 94%,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/gdcm-US-ALOKA-16-LUT.dcm,1.2.392.200039.102.3.1096.10.20020524.114049.826,PixelData,4184 oY N  AT wlu/ula  it     A2 9123 5.0 RIS G63 C6,4184 oY N  AT wlu/ula  it     A2 9123 5.0 RIS G63 C6,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/gdcm-US-ALOKA-16-LUT.dcm,1.2.392.200039.102.3.1096.10.20020524.114049.826,PixelData,";98279 oY KAZL MOHAMED, OL EN Aama  27,1250 wlu/ula  20Hz     A2 9123 5.0 RIS G63 C6",";98279 oY KAZL MOHAMED, OL EN Aama  27,1250 wlu/ula  20Hz     A2 9123 5.0 RIS G63 C6",PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/gdcm-US-ALOKA-16-LUT.dcm,1.2.392.200039.102.3.1096.10.20020524.114049.826,SoftwareVersions,00-2.0.0(29Oct),29Oct,Date,9
+/home/thomas/testdicoms2/gdcmConformanceTests/PAPYRUS_CR_InvalidIOP.dcm,64.572.218.916,PixelData,OO —,OO —,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/DX_GE_FALCON_SNOWY-VOI.dcm,1.2.840.113619.2.203.4.2147483647.1222436387.372542,SoftwareVersions,DM_Platform_Magic_Release_Patch_1-4.3-2,3-2,Date,36
+/home/thomas/testdicoms2/gdcmConformanceTests/ACUSON-24-YBR_FULL-RLE-b_dcmdrle_dcmcjpeg.dcm,1.2.840.113680.1.103.56887.1017329008.714317.2.1,PixelData,N \‘\\—  |  tu     [,N \‘\\—  |  tu     [,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ACUSON-24-YBR_FULL-RLE-b_dcmdrle_dcmcjpeg.dcm,1.2.840.113680.1.103.56887.1017329008.714317.2.1,PixelData,C SR 28 Mor 02 o,C SR 28 Mor 02 o,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ACUSON-24-YBR_FULL-RLE-b_dcmdrle_dcmcjpeg.dcm,1.2.840.113680.1.103.56887.1017329008.714317.2.1,PixelData,- DERNAAD: SOPHIE 28 Mor 02 Al Gl,- DERNAAD: SOPHIE 28 Mor 02 Al Gl,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/ACUSON-24-YBR_FULL-RLE-b_dcmdrle_dcmcjpeg.dcm,1.2.840.113680.1.103.56887.1017329008.714317.2.1,SOPInstanceUID,1.2.840.113680.1.103.56887.1017329008.714317.2.1,1017329008,PrivateIdentifier,27
+/home/thomas/testdicoms2/gdcmConformanceTests/ACUSON-24-YBR_FULL-RLE-b_dcmdrle_dcmcjpeg.dcm,1.2.840.113680.1.103.56887.1017329008.714317.2.1,ReferencedSOPInstanceUID,1.2.840.113680.1.103.56887.1017329008.714317.1.1,1017329008,PrivateIdentifier,27
+/home/thomas/testdicoms2/gdcmConformanceTests/ACUSON-24-YBR_FULL-RLE-b_dcmdrle_dcmcjpeg.dcm,1.2.840.113680.1.103.56887.1017329008.714317.2.1,StudyInstanceUID,1.2.840.113680.1.103.56887.1017329008.714317,1017329008,PrivateIdentifier,27
+/home/thomas/testdicoms2/gdcmConformanceTests/ACUSON-24-YBR_FULL-RLE-b_dcmdrle_dcmcjpeg.dcm,1.2.840.113680.1.103.56887.1017329008.714317.2.1,SeriesInstanceUID,1.2.840.113680.1.103.56887.1017329008.714317.2,1017329008,PrivateIdentifier,27
+/home/thomas/testdicoms2/gdcmConformanceTests/Enhanced_MR_Image_Storage_Illegal_CP246_corrected.dcm,1.3.46.670589.11.17052.5.20.1.1.4504.2006120512023592268,PixelData,ot,ot,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/Enhanced_MR_Image_Storage_Illegal_CP246_corrected.dcm,1.3.46.670589.11.17052.5.20.1.1.4504.2006120512023592268,PixelData,ot,ot,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/Enhanced_MR_Image_Storage_Illegal_CP246_corrected.dcm,1.3.46.670589.11.17052.5.20.1.1.4504.2006120512023592268,PixelData,L i,L i,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/Enhanced_MR_Image_Storage_Illegal_CP246_corrected.dcm,1.3.46.670589.11.17052.5.20.1.1.4504.2006120512023592268,PixelData,"L i,","L i,",PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/Enhanced_MR_Image_Storage_Illegal_CP246_corrected.dcm,1.3.46.670589.11.17052.5.20.1.1.4504.2006120512023592268,PixelData,« =,« =,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/Enhanced_MR_Image_Storage_Illegal_CP246.dcm,1.3.46.670589.11.17052.5.20.1.1.4504.2006120512023592268,PixelData,ot,ot,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/Enhanced_MR_Image_Storage_Illegal_CP246.dcm,1.3.46.670589.11.17052.5.20.1.1.4504.2006120512023592268,PixelData,ot,ot,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/Enhanced_MR_Image_Storage_Illegal_CP246.dcm,1.3.46.670589.11.17052.5.20.1.1.4504.2006120512023592268,PixelData,L i,L i,PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/Enhanced_MR_Image_Storage_Illegal_CP246.dcm,1.3.46.670589.11.17052.5.20.1.1.4504.2006120512023592268,PixelData,"L i,","L i,",PixelText,-1
+/home/thomas/testdicoms2/gdcmConformanceTests/Enhanced_MR_Image_Storage_Illegal_CP246.dcm,1.3.46.670589.11.17052.5.20.1.1.4504.2006120512023592268,PixelData,« =,« =,PixelText,-1
