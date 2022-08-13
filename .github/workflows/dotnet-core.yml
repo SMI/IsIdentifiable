@@ -96,24 +96,21 @@ jobs:
          ./testii/linux-x64/ii dir -d ./testdicoms --tessdirectory ./data/tessdata/ --storereport 
 
     - name: Pack
-      run: |
-        mkdir -p NuGet/bin
-        ln -sf Release/netstandard2.1 NuGet/bin/
-        dotnet pack NuGet/IsIdentifiable.NuGet.csproj -c Release --include-source --include-symbols --nologo -p:NuspecFile=`pwd`/NuGet/IsIdentifiable.NuGet.nuspec -p:NuspecProperties=Version=$(fgrep AssemblyInformationalVersion SharedAssemblyInfo.cs|cut -d'"' -f2)\;configuration=Release  -p:SymbolPackageFormat=snupkg
+      run: dotnet pack IsIdentifiable/IsIdentifiable.csproj -c Release -p:PackageVersion=$(fgrep AssemblyVersion SharedAssemblyInfo.cs|cut -d'"' -f2) --nologo --include-source -o .
     - name: Package RDMP Plugin
       run: |
         cd IsIdentifiablePlugin
         dotnet publish --self-contained false
         nuget pack ./IsIdentifiablePlugin.nuspec -Properties Configuration=Debug -IncludeReferencedProjects -Symbols -Version $(grep AssemblyInformationalVersion ../SharedAssemblyInfo.cs | cut -d'"' -f2)
-        cp ./IsIdentifiablePlugin.$(grep AssemblyInformationalVersion ../SharedAssemblyInfo.cs | cut -d'"' -f2).nupkg ../release/IsIdentifiablePlugin.$(grep AssemblyInformationalVersion ../SharedAssemblyInfo.cs | cut -d'"' -f2).nupkg
+        mv ./IsIdentifiablePlugin.*.nupkg ../release/
         cd ..
     - name: Nuget push
       if: contains(github.ref,'refs/tags/')
-      run: dotnet nuget push NuGet/bin/Release/IsIdentifiable.*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }} --skip-duplicate
+      run: dotnet nuget push IsIdentifiable.*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }} --skip-duplicate
     - name: Store created nupkg files
       uses: actions/upload-artifact@v3
       with:
-        path: NuGet/bin/Release/*.nupkg
+        path: release/IsIdentifiablePlugin.*.nupkg
         retention-days: 1
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@2.3.0
