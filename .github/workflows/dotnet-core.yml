@@ -80,7 +80,7 @@ jobs:
         cd ii
         dotnet publish --runtime win-x64 -c Release --self-contained true -o ../ii-win-x64
         dotnet publish --runtime linux-x64 -c Release --self-contained true -o ../ii-$(fgrep AssemblyVersion SharedAssemblyInfo.cs|cut -d'"' -f2)-cli-linux-x64
-        cd win-x64
+        cd ../win-x64
         zip -9r ../release/ii-$(fgrep AssemblyVersion SharedAssemblyInfo.cs|cut -d'"' -f2)-cli-win-x64.zip .
         cd ..
         tar -zcvf ./release/ii-$(fgrep AssemblyVersion SharedAssemblyInfo.cs|cut -d'"' -f2)-cli-linux-x64.tar.gz ii-$(fgrep AssemblyVersion SharedAssemblyInfo.cs|cut -d'"' -f2)-cli-linux-x64
