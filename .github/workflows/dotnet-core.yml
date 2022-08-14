@@ -72,28 +72,28 @@ jobs:
         printf "University of Dundee\0Fred Bloggs\0Ninewells Hospital\0person\0woman\0man\0camera\0tv\0" | nc -N 127.0.0.1 1881
         kill $!
         mkdir -p ../../release
-        mv target/nerd-0.0.1-SNAPSHOT.jar ../../release/
+        mv target/nerd-0.0.1-SNAPSHOT.jar ../../release/nerd-$(fgrep AssemblyVersion SharedAssemblyInfo.cs|cut -d'"' -f2)-release.jar
     - name: Package ii binary
       run: |
-        (cd ii && dotnet publish --runtime win-x64 -c Release --self-contained true -o ../win-x64)
-        (cd ii && dotnet publish --runtime linux-x64 -c Release --self-contained true -o ../linux-x64)
-        (cd win-x64 && zip -9r ../release/ii-cli-win-x64.zip .)
-        (tar -zcvf ./release/ii-cli-linux-x64.tar.gz ./linux-x64)
+        cd ii
+        dotnet publish --runtime win-x64 -c Release --self-contained true -o ../ii-win-x64
+        dotnet publish --runtime linux-x64 -c Release --self-contained true -o ../ii-$(fgrep AssemblyVersion SharedAssemblyInfo.cs|cut -d'"' -f2)-cli-linux-x64
+        cd win-x64
+        zip -9r ../release/ii-$(fgrep AssemblyVersion SharedAssemblyInfo.cs|cut -d'"' -f2)-cli-win-x64.zip .
+        cd ..
+        tar -zcvf ./release/ii-$(fgrep AssemblyVersion SharedAssemblyInfo.cs|cut -d'"' -f2)-cli-linux-x64.tar.gz ii-$(fgrep AssemblyVersion SharedAssemblyInfo.cs|cut -d'"' -f2)-cli-linux-x64
     - name: Test ii binary
       run: |
          set -e
          mkdir ./testii
-         cp ./release/ii-cli-linux-x64.tar.gz ./testii/
          cd ./testii
-         tar -xvf ./ii-cli-linux-x64.tar.gz
+         tar -xvf ../release/ii-*-cli-linux-x64.tar.gz
+         ./ii-*-cli-linux-x64/ii --help
          cd ..
-         ./testii/linux-x64/ii --help
 
-         wget https://github.com/HicServices/BadMedicine.Dicom/releases/download/v0.0.14/baddicom-linux-x64-v0.0.14.tar.gz
-         tar -xvf ./baddicom-linux-x64-v0.0.14.tar.gz
-         ./linux-x64/BadDicom -s 100 ./testdicoms/ 10 10 CT
-                  
-         ./testii/linux-x64/ii dir -d ./testdicoms --tessdirectory ./data/tessdata/ --storereport 
+         wget -O- https://github.com/HicServices/BadMedicine.Dicom/releases/download/v0.0.14/baddicom-linux-x64-v0.0.14.tar.gz | tar -xvf -
+         ./linux-x64/BadDicom -s 100 ./testdicoms/ 10 10 CT                  
+         ./testii/ii-*-cli-linux-x64/ii dir -d ./testdicoms --tessdirectory ./data/tessdata/ --storereport 
 
     - name: Pack
       run: dotnet pack IsIdentifiable/IsIdentifiable.csproj -c Release -p:PackageVersion=$(fgrep AssemblyVersion SharedAssemblyInfo.cs|cut -d'"' -f2) --nologo --include-source -o .
