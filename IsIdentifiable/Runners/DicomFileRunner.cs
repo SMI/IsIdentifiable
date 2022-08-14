@@ -50,6 +50,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     /// </summary>
     public const string PixelData = "PixelData";
 
+    /// <summary>
     /// The number of errors (could not open file etc).  These are system level errors
     /// not validation failures.  Any errors result in nonzero exit code
     /// </summary>

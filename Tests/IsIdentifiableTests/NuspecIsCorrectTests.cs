@@ -16,7 +16,7 @@ public class NuspecIsCorrectTests
     static string[] Analyzers = new string[] { "coverlet.collector", "SecurityCodeScan.VS2019" };
 
     //core dependencies should be in all nuspec files
-    [TestCase("../../../../../IsIdentifiable/IsIdentifiable.csproj", "../../../../../NuGet/IsIdentifiable.NuGet.nuspec", "../../../../../Packages.md")]
+    [TestCase("../../../../../IsIdentifiable/IsIdentifiable.csproj", null, "../../../../../Packages.md")]
     public void TestDependencyCorrect(string csproj, string nuspec, string packagesMarkdown)
     {
         if (csproj != null && !Path.IsPathRooted(csproj))
