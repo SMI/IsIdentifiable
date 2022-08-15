@@ -89,11 +89,11 @@ jobs:
          set -e
          mkdir ./testii
          cd ./testii
-         tar -xvf ../release/ii-*-cli-linux-x64.tar.gz
+         tar -xzf ../release/ii-*-cli-linux-x64.tar.gz
          ./ii-*-cli-linux-x64/ii --help
          cd ..
 
-         wget -O- https://github.com/HicServices/BadMedicine.Dicom/releases/download/v0.0.14/baddicom-linux-x64-v0.0.14.tar.gz | tar -xvf -
+         wget -O- https://github.com/HicServices/BadMedicine.Dicom/releases/download/v0.0.14/baddicom-linux-x64-v0.0.14.tar.gz | tar -xzf -
          ./linux-x64/BadDicom -s 100 ./testdicoms/ 10 10 CT                  
          ./testii/ii-*-cli-linux-x64/ii dir -d ./testdicoms --tessdirectory ./data/tessdata/ --storereport 
 
