@@ -74,7 +74,7 @@ jobs:
         printf "University of Dundee\0Fred Bloggs\0Ninewells Hospital\0person\0woman\0man\0camera\0tv\0" | nc -N 127.0.0.1 1881
         kill $!
         mkdir -p ../../release
-        mv target/nerd-0.0.1-SNAPSHOT.jar ../../release/nerd-$(fgrep AssemblyVersion SharedAssemblyInfo.cs|cut -d'"' -f2)-release.jar
+        mv target/nerd-0.0.1-SNAPSHOT.jar ../../release/nerd-$(fgrep AssemblyVersion ../../SharedAssemblyInfo.cs|cut -d'"' -f2)-release.jar
     - name: Package ii binary
       run: |
         cd ii
@@ -93,7 +93,7 @@ jobs:
          ./ii-*-cli-linux-x64/ii --help
          cd ..
 
-         wget -O- https://github.com/HicServices/BadMedicine.Dicom/releases/download/v0.0.14/baddicom-linux-x64-v0.0.14.tar.gz | tar -xzf -
+         wget -qO- https://github.com/HicServices/BadMedicine.Dicom/releases/download/v0.0.14/baddicom-linux-x64-v0.0.14.tar.gz | tar -xzf -
          ./linux-x64/BadDicom -s 100 ./testdicoms/ 10 10 CT                  
          ./testii/ii-*-cli-linux-x64/ii dir -d ./testdicoms --tessdirectory ./data/tessdata/ --storereport 
 
