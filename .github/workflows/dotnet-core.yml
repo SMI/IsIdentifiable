@@ -74,7 +74,7 @@ jobs:
         printf "University of Dundee\0Fred Bloggs\0Ninewells Hospital\0person\0woman\0man\0camera\0tv\0" | nc -N 127.0.0.1 1881
         kill $!
         mkdir -p ../../release
-        mv target/nerd-0.0.1-SNAPSHOT.jar ../../release/nerd-$(fgrep AssemblyVersion ../../SharedAssemblyInfo.cs|cut -d'"' -f2)-release.jar
+        mv target/nerd-0.0.1-SNAPSHOT.jar ../../release/smi-nerd-$(fgrep AssemblyVersion ../../SharedAssemblyInfo.cs | cut -d'"' -f2).jar
     - name: Package ii binary
       run: |
         cd ii
