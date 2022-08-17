@@ -2,6 +2,8 @@
 
 # [Unreleased]
 
+# [0.0.6] - 2022-08-17
+
 ## Added
 
 - Added new command line flag `-y somefile.yaml` in `ii` CLI tool to specify a custom config file
@@ -51,7 +53,8 @@
 
 Initial version
 
-[Unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.0.5..main
+[Unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.0.6..main
+[0.0.6]: https://github.com/SMI/IsIdentifiable/compare/v0.0.5..v0.0.6
 [0.0.5]: https://github.com/SMI/IsIdentifiable/compare/v0.0.4..v0.0.5
 [0.0.4]: https://github.com/SMI/IsIdentifiable/compare/v0.0.3..v0.0.4
 [0.0.3]: https://github.com/SMI/IsIdentifiable/compare/v0.0.2..v0.0.3
