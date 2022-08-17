@@ -30,6 +30,9 @@
     <ProjectReference Include="..\..\IsIdentifiable\IsIdentifiable.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="default.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="pixeldatareport.csv">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>pixeldatareport.cs</LastGenOutput>
