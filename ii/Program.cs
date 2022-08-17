@@ -58,7 +58,7 @@ public static class Program
             //verify the file they told us about is real
             if (!File.Exists(explicitLocation))
             {
-                Console.WriteLine($"Could not find file: {explicitLocation}");
+                Console.Error.WriteLine($"Could not find file: {explicitLocation}");
                 return 1;
             }
 
@@ -75,7 +75,7 @@ public static class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Could not deserialize {SettingsFile}:{ex}");
+                Console.Error.WriteLine($"Could not deserialize {SettingsFile}:{ex}");
                 return 1;
             }
         }

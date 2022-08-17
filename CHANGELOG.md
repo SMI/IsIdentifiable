@@ -6,6 +6,10 @@
 
 - Added new command line flag `-y somefile.yaml` in `ii` CLI tool to specify a custom config file
 
+## Changed
+
+- `ii` startup errors are written to stderr instead of stdout
+
 # [0.0.5] - 2022-07-20
 
 ## Dependencies
