@@ -2,6 +2,10 @@
 
 # [Unreleased]
 
+## Added
+
+- Added new command line flag `-y somefile.yaml` in `ii` CLI tool to specify a custom config file
+
 # [0.0.5] - 2022-07-20
 
 ## Dependencies
