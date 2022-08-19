@@ -13,13 +13,13 @@ class AllRulesManagerView : View, ITreeBuilder<object>
 {
     private const string Analyser = "Analyser Rules";
     private const string Reviewer = "Reviewer Rules";
-    private readonly IsIdentifiableBaseOptions _analyserOpts;
+    private readonly IsIdentifiableBaseOptions? _analyserOpts;
     private readonly IsIdentifiableReviewerOptions _reviewerOpts;
     private RuleDetailView detailView;
     private TreeView<object> treeView;
 
 
-    public AllRulesManagerView(IsIdentifiableBaseOptions analyserOpts , IsIdentifiableReviewerOptions reviewerOpts)
+    public AllRulesManagerView(IsIdentifiableBaseOptions? analyserOpts , IsIdentifiableReviewerOptions reviewerOpts)
     {
         Width = Dim.Fill();
         Height = Dim.Fill();
@@ -93,8 +93,12 @@ class AllRulesManagerView : View, ITreeBuilder<object>
                     //is only 1 and it is an Analyser rule under a RuleTypeNode
                     if (parents.Length == 1 && parents[0] is RuleTypeNode ruleTypeNode)
                     {
+                        if(ruleTypeNode.Rules == null)
+                            throw new Exception("RuleTypeNode did not contain any rules, how are you deleting a node!?");
+
                         foreach(ICustomRule rule in allSelected)
                         {
+
                             ruleTypeNode.Rules.Remove(rule);
                         }
 
@@ -118,7 +122,7 @@ class AllRulesManagerView : View, ITreeBuilder<object>
         }
     }
 
-    private void Tv_SelectionChanged(object sender, SelectionChangedEventArgs<object> e)
+    private void Tv_SelectionChanged(object? sender, SelectionChangedEventArgs<object> e)
     {
         if(e.NewValue is ICustomRule r)
         {
@@ -156,7 +160,7 @@ class AllRulesManagerView : View, ITreeBuilder<object>
             return outBase.RulesFile.Name;
         }
 
-        return toRender.ToString();
+        return toRender.ToString() ?? "";
     }
 
     public bool SupportsCanExpand => true;
@@ -226,7 +230,7 @@ class AllRulesManagerView : View, ITreeBuilder<object>
             yield return new RuleTypeNode(ruleSet, nameof(RuleSet.ConsensusRules));                
         }
 
-        if(forObject is RuleTypeNode ruleType)
+        if(forObject is RuleTypeNode ruleType && ruleType.Rules != null)
         {
             foreach(var r in ruleType.Rules)
             {

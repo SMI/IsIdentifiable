@@ -50,6 +50,15 @@ The directory must be named `tessdata` and contain a file named `eng.traineddata
 
 See [optional downloads](../IsIdentifiable/README.md#optional-downloads)
 
+## Run on database
+
+The `db` verb runs IsIdentifiable to detect data in a database.  An example command would be:
+
+```
+./ii db -d "Server=localhost;Database=RDMP_ExampleData;Uid=SA;Password=<YourStrong@Passw0rd>;Trust Server Certificate=true" -p MicrosoftSqlServer --storereport -t Biochemistry
+```
+
+
 
 # IsIdentifiable Reviewer
 

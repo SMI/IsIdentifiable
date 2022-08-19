@@ -13,7 +13,7 @@ class FailureView : View
     Attribute _attNormal;
     Attribute _attHighlight;
 
-    public Failure CurrentFailure { get; set; }
+    public Failure? CurrentFailure { get; set; }
 
 
     public FailureView()
@@ -43,7 +43,7 @@ class FailureView : View
 
         for (int y = 0; y < h; y++)
         {
-            string currentLine = lines.Length > y ? lines[y] : null;
+            var currentLine = lines.Length > y ? lines[y] : null;
 
             for (int x = 0; x < w; x++)
             {

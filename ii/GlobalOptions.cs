@@ -2,7 +2,7 @@
 
 namespace IsIdentifiable;
 
-internal class GlobalOptions
+public class GlobalOptions
 {
     public IsIdentifiableBaseOptions? IsIdentifiableOptions { get; set; }
 

@@ -42,7 +42,26 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     private readonly IFileSystem _fileSystem = new FileSystem();
 
     private readonly uint _ignoreTextLessThan;
+
+    /// <summary>
+    /// String used for <see cref="Failure.ProblemField"/> when reporting that the failure
+    /// is based on optical character recognition on DICOM pixel data.  May include a suffix
+    /// e.g. where found text is detected in a rotated image
+    /// </summary>
+    public const string PixelData = "PixelData";
+
+    /// <summary>
+    /// The number of errors (could not open file etc).  These are system level errors
+    /// not validation failures.  Any errors result in nonzero exit code
+    /// </summary>
+    private int errors = 0;
         
+
+    /// <summary>
+    /// Determines system behaviour when invalid files are encountered 
+    /// </summary>
+    public bool ThrowOnError {get;set;} = true;
+
     /// <summary>
     /// Creates a new instance based on the <paramref name="opts"/>.  Options include what
     /// reports to write out, wether to perform OCR etc.
@@ -116,14 +135,33 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
 
         CloseReports();
 
-        return 0;
+        return errors;
     }
 
     private void ProcessDirectory(string root)
     {
         //deal with files first
         foreach (var file in Directory.GetFiles(root, _opts.Pattern))
-            ValidateDicomFile(_fileSystem.FileInfo.FromFileName(file));
+        {
+            try
+            {
+                ValidateDicomFile(_fileSystem.FileInfo.FromFileName(file));
+            }
+            catch(Exception ex)
+            {
+                if(ThrowOnError)
+                {
+                    throw;
+                }
+                else
+                {
+                    _logger.Error(ex,$"Failed to validate {file}");
+                    errors++;
+                }
+                
+            }
+        }
+            
 
         //now directories
         foreach (var directory in Directory.GetDirectories(root))
@@ -369,7 +407,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         //if we find some text
         if (string.IsNullOrWhiteSpace(text)) return;
 
-        var problemField = rotationIfAny != 0 ? $"PixelData{rotationIfAny}" : "PixelData";
+        var problemField = rotationIfAny != 0 ? $"{PixelData}{rotationIfAny}" : PixelData;
                 
         if(text.Length < _ignoreTextLessThan)
             _logger.Debug($"Ignoring pixel data discovery in {fi.Name} of length {text.Length} because it is below the threshold {_ignoreTextLessThan}");
@@ -394,6 +432,8 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     /// <param name="modality"></param>
     /// <param name="imageType"></param>
     /// <param name="rotationIfAny"></param>
+    /// <param name="frame"></param>
+    /// <param name="overlay"></param>
     private void ProcessBitmapMemStream(MagickImage mi,bool forcePgm, IFileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0, int frame = -1, int overlay = -1)
     {
         byte[] bytes;

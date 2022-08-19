@@ -14,7 +14,7 @@ internal class RuleSetFileNode
     /// otherwise children generated from this class will end up with different collections
     /// over time.
     /// </summary>
-    private RuleSet _ruleSet;
+    private RuleSet? _ruleSet;
 
     public RuleSetFileNode(FileInfo file)
     {
@@ -35,7 +35,7 @@ internal class RuleSetFileNode
         var yaml = System.IO.File.ReadAllText(File.FullName);
 
         var deserializer = IsIdentifiableAbstractRunner.GetDeserializer();
-        return _ruleSet = deserializer.Deserialize<RuleSet>(yaml);
+        return _ruleSet = deserializer.Deserialize<RuleSet>(yaml) ?? new RuleSet();
     }
 
     public void Save(FileInfo? toFile = null)

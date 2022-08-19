@@ -1,4 +1,9 @@
-﻿using IsIdentifiable.Options;
+﻿using FAnsi.Implementation;
+using FAnsi.Implementations.MicrosoftSQL;
+using FAnsi.Implementations.MySql;
+using FAnsi.Implementations.Oracle;
+using FAnsi.Implementations.PostgreSql;
+using IsIdentifiable.Options;
 using Terminal.Gui;
 using YamlDotNet.Serialization;
 
@@ -6,10 +11,10 @@ namespace IsIdentifiable.Redacting;
 
 public class ReviewerRunner
 {
-    private readonly IsIdentifiableBaseOptions _analyserOpts;
+    private readonly IsIdentifiableBaseOptions? _analyserOpts;
     private readonly IsIdentifiableReviewerOptions _reviewerOptions;
 
-    public ReviewerRunner(IsIdentifiableBaseOptions analyserOpts, IsIdentifiableReviewerOptions reviewerOptions)
+    public ReviewerRunner(IsIdentifiableBaseOptions? analyserOpts, IsIdentifiableReviewerOptions reviewerOptions)
     {
         _analyserOpts = analyserOpts;
         _reviewerOptions = reviewerOptions;
@@ -62,6 +67,11 @@ public class ReviewerRunner
         else
         {
             logger.Info("Running Connection Tests");
+
+            ImplementationManager.Load<MicrosoftSQLImplementation>();
+            ImplementationManager.Load<MySqlImplementation>();
+            ImplementationManager.Load<PostgreSqlImplementation>();
+            ImplementationManager.Load<OracleImplementation>();
 
             try
             {
