@@ -102,6 +102,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
             if (!languageFile.Exists)
                 throw new FileNotFoundException($"Could not find tesseract models file ('{languageFile.FullName}')",languageFile.FullName);
 
+            TesseractLinuxLoaderFix.Patch();
             _tesseractEngine = new TesseractEngine(dir.FullName, "eng", EngineMode.Default)
             {
                 DefaultPageSegMode = PageSegMode.Auto
