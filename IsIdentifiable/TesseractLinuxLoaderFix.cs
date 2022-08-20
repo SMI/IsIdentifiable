@@ -9,6 +9,7 @@ namespace IsIdentifiable;
 /// Work around legacy Tesseract Interop code relying on old libdl.so
 /// </summary>
 public class TesseractLinuxLoaderFix {
+    // TODO: Record load/unload in LibraryLoader.loadedAssemblies(string->intptr)
     public static void Patch()
     {
         var harmony = new Harmony("uk.ac.dundee.hic.tesseract");
@@ -31,16 +32,12 @@ public class TesseractLinuxLoaderFix {
         return true;
     }
 
-    static bool FreeLibraryPatch(string name,ref bool __result)
+    static bool FreeLibraryPatch(IntPtr handle,ref bool __result)
     {
-        __result = UnixFreeLibrary(name) != 0;
+        __result = UnixFreeLibrary(handle) != 0;
         return true;
     }
 
-    // TODO: Patch IntPtr InteropDotNet.LibraryLoader.LoadLibrary(filename,platformname)
-    // TODO: Patch IntPtr InteropDotNet.GetProcAddress(handle,name)
-    // TODO: Patch bool FreeLibrary(filename)
-    // TODO: Record load/unload in LibraryLoader.loadedAssemblies(string->intptr)
     
 
   [DllImport("c", EntryPoint = "dlopen")]
