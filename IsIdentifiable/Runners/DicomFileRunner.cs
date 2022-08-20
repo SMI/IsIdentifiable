@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using FellowOakDicom;
 using FellowOakDicom.Imaging;
-using FellowOakDicom.Imaging.ImageSharp;
 using DicomTypeTranslation;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
@@ -16,7 +15,6 @@ using IsIdentifiable.Reporting.Reports;
 using NLog;
 using Tesseract;
 using ImageMagick;
-using Microsoft.Extensions.DependencyInjection;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 
