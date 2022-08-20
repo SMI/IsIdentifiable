@@ -20,21 +20,21 @@ public class TesseractLinuxLoaderFix {
         harmony.Patch(ll.GetMethod("FreeLibrary"), prefix: new HarmonyMethod(self.GetMethod(nameof(FreeLibraryPatch))));
     }
 
-    static bool LoadLibraryPatch(string filename, string platform, ref IntPtr __result)
+    public static bool LoadLibraryPatch(string fileName, string platformName, ref IntPtr __result)
     {
-        __result = UnixLoadLibrary(filename,2);
+        __result = UnixLoadLibrary(fileName,2);
         return true;
     }
 
-    static bool GetProcAddressPatch(IntPtr handle, string name, ref IntPtr __result)
+    public static bool GetProcAddressPatch(IntPtr dllHandle, string name, ref IntPtr __result)
     {
-        __result = UnixGetProcAddress(handle, name);
+        __result = UnixGetProcAddress(dllHandle, name);
         return true;
     }
 
-    static bool FreeLibraryPatch(IntPtr handle,ref bool __result)
+    public static bool FreeLibraryPatch(string fileName,ref bool __result)
     {
-        __result = UnixFreeLibrary(handle) != 0;
+        __result = true; // TODO: UnixFreeLibrary(handle) != 0;
         return true;
     }
 
