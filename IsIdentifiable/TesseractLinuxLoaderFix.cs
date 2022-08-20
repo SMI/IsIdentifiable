@@ -12,6 +12,8 @@ public class TesseractLinuxLoaderFix {
     // TODO: Record load/unload in LibraryLoader.loadedAssemblies(string->intptr)
     public static void Patch()
     {
+	if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+		return; // Only apply patch on Linux
         var harmony = new Harmony("uk.ac.dundee.hic.tesseract");
         var ll = typeof(LibraryLoader);
         var self = typeof(TesseractLinuxLoaderFix);
@@ -22,20 +24,24 @@ public class TesseractLinuxLoaderFix {
 
     public static bool LoadLibraryPatch(string fileName, string platformName, ref IntPtr __result)
     {
-        __result = UnixLoadLibrary(fileName,2);
-        return true;
+        __result = UnixLoadLibrary($"{AppDomain.CurrentDomain.BaseDirectory}/x64/lib{fileName}.so",2);
+	Console.Error.WriteLine($"Loading library '{AppDomain.CurrentDomain.BaseDirectory}/x64/lib{fileName}.so', result {__result}");
+        return false;
     }
 
     public static bool GetProcAddressPatch(IntPtr dllHandle, string name, ref IntPtr __result)
     {
         __result = UnixGetProcAddress(dllHandle, name);
-        return true;
+	if (__result==IntPtr.Zero)
+		Console.Error.WriteLine($"WARN:Failed looking for function '{name}' in module at address {dllHandle}");
+        return false;
     }
 
     public static bool FreeLibraryPatch(string fileName,ref bool __result)
     {
         __result = true; // TODO: UnixFreeLibrary(handle) != 0;
-        return true;
+        Console.Error.WriteLine($"TODO: Ignoring attempt to unload '{fileName}'");
+	return false;
     }
 
     
