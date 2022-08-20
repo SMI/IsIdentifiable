@@ -13,6 +13,9 @@ namespace IsIdentifiable;
 public class TesseractLinuxLoaderFix {
   private static Dictionary<string, IntPtr> loadedAssemblies;
 
+  /// <summary>
+  /// Install the patch, if running on Linux (NOP on other platforms)
+  /// </summary>
   public static void Patch()
   {
     if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -21,16 +24,16 @@ public class TesseractLinuxLoaderFix {
       var ll = typeof(LibraryLoader);
       var self = typeof(TesseractLinuxLoaderFix);
       loadedAssemblies=ll.GetField("loadedAssemblies",BindingFlags.NonPublic|BindingFlags.Instance).GetValue(LibraryLoader.Instance) as Dictionary<string, IntPtr>;
-      harmony.Patch(ll.GetMethod("LoadLibrary"), prefix: new HarmonyMethod(self.GetMethod(nameof(LoadLibraryPatch))));
-      harmony.Patch(ll.GetMethod("GetProcAddress"), prefix: new HarmonyMethod(self.GetMethod(nameof(GetProcAddressPatch))));
-      harmony.Patch(ll.GetMethod("FreeLibrary"), prefix: new HarmonyMethod(self.GetMethod(nameof(FreeLibraryPatch))));
+      harmony.Patch(ll.GetMethod("LoadLibrary"), prefix: new HarmonyMethod(self.GetMethod(nameof(LoadLibraryPatch),BindingFlags.NonPublic|BindingFlags.Static)));
+      harmony.Patch(ll.GetMethod("GetProcAddress"), prefix: new HarmonyMethod(self.GetMethod(nameof(GetProcAddressPatch),BindingFlags.NonPublic|BindingFlags.Static)));
+      harmony.Patch(ll.GetMethod("FreeLibrary"), prefix: new HarmonyMethod(self.GetMethod(nameof(FreeLibraryPatch),BindingFlags.NonPublic|BindingFlags.Static)));
   }
 
-  public static bool LoadLibraryPatch(string fileName, string platformName, ref IntPtr __result)
+  private static bool LoadLibraryPatch(string fileName, string platformName, ref IntPtr __result)
   {
     try {
       __result = UnixLoadLibrary($"{AppDomain.CurrentDomain.BaseDirectory}/x64/lib{fileName}.so",2);
-    } catch (EntryPointNotFoundException e) {
+    } catch (EntryPointNotFoundException) {
       __result = DLLoadLibrary($"{AppDomain.CurrentDomain.BaseDirectory}/x64/lib{fileName}.so",2);
     }
     if (__result==IntPtr.Zero)
@@ -44,7 +47,7 @@ public class TesseractLinuxLoaderFix {
   {
     try {
       __result = UnixGetProcAddress(dllHandle, name);
-    } catch (EntryPointNotFoundException e) {
+    } catch (EntryPointNotFoundException) {
       __result = DLGetProcAddress(dllHandle, name);
     }
     if (__result==IntPtr.Zero)
@@ -57,7 +60,7 @@ public class TesseractLinuxLoaderFix {
     if (loadedAssemblies.Remove(fileName,out var handle))
       try {
         __result=UnixFreeLibrary(handle)!=0;
-      } catch (EntryPointNotFoundException e) {
+      } catch (EntryPointNotFoundException) {
         __result=DLFreeLibrary(handle)!=0;
       }
     else {
