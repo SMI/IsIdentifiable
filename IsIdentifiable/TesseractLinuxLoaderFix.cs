@@ -54,9 +54,9 @@ public class TesseractLinuxLoaderFix {
   {
     if (loadedAssemblies.Remove(fileName,out var handle))
       try {
-        __result=UnixFreeLibrary(handle);
+        __result=UnixFreeLibrary(handle)!=0;
       } catch (EntryPointNotFoundException e) {
-        __result=DLFreeLibrary(handle);
+        __result=DLFreeLibrary(handle)!=0;
       }
     else {
       __result=false;
