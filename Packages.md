@@ -14,6 +14,7 @@
 | [NLog](https://nlog-project.org/) | [GitHub](https://github.com/NLog/NLog) | [5.0.2](https://www.nuget.org/packages/NLog/5.0.2) | [BSD 3-Clause](https://github.com/NLog/NLog/blob/dev/LICENSE.txt) | Flexible user configurable logging | |
 | HIC.FAnsiSql |[GitHub](https://github.com/HicServices/FAnsiSql) | [2.0.4](https://www.nuget.org/packages/HIC.FansiSql/2.0.4) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | DBMS abstraction layer |
 | HIC.BadMedicine | [GitHub](https://github.com/HicServices/BadMedicine) | [0.1.6](https://www.nuget.org/packages/HIC.BadMedicine/0.1.6) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | Generate Test Datasets for tests/exericses |
+| Lib.Harmony | [GitHub]() | [2.2.2](https://www.nuget.org/packages/Lib.Harmony/2.2.2) | [MIT](https://opensource.org/licenses/MIT)  | .Net patcher tool for Tesseract bugs | |
 | Moq 4 | [GitHub](https://github.com/moq/moq4) | [4.16.1](https://www.nuget.org/packages/Moq/4.16.1) |[BSD 3](https://github.com/moq/moq4/blob/master/License.txt)  | Mock objects during unit testing |
 | [Nunit](https://nunit.org/) |[GitHub](https://github.com/nunit/nunit) | [3.13.2](https://www.nuget.org/packages/NUnit/3.13.2) | [MIT](https://opensource.org/licenses/MIT) | Unit testing |
 | Microsoft.NET.Test.Sdk | [GitHub](https://github.com/microsoft/vstest/) | [17.0.0](https://www.nuget.org/packages/Microsoft.NET.Test.Sdk/17.0.0) | [MIT](https://opensource.org/licenses/MIT) | Required for running tests| |
