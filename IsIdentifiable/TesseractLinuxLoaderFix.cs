@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using HarmonyLib;
 using InteropDotNet;
@@ -19,7 +20,7 @@ public class TesseractLinuxLoaderFix {
       var harmony = new Harmony("uk.ac.dundee.hic.tesseract");
       var ll = typeof(LibraryLoader);
       var self = typeof(TesseractLinuxLoaderFix);
-      loadedAssemblies=ll.GetField("loadedAssemblies").GetValue(LibraryLoader.Instance) as Dictionary<string, IntPtr>;
+      loadedAssemblies=ll.GetField("loadedAssemblies",BindingFlags.NonPublic|BindingFlags.Instance).GetValue(LibraryLoader.Instance) as Dictionary<string, IntPtr>;
       harmony.Patch(ll.GetMethod("LoadLibrary"), prefix: new HarmonyMethod(self.GetMethod(nameof(LoadLibraryPatch))));
       harmony.Patch(ll.GetMethod("GetProcAddress"), prefix: new HarmonyMethod(self.GetMethod(nameof(GetProcAddressPatch))));
       harmony.Patch(ll.GetMethod("FreeLibrary"), prefix: new HarmonyMethod(self.GetMethod(nameof(FreeLibraryPatch))));
@@ -32,9 +33,10 @@ public class TesseractLinuxLoaderFix {
     } catch (EntryPointNotFoundException e) {
       __result = DLLoadLibrary($"{AppDomain.CurrentDomain.BaseDirectory}/x64/lib{fileName}.so",2);
     }
-    if (__result!=IntPtr.Zero)
+    if (__result==IntPtr.Zero)
+      Console.Error.WriteLine($"Failed to load '{AppDomain.CurrentDomain.BaseDirectory}/x64/lib{fileName}.so'");
+    else
       loadedAssemblies.Add(fileName,__result);
-    Console.Error.WriteLine($"Loading library '{AppDomain.CurrentDomain.BaseDirectory}/x64/lib{fileName}.so', result {__result}");
     return false;
   }
 
