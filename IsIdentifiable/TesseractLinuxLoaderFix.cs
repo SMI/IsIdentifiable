@@ -9,6 +9,9 @@ namespace IsIdentifiable;
 
 /// <summary>
 /// Work around legacy Tesseract Interop code relying on old libdl.so
+/// In an ideal world we'd just implement ILibraryLoaderLogic and pass
+/// this to LibraryLoader - but that's locked down as 'internal', so
+/// we have to jump through some reflection hoops to get there.
 /// </summary>
 public class TesseractLinuxLoaderFix {
   private static Dictionary<string, IntPtr> loadedAssemblies;
@@ -43,7 +46,7 @@ public class TesseractLinuxLoaderFix {
     return false;
   }
 
-  public static bool GetProcAddressPatch(IntPtr dllHandle, string name, ref IntPtr __result)
+  private static bool GetProcAddressPatch(IntPtr dllHandle, string name, ref IntPtr __result)
   {
     try {
       __result = UnixGetProcAddress(dllHandle, name);
@@ -55,7 +58,7 @@ public class TesseractLinuxLoaderFix {
     return false;
   }
 
-  public static bool FreeLibraryPatch(string fileName,ref bool __result)
+  private static bool FreeLibraryPatch(string fileName,ref bool __result)
   {
     if (loadedAssemblies.Remove(fileName,out var handle))
       try {
