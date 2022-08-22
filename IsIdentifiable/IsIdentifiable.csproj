@@ -1,7 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>IsIdentifiable</AssemblyName>
-    <OutputType>Library</OutputType>
+    	  <AssemblyName>IsIdentifiable</AssemblyName>
+    	  <authors>Universities of Dundee and Edinburgh</authors>
+    	  <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    	  <PackageProjectUrl>https://github.com/SMI/IsIdentifiable</PackageProjectUrl>
+    	  <OutputType>Library</OutputType>
+    	  <description>Library for spotting identifiable data in flat files, dicom files and relational databases (Sql Server, My Sql, Oracle).</description>
+    	  <PackageTags>Identifiable,Detection,Validation,NLP,OCR,Natural Language Processing,Optical Character Recognition</PackageTags>
+    	  <copyright>Copyright 2019</copyright>
 	<TargetFramework>netstandard2.1</TargetFramework>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -36,8 +42,8 @@
     <PackageReference Include="HIC.FAnsiSql" Version="2.0.4" />
 	<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="12.0.1" />
 	<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
-    <PackageReference Include="NLog" Version="5.0.1" />
-    <PackageReference Include="System.IO.Abstractions" Version="17.0.24" />
+    <PackageReference Include="NLog" Version="5.0.2" />
+    <PackageReference Include="System.IO.Abstractions" Version="17.1.1" />
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
     <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
   </ItemGroup>
