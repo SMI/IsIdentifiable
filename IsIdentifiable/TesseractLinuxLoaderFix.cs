@@ -35,9 +35,9 @@ public class TesseractLinuxLoaderFix {
   private static bool LoadLibraryPatch(string fileName, string platformName, ref IntPtr __result)
   {
     try {
-      __result = UnixLoadLibrary($"{AppDomain.CurrentDomain.BaseDirectory}/x64/lib{fileName}.so",2);
+      __result = UnixLoadLibrary($"{AppDomain.CurrentDomain.BaseDirectory}/runtimes/linux-x64/lib{fileName}.so",2);
     } catch (EntryPointNotFoundException) {
-      __result = DLLoadLibrary($"{AppDomain.CurrentDomain.BaseDirectory}/x64/lib{fileName}.so",2);
+      __result = DLLoadLibrary($"{AppDomain.CurrentDomain.BaseDirectory}/runtimes/linux-x64/lib{fileName}.so",2);
     }
     if (__result==IntPtr.Zero)
       Console.Error.WriteLine($"Failed to load '{AppDomain.CurrentDomain.BaseDirectory}/x64/lib{fileName}.so'");
