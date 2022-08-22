@@ -90,7 +90,7 @@ java -jar ./smi-nerd-0.0.6.jar
 ```
 _Use the version number that matches the jar you downloaded.  Add & at the end to detatch the console (prevents blocking)_
 
-This classifier listenes on port `1881`
+This classifier listens on port `1881`
 
 ## Invocation
 
