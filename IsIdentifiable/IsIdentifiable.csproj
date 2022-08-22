@@ -21,10 +21,9 @@
   </ItemGroup>
   <ItemGroup>
     <NativeLibs Include="$(MSBuildThisFileDirectory)**\*.so" />
-    <None Include="@(NativeLibs)">
-      <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
+    <Content Include="@(NativeLibs)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
     <Content Include="Rules.template.yaml" Pack="true" PackageCopyToOutput="true">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
