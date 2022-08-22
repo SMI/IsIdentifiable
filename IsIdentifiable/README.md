@@ -77,6 +77,20 @@ python3 ./test_ner_daemon_spacy.py
 
 The default listening port for the script is `1882` but you can specify a different one with `-p someport`
 
+### Stanford NER
+
+The second classifier provided out of the box is a wrapper for [Stanford NER](https://nlp.stanford.edu/software/CRF-NER.html).  
+
+To use this classifier download the latest `smi-nerd.x.x.x.jar` binary from the [IsIdentifiable GitHub Releases](https://github.com/SMI/IsIdentifiable/releases/).  You will also need to install the Java runtime.
+
+Start the service with:
+```
+java -jar ./smi-nerd-0.0.6.jar
+```
+_Use the version number that matches the jar you downloaded.  Add & at the end to detatch the console (prevents blocking)_
+
+This classifier listenes on port `1881`
+
 ## Invocation
 
 IsIdentifiable can be run from the [ii] command line tool:
