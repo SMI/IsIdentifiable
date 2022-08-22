@@ -53,10 +53,17 @@ To use the SpaCy classifier you will need Python 3 and the SpaCy library
 ```
 sudo apt-get install python3.9
 pip install -U spacy
-python3 -m spacy download en_core_web_md
+pip install pyyaml
 ```
 
-Next run [ner_daemon_spacy.py](../nlp/ner_daemon_spacy.py).  By default the process will block the console
+Next run [ner_daemon_spacy.py](../nlp/ner_daemon_spacy.py).  Use the `-d` flag the first time to fetch the language model:
+
+```
+cd ./nlp/
+python3 ./ner_daemon_spacy.py -d en_core_web_md
+```
+
+After the download completes you can start the NLP by without `-d`.  By default this process will block the console
 but you can start the process detatched with the `&` operator:
 
 ```
@@ -65,7 +72,7 @@ python3 ./ner_daemon_spacy.py &
 
 You can test that the service is running with the test script:
 ```
-python3.9 test_ner_daemon_spacy.py
+python3 ./test_ner_daemon_spacy.py
 ```
 
 ## Invocation
