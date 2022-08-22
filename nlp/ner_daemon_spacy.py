@@ -149,7 +149,7 @@ class ThreadedServer(object):
         self.sock.bind((self.host, self.port))
         self.nlp_list = []
         for model in spacy_model_list:
-            self.nlp_list.append( spacy.load(model, disable=["tagger", "parser"]) )
+            self.nlp_list.append( spacy.load(model, disable=["tagger", "parser", "lemmatizer"]) )
         self.lock = threading.Lock()
         logging.debug(f'Initialised, with model {spacy_model_list}')
 
