@@ -75,6 +75,8 @@ You can test that the service is running with the test script:
 python3 ./test_ner_daemon_spacy.py
 ```
 
+The default listening port for the script is `1882` but you can specify a different one with `-p someport`
+
 ## Invocation
 
 IsIdentifiable can be run from the [ii] command line tool:
