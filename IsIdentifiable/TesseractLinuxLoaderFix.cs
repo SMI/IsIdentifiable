@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using HarmonyLib;
@@ -34,15 +35,16 @@ public class TesseractLinuxLoaderFix {
 
   private static bool LoadLibraryPatch(string fileName, string platformName, ref IntPtr __result)
   {
+    var fullPath = $"{AppDomain.CurrentDomain.BaseDirectory}/runtimes/linux-x64/native/lib{fileName}.so";
     try {
-      __result = UnixLoadLibrary($"{AppDomain.CurrentDomain.BaseDirectory}/runtimes/linux-x64/lib{fileName}.so",2);
+      __result = UnixLoadLibrary(fullPath,2);
     } catch (EntryPointNotFoundException) {
-      __result = DLLoadLibrary($"{AppDomain.CurrentDomain.BaseDirectory}/runtimes/linux-x64/lib{fileName}.so",2);
+      __result = DLLoadLibrary(fullPath,2);
     }
-    if (__result==IntPtr.Zero)
-      Console.Error.WriteLine($"Failed to load '{AppDomain.CurrentDomain.BaseDirectory}/x64/lib{fileName}.so'");
-    else
-      loadedAssemblies.Add(fileName,__result);
+
+    if (__result == IntPtr.Zero)
+      throw new DllNotFoundException($"Failed to load '{fullPath}' - {(File.Exists(fullPath)?"exists but could not load":"file missing")}");
+    loadedAssemblies.Add(fileName,__result);
     return false;
   }
 
