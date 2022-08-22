@@ -4,6 +4,7 @@ on:
   [push]
 
 env:
+  DOTNET_NOLOGO: true
   MSSQL_SA_PASSWORD: "YourStrong!Passw0rd"
   ACCEPT_EULA: "Y"
   MSSQL_PID: "developer"
