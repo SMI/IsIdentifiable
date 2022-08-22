@@ -47,6 +47,8 @@ get the most out of it you will want to use one of the Natural Language Processi
 There are 2 daemons supplied but it is easy to write your own.  Daemons listen on a local or remote
 port and are passed data for classification as it is streamed.
 
+After starting the classifier(s) you must configure either a [Socket Rule](#socket-rules) or [Consensus Rule](#consensus-rules)
+
 ### SpaCy Classifier
 
 To use the SpaCy classifier you will need Python 3 and the SpaCy library
