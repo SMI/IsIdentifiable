@@ -8,6 +8,7 @@ Primary Author: [Thomas](https://github.com/tznind)
  1. [Optional Downloads](#optional-downloads)
  1. [NLP](#nlp)
     1. [SpaCy Classifier](#spacy-classifier)
+    2. [Stanford Classifier](#stanford-classifier)
  1. [Invocation](#invocation)
  1. [Examples](#examples)
  1. [Rules](#rules) 
@@ -77,7 +78,7 @@ python3 ./test_ner_daemon_spacy.py
 
 The default listening port for the script is `1882` but you can specify a different one with `-p someport`
 
-### Stanford NER
+### Stanford Classifier
 
 The second classifier provided out of the box is a wrapper for [Stanford NER](https://nlp.stanford.edu/software/CRF-NER.html).  
 
