@@ -83,7 +83,7 @@ public class NuspecIsCorrectTests
                 found = false;
                 foreach (string line in File.ReadAllLines(packagesMarkdown))
                 {
-                    if (Regex.IsMatch(line, $@"[\s[]{Regex.Escape(package)}[\s\]]", RegexOptions.IgnoreCase))
+                    if (Regex.IsMatch(line, $@"\|\s*[\s[]{Regex.Escape(package)}[\s\]]", RegexOptions.IgnoreCase))
                     {
                         int count = new Regex(Regex.Escape(version)).Matches(line).Count;
 

@@ -4,6 +4,7 @@ on:
   [push]
 
 env:
+  DOTNET_NOLOGO: true
   MSSQL_SA_PASSWORD: "YourStrong!Passw0rd"
   ACCEPT_EULA: "Y"
   MSSQL_PID: "developer"
@@ -29,12 +30,6 @@ jobs:
     - name: Disable disk flushing on CI
       run: sudo apt-get install -y libeatmydata1
     - uses: actions/checkout@v3
-    - uses: actions/cache@v3
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v2
       with:

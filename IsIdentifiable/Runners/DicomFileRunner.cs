@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using FellowOakDicom;
 using FellowOakDicom.Imaging;
-using FellowOakDicom.Imaging.ImageSharp;
 using DicomTypeTranslation;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
@@ -16,7 +15,6 @@ using IsIdentifiable.Reporting.Reports;
 using NLog;
 using Tesseract;
 using ImageMagick;
-using Microsoft.Extensions.DependencyInjection;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 
@@ -104,6 +102,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
             if (!languageFile.Exists)
                 throw new FileNotFoundException($"Could not find tesseract models file ('{languageFile.FullName}')",languageFile.FullName);
 
+            TesseractLinuxLoaderFix.Patch();
             _tesseractEngine = new TesseractEngine(dir.FullName, "eng", EngineMode.Default)
             {
                 DefaultPageSegMode = PageSegMode.Auto
