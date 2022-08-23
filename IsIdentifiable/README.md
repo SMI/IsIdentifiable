@@ -6,6 +6,9 @@ Primary Author: [Thomas](https://github.com/tznind)
  1. [Overview](#overview)
  1. [Setup](#setup)
  1. [Optional Downloads](#optional-downloads)
+ 1. [NLP](#nlp)
+    1. [SpaCy Classifier](#spacy-classifier)
+    2. [Stanford Classifier](#stanford-classifier)
  1. [Invocation](#invocation)
  1. [Examples](#examples)
  1. [Rules](#rules) 
@@ -36,6 +39,61 @@ The following optional download expand the capabilities of the software:
 _*Only required for DICOM pixel text detection_
 _**Only required for NLP NERDaemon_
  
+## NLP
+
+IsIdentifiable has some basic rules based on regular expressions (Postcode, Dates etc) but to
+get the most out of it you will want to use one of the Natural Language Processing (NLP) daemons.
+
+There are 2 daemons supplied but it is easy to write your own.  Daemons listen on a local or remote
+port and are passed data for classification as it is streamed.
+
+After starting the classifier(s) you must configure either a [Socket Rule](#socket-rules) or [Consensus Rule](#consensus-rules)
+
+### SpaCy Classifier
+
+To use the SpaCy classifier you will need Python 3 and the SpaCy library
+
+```
+sudo apt-get install python3.9
+pip install -U spacy
+pip install pyyaml
+```
+
+Next run [ner_daemon_spacy.py](../nlp/ner_daemon_spacy.py).  Use the `-d` flag the first time to fetch the language model:
+
+```
+cd ./nlp/
+python3 ./ner_daemon_spacy.py -d en_core_web_md
+```
+
+After the download completes you can start the NLP by without `-d`.  By default this process will block the console
+but you can start the process detatched with the `&` operator:
+
+```
+python3 ./ner_daemon_spacy.py &
+```
+
+You can test that the service is running with the test script:
+```
+python3 ./test_ner_daemon_spacy.py
+```
+
+The default listening port for the script is `1882` but you can specify a different one with `-p someport`
+
+### Stanford Classifier
+
+The second classifier provided out of the box is a wrapper for [Stanford NER](https://nlp.stanford.edu/software/CRF-NER.html).  
+
+To use this classifier download the latest `smi-nerd.x.x.x.jar` binary from the [IsIdentifiable GitHub Releases](https://github.com/SMI/IsIdentifiable/releases/).  You will also need to install the Java runtime.
+
+Start the service with:
+```
+java -jar ./smi-nerd-0.0.6.jar
+```
+_Use the version number that matches the jar you downloaded.  Add & at the end to detatch the console (prevents blocking)_
+
+This classifier listens on port `1881`
+
 ## Invocation
 
 IsIdentifiable can be run from the [ii] command line tool:
