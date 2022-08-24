@@ -13,6 +13,7 @@
 ## Added
 
 - Added new command line flag `-y somefile.yaml` in `ii` CLI tool to specify a custom config file
+- Progress is now logged to Trace and enabled by default in `ii`.  Library users can enable this feature by setting `LogProgressEvery` (defaults to null)
 
 ## Changed
 

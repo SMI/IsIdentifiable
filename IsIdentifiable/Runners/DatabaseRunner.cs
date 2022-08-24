@@ -33,6 +33,7 @@ public class DatabaseRunner : IsIdentifiableAbstractRunner
     public DatabaseRunner(IsIdentifiableRelationalDatabaseOptions opts) : base(opts)
     {
         _opts = opts;
+        LogProgressNoun = "records";
     }
 
     /// <summary>
@@ -48,7 +49,6 @@ public class DatabaseRunner : IsIdentifiableAbstractRunner
         _factory = new DatabaseFailureFactory(tbl);
 
         _columns = tbl.DiscoverColumns();
-        Int64 numRows = tbl.GetRowCount();
         _columnsNames = _columns.Select(c => c.GetRuntimeName()).ToArray();
         _stringColumns = _columns.Select(c => c.GetGuesser().Guess.CSharpType == typeof(string)).ToArray();
 
@@ -70,9 +70,9 @@ public class DatabaseRunner : IsIdentifiableAbstractRunner
             {
                 AddToReports(failure);
                 rowNum++;
-                if (rowNum % 1000 == 0)
+
+                if (rowNum % 10000 == 0)
                 {
-                    _logger.Info($"Completed {(rowNum * 1.0 / numRows) * 100}%");
                     GC.Collect(); // lgtm[cs/call-to-gc]
                 }
             }
