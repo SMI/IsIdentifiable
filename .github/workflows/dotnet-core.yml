@@ -69,6 +69,13 @@ jobs:
         printf "University of Dundee\0Fred Bloggs\0Ninewells Hospital\0person\0woman\0man\0camera\0tv\0" | nc -N 127.0.0.1 1881
         kill $!
         mkdir -p ../../release
+        dotnet publish --self-contained --nologo -r linux-x64 -o smi-nerd-linux-$(fgrep AssemblyVersion ../../SharedAssemblyInfo.cs | cut -d'"' -f2)
+        dotnet publish --self-contained --nologo -r win-x64 -o smi-nerd-win-$(fgrep AssemblyVersion ../../SharedAssemblyInfo.cs | cut -d'"' -f2)
+        tar czf smi-nerd-linux-$(fgrep AssemblyVersion ../../SharedAssemblyInfo.cs | cut -d'"' -f2).tar.gz smi-nerd-linux-$(fgrep AssemblyVersion ../../SharedAssemblyInfo.cs | cut -d'"' -f2)
+        cd smi-nerd-win-$(fgrep AssemblyVersion ../../SharedAssemblyInfo.cs | cut -d'"' -f2)
+        zip -9r ../smi-nerd-win-$(fgrep AssemblyVersion ../../../SharedAssemblyInfo.cs | cut -d'"' -f2).zip .
+        cd -
+        mv smi-nerd-*.tar.gz smi-nerd-*.zip ../../release/
         mv target/nerd-0.0.1-SNAPSHOT.jar ../../release/smi-nerd-$(fgrep AssemblyVersion ../../SharedAssemblyInfo.cs | cut -d'"' -f2).jar
     - name: Package ii binary
       run: |
