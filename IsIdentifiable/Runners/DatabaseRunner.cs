@@ -49,7 +49,6 @@ public class DatabaseRunner : IsIdentifiableAbstractRunner
         _factory = new DatabaseFailureFactory(tbl);
 
         _columns = tbl.DiscoverColumns();
-        Int64 numRows = tbl.GetRowCount();
         _columnsNames = _columns.Select(c => c.GetRuntimeName()).ToArray();
         _stringColumns = _columns.Select(c => c.GetGuesser().Guess.CSharpType == typeof(string)).ToArray();
 

@@ -581,7 +581,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         if (LogProgressEvery == null && !force)
             return;
 
-        if(progress % LogProgressEvery.Value == 0 || force)
+        if(force || progress % LogProgressEvery.Value == 0)
         {
             _logger.Log(LogProgressLevel, $"Done {progress} {LogProgressNoun}");
         }        
