@@ -206,7 +206,12 @@ class AllRulesManagerView : View, ITreeBuilder<object>
 
             if (!string.IsNullOrWhiteSpace(_analyserOpts?.RulesFile))
             {
-                yield return new RuleSetFileNode(new FileInfo(_analyserOpts.RulesFile));
+                var file = new FileInfo(_analyserOpts.RulesFile);
+                
+                if (file.Exists)
+                {
+                    yield return new RuleSetFileNode(file);
+                }
             }
         }
         if (ReferenceEquals(forObject,Reviewer))
