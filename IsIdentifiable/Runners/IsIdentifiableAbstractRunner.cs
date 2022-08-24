@@ -195,13 +195,24 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
             foreach (string c in _opts.SkipColumns.Split(','))
                 _skipColumns.Add(c);
 
+        // is there a single rules yaml file specified?
         if (!string.IsNullOrWhiteSpace(opts.RulesFile))
         {
             var fi = new FileInfo(_opts.RulesFile);
             if (fi.Exists)
+            {
                 LoadRules(File.ReadAllText(fi.FullName));
+            }   
             else
-                throw new Exception($"Error reading {_opts.RulesFile}");
+            {
+                // file specified did not exist... but that's ok if it's the default (Rules.yaml)
+                if (_opts.RulesFile != IsIdentifiableBaseOptions.DefaultRulesFile)
+                {
+                    throw new Exception($"Error reading {_opts.RulesFile}");
+                }
+            }
+                
+                    
         }
 
         if (!string.IsNullOrWhiteSpace(opts.RulesDirectory))

@@ -2,6 +2,12 @@
 
 # [Unreleased]
 
+...
+
+## Added
+
+- Made `--rulesfile` CLI argument default to `Rules.yaml`
+
 # [0.0.6] - 2022-08-17
 
 ## Added
