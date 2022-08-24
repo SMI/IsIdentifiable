@@ -4,9 +4,18 @@
 
 ...
 
+# [0.0.7] - 2022-08-24
+
 ## Added
 
 - Made `--rulesfile` CLI argument default to `Rules.yaml`
+- Added TRACE progress logging to `ii` CLI tool
+- Stanford NLP daemon now runs self contained
+- Bump HIC.FAnsiSql from 2.0.4 to 2.0.5
+
+## Fixed
+
+- Fixed missing dlls for running Tesseract OCR on linux
 
 # [0.0.6] - 2022-08-17
 
@@ -60,7 +69,8 @@
 
 Initial version
 
-[Unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.0.6..main
+[Unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.0.7..main
+[0.0.7]: https://github.com/SMI/IsIdentifiable/compare/v0.0.6..v0.0.7
 [0.0.6]: https://github.com/SMI/IsIdentifiable/compare/v0.0.5..v0.0.6
 [0.0.5]: https://github.com/SMI/IsIdentifiable/compare/v0.0.4..v0.0.5
 [0.0.4]: https://github.com/SMI/IsIdentifiable/compare/v0.0.3..v0.0.4
