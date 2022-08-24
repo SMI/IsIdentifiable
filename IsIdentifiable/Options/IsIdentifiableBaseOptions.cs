@@ -118,11 +118,16 @@ public class IsIdentifiableBaseOptions
     public const int MaxCacheSizeDefault = 10000;
 
     /// <summary>
+    /// Default value for <see cref="RulesFile"/>.
+    /// </summary>
+    public const string DefaultRulesFile = "Rules.yaml";
+
+    /// <summary>
     /// Optional. Filename of additional rules in yaml format.  See also <see cref="RulesDirectory"/> to use multiple
     /// seperate yaml files for rules
     /// </summary>
-    [Option(HelpText = "Optional. Filename of additional rules in yaml format.")]
-    public string RulesFile { get; set; }
+    [Option(HelpText = "Optional. Filename of additional rules in yaml format.", Default = DefaultRulesFile)]
+    public string RulesFile { get; set; } = DefaultRulesFile;
 
     /// <summary>
     /// Optional. Directory of additional rules in yaml format.
@@ -240,7 +245,8 @@ public class IsIdentifiableBaseOptions
         if (MaxCacheSize == MaxCacheSizeDefault && globalOpts.MaxCacheSize.HasValue)
             MaxCacheSize = globalOpts.MaxCacheSize.Value;
 
-        if (string.IsNullOrWhiteSpace(RulesFile))
+        // if globals specifies a RulesFile and our instance has the default or empty
+        if (!string.IsNullOrWhiteSpace(globalOpts.RulesFile) && (string.IsNullOrWhiteSpace(RulesFile) || RulesFile == DefaultRulesFile))
             RulesFile = globalOpts.RulesFile;
 
         if (string.IsNullOrWhiteSpace(RulesDirectory))
