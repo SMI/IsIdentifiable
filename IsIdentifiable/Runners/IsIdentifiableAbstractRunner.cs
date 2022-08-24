@@ -134,7 +134,8 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     private Stopwatch _lifetime { get; }
 
     /// <summary>
-    /// Set this to a positive number to output on Trace about the 
+    /// Set this to a positive number to output on <see cref="LogProgressLevel"/> about the number
+    /// of <see cref="LogProgressNoun"/> done
     /// </summary>
     public int? LogProgressEvery = null;
 
