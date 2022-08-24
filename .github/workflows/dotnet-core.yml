@@ -73,7 +73,7 @@ jobs:
         dotnet publish -r win-x64 -o smi-nerd-win-$(fgrep AssemblyVersion ../../SharedAssemblyInfo.cs | cut -d'"' -f2)
         tar czf smi-nerd-linux-$(fgrep AssemblyVersion ../../SharedAssemblyInfo.cs | cut -d'"' -f2).tar.gz smi-nerd-linux-$(fgrep AssemblyVersion ../../SharedAssemblyInfo.cs | cut -d'"' -f2)
         cd smi-nerd-win-$(fgrep AssemblyVersion ../../SharedAssemblyInfo.cs | cut -d'"' -f2)
-        zip -9r smi-nerd-win-$(fgrep AssemblyVersion ../../SharedAssemblyInfo.cs | cut -d'"' -f2).zip .
+        zip -9r smi-nerd-win-$(fgrep AssemblyVersion ../../../SharedAssemblyInfo.cs | cut -d'"' -f2).zip .
         cd -
         mv smi-nerd-*.tar.gz smi-nerd-*.zip ../../release/
         mv target/nerd-0.0.1-SNAPSHOT.jar ../../release/smi-nerd-$(fgrep AssemblyVersion ../../SharedAssemblyInfo.cs | cut -d'"' -f2).jar
