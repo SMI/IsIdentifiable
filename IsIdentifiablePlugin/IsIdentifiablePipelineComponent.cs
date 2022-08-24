@@ -132,12 +132,12 @@ class CustomRunner : IsIdentifiableAbstractRunner
 
                     AddToReports(f);
                 }
-                
-            }
-        }
 
-        // Record progress
-        DoneRows(dt.Rows.Count);
+            }
+
+            // Record progress
+            DoneRows(1);
+        }
     }
     public override void Dispose()
     {

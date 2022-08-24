@@ -71,6 +71,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     {
         _opts = opts;
         _ignoreTextLessThan = opts.IgnoreTextLessThan;
+        LogProgressNoun = "files";
 
         //if using Efferent.Native DICOM codecs
         // (see https://github.com/Efferent-Health/Dicom-native)

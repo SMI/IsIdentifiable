@@ -63,6 +63,8 @@ public class MongoRunner : IsIdentifiableAbstractRunner
         _logger = LogManager.GetLogger(GetType().Name);
         _opts = opts;
 
+        LogProgressNoun = "documents";
+
         if (opts.TreeReport)
         {
             _treeReport = new TreeFailureReport(opts.GetTargetName());

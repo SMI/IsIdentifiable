@@ -16,6 +16,7 @@ using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using YamlDotNet.Serialization;
 using IsIdentifiable.Reporting;
+using System.Threading;
 
 namespace IsIdentifiable.Runners;
 
@@ -105,32 +106,55 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// <summary>
     /// One cache per field in the data being evaluated, records the recent values passed to <see cref="Validate(string, string)"/> and the results to avoid repeated lookups
     /// </summary>
-    public ConcurrentDictionary<string,MemoryCache> Caches {get;set;} = new ConcurrentDictionary<string, MemoryCache>();
+    public ConcurrentDictionary<string, MemoryCache> Caches { get; set; } = new ConcurrentDictionary<string, MemoryCache>();
 
     /// <summary>
     /// The maximum size of a Cache before we clear it out to prevent running out of RAM
     /// </summary>
-    public int MaxValidationCacheSize  {get;set;}
-        
+    public int MaxValidationCacheSize { get; set; }
+
     /// <summary>
     /// Total number of calls to <see cref="Validate(string, string)"/> that were returned from the cache
     /// </summary>
-    public long ValidateCacheHits {get;set;}
+    public long ValidateCacheHits { get; set; }
 
     /// <summary>
     /// Total number of calls to <see cref="Validate(string, string)"/> that were missing from the cache and run directly
     /// </summary>
-    public long ValidateCacheMisses {get;set;}
+    public long ValidateCacheMisses { get; set; }
 
     /// <summary>
     /// Total number of <see cref="FailurePart"/> identified during lifetime (see <see cref="Validate(string, string)"/>)
     /// </summary>
-    public int CountOfFailureParts {get;protected set;}
+    public int CountOfFailureParts { get; protected set; }
 
     /// <summary>
     /// Duration the class has existed for
     /// </summary>
-    private Stopwatch _lifetime {get;}
+    private Stopwatch _lifetime { get; }
+
+    /// <summary>
+    /// Set this to a positive number to output on <see cref="LogProgressLevel"/> about the number
+    /// of <see cref="LogProgressNoun"/> done
+    /// </summary>
+    public int? LogProgressEvery = null;
+
+    /// <summary>
+    /// Set the level for progress messages (e.g. done x records).  Note that you must
+    /// also set <see cref="LogProgressEvery"/> for this to take effect
+    /// </summary>
+    public LogLevel LogProgressLevel = LogLevel.Trace;
+
+    /// <summary>
+    /// The unit of operation e.g. "rows", "records", "files" when reporting progress
+    /// </summary>
+    public string LogProgressNoun { get; protected set; } = "items";
+
+    /// <summary>
+    /// Cumulative total of completed items (see <see cref="LogProgressNoun"/>).  Dependent
+    /// on subclasses correctly calling <see cref="DoneRows(int)"/>
+    /// </summary>
+    private long _done;
 
     /// <summary>
     /// Creates an instance and sets up <see cref="Reports"/> and output formats as specified
@@ -171,13 +195,24 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
             foreach (string c in _opts.SkipColumns.Split(','))
                 _skipColumns.Add(c);
 
+        // is there a single rules yaml file specified?
         if (!string.IsNullOrWhiteSpace(opts.RulesFile))
         {
             var fi = new FileInfo(_opts.RulesFile);
             if (fi.Exists)
+            {
                 LoadRules(File.ReadAllText(fi.FullName));
+            }   
             else
-                throw new Exception($"Error reading {_opts.RulesFile}");
+            {
+                // file specified did not exist... but that's ok if it's the default (Rules.yaml)
+                if (_opts.RulesFile != IsIdentifiableBaseOptions.DefaultRulesFile)
+                {
+                    throw new Exception($"Error reading {_opts.RulesFile}");
+                }
+            }
+                
+                    
         }
 
         if (!string.IsNullOrWhiteSpace(opts.RulesDirectory))
@@ -460,6 +495,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     {
         Reports.ForEach(r => r.Add(f));
     }
+    
 
     /// <summary>
     /// Tells all selected reports that the <paramref name="numberOfRowsDone"/> have been processed (this is a += operation 
@@ -468,6 +504,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// <param name="numberOfRowsDone">Number of rows done since the last call to this method</param>
     protected void DoneRows(int numberOfRowsDone)
     {
+        LogProgress(Interlocked.Add(ref _done, numberOfRowsDone),false);
         Reports.ForEach(r => r.DoneRows(numberOfRowsDone));
     }
 
@@ -478,6 +515,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     protected void CloseReports()
     {
         Reports.ForEach(r => r.CloseReport());
+        LogProgress(_done, true);
     }
 
     private IAllowlistSource GetAllowlistSource()
@@ -540,6 +578,24 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
             throw new Exception("No current database");
 
         return db;
+    }
+
+
+    /// <summary>
+    /// Logs how many records have been done if <see cref="LogProgressEvery"/> matches
+    /// a tick in <paramref name="progress"/>.
+    /// </summary>
+    /// <param name="progress">How many have you done so far?</param>
+    /// <param name="force">True to ignore whether <paramref name="progress"/> is a multiple of <see cref="LogProgressEvery"/></param>
+    private void LogProgress(long progress, bool force)
+    {
+        if (LogProgressEvery == null && !force)
+            return;
+
+        if(force || progress % LogProgressEvery.Value == 0)
+        {
+            _logger.Log(LogProgressLevel, $"Done {progress} {LogProgressNoun}");
+        }        
     }
 
     /// <summary>
