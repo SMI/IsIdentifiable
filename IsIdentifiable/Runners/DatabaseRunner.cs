@@ -33,6 +33,7 @@ public class DatabaseRunner : IsIdentifiableAbstractRunner
     public DatabaseRunner(IsIdentifiableRelationalDatabaseOptions opts) : base(opts)
     {
         _opts = opts;
+        LogProgressNoun = "records";
     }
 
     /// <summary>
@@ -70,9 +71,9 @@ public class DatabaseRunner : IsIdentifiableAbstractRunner
             {
                 AddToReports(failure);
                 rowNum++;
-                if (rowNum % 1000 == 0)
+
+                if (rowNum % 10000 == 0)
                 {
-                    _logger.Info($"Completed {(rowNum * 1.0 / numRows) * 100}%");
                     GC.Collect(); // lgtm[cs/call-to-gc]
                 }
             }
