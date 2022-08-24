@@ -181,7 +181,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
             }   
             else
             {
-                // file specified did not exist... but that's ok if its the default (Rules.yaml)
+                // file specified did not exist... but that's ok if it's the default (Rules.yaml)
                 if (_opts.RulesFile != IsIdentifiableBaseOptions.DefaultRulesFile)
                 {
                     throw new Exception($"Error reading {_opts.RulesFile}");
