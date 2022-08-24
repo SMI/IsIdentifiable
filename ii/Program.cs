@@ -137,7 +137,8 @@ public static class Program
 
         using var runner = new DicomFileRunner(opts)
         {
-            ThrowOnError = false
+            ThrowOnError = false,
+            LogProgressEvery = 1000
         };
         return runner.Run();
     }
@@ -151,21 +152,30 @@ public static class Program
 
         Inherit(opts);
 
-        using var runner = new DatabaseRunner(opts);
+        using var runner = new DatabaseRunner(opts)
+        {
+            LogProgressEvery = 1000
+        };
         return runner.Run();
     }
     private static int Run(IsIdentifiableFileOptions opts)
     {
         Inherit(opts);
 
-        using var runner = new FileRunner(opts);
+        using var runner = new FileRunner(opts)
+        {
+            LogProgressEvery = 1000
+        };
         return runner.Run();
     }
     private static int Run(IsIdentifiableMongoOptions opts)
     {
         Inherit(opts);
 
-        using var runner = new MongoRunner(opts);
+        using var runner = new MongoRunner(opts)
+        {
+            LogProgressEvery = 1000
+        };
         return runner.Run();
     }
     private static void Inherit(IsIdentifiableReviewerOptions opts)

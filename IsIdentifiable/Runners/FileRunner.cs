@@ -27,6 +27,7 @@ public class FileRunner : IsIdentifiableAbstractRunner
     public FileRunner(IsIdentifiableFileOptions opts) : base(opts)
     {
         _opts = opts;
+        LogProgressNoun = "rows";
     }
 
     /// <summary>
