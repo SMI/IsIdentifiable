@@ -144,7 +144,7 @@ public class ReviewerRunner
 
                 var top = Application.Top;
 
-                var mainWindow = new MainWindow(_analyserOpts, _reviewerOptions, ignorer, updater);
+                var mainWindow = new MainWindow(_analyserOpts ?? new IsIdentifiableBaseOptions(), _reviewerOptions, ignorer, updater);
 
 
                 // Creates the top-level window to show
