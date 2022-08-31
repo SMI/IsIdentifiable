@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HIC.RDMP.Plugin" Version="7.0.17" />
+    <PackageReference Include="HIC.RDMP.Plugin" Version="7.0.18" />
   </ItemGroup>
 
   <ItemGroup>
