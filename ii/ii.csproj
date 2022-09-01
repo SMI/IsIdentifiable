@@ -11,7 +11,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="ExampleReport.csv" />
-    <None Remove="Targets.yaml" />
+    <None Remove="Targets.template.yaml" />
     <None Remove="theme.yaml" />
   </ItemGroup>
   <ItemGroup>
@@ -21,7 +21,7 @@
     <Content Include="ExampleReport.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Targets.yaml">
+    <Content Include="Targets.template.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="theme.yaml">

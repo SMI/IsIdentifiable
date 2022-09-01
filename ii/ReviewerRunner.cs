@@ -34,26 +34,40 @@ public class ReviewerRunner
         {
             var file = new FileInfo(_reviewerOptions.TargetsFile);
 
+            // file does not exist
             if (!file.Exists)
             {
-                logger.Error($"Could not find '{file.FullName}'");
-                return 1;
+                if(_reviewerOptions.TargetsFile != IsIdentifiableReviewerOptions.TargetsFileDefault)
+                {
+                    logger.Error($"Could not find '{file.FullName}'");
+                    return 1;
+                }
+                else
+                {
+                    // theres no Targets.yaml file but since that's the default
+                    // we should just disable database stuff
+                    _reviewerOptions.OnlyRules = true;
+                    targets = new List<Target>();
+                }
             }
-
-            var contents = File.ReadAllText(file.FullName);
-
-            if (string.IsNullOrWhiteSpace(contents))
+            else
             {
-                logger.Error($"Targets file is empty '{file.FullName}'");
-                return 2;
-            }
+                // there is a Targets file, read it
+                var contents = File.ReadAllText(file.FullName);
 
-            targets = d.Deserialize<List<Target>>(contents);
+                if (string.IsNullOrWhiteSpace(contents))
+                {
+                    logger.Error($"Targets file is empty '{file.FullName}'");
+                    return 2;
+                }
 
-            if (!targets.Any())
-            {
-                logger.Error($"Targets file did not contain any valid targets '{file.FullName}'");
-                return 3;
+                targets = d.Deserialize<List<Target>>(contents);
+
+                if (!targets.Any())
+                {
+                    logger.Error($"Targets file did not contain any valid targets '{file.FullName}'");
+                    return 3;
+                }
             }
         }
         catch (Exception e)

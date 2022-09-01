@@ -12,7 +12,10 @@ namespace IsIdentifiable.Options;
 [Verb("review", HelpText = "Review or redact the StoreReport output of an IsIdentifiable run")]
 public class IsIdentifiableReviewerOptions
 {
-    private const string DefaultTargets = "Targets.yaml";
+    /// <summary>
+    /// Default value for <see cref="TargetsFile"/>
+    /// </summary>
+    public const string TargetsFileDefault = "Targets.yaml";
 
     /// <summary>
     /// The CSV list of failures to process.  Must be in the format of a <see cref="FailureStoreReport"/>
@@ -37,10 +40,10 @@ public class IsIdentifiableReviewerOptions
     /// </summary>
     [Option('t', "targets",
         Required = false,
-        Default = DefaultTargets,
+        Default = TargetsFileDefault,
         HelpText = "Location of database connection strings file (for issuing UPDATE statements)"
     )]
-    public string TargetsFile { get; set; } = DefaultTargets;
+    public string TargetsFile { get; set; } = TargetsFileDefault;
 
     /// <summary>
     /// File containing rules for ignoring PII during redaction
@@ -97,7 +100,7 @@ public class IsIdentifiableReviewerOptions
             throw new ArgumentNullException(nameof(globalOpts));
 
         // if we don't have a value for it yet
-        if (string.IsNullOrWhiteSpace(TargetsFile) || TargetsFile == DefaultTargets)
+        if (string.IsNullOrWhiteSpace(TargetsFile) || TargetsFile == TargetsFileDefault)
             // and global configs has got a value for it
             if (!string.IsNullOrWhiteSpace(globalOpts.TargetsFile))
                 TargetsFile = globalOpts.TargetsFile; // use the globals config value

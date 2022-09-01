@@ -10,6 +10,10 @@
 - You can now pass a directory name to the `file` verb to process all csv files in that directory.
 - Added `-g` option to the `file` verb to process multiple csv files e.g. `**/*.csv`.  This option is only valid when specifying a directory for `-f`
 
+## Fixed
+
+- IsIdentifiable reviewer no longer complains when `Targets.yaml` is missing
+
 # [0.0.7] - 2022-08-24
 
 ## Added
