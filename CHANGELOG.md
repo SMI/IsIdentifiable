@@ -8,6 +8,8 @@
 
 - New flag `--top` to only run on a subset of the data available (e.g. `top 1000`).  Currently only supported by relational database and csv runners
 - Added ability to ignore whole columns in reviewer by pressing `Del` on the column and confirming
+- You can now pass a directory name to the `file` verb to process all csv files in that directory.
+- Added `-g` option to the `file` verb to process multiple csv files e.g. `**/*.csv`.  This option is only valid when specifying a directory for `-f`
 
 ## Fixed
 
