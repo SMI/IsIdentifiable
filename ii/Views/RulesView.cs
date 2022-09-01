@@ -133,10 +133,19 @@ class RulesView : View
                 case Key.DeleteChar:
 
                     var all = _treeView.GetAllSelectedObjects().ToArray();
+                    var single = _treeView.SelectedObject;
 
-                    var crn = _treeView.SelectedObject as CollidingRulesNode;
+                    var crn = single as CollidingRulesNode;
                     if(crn!=null && all.Length == 1)
+                    {
                         Delete(crn);
+                    }
+
+                    var fgn = single as FailureGroupingNode;
+                    if(fgn!= null && all.Length == 1)
+                    {
+                        Delete(fgn);
+                    }
 
                     var usages = all.OfType<RuleUsageNode>().ToArray();
                     if (usages.Any())
@@ -180,6 +189,35 @@ class RulesView : View
             
     }
 
+    private void Delete(FailureGroupingNode fgn)
+    {
+        if (Ignorer == null || Updater == null)
+            return;
+
+        var answer = MessageBox.Query("Ignore All Failures?", $"Ignore all failures in column/tag '{fgn.Group}'?", "Yes", "No");
+
+        // yes they really do want to ignore all errors in this col!
+        if (answer == 0)
+        {
+            var rule = new IsIdentifiableRule
+            {
+                IfColumn = fgn.Group,
+                Action = RuleAction.Ignore,
+            };
+
+            var result = Ignorer.Add(rule);
+
+            // did that rule already exist
+            if(!ReferenceEquals(result, rule))
+            {
+                MessageBox.ErrorQuery("Rule already exists", $"There is already an ignore rule for this column", "Ok");
+            }
+
+            // ignoring now yay
+            fgn.Children.Clear();
+            _treeView.RefreshObject(fgn, true);
+        }
+    }
     private void Delete(CollidingRulesNode crn)
     {
         if(Ignorer == null || Updater == null)

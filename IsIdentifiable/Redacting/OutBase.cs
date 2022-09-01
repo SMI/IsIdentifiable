@@ -89,6 +89,18 @@ public abstract class OutBase
                     f.Parts.Select(p => p.Classification).FirstOrDefault()
         };
 
+        return Add(rule);
+    }
+
+    /// <summary>
+    /// Serializes <paramref name="rule"/> into the rules base if it is novel (not identical to any
+    /// other rules.
+    /// </summary>
+    /// <param name="rule"></param>
+    /// <returns>The <paramref name="rule"/> passed or the existing identical rule if one already exists
+    /// in rules base</returns>
+    public IsIdentifiableRule Add(IsIdentifiableRule rule)
+    {
         //don't add identical rules
         if (Rules.Any(r => r.AreIdentical(rule)))
             return rule;

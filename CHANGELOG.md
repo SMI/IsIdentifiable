@@ -4,6 +4,10 @@
 
 ...
 
+## Added
+
+- Added ability to ignore whole columns in reviewer by pressing `Del` on the column and confirming
+
 # [0.0.7] - 2022-08-24
 
 ## Added
