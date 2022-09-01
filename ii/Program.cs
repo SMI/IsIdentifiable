@@ -198,7 +198,7 @@ public static class Program
         {
             Matcher matcher = new();
             matcher.AddInclude(opts.Glob);
-            int result = 0;
+            result = 0;
 
             foreach (var match in matcher.GetResultsInFullPath(opts.File))
             {
