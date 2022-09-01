@@ -7,6 +7,7 @@
 ## Added
 
 - Added ability to ignore whole columns in reviewer by pressing `Del` on the column and confirming
+- Support for naming servers in `Targets.yaml` for main `ii` binary instead of connection strings (e.g. `-d myserver` for running on relational dbs)
 
 ## Fixed
 

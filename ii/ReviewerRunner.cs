@@ -26,55 +26,12 @@ public class ReviewerRunner
     /// <returns></returns>
     public int Run()
     {
-        Deserializer d = new Deserializer();
-        List<Target> targets;
         var logger = NLog.LogManager.GetCurrentClassLogger();
 
-        try
-        {
-            var file = new FileInfo(_reviewerOptions.TargetsFile);
-
-            // file does not exist
-            if (!file.Exists)
-            {
-                if(_reviewerOptions.TargetsFile != IsIdentifiableReviewerOptions.TargetsFileDefault)
-                {
-                    logger.Error($"Could not find '{file.FullName}'");
-                    return 1;
-                }
-                else
-                {
-                    // theres no Targets.yaml file but since that's the default
-                    // we should just disable database stuff
-                    _reviewerOptions.OnlyRules = true;
-                    targets = new List<Target>();
-                }
-            }
-            else
-            {
-                // there is a Targets file, read it
-                var contents = File.ReadAllText(file.FullName);
-
-                if (string.IsNullOrWhiteSpace(contents))
-                {
-                    logger.Error($"Targets file is empty '{file.FullName}'");
-                    return 2;
-                }
-
-                targets = d.Deserialize<List<Target>>(contents);
-
-                if (!targets.Any())
-                {
-                    logger.Error($"Targets file did not contain any valid targets '{file.FullName}'");
-                    return 3;
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            logger.Error(e, $"Error deserializing '{_reviewerOptions.TargetsFile}'");
-            return 4;
-        }
+        int returnCode = IsIdentifiableBaseOptions.LoadTargets(_reviewerOptions,logger, out var targets);
+        
+        if (returnCode != 0)
+            return returnCode;
 
         if (_reviewerOptions.OnlyRules)
             logger.Info("Skipping Connection Tests");
@@ -205,4 +162,5 @@ public class ReviewerRunner
             Application.Shutdown();
         }
     }
+
 }

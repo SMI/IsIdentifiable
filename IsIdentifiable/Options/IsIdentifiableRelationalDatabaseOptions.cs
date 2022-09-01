@@ -1,7 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using CommandLine;
 using CommandLine.Text;
 using FAnsi;
+using IsIdentifiable.Redacting;
+using NLog;
 
 namespace IsIdentifiable.Options;
 
@@ -64,5 +68,32 @@ public class IsIdentifiableRelationalDatabaseOptions : IsIdentifiableBaseOptions
     public override string GetTargetName()
     {
         return TableName;
+    }
+
+    /// <summary>
+    /// Updates all base class connection strings and <see cref="DatabaseConnectionString"/> to use
+    /// named servers if specified
+    /// </summary>
+    /// <param name="targets"></param>
+    /// <returns></returns>
+    public override int UpdateConnectionStringsToUseTargets(out List<Target> targets)
+    {
+        var logger = LogManager.GetCurrentClassLogger();
+        int result = base.UpdateConnectionStringsToUseTargets(out targets);
+
+        if (result != 0)
+            return result;
+
+
+        // see if user passed the name of a target for DatabaseConnectionString (server to query for data)
+        var db = targets.FirstOrDefault(t => string.Equals(t?.Name, this.DatabaseConnectionString, StringComparison.CurrentCultureIgnoreCase));
+        if (db != null)
+        {
+            logger.Info($"Using named target for {nameof(this.DatabaseConnectionString)}");
+            this.DatabaseConnectionString = db.ConnectionString;
+            this.DatabaseType = db.DatabaseType;
+        }
+
+        return 0;
     }
 }
