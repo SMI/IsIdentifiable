@@ -297,7 +297,7 @@ public class IsIdentifiableBaseOptions : ITargetsFileOptions
         var logger = LogManager.GetCurrentClassLogger();
         int result = IsIdentifiableBaseOptions.LoadTargets(this, logger, out targets);
         if (result != 0)
-            return 0;
+            return result;
 
 
         // see if user passed the name of a target for AllowlistConnectionString (where to get permitted items from db)
