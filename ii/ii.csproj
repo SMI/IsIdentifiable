@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -10,12 +10,12 @@
     <DebugType>embedded</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="ExampleReport.csv"/>
-    <None Remove="Targets.yaml"/>
-    <None Remove="theme.yaml"/>
+    <None Remove="ExampleReport.csv" />
+    <None Remove="Targets.yaml" />
+    <None Remove="theme.yaml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs"/>
+    <Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ExampleReport.csv">
@@ -29,10 +29,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Terminal.Gui" Version="1.7.2"/>
+    <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="6.0.0" />
+    <PackageReference Include="Terminal.Gui" Version="1.7.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\IsIdentifiable\IsIdentifiable.csproj"/>
+    <ProjectReference Include="..\IsIdentifiable\IsIdentifiable.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="NLog.config">
