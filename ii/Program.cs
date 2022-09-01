@@ -9,6 +9,7 @@ using IsIdentifiable.Options;
 using IsIdentifiable.Redacting;
 using IsIdentifiable.Runners;
 using NLog;
+using Microsoft.Extensions.FileSystemGlobbing;
 using System.Linq;
 using YamlDotNet.Serialization;
 
@@ -99,13 +100,13 @@ public static class Program
         var res = parser.ParseArguments<IsIdentifiableRelationalDatabaseOptions,
                 IsIdentifiableDicomFileOptions,
                 IsIdentifiableMongoOptions,
-                IsIdentifiableFileOptions,
+                IsIdentifiableFileGlobOptions,
                 IsIdentifiableReviewerOptions>(args)
             .MapResult(
                 (IsIdentifiableRelationalDatabaseOptions o) => Run(o),
                 (IsIdentifiableDicomFileOptions o) => Run(o),
                 (IsIdentifiableMongoOptions o) => Run(o),
-                (IsIdentifiableFileOptions o) => Run(o),
+                (IsIdentifiableFileGlobOptions o) => Run(o),
                 (IsIdentifiableReviewerOptions o) => Run(o),
                 
                 // return exit code 0 for user requests for help
@@ -165,18 +166,65 @@ public static class Program
         };
         return runner.Run();
     }
-    private static int Run(IsIdentifiableFileOptions opts)
+
+    private static int Run(IsIdentifiableFileGlobOptions opts)
     {
         var result = Inherit(opts);
 
         if (result != 0)
             return result;
 
-        using var runner = new FileRunner(opts)
+        if (opts.File == null)
         {
-            LogProgressEvery = 1000
-        };
-        return runner.Run();
+            throw new Exception("You must specify a File or Directory indicate which files to work on");
+        }           
+
+        // if user has specified the full path of a file to -f
+        if (File.Exists(opts.File))
+        {
+            // Run on the file
+            ((IsIdentifiableFileOptions)opts).File = new FileInfo(opts.File);
+
+            using var runner = new FileRunner(opts)
+            {
+                LogProgressEvery = 1000
+            };
+
+            return runner.Run();
+        }
+
+        // user has specified a directory as -f
+        if(Directory.Exists(opts.File))
+        {
+            Matcher matcher = new();
+            matcher.AddInclude(opts.Glob);
+            int result = 0;
+
+            foreach (var match in matcher.GetResultsInFullPath(opts.File))
+            {
+                // set file to operate on to the current file
+                ((IsIdentifiableFileOptions)opts).File = new FileInfo(match);
+
+                using var runner = new FileRunner(opts)
+                {
+                    LogProgressEvery = 1000
+                };
+                var thisResult = runner.Run();
+
+                // if we don't yet have any errors
+                if (result == 0)
+                {
+                    // take any errors (or 0 if it went fine)
+                    result = thisResult;
+                }
+            }
+
+            return result;
+        }
+        else
+        {
+            throw new DirectoryNotFoundException($"Could not find a file or directory called '{opts.File}'");
+        }
     }
     private static int Run(IsIdentifiableMongoOptions opts)
     {
