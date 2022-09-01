@@ -210,7 +210,7 @@ class RulesView : View
             // did that rule already exist
             if(!ReferenceEquals(result, rule))
             {
-                MessageBox.Query("Rule already exists", $"There is already an ignore rule for this column", "Ok", "No");
+                MessageBox.ErrorQuery("Rule already exists", $"There is already an ignore rule for this column", "Ok");
             }
 
             // ignoring now yay
