@@ -8,6 +8,7 @@ using FellowOakDicom;
 using IsIdentifiable.Options;
 using IsIdentifiable.Redacting;
 using IsIdentifiable.Runners;
+using NLog;
 using Microsoft.Extensions.FileSystemGlobbing;
 using System.Linq;
 using YamlDotNet.Serialization;
@@ -134,7 +135,10 @@ public static class Program
 
     private static int Run(IsIdentifiableDicomFileOptions opts)
     {
-        Inherit(opts);
+        var result = Inherit(opts);
+
+        if (result != 0)
+            return result;
 
         using var runner = new DicomFileRunner(opts)
         {
@@ -151,7 +155,10 @@ public static class Program
         ImplementationManager.Load<PostgreSqlImplementation>();
         ImplementationManager.Load<OracleImplementation>();
 
-        Inherit(opts);
+        var result = Inherit(opts);
+
+        if (result != 0)
+            return result;
 
         using var runner = new DatabaseRunner(opts)
         {
@@ -162,7 +169,10 @@ public static class Program
 
     private static int Run(IsIdentifiableFileGlobOptions opts)
     {
-        Inherit(opts);
+        var result = Inherit(opts);
+
+        if (result != 0)
+            return result;
 
         if (opts.File == null)
         {
@@ -188,7 +198,7 @@ public static class Program
         {
             Matcher matcher = new();
             matcher.AddInclude(opts.Glob);
-            int result = 0;
+            result = 0;
 
             foreach (var match in matcher.GetResultsInFullPath(opts.File))
             {
@@ -233,12 +243,14 @@ public static class Program
             opts.InheritValuesFrom(GlobalOptions.IsIdentifiableReviewerOptions);
         }
     }
-    private static void Inherit(IsIdentifiableBaseOptions opts)
+    private static int Inherit(IsIdentifiableBaseOptions opts)
     {
         if (GlobalOptions?.IsIdentifiableOptions != null)
         {
             opts.InheritValuesFrom(GlobalOptions.IsIdentifiableOptions);
         }
+
+        return opts.UpdateConnectionStringsToUseTargets(out _);
     }
 
 }

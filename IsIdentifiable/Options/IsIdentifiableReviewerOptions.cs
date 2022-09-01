@@ -10,7 +10,7 @@ namespace IsIdentifiable.Options;
 /// CLI options for the reviewer
 /// </summary>
 [Verb("review", HelpText = "Review or redact the StoreReport output of an IsIdentifiable run")]
-public class IsIdentifiableReviewerOptions
+public class IsIdentifiableReviewerOptions : ITargetsFileOptions
 {
     /// <summary>
     /// Default value for <see cref="TargetsFile"/>

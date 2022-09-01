@@ -1,13 +1,19 @@
 ﻿using CommandLine;
 using FAnsi;
-
+using IsIdentifiable.Redacting;
+using NLog;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using YamlDotNet.Serialization;
 
 namespace IsIdentifiable.Options;
 
 /// <summary>
 /// Base class for all options that go to a datasource.  Implement on each new place e.g. dicom, DBMS, CSV etc
 /// </summary>
-public class IsIdentifiableBaseOptions
+public class IsIdentifiableBaseOptions : ITargetsFileOptions
 {
     /// <summary>
     /// Optional. Full connection string to the database storing the Allowlist of valid entries
@@ -172,6 +178,15 @@ public class IsIdentifiableBaseOptions
     /// </summary>
     public string TargetName { get; set; } = TargetNameDefault;
 
+    /// <summary>
+    /// Location of database connection strings file (for issuing UPDATE statements)
+    /// </summary>
+    [Option('t', "targets",
+        Required = false,
+        Default = IsIdentifiableReviewerOptions.TargetsFileDefault,
+        HelpText = "Location of database connection strings file.  Allows you to pass the name of the target instead of connection string to DatabaseConnectionString"
+    )]
+    public string TargetsFile { get; set; } = IsIdentifiableReviewerOptions.TargetsFileDefault;
 
     /// <summary>
     /// Returns a short string with no spaces or punctuation that describes the target.  This will be used
@@ -262,8 +277,109 @@ public class IsIdentifiableBaseOptions
         if (MaxValidationCacheSize == MaxValidationCacheSizeDefault && globalOpts.MaxValidationCacheSize.HasValue)
             MaxValidationCacheSize = globalOpts.MaxValidationCacheSize.Value;
 
+        if (TargetsFile == IsIdentifiableReviewerOptions.TargetsFileDefault && !string.IsNullOrWhiteSpace(globalOpts.TargetsFile))
+            TargetsFile = globalOpts.TargetsFile;
+            
         // if global options specifies to only run on x records and we don't have an explicit declaration for that property
         if (Top <= 0 && globalOpts.Top > 0)
             Top = globalOpts.Top;
+    }
+
+    /// <summary>
+    /// Performs <see cref="LoadTargets(ITargetsFileOptions, Logger, out List{Target})"/> and then updates all connection strings
+    /// (e.g. <see cref="AllowlistConnectionString"/>) to use the named Target if specified
+    /// </summary>
+    /// <param name="targets"></param>
+    /// <returns></returns>
+    public virtual int UpdateConnectionStringsToUseTargets(out List<Target> targets)
+    {
+        // load Targets.yaml
+        var logger = LogManager.GetCurrentClassLogger();
+        int result = IsIdentifiableBaseOptions.LoadTargets(this, logger, out targets);
+        if (result != 0)
+            return result;
+
+
+        // see if user passed the name of a target for AllowlistConnectionString (where to get permitted items from db)
+        var db = targets.FirstOrDefault(t => string.Equals(t?.Name, this.AllowlistConnectionString, StringComparison.CurrentCultureIgnoreCase));
+        if (db != null)
+        {
+            logger.Info($"Using named target for {nameof(this.AllowlistConnectionString)}");
+            this.AllowlistConnectionString = db.ConnectionString;
+            this.AllowlistDatabaseType = db.DatabaseType;
+        }
+
+        // see if user passed the name of a target for DestinationConnectionString (a db to dump reports into as new tables)
+        db = targets.FirstOrDefault(t => string.Equals(t?.Name, this.DestinationConnectionString, StringComparison.CurrentCultureIgnoreCase));
+        if (db != null)
+        {
+            logger.Info($"Using named target for {nameof(this.DestinationConnectionString)}");
+            this.DestinationConnectionString = db.ConnectionString;
+            this.DestinationDatabaseType = db.DatabaseType;
+        }
+
+        return 0;
+    }
+
+
+    /// <summary>
+    /// Returns a collection of <see cref="Target"/> which are named servers that can be referenced instead of connection strings in options
+    /// </summary>
+    /// <param name="opts"></param>
+    /// <param name="logger"></param>
+    /// <param name="targets"></param>
+    /// <returns></returns>
+    public static int LoadTargets(ITargetsFileOptions opts, NLog.Logger logger, out List<Target> targets)
+    {
+        Deserializer d = new Deserializer();
+        targets = new List<Target>();
+
+        try
+        {
+            var file = new FileInfo(opts.TargetsFile);
+
+            // file does not exist
+            if (!file.Exists)
+            {
+                if (opts.TargetsFile != IsIdentifiableReviewerOptions.TargetsFileDefault)
+                {
+                    logger.Error($"Could not find '{file.FullName}'");
+                    return 1;
+                }
+                else
+                {
+                    // theres no Targets.yaml file but since that's the default
+                    // we should just disable database stuff
+                    if (opts is IsIdentifiableReviewerOptions reviewOpts)
+                        reviewOpts.OnlyRules = true;
+                }
+            }
+            else
+            {
+                // there is a Targets file, read it
+                var contents = File.ReadAllText(file.FullName);
+
+                if (string.IsNullOrWhiteSpace(contents))
+                {
+                    logger.Error($"Targets file is empty '{file.FullName}'");
+                    return 2;
+                }
+
+                targets = d.Deserialize<List<Target>>(contents);
+
+                if (!targets.Any())
+                {
+                    logger.Error($"Targets file did not contain any valid targets '{file.FullName}'");
+                    return 3;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            logger.Error(e, $"Error deserializing '{opts.TargetsFile}'");
+            return 4;
+        }
+
+        return 0;
     }
 }
