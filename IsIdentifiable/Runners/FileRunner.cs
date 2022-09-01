@@ -49,10 +49,18 @@ public class FileRunner : IsIdentifiableAbstractRunner
 
                 _logger.Info($"Headers are:{string.Join(",", r.HeaderRecord)}");
 
+                int done = 0;
+
                 while(r.Read())
                 {
                     foreach (Failure failure in GetFailuresIfAny(r))
                         AddToReports(failure);
+                    
+                    done++;
+
+                    // if we have done all we were asked to do then stop
+                    if (_opts.Top > 0 && done >= _opts.Top)
+                        break;                    
                 }
                 
                 CloseReports();

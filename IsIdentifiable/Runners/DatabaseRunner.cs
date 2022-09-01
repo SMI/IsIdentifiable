@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using FAnsi.Discovery;
+using FAnsi.Discovery.QuerySyntax;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
@@ -56,10 +57,19 @@ public class DatabaseRunner : IsIdentifiableAbstractRunner
         {
             con.Open();
 
+            TopXResponse top = _opts.Top > 0 ? server.GetQuerySyntaxHelper().HowDoWeAchieveTopX(_opts.Top) : null;
+
+            // assembles command 'SELECT TOP x a,b,c from Tbl'
+            // or for MySql/Oracle 'SELECT a,b,c from Tbl LIMIT x'
+
             var cmd = server.GetCommand(
-                string.Format("SELECT {0} FROM {1}"
-                    , string.Join($",{Environment.NewLine}", _columns.Select(c => c.GetFullyQualifiedName()).ToArray())
-                    , tbl.GetFullyQualifiedName()), con);
+$@"SELECT 
+{(top != null && top.Location == QueryComponent.SELECT ? top.SQL : "")}
+{string.Join($",{Environment.NewLine}", _columns.Select(c => c.GetFullyQualifiedName()).ToArray())}
+FROM 
+{tbl.GetFullyQualifiedName()}
+{(top != null && top.Location == QueryComponent.Postfix ? top.SQL : "")}"
+            ,con);
 
             _logger.Info($"About to send command:{Environment.NewLine}{cmd.CommandText}");
 
