@@ -6,6 +6,7 @@
 
 ## Added
 
+- New flag `--top` to only run on a subset of the data available (e.g. `top 1000`).  Currently only supported by relational database and csv runners
 - Added ability to ignore whole columns in reviewer by pressing `Del` on the column and confirming
 
 ## Fixed

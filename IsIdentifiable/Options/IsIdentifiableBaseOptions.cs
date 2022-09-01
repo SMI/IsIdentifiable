@@ -144,6 +144,12 @@ public class IsIdentifiableBaseOptions
     public int? MaxValidationCacheSize { get; set; } = MaxValidationCacheSizeDefault;
 
     /// <summary>
+    /// Optional.  Set to a stop processing after x records e.g. only evalute top 1000 records of a table/file.  Currently only supported for csv/database
+    /// </summary>
+    [Option(HelpText = "Optional.  Set to stop processing after x records e.g. only evalute top 1000 records of a table/file.  Currently only supported for csv/database", Default = -1)]
+    public int Top { get; set; } = -1;
+
+    /// <summary>
     /// Default for <see cref="MaxValidationCacheSize"/>
     /// </summary>
     public const int MaxValidationCacheSizeDefault = 1_000_000;
@@ -165,6 +171,7 @@ public class IsIdentifiableBaseOptions
     /// <see cref="GetTargetName"/> and so not respect this property.</para>
     /// </summary>
     public string TargetName { get; set; } = TargetNameDefault;
+
 
     /// <summary>
     /// Returns a short string with no spaces or punctuation that describes the target.  This will be used
@@ -254,5 +261,9 @@ public class IsIdentifiableBaseOptions
 
         if (MaxValidationCacheSize == MaxValidationCacheSizeDefault && globalOpts.MaxValidationCacheSize.HasValue)
             MaxValidationCacheSize = globalOpts.MaxValidationCacheSize.Value;
+
+        // if global options specifies to only run on x records and we don't have an explicit declaration for that property
+        if (Top <= 0 && globalOpts.Top > 0)
+            Top = globalOpts.Top;
     }
 }
