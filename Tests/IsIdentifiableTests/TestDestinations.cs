@@ -1,6 +1,8 @@
-﻿using System;
+using System;
 using System.Data;
+using System.Globalization;
 using System.IO;
+using CsvHelper.Configuration;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Destinations;
@@ -17,7 +19,7 @@ internal class TestDestinations
         var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
 
         var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationCsvFolder = outDir.FullName };
-        var dest = new CsvDestination(opts, "test",false);
+        var dest = new CsvDestination(opts, "test", addTimestampToFilename: false);
 
         var report = new TestFailureReport(dest);
         report.WriteToDestinations();
@@ -38,7 +40,7 @@ internal class TestDestinations
         var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
 
         var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationNoWhitespace = true, DestinationCsvFolder = outDir.FullName };
-        var dest = new CsvDestination(opts, "test",false);
+        var dest = new CsvDestination(opts, "test", addTimestampToFilename: false);
             
         var report = new TestFailureReport(dest);
         report.WriteToDestinations();
@@ -65,7 +67,7 @@ cell1 with some new lines and tabs,cell2
             DestinationCsvFolder = outDir.FullName
         };
 
-        var dest = new CsvDestination(opts, "test",false);
+        var dest = new CsvDestination(opts, "test", addTimestampToFilename: false);
             
         var report = new TestFailureReport(dest);
         report.WriteToDestinations();
@@ -85,8 +87,28 @@ cell1 with some new lines and tabs	cell2
         var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
 
         var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationCsvFolder = outDir.FullName };
-        var dest = new CsvDestination(opts, "test", false);
+        var dest = new CsvDestination(opts, "test", addTimestampToFilename: false);
         dest.Dispose();
+    }
+
+    [Test]
+    public void CsvDestination_WithCsvConfiguration()
+    {
+        var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
+        var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationCsvFolder = outDir.FullName };
+        var conf = new CsvConfiguration(CultureInfo.CurrentCulture)
+        {
+            Delimiter = "|",
+        };
+
+        using (var dest = new CsvDestination(opts, "test", csvConfiguration: conf, addTimestampToFilename: false))
+        {
+            dest.WriteHeader("foo", "bar");
+        }
+
+        string fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
+
+        Assert.True(fileCreatedContents.StartsWith("foo|bar"));
     }
 }
 
