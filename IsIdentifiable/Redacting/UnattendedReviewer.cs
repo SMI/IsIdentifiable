@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
@@ -98,7 +99,10 @@ public class UnattendedReviewer
         Stopwatch sw = new Stopwatch();
         sw.Start();
 
-        using (var storeReportDestination = new CsvDestination(new IsIdentifiableDicomFileOptions(), _outputFile))
+        // TODO(rkm 2022-09-03) Propagate IFileSystem to rest of IsIdentifiable
+        var fi = new FileSystem().FileInfo.FromFileName(_outputFile.FullName);
+
+        using (var storeReportDestination = new CsvDestination(new IsIdentifiableDicomFileOptions(), fi))
         {
             IsIdentifiableRule updateRule;
 
