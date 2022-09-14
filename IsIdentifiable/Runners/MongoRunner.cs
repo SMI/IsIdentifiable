@@ -219,15 +219,20 @@ public class MongoRunner : IsIdentifiableAbstractRunner
 
         foreach (BsonElement element in document)
         {
-            failures.AddRange(ProcessBsonValue(documentId,"", element.Name, element.Value));
+            failures.AddRange(ProcessBsonValue(documentId, tagTree, element.Name, element.Value,false));
         }
         return failures;
     }
 
-    private IList<Failure> ProcessBsonValue(ObjectId documentId,string tagTree, string name, BsonValue value)
+    private IList<Failure> ProcessBsonValue(ObjectId documentId,string tagTree, string name, BsonValue value, bool isArrayElement)
     {
         var failures = new List<Failure>();
-        
+
+        if(!isArrayElement)
+        {
+            tagTree += name;
+        }
+
         switch (value.BsonType)
         {
             // sub document
@@ -236,7 +241,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
                 failures.AddRange(
                     ProcessDocument(
                         documentId, 
-                        $"{tagTree}{name}->",
+                        $"{tagTree}->",
                         (BsonDocument)value)
                     );
                 break;
@@ -250,16 +255,12 @@ public class MongoRunner : IsIdentifiableAbstractRunner
                 {
                     // process each array element
                     failures.AddRange(
-                        ProcessBsonValue(documentId, $"{tagTree}{name}[{i}]", name, entry)
+                        ProcessBsonValue(documentId, $"{tagTree}[{i}]", name, entry,true)
                         );
                     i++;
                 }
                 break;
-                default:
-
-                // if it is root or new sub document we need the field name too
-                if (string.IsNullOrEmpty(tagTree) || tagTree.EndsWith('>'))
-                    tagTree += $"{name}";
+            default:
 
                 failures.AddRange(
                     ValidateBsonValue(documentId,tagTree , name, value)

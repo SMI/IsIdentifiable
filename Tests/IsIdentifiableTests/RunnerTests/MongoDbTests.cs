@@ -104,12 +104,44 @@ namespace IsIdentifiable.Tests.RunnerTests
             
         }
 
+        public const string ColorJson =
+            @"{ Colors: [
+	{
+		color: ""red"",
+		value: ""#f00""
+	},
+	{
+		color: ""green"",
+		value: ""#0f0""
+	},
+	{
+		color: ""blue"",
+		value: ""#00f""
+	},
+	{
+		color: ""cyan"",
+		value: ""#0ff""
+	},
+	{
+		color: ""magenta"",
+		value: ""#f0f""
+	},
+	{
+		color: ""yellow"",
+		value: ""#ff0""
+	},
+	{
+		color: ""black"",
+		value: ""#000""
+	}
+]}";
+
 
         static object[] TestDocuments =
         {
             new object[] { "{Name: \"hello\"}","Name", "[a-z]+","Name","hello"},
             new object[] { "{Name: [\"Clem\", \"Fandango\"]}","Name", "Fand.*", "Name[1]","Fandango"},
-            new object[] { "{Name: [\"Clem\", \"Fandango\"]}",null, "Fand.*","Name[1]","Fandango"},
+            new object[] { ColorJson,null, "magenta","Colors[4]->color","magenta"},
         };
 
 
