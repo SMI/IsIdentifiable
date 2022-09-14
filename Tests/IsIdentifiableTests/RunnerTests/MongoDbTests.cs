@@ -1,4 +1,5 @@
 ﻿using IsIdentifiable.Options;
+using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Rules;
 using IsIdentifiable.Runners;
 using MongoDB.Bson;
@@ -106,7 +107,9 @@ namespace IsIdentifiable.Tests.RunnerTests
 
         static object[] TestDocuments =
         {
-            new object[] { "{Name: \"hello\"}","Name", "[a-z]+",1},
+            new object[] { "{Name: \"hello\"}","Name", "[a-z]+","Name","hello"},
+            new object[] { "{Name: [\"Clem\", \"Fandango\"]}","Name", "Fand.*", "Name[1]","Fandango"},
+            new object[] { "{Name: [\"Clem\", \"Fandango\"]}",null, "Fand.*","Name[1]","Fandango"},
         };
 
 
@@ -117,9 +120,10 @@ namespace IsIdentifiable.Tests.RunnerTests
         /// <param name="column">The tag name you want the <paramref name="regex"/> applied to to detect the problem data or null for 'match any tag'</param>
         /// <param name="regex">The pattern that should be applied to match identifiable data.  In a real world scenario this wouldn't be needed because
         /// this function would come from NLP or existing rules base</param>
-        /// <param name="expectedMatches">The number of reports you expect to be raised</param>
+        /// <param name="expectedFullPath">The fully expressed path you expect to see indicated in reports when picking up this pattern (MongoDb documents are tree data structures)</param>
+        /// <param name="expectedFailingValue">The leaf value that your problem data should be found in (i.e. tag name)</param>
         [TestCaseSource(nameof(TestDocuments))]
-        public void TestAnalyseIdentifiableDataInMongoDb(string json, string column, string regex, int expectedMatches)
+        public void TestAnalyseIdentifiableDataInMongoDb(string json, string column, string regex, string expectedFullPath,string expectedFailingValue)
         {
             const string collectionName = "SomeData";
             const string databaseName = "IsIdentifiableTests";
@@ -164,10 +168,16 @@ namespace IsIdentifiable.Tests.RunnerTests
                 IfPattern = regex
             });
 
-            Assert.AreEqual(0,runner.Run(),"MongoDb runner returned a non zero exit code. Indicating failure");
+            var toMem = new ToMemoryFailureReport();
+            runner.Reports.Add(toMem);
 
-            Assert.AreEqual(expectedMatches, runner.CountOfFailureParts, "The number of problem parts identified by IsIdentifiable did not match test case expectations");
+            Assert.AreEqual(0,runner.Run(),"MongoDb runner returned a non zero exit code. Indicating failure");
+            Assert.AreEqual(1, runner.CountOfFailureParts, "IsIdentifiable did not find exactly 1 failing value, this test only caters for single matches");
             
+
+            var f = toMem.Failures.Single();
+            Assert.AreEqual(expectedFullPath, f.ProblemField);
+            Assert.AreEqual(expectedFailingValue, f.ProblemValue);
         }
     }
 }

@@ -248,27 +248,21 @@ public class MongoRunner : IsIdentifiableAbstractRunner
                 // values could be mixed type
                 foreach (BsonValue entry in (BsonArray)value)
                 {
-                    // array element is a sub document
-                    if (entry is BsonDocument doc)
-                    {
-                        failures.AddRange(
-                            ProcessDocument(documentId, $"{tagTree}{name}[{i}]->", doc)
+                    // process each array element
+                    failures.AddRange(
+                        ProcessBsonValue(documentId, $"{tagTree}{name}[{i}]", name, entry)
                         );
-                    }
-                    else
-                    {
-                        // array element is a value type
-                        failures.AddRange(
-                            ValidateBsonValue(documentId,name, $"{tagTree}{name}[{i}]",value)
-                        );
-                    }
-
                     i++;
                 }
                 break;
                 default:
+
+                // if it is root or new sub document we need the field name too
+                if (string.IsNullOrEmpty(tagTree) || tagTree.EndsWith('>'))
+                    tagTree += $"{name}";
+
                 failures.AddRange(
-                    ValidateBsonValue(documentId, name, $"{tagTree}{name}", value)
+                    ValidateBsonValue(documentId,tagTree , name, value)
                     );
                     break;
             }
