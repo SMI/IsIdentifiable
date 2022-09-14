@@ -6,9 +6,13 @@
 	  <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Mongo.yaml" />
     <None Remove="TestDatabases.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Mongo.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestDatabases.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

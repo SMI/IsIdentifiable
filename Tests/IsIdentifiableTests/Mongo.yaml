@@ -1,0 +1,4 @@
+﻿# These are the connection settings for running MongoDb integration tests.  
+# They match the CI server and MongoDb default installation
+Host: 'localhost'
+Port: 27017

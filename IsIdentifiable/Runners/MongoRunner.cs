@@ -14,6 +14,9 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using NLog;
+using System.Xml.Linq;
+using YamlDotNet.Core.Tokens;
+using SharpCompress.Common;
 
 
 namespace IsIdentifiable.Runners;
@@ -135,32 +138,15 @@ public class MongoRunner : IsIdentifiableAbstractRunner
                 Parallel.ForEach(batch, _parallelOptions, document =>
                 {
                     ObjectId documentId = document["_id"].AsObjectId;
-                    DicomDataset ds;
 
-                    try
+                    if(_opts.IsDicomFiles)
                     {
-                        ds = DicomTypeTranslaterWriter.BuildDicomDataset(document);
+                        ProcessDocumentAsDicom(document,documentId,oLogLock,oListLock,ref failedToRebuildCount, ref batchCount, batchFailures);
                     }
-                    catch (Exception e)
+                    else
                     {
-                        // Log any documents we couldn't process due to errors in rebuilding the dataset
-                        lock (oLogLock)
-                            _logger.Log(LogLevel.Error, e,
-                                "Could not reconstruct dataset from document " + documentId);
-
-                        Interlocked.Increment(ref failedToRebuildCount);
-
-                        return;
+                        ProcessDocumentAsUnstructured(document, documentId, oListLock, ref batchCount, batchFailures);
                     }
-
-                    // Validate the dataset against our rules
-                    IList<Reporting.Failure> documentFailures = ProcessDataset(documentId, ds);
-
-                    if (documentFailures.Any())
-                        lock (oListLock)
-                            batchFailures.AddRange(documentFailures);
-
-                    Interlocked.Increment(ref batchCount);
                 });
 
                 batchFailures.ForEach(AddToReports);
@@ -182,6 +168,122 @@ public class MongoRunner : IsIdentifiableAbstractRunner
 
         _logger.Info("Writing out reports...");
         CloseReports();
+    }
+
+    private void ProcessDocumentAsDicom(BsonDocument document, ObjectId documentId, object oLogLock, object oListLock, ref int failedToRebuildCount, ref int batchCount, List<Failure> batchFailures)
+    {
+
+        DicomDataset ds;
+
+        try
+        {
+            ds = DicomTypeTranslaterWriter.BuildDicomDataset(document);
+        }
+        catch (Exception e)
+        {
+            // Log any documents we couldn't process due to errors in rebuilding the dataset
+            lock (oLogLock)
+                _logger.Log(LogLevel.Error, e,
+                    "Could not reconstruct dataset from document " + documentId);
+
+            Interlocked.Increment(ref failedToRebuildCount);
+
+            return;
+        }
+
+        // Validate the dataset against our rules
+        IList<Reporting.Failure> documentFailures = ProcessDataset(documentId, ds);
+
+        if (documentFailures.Any())
+            lock (oListLock)
+                batchFailures.AddRange(documentFailures);
+
+        Interlocked.Increment(ref batchCount);
+    }
+    
+    private void ProcessDocumentAsUnstructured(BsonDocument document, ObjectId documentId, object oListLock, ref int batchCount, List<Failure> batchFailures)
+    {
+        // Validate the dataset against our rules
+        IList<Reporting.Failure> documentFailures = ProcessDocument(documentId,"", document);
+
+        if (documentFailures.Any())
+            lock (oListLock)
+                batchFailures.AddRange(documentFailures);
+
+        Interlocked.Increment(ref batchCount);
+    }
+
+    private IList<Failure> ProcessDocument(ObjectId documentId, string tagTree, BsonDocument document)
+    {
+        var failures = new List<Failure>();
+
+        foreach (BsonElement element in document)
+        {
+            failures.AddRange(ProcessBsonValue(documentId, tagTree, element.Name, element.Value,false));
+        }
+        return failures;
+    }
+
+    private IList<Failure> ProcessBsonValue(ObjectId documentId,string tagTree, string name, BsonValue value, bool isArrayElement)
+    {
+        var failures = new List<Failure>();
+
+        if(!isArrayElement)
+        {
+            tagTree += name;
+        }
+
+        switch (value.BsonType)
+        {
+            // sub document
+            case BsonType.Document:
+                
+                failures.AddRange(
+                    ProcessDocument(
+                        documentId, 
+                        $"{tagTree}->",
+                        (BsonDocument)value)
+                    );
+                break;
+
+            // array of values
+            case BsonType.Array:
+
+                int i = 0;
+                // values could be mixed type
+                foreach (BsonValue entry in (BsonArray)value)
+                {
+                    // process each array element
+                    failures.AddRange(
+                        ProcessBsonValue(documentId, $"{tagTree}[{i}]", name, entry,true)
+                        );
+                    i++;
+                }
+                break;
+            default:
+
+                failures.AddRange(
+                    ValidateBsonValue(documentId,tagTree , name, value)
+                    );
+                    break;
+            }
+
+        return failures;
+    }
+
+    /// <summary>
+    /// Validates a basic (not Document not Array) value
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    private IEnumerable<Failure> ValidateBsonValue(ObjectId documentId, string fullTagPath, string name, BsonValue value)
+    {
+        var valueAsString = value.ToString();
+
+        List<FailurePart> parts = Validate(name, valueAsString).ToList();
+
+        if (parts.Any())
+            yield return _factory.Create(documentId, fullTagPath, valueAsString, parts);
     }
 
     /// <summary>

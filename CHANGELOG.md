@@ -6,6 +6,7 @@
 
 ## Added
 
+- Support for running on 'non dicom' MongoDb databases.  This is now the default.  Pass `--isdicomfiles` if your MongoDb contains serialized dicom files.
 - New flag `--top` to only run on a subset of the data available (e.g. `top 1000`).  Currently only supported by relational database and csv runners
 - Added ability to ignore whole columns in reviewer by pressing `Del` on the column and confirming
 - Support for naming servers in `Targets.yaml` for main `ii` binary instead of connection strings (e.g. `-d myserver` for running on relational dbs)
