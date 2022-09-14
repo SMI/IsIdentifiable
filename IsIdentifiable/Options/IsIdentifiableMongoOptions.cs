@@ -13,7 +13,7 @@ namespace IsIdentifiable.Options;
 public class IsIdentifiableMongoOptions : IsIdentifiableDicomOptions
 {
     /// <summary>
-    /// The relational database to connect to
+    /// The database to connect to
     /// </summary>
     [Option('d',"db", Required = true, HelpText = "The database to scan")]
     public string DatabaseName { get; set; }
@@ -52,6 +52,12 @@ public class IsIdentifiableMongoOptions : IsIdentifiableDicomOptions
     public bool UseMaxThreads { get; set; }
 
     /// <summary>
+    /// If set then the MongoDb documents are expected to be serialized DICOM images and will be processed appropriately.
+    /// </summary>
+    [Option(HelpText = "If set then the MongoDb documents are expected to be serialized DICOM images and will be processed appropriately.")]
+    public bool IsDicomFiles { get; internal set; }
+
+    /// <summary>
     /// Command line examples for running IsIdentifiable on mongodb
     /// </summary>
     [Usage]
@@ -68,6 +74,7 @@ public class IsIdentifiableMongoOptions : IsIdentifiableDicomOptions
             });
         }
     }
+
 
     /// <summary>
     /// Returns a string indicating that MongoDb is the data format and the database
