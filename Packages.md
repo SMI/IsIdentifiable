@@ -9,7 +9,7 @@
 | ------- | ------------| --------| ------- | ------- | -------------------------- |
 | coverlet.collector | [GitHub](https://github.com/coverlet-coverage/coverlet) | [3.0.3](https://www.nuget.org/packages/coverlet.collector/3.0.3) | [MIT](https://opensource.org/licenses/MIT) | Collects code coverage information | |
 | CommandLineParser | [GitHub](https://github.com/commandlineparser/commandline) | [2.9.1](https://www.nuget.org/packages/CommandLineParser/2.9.1) | [MIT](https://opensource.org/licenses/MIT) | Allows command line arguments for main client application and CLI executables |
-| CsvHelper | [GitHub](https://github.com/JoshClose/CsvHelper) | [28.0.1](https://www.nuget.org/packages/CsvHelper/28.0.1) | MS-PL / Apache 2.0 | Enables reading/writing CSV files |
+| CsvHelper | [GitHub](https://github.com/JoshClose/CsvHelper) | [29.0.0](https://www.nuget.org/packages/CsvHelper/29.0.0) | MS-PL / Apache 2.0 | Enables reading/writing CSV files |
 | [Equ](https://github.com/thedmi/Equ) | [GitHub](https://github.com/thedmi/Equ) | [2.3.0](https://www.nuget.org/packages/Equ/2.3.0) | [MIT](https://opensource.org/licenses/MIT) | Simplifies object comparators |
 | [NLog](https://nlog-project.org/) | [GitHub](https://github.com/NLog/NLog) | [5.0.4](https://www.nuget.org/packages/NLog/5.0.4) | [BSD 3-Clause](https://github.com/NLog/NLog/blob/dev/LICENSE.txt) | Flexible user configurable logging | |
 | HIC.FAnsiSql |[GitHub](https://github.com/HicServices/FAnsiSql) | [3.0.0](https://www.nuget.org/packages/HIC.FansiSql/3.0.0) | [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) | DBMS abstraction layer |
