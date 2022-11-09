@@ -4,12 +4,14 @@ updates:
   directory: "/"
   schedule:
     interval: daily
+  reviewers:
+  - jas88
+  - rkm
 - package-ecosystem: nuget
   directory: "/"
   schedule:
     interval: daily
   reviewers:
-  - tznind
   - jas88
   - rkm
 - package-ecosystem: maven
