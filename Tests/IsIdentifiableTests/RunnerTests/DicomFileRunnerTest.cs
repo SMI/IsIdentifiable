@@ -69,7 +69,7 @@ public class DicomFileRunnerTest
         var runner = new DicomFileRunner(opts);
 
         var fileSystem = new FileSystem();
-        IFileInfo fileInfo = fileSystem.FileInfo.FromFileName(fileName);
+        IFileInfo fileInfo = fileSystem.FileInfo.New(fileName);
         Assert.True(fileInfo.Exists);
 
         var toMemory = new ToMemoryFailureReport();
