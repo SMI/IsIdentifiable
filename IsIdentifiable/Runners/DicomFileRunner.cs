@@ -145,7 +145,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         {
             try
             {
-                ValidateDicomFile(_fileSystem.FileInfo.FromFileName(file));
+                ValidateDicomFile(_fileSystem.FileInfo.New(file));
             }
             catch(Exception ex)
             {
