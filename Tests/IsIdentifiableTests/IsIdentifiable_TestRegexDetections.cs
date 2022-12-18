@@ -22,7 +22,16 @@ public class IsIdentifiableRunnerTests
 
         Assert.AreEqual("0101010101", p.Word);
         Assert.AreEqual(10, p.Offset);
-    } 
+    }
+
+    [Test]
+    public void TestChiBadDate()
+    {
+        var runner = new TestRunner("2902810123 would be a CHI if 1981 had been a leap year");
+        runner.Run();
+        Assert.IsEmpty(runner.ResultsOfValidate);
+    }
+    
     [Test]
     public void TestCaching()
     {
