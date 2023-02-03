@@ -350,4 +350,5 @@ MigrationBackup/
 .ionide/
 /IsIdentifiablePlugin/nuget.exe
 
-coverage.json
+coverage/
+
