@@ -63,7 +63,12 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --nologo
     - name: Test
-      run: dotnet test --blame -l:"console;verbosity=normal" --no-restore --nologo
+      run: dotnet test --blame -l:"console;verbosity=normal" --no-restore --nologo -p:CollectCoverage=true -p:CoverletOutput="$(pwd)/coverage/" -p:CoverletOutputFormat="cobertura"
+    - name: upload coverage
+      uses: codecov/codecov-action@v3.1.1
+      with:
+        files: ./coverage/coverage.cobertura.xml
+        fail_ci_if_error: true
     - name: Build Java NERD
       run: |
         cd nlp/uk.ac.dundee.hic.nerd
