@@ -47,7 +47,7 @@ jobs:
         sudo chown mysql:mysql /var/run/mysqld
         sudo mysqld_safe --port=3306 &
     - name: Start MongoDb
-      uses: supercharge/mongodb-github-action@1.8.0
+      uses: supercharge/mongodb-github-action@1.9.0
       with:
         mongodb-version: '6.0'
     - name: Install MS SQL Server
