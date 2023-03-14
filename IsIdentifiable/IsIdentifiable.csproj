@@ -40,7 +40,7 @@
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="12.3.0"/>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0"/>
     <PackageReference Include="NLog" Version="5.1.2"/>
-    <PackageReference Include="System.IO.Abstractions" Version="19.1.18"/>
+    <PackageReference Include="System.IO.Abstractions" Version="19.2.4"/>
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0"/>
     <PackageReference Include="Tesseract" Version="4.1.1"/>
   </ItemGroup>
