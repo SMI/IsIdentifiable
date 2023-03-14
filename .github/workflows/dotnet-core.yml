@@ -69,6 +69,7 @@ jobs:
       with:
         files: ./coverage/coverage.cobertura.xml
         fail_ci_if_error: true
+        token: 42f74c8f-0e77-40db-8497-fa05f20837f6
     - name: Build Java NERD
       run: |
         cd nlp/uk.ac.dundee.hic.nerd
