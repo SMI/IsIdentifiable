@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IO.Abstractions;
 using CsvHelper;
 using CsvHelper.Configuration;
 
@@ -12,9 +12,15 @@ namespace IsIdentifiable.Allowlists;
 /// </summary>
 public class CsvAllowlist : IAllowlistSource
 {
-    private readonly StreamReader _streamreader;
+    private readonly System.IO.Stream _stream;
+    private readonly System.IO.StreamReader _streamreader;
     private readonly CsvReader _reader;
     private bool firstTime = true;
+
+    /// <summary>
+    /// FileSystem to use for I/O
+    /// </summary>
+    protected readonly IFileSystem FileSystem;
 
     /// <summary>
     /// Reads all values in <paramref name="filePath"/>.  The contents of each line
@@ -22,13 +28,17 @@ public class CsvAllowlist : IAllowlistSource
     /// positives or values that match rules but should be ignored anyway).
     /// </summary>
     /// <param name="filePath"></param>
+    /// <param name="fileSystem"></param>
     /// <exception cref="Exception"></exception>
-    public CsvAllowlist(string filePath)
+    public CsvAllowlist(string filePath, IFileSystem fileSystem)
     {
-        if(!File.Exists(filePath))
+        FileSystem = fileSystem;
+
+        if(!FileSystem.File.Exists(filePath))
             throw new Exception($"Could not find Allowlist file at '{filePath}'");
 
-        _streamreader = new StreamReader(filePath);
+        _stream = FileSystem.File.OpenRead(filePath);
+        _streamreader = new System.IO.StreamReader(_stream);
         _reader = new CsvReader(_streamreader,new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture)
         {
             HasHeaderRecord=false

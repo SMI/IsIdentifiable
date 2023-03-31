@@ -4,19 +4,25 @@ using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Runners;
 using Moq;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+using System.IO.Abstractions.TestingHelpers;
 
 namespace IsIdentifiableTests.RunnerTests;
 
 class FileRunnerTests
 {
+    private MockFileSystem _fileSystem;
+
+    [SetUp]
+    public void SetUp() 
+    {
+        _fileSystem = new MockFileSystem();
+    }
+
+
     [Test]
     public void FileRunner_CsvWithCHI()
     {
-        var fi = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory,"testfile.csv"));
+        var fi = _fileSystem.FileInfo.New("testfile.csv");
         using(var s = fi.CreateText())
         {
             s.WriteLine("Fish,Chi,Bob");
@@ -25,7 +31,7 @@ class FileRunnerTests
             s.Close();
         }
             
-        var runner = new FileRunner(new IsIdentifiableFileOptions(){File = fi, StoreReport = true});
+        var runner = new FileRunner(new IsIdentifiableFileOptions(){File = fi, StoreReport = true}, _fileSystem);
             
         var reporter = new Mock<IFailureReport>(MockBehavior.Strict);
             
@@ -44,7 +50,7 @@ class FileRunnerTests
     [Test]
     public void FileRunner_TopX()
     {
-        var fi = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "testfile.csv"));
+        var fi = _fileSystem.FileInfo.New("testfile.csv");
         using (var s = fi.CreateText())
         {
             s.WriteLine("Fish,Chi,Bob");
@@ -57,7 +63,7 @@ class FileRunnerTests
             s.Close();
         }
 
-        var runner = new FileRunner(new IsIdentifiableFileOptions() { File = fi, StoreReport = true, Top = 22 });
+        var runner = new FileRunner(new IsIdentifiableFileOptions() { File = fi, StoreReport = true, Top = 22 }, _fileSystem);
 
         var reporter = new Mock<IFailureReport>(MockBehavior.Strict);
 

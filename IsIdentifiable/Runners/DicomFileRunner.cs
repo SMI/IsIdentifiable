@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -37,8 +36,6 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
 
     private DateTime? _zeroDate = null;
 
-    private readonly IFileSystem _fileSystem = new FileSystem();
-
     private readonly uint _ignoreTextLessThan;
 
     /// <summary>
@@ -65,9 +62,11 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     /// reports to write out, wether to perform OCR etc.
     /// </summary>
     /// <param name="opts"></param>
-    /// <exception cref="DirectoryNotFoundException"></exception>
-    /// <exception cref="FileNotFoundException"></exception>
-    public DicomFileRunner(IsIdentifiableDicomFileOptions opts) : base(opts)
+    /// <param name="fileSystem"></param>
+    /// <exception cref="System.IO.DirectoryNotFoundException"></exception>
+    /// <exception cref="System.IO.FileNotFoundException"></exception>
+    public DicomFileRunner(IsIdentifiableDicomFileOptions opts, IFileSystem fileSystem)
+        : base(opts, fileSystem)
     {
         _opts = opts;
         _ignoreTextLessThan = opts.IgnoreTextLessThan;
@@ -89,19 +88,18 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         //if the user wants to run text detection
         if (!string.IsNullOrWhiteSpace(_opts.TessDirectory))
         {
-            var dir = new DirectoryInfo(_opts.TessDirectory);
-
+            var dir = FileSystem.DirectoryInfo.New(_opts.TessDirectory);
             if (!dir.Exists)
-                throw new DirectoryNotFoundException($"Could not find TESS directory '{_opts.TessDirectory}'");
+                throw new System.IO.DirectoryNotFoundException($"Could not find TESS directory '{_opts.TessDirectory}'");
 
             //to work with Tesseract eng.traineddata has to be in a folder called tessdata
             if (!dir.Name.Equals("tessdata"))
                 dir = dir.CreateSubdirectory("tessdata");
 
-            var languageFile = new FileInfo(Path.Combine(dir.FullName, "eng.traineddata"));
+            var languageFile = FileSystem.FileInfo.New(FileSystem.Path.Combine(dir.FullName, "eng.traineddata"));
 
             if (!languageFile.Exists)
-                throw new FileNotFoundException($"Could not find tesseract models file ('{languageFile.FullName}')",languageFile.FullName);
+                throw new System.IO.FileNotFoundException($"Could not find tesseract models file ('{languageFile.FullName}')",languageFile.FullName);
 
             TesseractLinuxLoaderFix.Patch();
             _tesseractEngine = new TesseractEngine(dir.FullName, "eng", EngineMode.Default)
@@ -109,7 +107,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                 DefaultPageSegMode = PageSegMode.Auto
             };
 
-            _tesseractReport = new PixelTextFailureReport(_opts.GetTargetName());
+            _tesseractReport = new PixelTextFailureReport(_opts.GetTargetName(FileSystem), FileSystem);
 
             Reports.Add(_tesseractReport);
         }
@@ -125,7 +123,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     {
         _logger.Info($"Recursing from Directory: {_opts.Directory}");
 
-        if (!Directory.Exists(_opts.Directory))
+        if (!FileSystem.Directory.Exists(_opts.Directory))
         {
             _logger.Info($"Cannot Find directory: {_opts.Directory}");
             throw new ArgumentException($"Cannot Find directory: {_opts.Directory}");
@@ -141,11 +139,11 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     private void ProcessDirectory(string root)
     {
         //deal with files first
-        foreach (var file in Directory.GetFiles(root, _opts.Pattern))
+        foreach (var file in FileSystem.Directory.GetFiles(root, _opts.Pattern))
         {
             try
             {
-                ValidateDicomFile(_fileSystem.FileInfo.New(file));
+                ValidateDicomFile(FileSystem.FileInfo.New(file));
             }
             catch(Exception ex)
             {
@@ -164,7 +162,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
             
 
         //now directories
-        foreach (var directory in Directory.GetDirectories(root))
+        foreach (var directory in FileSystem.Directory.GetDirectories(root))
             ProcessDirectory(directory);
     }
 
@@ -278,9 +276,9 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                 _logger.Info($" Frame {frameNum} in '{fi.FullName}'");
                 dicomImageObj.OverlayColor = 0xffffff; // white, as default magenta not good for tesseract
                 var dicomImage = dicomImageObj.RenderImage(frameNum).AsSharpImage();
-                using var memStreamOut = new MemoryStream();
+                using var memStreamOut = new System.IO.MemoryStream();
                 using var mi = new MagickImage();
-                using (var ms = new MemoryStream())
+                using (var ms = new System.IO.MemoryStream())
                 {
                     dicomImage.SaveAsBmp(ms);
                     ms.Position = 0;
@@ -306,7 +304,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                 for (var i = 0; i < 3; i++)
                 {
                     //rotate image 90 degrees and run OCR again
-                    using var ms = new MemoryStream();
+                    using var ms = new System.IO.MemoryStream();
                     dicomImage.Mutate(x => x.Rotate(RotateMode.Rotate90));
                     dicomImage.SaveAsBmp(ms);
                     ProcessBitmapMemStream(ms.ToArray(), fi, dicomFile, sopID, studyID, seriesID, modality, imageType,
@@ -437,7 +435,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     private void ProcessBitmapMemStream(MagickImage mi,bool forcePgm, IFileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0, int frame = -1, int overlay = -1)
     {
         byte[] bytes;
-        using (MemoryStream ms = new())
+        using (System.IO.MemoryStream ms = new())
         {
             if (forcePgm)
                 mi.Write(ms,MagickFormat.Pgm);

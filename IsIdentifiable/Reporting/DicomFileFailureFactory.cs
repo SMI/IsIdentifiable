@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using FellowOakDicom;
 using IsIdentifiable.Failures;

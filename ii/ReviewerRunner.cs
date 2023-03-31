@@ -4,6 +4,9 @@ using FAnsi.Implementations.MySql;
 using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
 using IsIdentifiable.Options;
+using System;
+using System.IO.Abstractions;
+using System.Linq;
 using Terminal.Gui;
 using YamlDotNet.Serialization;
 
@@ -13,11 +16,13 @@ public class ReviewerRunner
 {
     private readonly IsIdentifiableBaseOptions? _analyserOpts;
     private readonly IsIdentifiableReviewerOptions _reviewerOptions;
+    private readonly IFileSystem _fileSystem;
 
-    public ReviewerRunner(IsIdentifiableBaseOptions? analyserOpts, IsIdentifiableReviewerOptions reviewerOptions)
+    public ReviewerRunner(IsIdentifiableBaseOptions? analyserOpts, IsIdentifiableReviewerOptions reviewerOptions, IFileSystem fileSystem)
     {
         _analyserOpts = analyserOpts;
         _reviewerOptions = reviewerOptions;
+        _fileSystem = fileSystem;
     }
 
     /// <summary>
@@ -28,7 +33,7 @@ public class ReviewerRunner
     {
         var logger = NLog.LogManager.GetCurrentClassLogger();
 
-        int returnCode = IsIdentifiableBaseOptions.LoadTargets(_reviewerOptions,logger, out var targets);
+        int returnCode = IsIdentifiableBaseOptions.LoadTargets(_reviewerOptions,logger, _fileSystem, out var targets);
         
         if (returnCode != 0)
             return returnCode;
@@ -59,14 +64,14 @@ public class ReviewerRunner
         }
 
         //for updater try to match the ProblemValue words
-        var updater = new RowUpdater(new FileInfo(_reviewerOptions.Reportlist))
+        var updater = new RowUpdater(_fileSystem, _fileSystem.FileInfo.New(_reviewerOptions.Reportlist))
         {
             RulesOnly = _reviewerOptions.OnlyRules,
             RulesFactory = new MatchProblemValuesPatternFactory()
         };
 
         //for Ignorer match the whole string
-        var ignorer = new IgnoreRuleGenerator(new FileInfo(_reviewerOptions.IgnoreList));
+        var ignorer = new IgnoreRuleGenerator(_fileSystem, _fileSystem.FileInfo.New(_reviewerOptions.IgnoreList));
 
         try
         {
@@ -76,7 +81,7 @@ public class ReviewerRunner
                 if (targets.Count != 1)
                     throw new Exception("Unattended requires a single entry in Targets");
 
-                var unattended = new UnattendedReviewer(_reviewerOptions, targets.Single(), ignorer, updater);
+                var unattended = new UnattendedReviewer(_reviewerOptions, targets.Single(), ignorer, updater, _fileSystem);
                 return unattended.Run();
             }
             else
@@ -94,12 +99,12 @@ public class ReviewerRunner
                 //run interactive
                 Application.Init();
 
-                if (_reviewerOptions.Theme != null && File.Exists(_reviewerOptions.Theme))
+                if (_reviewerOptions.Theme != null && _fileSystem.File.Exists(_reviewerOptions.Theme))
                 {
                     try
                     {
                         var des = new Deserializer();
-                        var theme = des.Deserialize<TerminalGuiTheme>(File.ReadAllText(_reviewerOptions.Theme));
+                        var theme = des.Deserialize<TerminalGuiTheme>(_fileSystem.File.ReadAllText(_reviewerOptions.Theme));
 
                         Colors.Base = theme.Base.GetScheme();
                         Colors.Dialog = theme.Dialog.GetScheme();
@@ -115,7 +120,7 @@ public class ReviewerRunner
 
                 var top = Application.Top;
 
-                var mainWindow = new MainWindow(_analyserOpts ?? new IsIdentifiableBaseOptions(), _reviewerOptions, ignorer, updater);
+                var mainWindow = new MainWindow(_analyserOpts ?? new IsIdentifiableBaseOptions(), _reviewerOptions, ignorer, updater, _fileSystem);
 
 
                 // Creates the top-level window to show

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.IO;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
@@ -11,20 +11,26 @@ namespace IsIdentifiableTests;
 
 class StoreReportTests
 {
+    private MockFileSystem _fileSystem;
+
+    [SetUp]
+    public void SetUp() 
+    {
+        _fileSystem = new MockFileSystem();
+    }
+
+
     [Test]
     public void TestReconstructionFromCsv()
     {
         var opts = new IsIdentifiableRelationalDatabaseOptions();
-        var dir = new DirectoryInfo(TestContext.CurrentContext.WorkDirectory);
-
-        foreach (var f in dir.GetFiles("*HappyOzz*.csv")) 
-            f.Delete();
+        var dir = _fileSystem.DirectoryInfo.New(".");
 
         opts.DestinationCsvFolder = dir.FullName;
         opts.TableName = "HappyOzz";
         opts.StoreReport = true;
             
-        FailureStoreReport report = new FailureStoreReport("HappyOzz",1000);
+        FailureStoreReport report = new FailureStoreReport("HappyOzz",1000, _fileSystem);
         report.AddDestinations(opts);
 
         var failure = new Failure(
@@ -48,7 +54,7 @@ class StoreReportTests
 
         Assert.IsNotNull(created);
 
-        var report2 = new FailureStoreReport("", 0);
+        var report2 = new FailureStoreReport("", 0, _fileSystem);
         var failures2 = report2.Deserialize(created).ToArray();
 
         //read failure ok

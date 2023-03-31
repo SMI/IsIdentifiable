@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
 using CsvHelper;
@@ -35,8 +35,9 @@ public class FailureStoreReport : FailureReport
     /// </summary>
     /// <param name="targetName"></param>
     /// <param name="maxSize">Max size of the internal store before writing out to file</param>
-    public FailureStoreReport(string targetName, int maxSize)
-        : base(targetName)
+    /// <param name="fileSystem"></param>
+    public FailureStoreReport(string targetName, int maxSize, IFileSystem fileSystem)
+        : base(targetName, fileSystem)
     {
         _dtAllFailures = new DataTable();
 
@@ -114,7 +115,7 @@ public class FailureStoreReport : FailureReport
     /// </summary>
     /// <param name="oldFile">CSV file containing <see cref="Failure"/> instances serialized by this class</param>
     /// <returns></returns>
-    public IEnumerable<Failure> Deserialize(FileInfo oldFile)
+    public IEnumerable<Failure> Deserialize(IFileInfo oldFile)
     {
         return Deserialize(oldFile,(s)=>{ },CancellationToken.None);
     }
@@ -129,57 +130,56 @@ public class FailureStoreReport : FailureReport
     /// <param name="token">Cancellation token for aborting the file deserialication (and closing the file again)</param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public IEnumerable<Failure> Deserialize(FileInfo oldFile,Action<int> loadedRows, CancellationToken token)
+    public IEnumerable<Failure> Deserialize(IFileInfo oldFile,Action<int> loadedRows, CancellationToken token)
     {
         int lineNumber = 0;
 
-        using (var sr = new StreamReader(File.OpenRead(oldFile.FullName)))
-        using (var r = new CsvReader(sr,System.Globalization.CultureInfo.CurrentCulture))
+        using var stream = oldFile.OpenRead();
+        using var sr = new System.IO.StreamReader(stream);
+        using var r = new CsvReader(sr, System.Globalization.CultureInfo.CurrentCulture);
+        if (r.Read())
+            r.ReadHeader();
+        else
+            yield break;
+        lineNumber++;
+        // "Resource", "ResourcePrimaryKey", "ProblemField", "ProblemValue", "PartWords", "PartClassifications", "PartOffsets" 
+
+        while (r.Read())
         {
-            if(r.Read())
-                r.ReadHeader();
-            else
-                yield break;
-            lineNumber ++;
-            // "Resource", "ResourcePrimaryKey", "ProblemField", "ProblemValue", "PartWords", "PartClassifications", "PartOffsets" 
+            token.ThrowIfCancellationRequested();
 
-            while (r.Read())
+            lineNumber++;
+            var parts = new List<FailurePart>();
+
+            try
             {
-                token.ThrowIfCancellationRequested();
 
-                lineNumber++;
-                var parts = new List<FailurePart>();
+                var words = r["PartWords"].Split(Separator);
+                var classes = r["PartClassifications"].Split(Separator);
+                var offsets = r["PartOffsets"].Split(Separator);
 
-                try
-                {
-
-                    var words = r["PartWords"].Split(Separator);
-                    var classes = r["PartClassifications"].Split(Separator);
-                    var offsets = r["PartOffsets"].Split(Separator);
-
-                    for(int i = 0 ; i < words.Length; i++)
-                        parts.Add(new FailurePart(words[i],
-                            (FailureClassification) Enum.Parse(typeof(FailureClassification), classes[i], true),
-                            int.Parse(offsets[i])));
-                }
-                catch (Exception e)
-                {
-                    throw new Exception($"Error Deserializing line {lineNumber}", e);
-                }
-
-                yield return new Failure( parts)
-                {
-                    Resource = r["Resource"],
-                    ResourcePrimaryKey = r["ResourcePrimaryKey"],
-                    ProblemField = r["ProblemField"],
-                    ProblemValue = r["ProblemValue"],
-                };
-
-                if(lineNumber % 1000 == 0)
-                    loadedRows(lineNumber);
+                for (int i = 0; i < words.Length; i++)
+                    parts.Add(new FailurePart(words[i],
+                        (FailureClassification)Enum.Parse(typeof(FailureClassification), classes[i], true),
+                        int.Parse(offsets[i])));
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error Deserializing line {lineNumber}", e);
             }
 
-            loadedRows(lineNumber);
+            yield return new Failure(parts)
+            {
+                Resource = r["Resource"],
+                ResourcePrimaryKey = r["ResourcePrimaryKey"],
+                ProblemField = r["ProblemField"],
+                ProblemValue = r["ProblemValue"],
+            };
+
+            if (lineNumber % 1000 == 0)
+                loadedRows(lineNumber);
         }
+
+        loadedRows(lineNumber);
     }
 }

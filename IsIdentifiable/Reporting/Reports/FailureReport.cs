@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Abstractions;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Destinations;
 
@@ -19,6 +20,11 @@ public abstract class FailureReport : IFailureReport
     public readonly string ReportName;
 
     /// <summary>
+    /// FileSystem to use for I/O
+    /// </summary>
+    protected readonly IFileSystem FileSystem;
+
+    /// <summary>
     /// The output adapters to which this reports data will be written e.g. CSV, database etc
     /// </summary>
     public List<IReportDestination> Destinations = new List<IReportDestination>();
@@ -28,9 +34,11 @@ public abstract class FailureReport : IFailureReport
     /// Creates a new report aimed at the given resource (e.g. "MR_ImageTable")
     /// </summary>
     /// <param name="targetName"></param>
-    protected FailureReport(string targetName)
+    /// <param name="fileSystem"></param>
+    protected FailureReport(string targetName, IFileSystem fileSystem)
     {
         ReportName = targetName + GetType().Name;
+        FileSystem = fileSystem;
     }
 
     /// <summary>
@@ -43,13 +51,13 @@ public abstract class FailureReport : IFailureReport
 
         // Default is to write out CSV results
         if (!string.IsNullOrWhiteSpace(opts.DestinationCsvFolder))
-            destination = new CsvDestination(opts, ReportName);
+            destination = new CsvDestination(opts, ReportName, FileSystem, true);
         else if (!string.IsNullOrWhiteSpace(opts.DestinationConnectionString))
-            destination = new DatabaseDestination(opts, ReportName);
+            destination = new DatabaseDestination(opts, ReportName, FileSystem);
         else
         {
             opts.DestinationCsvFolder = Environment.CurrentDirectory;
-            destination = new CsvDestination(opts, ReportName);
+            destination = new CsvDestination(opts, ReportName, FileSystem);
         }
 
         Destinations.Add(destination);

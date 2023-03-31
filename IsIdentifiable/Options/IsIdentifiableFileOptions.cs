@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using System.IO;
+using System.IO.Abstractions;
 using CommandLine;
 
 namespace IsIdentifiable.Options;
@@ -15,7 +15,7 @@ public class IsIdentifiableFileOptions : IsIdentifiableBaseOptions
     /// </summary>
 
     [Option('f', HelpText = "Path to a file to be evaluated", Required = true)]
-    public FileInfo File { get; set; }
+    public IFileInfo File { get; set; }
 
     /// <summary>
     /// Optional.  The culture of dates, numbers etc if different from system culture
@@ -27,7 +27,7 @@ public class IsIdentifiableFileOptions : IsIdentifiableBaseOptions
     /// Returns the name of the <see cref="File"/> (for use in outputted report names)
     /// </summary>
     /// <returns></returns>
-    public override string GetTargetName()
+    public override string GetTargetName(IFileSystem _)
     {
         return File.Name;
     }

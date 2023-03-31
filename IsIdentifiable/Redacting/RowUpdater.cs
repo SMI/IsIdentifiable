@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using FAnsi.Discovery;
 using IsIdentifiable.Redacting.UpdateStrategies;
@@ -23,7 +23,7 @@ public class RowUpdater : OutBase
     /// Default name for the true positive detection rules (for redacting with).  This file will be appended to as new rules are added.
     /// </summary>
     public const string DefaultFileName = "Reportlist.yaml";
-
+    
     /// <summary>
     /// Set to true to only output updates to Reportlist instead of trying to update the database.
     /// This is useful if you want to  run in manual mode to process everything then run unattended
@@ -41,16 +41,9 @@ public class RowUpdater : OutBase
     /// <summary>
     /// Creates a new instance which stores rules in the <paramref name="rulesFile"/> (which will also have existing rules loaded from)
     /// </summary>
-    public RowUpdater(FileInfo rulesFile) : base(rulesFile)
-    {
-    }
-
-    /// <summary>
-    /// Creates a new instance which stores rules in the <see cref="DefaultFileName"/>
-    /// </summary>
-    public RowUpdater() : this(new FileInfo(DefaultFileName))
-    {
-    }
+    public RowUpdater(IFileSystem fileSystem, IFileInfo rulesFile = null)
+        : base(rulesFile, fileSystem, DefaultFileName)
+    { }
 
     /// <summary>
     /// Update the database <paramref name="server"/> to redact the <paramref name="failure"/>.
@@ -140,5 +133,4 @@ public class RowUpdater : OutBase
 
         return true;
     }
-
 }

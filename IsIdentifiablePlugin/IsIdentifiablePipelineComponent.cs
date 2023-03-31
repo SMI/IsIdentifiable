@@ -8,6 +8,7 @@ using Rdmp.Core.DataFlowPipeline.Requirements;
 using ReusableLibraryCode.Checks;
 using ReusableLibraryCode.Progress;
 using System.Data;
+using System.IO.Abstractions;
 using YamlDotNet.Serialization;
 
 namespace IsIdentifiablePlugin;
@@ -80,7 +81,7 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , I
         if (!string.IsNullOrWhiteSpace(targetName))
             opts.IsIdentifiableOptions.TargetName = targetName;
 
-        _runner = new CustomRunner(opts.IsIdentifiableOptions);
+        _runner = new CustomRunner(opts.IsIdentifiableOptions, new FileSystem());
         
     }
 
@@ -101,7 +102,8 @@ class CustomRunner : IsIdentifiableAbstractRunner
 {
     private readonly IsIdentifiableBaseOptions options;
 
-    public CustomRunner(IsIdentifiableBaseOptions options) : base(options)
+    public CustomRunner(IsIdentifiableBaseOptions options, IFileSystem fileSystem)
+        : base(options, fileSystem)
     {
         this.options = options;
     }
@@ -127,7 +129,7 @@ class CustomRunner : IsIdentifiableAbstractRunner
                     {
                         ProblemField = col.ColumnName,
                         ProblemValue = val.ToString(),
-                        Resource = options.GetTargetName()
+                        Resource = options.GetTargetName(FileSystem)
                     };
 
                     AddToReports(f);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.IO.Abstractions;
 using System.Linq;
 using FAnsi.Discovery;
 using FAnsi.Discovery.QuerySyntax;
@@ -31,7 +32,9 @@ public class DatabaseRunner : IsIdentifiableAbstractRunner
     /// in <paramref name="opts"/>
     /// </summary>
     /// <param name="opts">Database to read from and rules settings</param>
-    public DatabaseRunner(IsIdentifiableRelationalDatabaseOptions opts) : base(opts)
+    /// <param name="fileSystem"></param>
+    public DatabaseRunner(IsIdentifiableRelationalDatabaseOptions opts, IFileSystem fileSystem)
+        : base(opts, fileSystem)
     {
         _opts = opts;
         LogProgressNoun = "records";

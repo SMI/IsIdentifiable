@@ -1,6 +1,5 @@
 ﻿using IsIdentifiable;
 using NUnit.Framework;
-using System.IO;
 using Terminal.Gui;
 using YamlDotNet.Serialization;
 
@@ -11,10 +10,10 @@ class TerminalGuiThemeTests
     [Test]
     public void TestDeserialization()
     {
-        var themeFile = Path.Combine(TestContext.CurrentContext.TestDirectory, "theme.yaml");
+        var themeFile = System.IO.Path.Combine(TestContext.CurrentContext.TestDirectory, "theme.yaml");
         var des = new Deserializer();
 
-        var theme = des.Deserialize<TerminalGuiTheme>(File.ReadAllText(themeFile));
+        var theme = des.Deserialize<TerminalGuiTheme>(System.IO.File.ReadAllText(themeFile));
 
         Assert.AreNotEqual(default(Color), theme.Base.HotFocusBackground);
         Assert.AreNotEqual(default(Color), theme.Base.HotFocusForeground);

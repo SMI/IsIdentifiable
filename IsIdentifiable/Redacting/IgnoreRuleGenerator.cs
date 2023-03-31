@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Rules;
@@ -23,17 +23,9 @@ public class IgnoreRuleGenerator : OutBase
     /// <summary>
     /// Creates a new instance which stores rules in the <paramref name="rulesFile"/> (which will also have existing rules loaded from)
     /// </summary>
-    public IgnoreRuleGenerator(FileInfo rulesFile) : base(rulesFile)
-    {
-
-    }
-
-    /// <summary>
-    /// Creates a new instance which stores rules in the <see cref="DefaultFileName"/>
-    /// </summary>
-    public IgnoreRuleGenerator() : this(new FileInfo(DefaultFileName))
-    {
-    }
+    public IgnoreRuleGenerator(IFileSystem fileSystem, IFileInfo rulesFile = null)
+        : base(rulesFile, fileSystem, DefaultFileName)
+    { }
 
     /// <summary>
     /// Adds a rule to ignore the given failure
@@ -66,6 +58,4 @@ public class IgnoreRuleGenerator : OutBase
         //get user ot make a decision only if it is NOT covered by an existing rule
         return !IsCoveredByExistingRule(failure, out existingRule);
     }
-
-
 }

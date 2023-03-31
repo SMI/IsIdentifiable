@@ -2,69 +2,56 @@
 using IsIdentifiable.Options;
 using NUnit.Framework;
 using System;
-using System.IO;
+using System.IO.Abstractions.TestingHelpers;
 
 namespace IsIdentifiable.Tests
 {
     internal class IsIdentifiableRelationalDatabaseOptionsTests
     {
+        private MockFileSystem _fileSystem;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _fileSystem = new MockFileSystem();
+        }
+
         [Test]
         public void TestReturnValueForUsingTargets()
         {
-            var path = Path.Combine(TestContext.CurrentContext.WorkDirectory, "Targets.yaml");
-
-            if (File.Exists(path))
-                File.Delete(path);
-
             var opt = new IsIdentifiableRelationalDatabaseOptions();
 
             // no file no problem
-            Assert.AreEqual(0, opt.UpdateConnectionStringsToUseTargets(out var targets));
+            Assert.AreEqual(0, opt.UpdateConnectionStringsToUseTargets(out var targets, _fileSystem));
             Assert.IsEmpty(targets);
 
-            opt.TargetsFile = "fff.yaml";
-
-            var ff = Path.Combine(TestContext.CurrentContext.WorkDirectory, "fff.yaml");
-            
-            if (File.Exists(ff))
-                File.Delete(ff);
+            var ff = "fff.yaml";
+            opt.TargetsFile = ff;
 
             // error code because file does not exist
-            Assert.AreEqual(1, opt.UpdateConnectionStringsToUseTargets(out targets));
+            Assert.AreEqual(1, opt.UpdateConnectionStringsToUseTargets(out targets, _fileSystem));
             Assert.IsEmpty(targets);
 
-            File.WriteAllText(
-          Path.Combine(TestContext.CurrentContext.WorkDirectory, "fff.yaml"),
-
-                @$"");
+            _fileSystem.File.WriteAllText(ff, @$"");
 
             // file exists but is empty
-            Assert.AreEqual(2, opt.UpdateConnectionStringsToUseTargets(out targets));
+            Assert.AreEqual(2, opt.UpdateConnectionStringsToUseTargets(out targets, _fileSystem));
             Assert.IsEmpty(targets);
 
-
-
-            File.WriteAllText(
-          Path.Combine(TestContext.CurrentContext.WorkDirectory, "fff.yaml"),
-
-                @$"Ahoy ye pirates");
+            _fileSystem.File.WriteAllText(ff, @$"Ahoy ye pirates");
 
             // file exists and has random garbage in it
-            Assert.AreEqual(4, opt.UpdateConnectionStringsToUseTargets(out targets));
+            Assert.AreEqual(4, opt.UpdateConnectionStringsToUseTargets(out targets, _fileSystem));
             Assert.IsEmpty(targets);
 
-
-
-            File.WriteAllText(
-          Path.Combine(TestContext.CurrentContext.WorkDirectory, "fff.yaml"),
-
-
+            _fileSystem.File.WriteAllText(
+                ff,
                 @$"- Name: MyServer
   ConnectionString: yarg
   DatabaseType: MySql");
 
             // valid Targets file
-            Assert.AreEqual(0, opt.UpdateConnectionStringsToUseTargets(out targets));
+            Assert.AreEqual(0, opt.UpdateConnectionStringsToUseTargets(out targets, _fileSystem));
             Assert.AreEqual(1,targets.Count);
         }
 
@@ -77,10 +64,8 @@ namespace IsIdentifiable.Tests
             string targetConstr = "Server=localhost;Username=root;Password=fff";
 
             // create a Targets.yaml file with a valid target
-            File.WriteAllText(
-                
-                Path.Combine(TestContext.CurrentContext.WorkDirectory,"Targets.yaml"),
-
+            _fileSystem.File.WriteAllText(
+                "Targets.yaml",
                 @$"- Name: MyServer
   ConnectionString: {targetConstr}
   DatabaseType: MySql");
@@ -107,13 +92,13 @@ namespace IsIdentifiable.Tests
             Action<IsIdentifiableRelationalDatabaseOptions, string> setter)
         {
             // there is 1 target
-            opt.UpdateConnectionStringsToUseTargets(out var targets);
+            opt.UpdateConnectionStringsToUseTargets(out var targets, _fileSystem);
             Assert.AreEqual(1, targets.Count);
 
             Assert.IsNull(getter(opt));
 
             setter(opt, constr);
-            opt.UpdateConnectionStringsToUseTargets(out _);
+            opt.UpdateConnectionStringsToUseTargets(out _, _fileSystem);
 
             if (expectToUseTargets)
             {

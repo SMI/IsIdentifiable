@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using FAnsi;
@@ -18,6 +17,7 @@ using NLog;
 using YamlDotNet.Serialization;
 using IsIdentifiable.Reporting;
 using System.Threading;
+using System.IO.Abstractions;
 
 namespace IsIdentifiable.Runners;
 
@@ -31,6 +31,11 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
     private readonly IsIdentifiableBaseOptions _opts;
+
+    /// <summary>
+    /// FileSystem to use for I/O
+    /// </summary>
+    protected readonly IFileSystem FileSystem;
 
     /// <summary>
     /// Collection of methods which will be used to aggregate or persist <see cref="Failure"/>
@@ -162,25 +167,28 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// in <paramref name="opts"/>
     /// </summary>
     /// <param name="opts">Configuration class that stores where rules should be loaded from, whether to consider dates identifiable etc</param>
+    /// <param name="fileSystem"></param>
     /// <param name="customReports">Any custom reports that should be added in addition to those specified in <paramref name="opts"/></param>
     /// <exception cref="Exception"></exception>
-    protected IsIdentifiableAbstractRunner(IsIdentifiableBaseOptions opts, params IFailureReport[] customReports)
+    protected IsIdentifiableAbstractRunner(IsIdentifiableBaseOptions opts, IFileSystem fileSystem, params IFailureReport[] customReports)
     {
+        FileSystem = fileSystem;
+
         _lifetime = Stopwatch.StartNew();
         _opts = opts;
         _opts.ValidateOptions();
         MaxValidationCacheSize = opts.MaxValidationCacheSize ?? IsIdentifiableBaseOptions.MaxValidationCacheSizeDefault;
 
-        string targetName = _opts.GetTargetName();
+        string targetName = _opts.GetTargetName(FileSystem);
 
         if (opts.ColumnReport)
-            Reports.Add(new ColumnFailureReport(targetName));
+            Reports.Add(new ColumnFailureReport(targetName, fileSystem));
 
         if (opts.ValuesReport)
-            Reports.Add(new FailingValuesReport(targetName));
+            Reports.Add(new FailingValuesReport(targetName, fileSystem));
             
         if (opts.StoreReport)
-            Reports.Add(new FailureStoreReport(targetName, _opts.MaxCacheSize ?? IsIdentifiableBaseOptions.MaxCacheSizeDefault));
+            Reports.Add(new FailureStoreReport(targetName, _opts.MaxCacheSize ?? IsIdentifiableBaseOptions.MaxCacheSizeDefault,FileSystem));
 
         // add custom reports
         foreach (var report in customReports)
@@ -199,10 +207,10 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         // is there a single rules yaml file specified?
         if (!string.IsNullOrWhiteSpace(opts.RulesFile))
         {
-            var fi = new FileInfo(_opts.RulesFile);
+            var fi = FileSystem.FileInfo.New(_opts.RulesFile);
             if (fi.Exists)
             {
-                LoadRules(File.ReadAllText(fi.FullName));
+                LoadRules(FileSystem.File.ReadAllText(fi.FullName));
             }   
             else
             {
@@ -218,12 +226,12 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
 
         if (!string.IsNullOrWhiteSpace(opts.RulesDirectory))
         {
-            DirectoryInfo di = new DirectoryInfo(opts.RulesDirectory);
+            var di = FileSystem.DirectoryInfo.New(opts.RulesDirectory);
             bool loadedAtLeastOne = false;
             foreach (var fi in di.GetFiles("*.yaml"))
             {
                 _logger.Info($"Loading rules from {fi.Name}");
-                var any = LoadRules(File.ReadAllText(fi.FullName));
+                var any = LoadRules(FileSystem.File.ReadAllText(fi.FullName));
 
                 if(!any)
                 {
@@ -528,8 +536,8 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         if (!string.IsNullOrWhiteSpace(_opts.AllowlistCsv))
         {
             // If there's a file Allowlist
-            source = new CsvAllowlist(_opts.AllowlistCsv);
-            _logger.Info($"Loaded a Allowlist from {Path.GetFullPath(_opts.AllowlistCsv)}");
+            source = new CsvAllowlist(_opts.AllowlistCsv, FileSystem);
+            _logger.Info($"Loaded a Allowlist from {FileSystem.Path.GetFullPath(_opts.AllowlistCsv)}");
         }
         else if (!string.IsNullOrWhiteSpace(_opts.AllowlistConnectionString) && _opts.AllowlistDatabaseType.HasValue)
         {

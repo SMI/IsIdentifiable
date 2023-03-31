@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
@@ -12,10 +12,18 @@ namespace IsIdentifiableTests;
 
 public class IsIdentifiableRunnerTests
 {
+    private MockFileSystem _fileSystem;
+
+    [SetUp]
+    public void SetUp()
+    {
+        _fileSystem = new MockFileSystem();
+    }
+
     [Test]
     public void TestChiInString()
     {
-        var runner = new TestRunner("hey there,0101010101 excited to see you");
+        var runner = new TestRunner("hey there,0101010101 excited to see you", _fileSystem);
         runner.Run();
 
         FailurePart p = runner.ResultsOfValidate.Single();
@@ -27,7 +35,7 @@ public class IsIdentifiableRunnerTests
     [Test]
     public void TestChiBadDate()
     {
-        var runner = new TestRunner("2902810123 would be a CHI if 1981 had been a leap year");
+        var runner = new TestRunner("2902810123 would be a CHI if 1981 had been a leap year", _fileSystem);
         runner.Run();
         Assert.IsEmpty(runner.ResultsOfValidate);
     }
@@ -35,7 +43,7 @@ public class IsIdentifiableRunnerTests
     [Test]
     public void TestCaching()
     {
-        var runner = new TestRunner("hey there,0101010101 excited to see you");
+        var runner = new TestRunner("hey there,0101010101 excited to see you", _fileSystem);
         runner.Run();
         Assert.AreEqual(0,runner.ValidateCacheHits);
         Assert.AreEqual(1,runner.ValidateCacheMisses);
@@ -71,7 +79,7 @@ public class IsIdentifiableRunnerTests
     [Test]
     public void Test_NoCaching()
     {
-        var runner = new TestRunner("hey there,0101010101 excited to see you");
+        var runner = new TestRunner("hey there,0101010101 excited to see you", _fileSystem);
         runner.MaxValidationCacheSize = 0;
 
         runner.Run();
@@ -90,7 +98,7 @@ public class IsIdentifiableRunnerTests
     [TestCase("dd37lb")]
     public void IsIdentifiable_TestPostcodes(string code)
     {
-        var runner = new TestRunner($"Patient lives at {code}");
+        var runner = new TestRunner($"Patient lives at {code}", _fileSystem);
         runner.Run();
 
         var p = runner.ResultsOfValidate.Single();
@@ -107,7 +115,7 @@ public class IsIdentifiableRunnerTests
     public void IsIdentifiable_TestPostcodes_AllowlistDD3(string code)
     {
 
-        var runner = new TestRunner($"Patient lives at {code}");
+        var runner = new TestRunner($"Patient lives at {code}", _fileSystem);
             
         runner.LoadRules(
             @"
@@ -126,7 +134,7 @@ BasicRules:
     public void IsIdentifiable_TestPostcodes_IgnorePostcodesFlagSet(string code)
     {
         //since allow postcodes flag is set
-        var runner = new TestRunner($"Patient lives at {code}", new TestOpts() { IgnorePostcodes = true });
+        var runner = new TestRunner($"Patient lives at {code}", new TestOpts() { IgnorePostcodes = true }, _fileSystem);
         runner.Run();
 
         //there won't be any failure results reported
@@ -140,7 +148,7 @@ BasicRules:
     [TestCase("dd3^7lb", "dd3 7lb")]
     public void IsIdentifiable_TestPostcodes_EmbeddedInText(string find, string expectedMatch)
     {
-        var runner = new TestRunner(find);
+        var runner = new TestRunner(find, _fileSystem);
         runner.Run();
 
         var p = runner.ResultsOfValidate.Single();
@@ -157,7 +165,7 @@ BasicRules:
     public void IsIdentifiable_TestNotAPostcode(string code)
     {
 
-        var runner = new TestRunner($"Patient lives at {code}");
+        var runner = new TestRunner($"Patient lives at {code}", _fileSystem);
         runner.Run();
 
         Assert.IsEmpty(runner.ResultsOfValidate);
@@ -190,7 +198,7 @@ BasicRules:
     //[TestCase("AB 13:10", "13:10", null, null)]
     public void IsIdentifiable_TestDates(string date, string expectedMatch1, string expectedMatch2, string expectedMatch3)
     {
-        var runner = new TestRunner($"Patient next appointment is {date}");
+        var runner = new TestRunner($"Patient next appointment is {date}", _fileSystem);
         runner.Run();
             
         Assert.AreEqual(expectedMatch1, runner.ResultsOfValidate[0].Word);
@@ -216,7 +224,7 @@ BasicRules:
     [TestCase("AB13:10")]
     public void IsIdentifiable_Test_NotADate(string input)
     {
-        var runner = new TestRunner(input);
+        var runner = new TestRunner(input, _fileSystem);
         runner.Run();
 
         Assert.IsEmpty(runner.ResultsOfValidate);
@@ -225,7 +233,7 @@ BasicRules:
     [Test]
     public void TestChiAndNameInString()
     {
-        var runner = new TestRunner("David Smith should be referred to with chi 0101010101");
+        var runner = new TestRunner("David Smith should be referred to with chi 0101010101", _fileSystem);
 
         runner.Run();
         Assert.AreEqual(1, runner.ResultsOfValidate.Count);
@@ -252,7 +260,7 @@ BasicRules:
     [TestCase(false)]
     public void TestCaseSensitivity_BlackBox(bool caseSensitive)
     {
-        var runner = new TestRunner("FF");
+        var runner = new TestRunner("FF", _fileSystem);
 
         runner.CustomRules.Add( new IsIdentifiableRule()
         {
@@ -279,7 +287,7 @@ BasicRules:
     [TestCase(false)]
     public void TestRuleOrdering_BlackBox(bool ignoreFirst)
     {
-        var runner = new TestRunner("FF");
+        var runner = new TestRunner("FF", _fileSystem);
 
         if (ignoreFirst)
         {
@@ -311,7 +319,7 @@ BasicRules:
             SkipColumns = sopKey
         };
 
-        var runner = new TestRunner(exampleSop, testOpts, sopKey);
+        var runner = new TestRunner(exampleSop, testOpts, _fileSystem, sopKey);
 
         runner.Run();
         Assert.AreEqual(0, runner.ResultsOfValidate.Count);
@@ -320,30 +328,30 @@ BasicRules:
     [Test]
     public void TestEmptyRulesDir()
     {
-        var emptyDir = Path.Combine(TestContext.CurrentContext.WorkDirectory, "empty");
-        Directory.CreateDirectory(emptyDir);
+        var emptyDir = "empty";
+        _fileSystem.Directory.CreateDirectory(emptyDir);
 
-        Assert.IsEmpty(Directory.GetFiles(emptyDir, "*.yaml"),"Expected the empty dir not to have any rules yaml files");
+        Assert.IsEmpty(_fileSystem.Directory.GetFiles(emptyDir, "*.yaml"),"Expected the empty dir not to have any rules yaml files", _fileSystem);
 
         var testOpts = new TestOpts
         {
             RulesDirectory = emptyDir
         };
 
-        var ex = Assert.Throws<Exception>(()=> new TestRunner("fff", testOpts));
+        var ex = Assert.Throws<Exception>(()=> new TestRunner("fff", testOpts, _fileSystem));
         StringAssert.Contains(" did not contain any rules files containing rules", ex.Message);
     }
     [Test]
     public void TestMissingRulesDir()
     {
-        var missingDir = Path.Combine(TestContext.CurrentContext.WorkDirectory, "hahaIdontexist");
+        var missingDir = "hahaIdontexist";
         
         var testOpts = new TestOpts
         {
             RulesDirectory = missingDir
         };
 
-        var ex = Assert.Throws<DirectoryNotFoundException>(() => new TestRunner("fff", testOpts));
+        var ex = Assert.Throws<System.IO.DirectoryNotFoundException>(() => new TestRunner("fff", testOpts, _fileSystem));
         StringAssert.Contains("Could not find a part of the path", ex.Message);
         StringAssert.Contains("hahaIdontexist", ex.Message);
     }
@@ -352,22 +360,22 @@ BasicRules:
     [TestCase("SocketRules:")]
     public void TestOnlyEmptyRulesFilesInDir(string yaml)
     {
-        var emptyishDir = Path.Combine(TestContext.CurrentContext.WorkDirectory, "emptyish");
-        Directory.CreateDirectory(emptyishDir);
+        var emptyishDir = "emptyish";
+        _fileSystem.Directory.CreateDirectory(emptyishDir);
 
-        var rulePath = Path.Combine(emptyishDir,"Somerules.yaml");
+        var rulePath = _fileSystem.Path.Combine(emptyishDir,"Somerules.yaml");
 
         //notice that this file is empty
-        File.WriteAllText(rulePath, yaml);
+        _fileSystem.File.WriteAllText(rulePath, yaml);
 
-        Assert.IsNotEmpty(Directory.GetFiles(emptyishDir, "*.yaml"));
+        Assert.IsNotEmpty(_fileSystem.Directory.GetFiles(emptyishDir, "*.yaml"));
 
         var testOpts = new TestOpts
         {
             RulesDirectory = emptyishDir
         };
 
-        var ex = Assert.Throws<Exception>(() => new TestRunner("fff", testOpts));
+        var ex = Assert.Throws<Exception>(() => new TestRunner("fff", testOpts, _fileSystem));
         StringAssert.Contains(" did not contain any rules files containing rules", ex.Message);
     }
 
@@ -380,15 +388,15 @@ BasicRules:
 
         public readonly List<FailurePart> ResultsOfValidate = new List<FailurePart>();
 
-        public TestRunner(string valueToTest)
-            : base(new TestOpts())
+        public TestRunner(string valueToTest, MockFileSystem fileSystem)
+            : base(new TestOpts(), fileSystem)
         {
             ValueToTest = valueToTest;
             FieldToTest = "field";
         }
 
-        public TestRunner(string valueToTest, TestOpts opts, string fieldToTest = "field")
-            : base(opts)
+        public TestRunner(string valueToTest, TestOpts opts, MockFileSystem fileSystem, string fieldToTest = "field")
+            : base(opts, fileSystem)
         {
             FieldToTest = fieldToTest;
             ValueToTest = valueToTest;
@@ -406,10 +414,10 @@ BasicRules:
     {
         public TestOpts()
         {
-            DestinationCsvFolder = TestContext.CurrentContext.TestDirectory;
+            DestinationCsvFolder = "";
             StoreReport = true;
         }
-        public override string GetTargetName()
+        public override string GetTargetName(System.IO.Abstractions.IFileSystem _)
         {
             // avoids collisions where multiple output reports are attempted at the same second
             return Guid.NewGuid().ToString();
