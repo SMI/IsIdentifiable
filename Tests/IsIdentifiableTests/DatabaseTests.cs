@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using FAnsi;
@@ -38,9 +37,9 @@ public class DatabaseTests
                 typeof(MySqlServerHelper).Assembly,
                 typeof(PostgreSqlServerHelper).Assembly);
 
-            var file = Path.Combine(TestContext.CurrentContext.TestDirectory, TestFilename);
+            var file = TestFilename;
 
-            Assert.IsTrue(File.Exists(file), "Could not find " + TestFilename);
+            Assert.IsTrue(System.IO.File.Exists(file), "Could not find " + TestFilename);
 
             var doc = XDocument.Load(file);
 

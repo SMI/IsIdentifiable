@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO.Abstractions;
 
 namespace IsIdentifiable.Reporting.Reports;
 
@@ -9,8 +10,8 @@ internal class FailingValuesReport : FailureReport
     private readonly object _oFailuresLock = new object();
     private readonly Dictionary<string, HashSet<string>> _failures = new Dictionary<string, HashSet<string>>();
 
-    public FailingValuesReport(string targetName)
-        : base(targetName) { }
+    public FailingValuesReport(string targetName, IFileSystem fileSystem)
+        : base(targetName, fileSystem) { }
 
     public override void Add(Failure failure)
     {

@@ -3,6 +3,10 @@ using Terminal.Gui;
 using Terminal.Gui.Trees;
 using IsIdentifiable.Options;
 using IsIdentifiable.Redacting;
+using System.IO.Abstractions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace IsIdentifiable.Views.Manager;
 
@@ -17,10 +21,12 @@ class AllRulesManagerView : View, ITreeBuilder<object>
     private readonly IsIdentifiableReviewerOptions _reviewerOpts;
     private RuleDetailView detailView;
     private TreeView<object> treeView;
+    private readonly IFileSystem _fileSystem;
 
-
-    public AllRulesManagerView(IsIdentifiableBaseOptions? analyserOpts , IsIdentifiableReviewerOptions reviewerOpts)
+    public AllRulesManagerView(IsIdentifiableBaseOptions? analyserOpts , IsIdentifiableReviewerOptions reviewerOpts, IFileSystem fileSystem)
     {
+        _fileSystem = fileSystem;
+
         Width = Dim.Fill();
         Height = Dim.Fill();
 
@@ -198,15 +204,15 @@ class AllRulesManagerView : View, ITreeBuilder<object>
         {
             if(!string.IsNullOrWhiteSpace(_analyserOpts?.RulesDirectory))
             {
-                foreach (var f in Directory.GetFiles(_analyserOpts.RulesDirectory,"*.yaml"))
+                foreach (var f in _fileSystem.Directory.GetFiles(_analyserOpts.RulesDirectory,"*.yaml"))
                 {
-                    yield return new RuleSetFileNode(new FileInfo(f));
+                    yield return new RuleSetFileNode(_fileSystem.FileInfo.New(f));
                 }
             }
 
             if (!string.IsNullOrWhiteSpace(_analyserOpts?.RulesFile))
             {
-                var file = new FileInfo(_analyserOpts.RulesFile);
+                var file = _fileSystem.FileInfo.New(_analyserOpts.RulesFile);
                 
                 if (file.Exists)
                 {
@@ -218,11 +224,11 @@ class AllRulesManagerView : View, ITreeBuilder<object>
         {
             if(!string.IsNullOrWhiteSpace(_reviewerOpts.Reportlist))
             {
-                yield return new RowUpdater(new FileInfo(_reviewerOpts.Reportlist));
+                yield return new RowUpdater(_fileSystem, _fileSystem.FileInfo.New(_reviewerOpts.Reportlist));
             }
             if (!string.IsNullOrWhiteSpace(_reviewerOpts.IgnoreList))
             {
-                yield return new IgnoreRuleGenerator(new FileInfo(_reviewerOpts.IgnoreList));
+                yield return new IgnoreRuleGenerator(_fileSystem, _fileSystem.FileInfo.New(_reviewerOpts.IgnoreList));
             }
         }
 

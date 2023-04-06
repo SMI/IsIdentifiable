@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using System.IO;
+using System.IO.Abstractions.TestingHelpers;
 
 namespace IsIdentifiable.Tests.ReviewerTests
 {
@@ -76,10 +76,10 @@ namespace IsIdentifiable.Tests.ReviewerTests
         [Test]
         public void TestDeserialize_SmiServices_DefaultYaml()
         {
-            var f = Path.Combine(TestContext.CurrentContext.TestDirectory,"default.yaml");
+            var f = System.IO.Path.Combine(TestContext.CurrentContext.TestDirectory,"default.yaml");
             FileAssert.Exists(f);
 
-            var opts = Program.Deserialize(f);
+            var opts = Program.Deserialize(f, new System.IO.Abstractions.FileSystem());
             Assert.IsNotNull(opts.IsIdentifiableReviewerOptions);
             Assert.IsNotNull(opts.IsIdentifiableOptions);
         }

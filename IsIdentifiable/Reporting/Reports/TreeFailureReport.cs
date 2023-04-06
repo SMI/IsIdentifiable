@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
 using IsIdentifiable.Options;
@@ -25,8 +26,8 @@ internal class TreeFailureReport : FailureReport
 
     private readonly bool _reportAggregateCounts;
 
-    public TreeFailureReport(string targetName, bool reportAggregateCounts = false)
-        : base(targetName)
+    public TreeFailureReport(string targetName, IFileSystem fileSystem, bool reportAggregateCounts = false)
+        : base(targetName, fileSystem)
     {
         _reportAggregateCounts = reportAggregateCounts;
     }

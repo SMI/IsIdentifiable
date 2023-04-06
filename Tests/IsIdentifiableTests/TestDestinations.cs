@@ -1,29 +1,36 @@
-﻿using System;
-using System.Data;
-using System.IO;
-using IsIdentifiable.Options;
+﻿using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Destinations;
 using IsIdentifiable.Reporting.Reports;
 using NUnit.Framework;
+using System;
+using System.Data;
+using System.IO.Abstractions.TestingHelpers;
 
 namespace IsIdentifiableTests;
 
 internal class TestDestinations
 {
+    private MockFileSystem _fileSystem;
+    private const string OUT_DIR = "test";
+
+    [SetUp]
+    public void SetUp()
+    {
+        _fileSystem = new MockFileSystem();
+    }
+
     [Test]
     public void TestCsvDestination_Normal()
     {
-        var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
-
-        var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationCsvFolder = outDir.FullName };
-        var dest = new CsvDestination(opts, "test",false);
+        var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationCsvFolder = OUT_DIR };
+        var dest = new CsvDestination(opts, "test", _fileSystem, false);
 
         var report = new TestFailureReport(dest);
         report.WriteToDestinations();
         report.CloseReport();
 
-        string fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
+        string fileCreatedContents = _fileSystem.File.ReadAllText(_fileSystem.Path.Combine(OUT_DIR, "test.csv"));
         fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
 
         TestHelpers.AreEqualIgnoringLineEndings(@"col1,col2
@@ -35,16 +42,14 @@ internal class TestDestinations
     [Test]
     public void TestCsvDestination_NormalButNoWhitespace()
     {
-        var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
+        var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationNoWhitespace = true, DestinationCsvFolder = OUT_DIR };
+        var dest = new CsvDestination(opts, "test", _fileSystem, false);
 
-        var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationNoWhitespace = true, DestinationCsvFolder = outDir.FullName };
-        var dest = new CsvDestination(opts, "test",false);
-            
         var report = new TestFailureReport(dest);
         report.WriteToDestinations();
         report.CloseReport();
 
-        var fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
+        var fileCreatedContents = _fileSystem.File.ReadAllText(_fileSystem.Path.Combine(OUT_DIR, "test.csv"));
         fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
 
         TestHelpers.AreEqualIgnoringLineEndings(@"col1,col2
@@ -55,23 +60,21 @@ cell1 with some new lines and tabs,cell2
     [Test]
     public void TestCsvDestination_Tabs()
     {
-        var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
-
         var opts = new IsIdentifiableRelationalDatabaseOptions
         {
             // This is slash t, not an tab
             DestinationCsvSeparator = "\\t",
             DestinationNoWhitespace = true,
-            DestinationCsvFolder = outDir.FullName
+            DestinationCsvFolder = OUT_DIR,
         };
 
-        var dest = new CsvDestination(opts, "test",false);
-            
+        var dest = new CsvDestination(opts, "test", _fileSystem, false);
+
         var report = new TestFailureReport(dest);
         report.WriteToDestinations();
         report.CloseReport();
 
-        string fileCreatedContents = File.ReadAllText(Path.Combine(outDir.FullName, "test.csv"));
+        string fileCreatedContents = _fileSystem.File.ReadAllText(_fileSystem.Path.Combine(OUT_DIR, "test.csv"));
         fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
 
         TestHelpers.AreEqualIgnoringLineEndings(@"col1	col2
@@ -82,10 +85,8 @@ cell1 with some new lines and tabs	cell2
     [Test]
     public void TestCsvDestination_DisposeWithoutUsing()
     {
-        var outDir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
-
-        var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationCsvFolder = outDir.FullName };
-        var dest = new CsvDestination(opts, "test", false);
+        var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationCsvFolder = OUT_DIR };
+        var dest = new CsvDestination(opts, "test", _fileSystem, false);
         dest.Dispose();
     }
 }

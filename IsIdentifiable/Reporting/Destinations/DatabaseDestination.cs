@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.IO.Abstractions;
 using FAnsi.Discovery;
 using IsIdentifiable.Options;
 
@@ -10,8 +11,8 @@ internal class DatabaseDestination : ReportDestination
     private readonly string _reportName;
     private DiscoveredTable _tbl;
 
-    public DatabaseDestination(IsIdentifiableBaseOptions options, string reportName)
-        : base(options)
+    public DatabaseDestination(IsIdentifiableBaseOptions options, string reportName, IFileSystem fileSystem)
+        : base(options, fileSystem)
     {
 
         if(options.DestinationDatabaseType == null)

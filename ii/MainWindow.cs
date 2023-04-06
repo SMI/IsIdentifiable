@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -12,6 +11,7 @@ using IsIdentifiable.Views;
 using IsIdentifiable.Views.Manager;
 using Terminal.Gui;
 using IsIdentifiable.Redacting;
+using System.IO.Abstractions;
 
 namespace IsIdentifiable;
 
@@ -72,6 +72,7 @@ class MainWindow : IRulePatternFactory
     private MenuItem miCustomPatterns;
     private RulesView rulesView;
     private AllRulesManagerView rulesManager;
+    private readonly IFileSystem _fileSystem;
 
     public MenuBar Menu { get; private set; }
 
@@ -85,8 +86,10 @@ G - creates a regex pattern that matches only the failing part(s)
 \c - replaces all characters with regex wildcards
 \d\c - replaces all digits and characters with regex wildcards";
 
-    public MainWindow(IsIdentifiableBaseOptions analyserOpts, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater)
+    public MainWindow(IsIdentifiableBaseOptions analyserOpts, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater, IFileSystem fileSystem)
     {
+        _fileSystem = fileSystem;
+
         Ignorer = ignorer;
         Updater = updater;
         _origUpdaterRulesFactory = updater.RulesFactory;
@@ -105,7 +108,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
         var viewMain = new View() { Width = Dim.Fill(), Height = Dim.Fill() };
         rulesView = new RulesView();
-        rulesManager = new AllRulesManagerView(analyserOpts, opts);
+        rulesManager = new AllRulesManagerView(analyserOpts, opts, fileSystem);
 
         _info = new Label("Info")
         {
@@ -483,8 +486,8 @@ G - creates a regex pattern that matches only the failing part(s)
         Task.Run(()=>{
                 try
                 {
-                    CurrentReport = new ReportReader(new FileInfo(path),(s)=>
-                        rows.Text = $"Loaded: {s:N0} rows",cts.Token);
+                    CurrentReport = new ReportReader(_fileSystem.FileInfo.New(path),(s)=>
+                        rows.Text = $"Loaded: {s:N0} rows",cts.Token, _fileSystem);
                     SetupToShow(CurrentReport.Failures.FirstOrDefault());
                     BeginNext();
 
@@ -507,7 +510,7 @@ G - creates a regex pattern that matches only the failing part(s)
             cts.Dispose();
         });
 
-        _currentReportLabel.Text = $"Report:{Path.GetFileName(path)}";
+        _currentReportLabel.Text = $"Report:{_fileSystem.Path.GetFileName(path)}";
         _currentReportLabel.SetNeedsDisplay();
 
         Application.Run(dlg);

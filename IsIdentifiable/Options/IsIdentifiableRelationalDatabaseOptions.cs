@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Abstractions;
 using System.Linq;
 using CommandLine;
 using CommandLine.Text;
@@ -65,7 +66,7 @@ public class IsIdentifiableRelationalDatabaseOptions : IsIdentifiableBaseOptions
     /// Returns the <see cref="TableName"/> for use in output report names
     /// </summary>
     /// <returns></returns>
-    public override string GetTargetName()
+    public override string GetTargetName(IFileSystem _)
     {
         return TableName;
     }
@@ -75,11 +76,12 @@ public class IsIdentifiableRelationalDatabaseOptions : IsIdentifiableBaseOptions
     /// named servers if specified
     /// </summary>
     /// <param name="targets"></param>
+    /// <param name="fileSystem"></param>
     /// <returns></returns>
-    public override int UpdateConnectionStringsToUseTargets(out List<Target> targets)
+    public override int UpdateConnectionStringsToUseTargets(out List<Target> targets, IFileSystem fileSystem)
     {
         var logger = LogManager.GetCurrentClassLogger();
-        int result = base.UpdateConnectionStringsToUseTargets(out targets);
+        int result = base.UpdateConnectionStringsToUseTargets(out targets, fileSystem);
 
         if (result != 0)
             return result;

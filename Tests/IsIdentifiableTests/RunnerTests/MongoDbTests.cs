@@ -5,27 +5,31 @@ using IsIdentifiable.Runners;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
-using NUnit.Framework.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using YamlDotNet.Serialization;
 
 namespace IsIdentifiable.Tests.RunnerTests
 {
     internal class MongoDbTests
     {
+        private MockFileSystem _fileSystem;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _fileSystem = new MockFileSystem();
+        }
+
         public static MongoClientSettings GetMongoClientSettings()
         {
             IDeserializer deserializer = new DeserializerBuilder()
                 .IgnoreUnmatchedProperties()
                 .Build();
 
-            return deserializer.Deserialize<A>(new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, "Mongo.yaml")));
+            using var sr = new System.IO.StreamReader(System.IO.Path.Combine(TestContext.CurrentContext.TestDirectory, "Mongo.yaml"));
+            return deserializer.Deserialize<A>(sr);
         }
 
         class A : MongoClientSettings
@@ -190,7 +194,7 @@ namespace IsIdentifiable.Tests.RunnerTests
                 CollectionName = collectionName,
                 MongoConnectionString = $"mongodb://{settings.Server}",
                 StoreReport = true
-            }) ;
+            }, _fileSystem) ;
 
             runner.CustomRules.Add(new IsIdentifiableRule
             {

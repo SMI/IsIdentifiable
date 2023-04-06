@@ -1,13 +1,13 @@
 ﻿using IsIdentifiable.Rules;
 using IsIdentifiable.Runners;
-using System.IO;
+using System.IO.Abstractions;
 using YamlDotNet.Serialization;
 
 namespace IsIdentifiable.Views.Manager;
 
 internal class RuleSetFileNode
 {
-    public FileInfo File { get; set; }
+    public IFileInfo File { get; set; }
 
     /// <summary>
     /// The ruleset in the <see cref="File"/>.  It is important to populate this only once
@@ -16,7 +16,7 @@ internal class RuleSetFileNode
     /// </summary>
     private RuleSet? _ruleSet;
 
-    public RuleSetFileNode(FileInfo file)
+    public RuleSetFileNode(IFileInfo file)
     {
         this.File = file;
     }
@@ -38,7 +38,7 @@ internal class RuleSetFileNode
         return _ruleSet = deserializer.Deserialize<RuleSet>(yaml) ?? new RuleSet();
     }
 
-    public void Save(FileInfo? toFile = null)
+    public void Save(IFileInfo? toFile = null)
     {
         if (_ruleSet == null)
         {
@@ -56,7 +56,7 @@ internal class RuleSetFileNode
             .WithIndentedSequences();
 
         var serializer = builder.Build();
-        using (var sw = new StreamWriter(toFile.FullName))
+        using (var sw = new System.IO.StreamWriter(toFile.FullName))
         {
             serializer.Serialize(sw, _ruleSet);
         }

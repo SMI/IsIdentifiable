@@ -1,19 +1,20 @@
 ﻿using System;
-using System.IO;
 using FAnsi.Implementation;
 using FAnsi.Implementations.MicrosoftSQL;
 using FAnsi.Implementations.MySql;
 using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
-using IsIdentifiable;
 using NUnit.Framework;
 using IsIdentifiable.Options;
 using IsIdentifiable.Redacting;
+using System.IO.Abstractions.TestingHelpers;
 
 namespace IsIdentifiableTests.ReviewerTests;
 
 public class UnattendedTests
 {
+    private MockFileSystem _fileSystem;
+
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
@@ -23,46 +24,52 @@ public class UnattendedTests
         ImplementationManager.Load<OracleImplementation>();
     }
 
+    [SetUp]
+    public void SetUp()
+    {
+        _fileSystem = new MockFileSystem();
+    }
+
     [Test]
     public void NoFileToProcess_Throws()
     {
-        var ex = Assert.Throws<Exception>(() => new UnattendedReviewer(new IsIdentifiableReviewerOptions(),null, new IgnoreRuleGenerator(),new RowUpdater() ));
+        var ex = Assert.Throws<Exception>(() => new UnattendedReviewer(new IsIdentifiableReviewerOptions(),null, new IgnoreRuleGenerator(_fileSystem),new RowUpdater(_fileSystem), _fileSystem));
         Assert.AreEqual("Unattended requires a file of errors to process",ex.Message);
     }
 
     [Test]
     public void NonExistantFileToProcess_Throws()
     {
-        var ex = Assert.Throws<FileNotFoundException>(() => new UnattendedReviewer(new IsIdentifiableReviewerOptions()
+        var ex = Assert.Throws<System.IO.FileNotFoundException>(() => new UnattendedReviewer(new IsIdentifiableReviewerOptions()
         {
             FailuresCsv = "troll.csv"
-        },null, new IgnoreRuleGenerator(),new RowUpdater()));
+        },null, new IgnoreRuleGenerator(_fileSystem),new RowUpdater(_fileSystem), _fileSystem));
         StringAssert.Contains("Could not find Failures file",ex.Message);
     }
         
     [Test]
     public void NoTarget_Throws()
     {
-        var fi = Path.Combine(TestContext.CurrentContext.WorkDirectory, "myfile.txt");
-        File.WriteAllText(fi,"fff");
+        var fi = "myfile.txt";
+        _fileSystem.File.WriteAllText(fi,"fff");
             
         var ex = Assert.Throws<Exception>(() => new UnattendedReviewer(new IsIdentifiableReviewerOptions()
         {
             FailuresCsv = fi
-        },null, new IgnoreRuleGenerator(),new RowUpdater()));
+        },null, new IgnoreRuleGenerator(_fileSystem), new RowUpdater(_fileSystem), _fileSystem));
         StringAssert.Contains("A single Target must be supplied for database updates",ex.Message);
     }
 
     [Test]
     public void NoOutputPath_Throws()
     {
-        var fi = Path.Combine(TestContext.CurrentContext.WorkDirectory, "myfile.txt");
-        File.WriteAllText(fi,"fff");
+        var fi = "myfile.txt";
+        _fileSystem.File.WriteAllText(fi,"fff");
             
         var ex = Assert.Throws<Exception>(() => new UnattendedReviewer(new IsIdentifiableReviewerOptions()
         {
             FailuresCsv = fi
-        },new Target(), new IgnoreRuleGenerator(),new RowUpdater()));
+        },new Target(), new IgnoreRuleGenerator(_fileSystem),new RowUpdater(_fileSystem), _fileSystem));
         StringAssert.Contains("An output path must be specified ",ex.Message);
     }
 
@@ -70,21 +77,21 @@ public class UnattendedTests
     [Test]
     public void Passes_NoFailures()
     {
-        var fi = Path.Combine(TestContext.CurrentContext.WorkDirectory, "myfile.csv");
-        File.WriteAllText(fi,"fff");
+        var fi = "myfile.csv";
+        _fileSystem.File.WriteAllText(fi,"fff");
 
-        var fiOut = Path.Combine(TestContext.CurrentContext.WorkDirectory, "out.csv");
+        var fiOut = "out.csv";
 
         var reviewer = new UnattendedReviewer(new IsIdentifiableReviewerOptions()
         {
             FailuresCsv = fi,
             UnattendedOutputPath = fiOut
-        }, new Target(), new IgnoreRuleGenerator(),new RowUpdater());
+        }, new Target(), new IgnoreRuleGenerator(_fileSystem),new RowUpdater(_fileSystem), _fileSystem);
 
         Assert.AreEqual(0,reviewer.Run());
             
         //just the headers
-        StringAssert.AreEqualIgnoringCase("Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets",File.ReadAllText(fiOut).TrimEnd());
+        StringAssert.AreEqualIgnoringCase("Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets",_fileSystem.File.ReadAllText(fiOut).TrimEnd());
     }
 
     [Test]
@@ -93,31 +100,27 @@ public class UnattendedTests
         var inputFile = @"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets
 FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto,Location###Location,13###28";
 
-        var fi = Path.Combine(TestContext.CurrentContext.WorkDirectory, "myfile.csv");
-        File.WriteAllText(fi,inputFile);
+        var fi = "myfile.csv";
+        _fileSystem.AddFile(fi, new MockFileData(inputFile));
 
-        var fiOut = Path.Combine(TestContext.CurrentContext.WorkDirectory, "out.csv");
-            
-        //cleanup any remnant Allowlist or Reportlists
-        var fiAllowlist = Path.Combine(TestContext.CurrentContext.WorkDirectory,IgnoreRuleGenerator.DefaultFileName);
-        var fiReportlist = Path.Combine(TestContext.CurrentContext.WorkDirectory, RowUpdater.DefaultFileName);
-
-        if(File.Exists(fiAllowlist))
-            File.Delete(fiAllowlist);
-            
-        if(File.Exists(fiReportlist))
-            File.Delete(fiReportlist);
-            
-        var reviewer = new UnattendedReviewer(new IsIdentifiableReviewerOptions()
-        {
-            FailuresCsv = fi,
-            UnattendedOutputPath = fiOut
-        }, new Target(), new IgnoreRuleGenerator(),new RowUpdater());
+        var fiOut = "out.csv";
+        
+        var reviewer = new UnattendedReviewer(
+            new IsIdentifiableReviewerOptions()
+            {
+                FailuresCsv = fi,
+                UnattendedOutputPath = fiOut,
+            },
+            new Target(),
+            new IgnoreRuleGenerator(fileSystem: _fileSystem),
+            new RowUpdater(fileSystem: _fileSystem),
+            _fileSystem
+        );
 
         Assert.AreEqual(0,reviewer.Run());
             
         //all that we put in is unprocessed so should come out the same
-        TestHelpers.AreEqualIgnoringCaseAndLineEndings(inputFile,File.ReadAllText(fiOut).TrimEnd());
+        TestHelpers.AreEqualIgnoringCaseAndLineEndings(inputFile,_fileSystem.File.ReadAllText(fiOut).TrimEnd());
 
         Assert.AreEqual(1,reviewer.Total);
         Assert.AreEqual(0,reviewer.Ignores);
@@ -132,23 +135,15 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
         var inputFile = @"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets
 FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto,Location###Location,13###28";
 
-        var fi = Path.Combine(TestContext.CurrentContext.WorkDirectory, "myfile.csv");
-        File.WriteAllText(fi,inputFile);
+        var fi = "myfile.csv";
+        _fileSystem.File.WriteAllText(fi,inputFile);
 
-        var fiOut = Path.Combine(TestContext.CurrentContext.WorkDirectory, "out.csv");
+        var fiOut = "out.csv";
             
-        //cleanup any remnant Allowlist or Reportlists
-        var fiAllowlist = Path.Combine(TestContext.CurrentContext.WorkDirectory,IgnoreRuleGenerator.DefaultFileName);
-        var fiReportlist = Path.Combine(TestContext.CurrentContext.WorkDirectory, RowUpdater.DefaultFileName);
-
-        if(File.Exists(fiAllowlist))
-            File.Delete(fiAllowlist);
-            
-        if(File.Exists(fiReportlist))
-            File.Delete(fiReportlist);
+        var fiAllowlist = IgnoreRuleGenerator.DefaultFileName;
 
         //add a Allowlist to ignore these
-        File.WriteAllText(fiAllowlist,
+        _fileSystem.File.WriteAllText(fiAllowlist,
             @"
 - Action: Ignore
   IfColumn: Narrative
@@ -159,12 +154,12 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
             FailuresCsv = fi,
             UnattendedOutputPath = fiOut,
             OnlyRules = rulesOnly
-        }, new Target(), new IgnoreRuleGenerator(),new RowUpdater());
+        }, new Target(), new IgnoreRuleGenerator(fileSystem: _fileSystem),new RowUpdater(fileSystem: _fileSystem), _fileSystem);
 
         Assert.AreEqual(0,reviewer.Run());
             
         //headers only since Allowlist eats the rest
-        StringAssert.AreEqualIgnoringCase(@"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets",File.ReadAllText(fiOut).TrimEnd());
+        StringAssert.AreEqualIgnoringCase(@"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets",_fileSystem.File.ReadAllText(fiOut).TrimEnd());
 
         Assert.AreEqual(1,reviewer.Total);
         Assert.AreEqual(1,reviewer.Ignores);
@@ -179,25 +174,17 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
         var inputFile = @"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets
 FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto,Location###Location,13###28";
 
-        var fi = Path.Combine(TestContext.CurrentContext.WorkDirectory, "myfile.csv");
-        File.WriteAllText(fi,inputFile);
+        var fi = "myfile.csv";
+        _fileSystem.File.WriteAllText(fi,inputFile);
 
-        var fiOut = Path.Combine(TestContext.CurrentContext.WorkDirectory, "out.csv");
-            
-        //cleanup any remnant Allowlist or Reportlists
-        var fiAllowlist = Path.Combine(TestContext.CurrentContext.WorkDirectory,IgnoreRuleGenerator.DefaultFileName);
-        var fiReportlist = Path.Combine(TestContext.CurrentContext.WorkDirectory, RowUpdater.DefaultFileName);
+        var fiOut = "out.csv";
 
-        if(File.Exists(fiAllowlist))
-            File.Delete(fiAllowlist);
-            
-        if(File.Exists(fiReportlist))
-            File.Delete(fiReportlist);
+        var fiReportlist = RowUpdater.DefaultFileName;
 
         //add a Reportlist to UPDATE these
         if(ruleCoversThis)
         {
-            File.WriteAllText(fiReportlist,
+            _fileSystem.File.WriteAllText(fiReportlist,
                 @"
 - Action: Ignore
   IfColumn: Narrative
@@ -209,7 +196,7 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
             FailuresCsv = fi,
             UnattendedOutputPath = fiOut,
             OnlyRules = true //prevents it going to the database
-        }, new Target(), new IgnoreRuleGenerator(),new RowUpdater());
+        }, new Target(), new IgnoreRuleGenerator(fileSystem: _fileSystem),new RowUpdater(fileSystem: _fileSystem), _fileSystem);
 
         Assert.AreEqual(0,reviewer.Run());
             
@@ -220,7 +207,7 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
             // no rule covers this so the miss should appear in the output file
 
             TestHelpers.AreEqualIgnoringCaseAndLineEndings(@"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets
-FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto,Location###Location,13###28", File.ReadAllText(fiOut).TrimEnd());
+FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto,Location###Location,13###28", _fileSystem.File.ReadAllText(fiOut).TrimEnd());
         }
         else
         {
@@ -228,7 +215,7 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
             // a rule covers this so even though we do not update the database there shouldn't be a 'miss' in the output file
 
             TestHelpers.AreEqualIgnoringCaseAndLineEndings(@"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets",
-                File.ReadAllText(fiOut).TrimEnd());
+                _fileSystem.File.ReadAllText(fiOut).TrimEnd());
 
         }
             

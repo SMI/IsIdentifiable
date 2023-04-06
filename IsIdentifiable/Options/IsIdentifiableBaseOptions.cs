@@ -4,7 +4,7 @@ using IsIdentifiable.Redacting;
 using NLog;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using YamlDotNet.Serialization;
 
@@ -193,7 +193,7 @@ public class IsIdentifiableBaseOptions : ITargetsFileOptions
     /// for naming output reports e.g. "biochemistry" , "mydir" etc
     /// </summary>
     /// <returns></returns>
-    public virtual string GetTargetName()
+    public virtual string GetTargetName(IFileSystem _)
     {
         return TargetName;
     }
@@ -205,6 +205,7 @@ public class IsIdentifiableBaseOptions : ITargetsFileOptions
     {
 
     }
+
 
     /// <summary>
     /// Populates class options that have not been specified on the command line directly by using the values (if any) in the
@@ -286,16 +287,17 @@ public class IsIdentifiableBaseOptions : ITargetsFileOptions
     }
 
     /// <summary>
-    /// Performs <see cref="LoadTargets(ITargetsFileOptions, Logger, out List{Target})"/> and then updates all connection strings
+    /// Performs <see cref="LoadTargets(ITargetsFileOptions, Logger, IFileSystem, out List{Target})"/> and then updates all connection strings
     /// (e.g. <see cref="AllowlistConnectionString"/>) to use the named Target if specified
     /// </summary>
     /// <param name="targets"></param>
+    /// <param name="fileSystem"></param>
     /// <returns></returns>
-    public virtual int UpdateConnectionStringsToUseTargets(out List<Target> targets)
+    public virtual int UpdateConnectionStringsToUseTargets(out List<Target> targets, IFileSystem fileSystem)
     {
         // load Targets.yaml
         var logger = LogManager.GetCurrentClassLogger();
-        int result = IsIdentifiableBaseOptions.LoadTargets(this, logger, out targets);
+        int result = IsIdentifiableBaseOptions.LoadTargets(this, logger, fileSystem, out targets);
         if (result != 0)
             return result;
 
@@ -328,15 +330,18 @@ public class IsIdentifiableBaseOptions : ITargetsFileOptions
     /// <param name="opts"></param>
     /// <param name="logger"></param>
     /// <param name="targets"></param>
+    /// <param name="fileSystem"></param>
     /// <returns></returns>
-    public static int LoadTargets(ITargetsFileOptions opts, NLog.Logger logger, out List<Target> targets)
+    public static int LoadTargets(ITargetsFileOptions opts, NLog.Logger logger, IFileSystem fileSystem, out List<Target> targets)
     {
         Deserializer d = new Deserializer();
         targets = new List<Target>();
 
+        fileSystem ??= new FileSystem();
+
         try
         {
-            var file = new FileInfo(opts.TargetsFile);
+            var file = fileSystem.FileInfo.New(opts.TargetsFile);
 
             // file does not exist
             if (!file.Exists)
@@ -357,7 +362,7 @@ public class IsIdentifiableBaseOptions : ITargetsFileOptions
             else
             {
                 // there is a Targets file, read it
-                var contents = File.ReadAllText(file.FullName);
+                var contents = fileSystem.File.ReadAllText(file.FullName);
 
                 if (string.IsNullOrWhiteSpace(contents))
                 {

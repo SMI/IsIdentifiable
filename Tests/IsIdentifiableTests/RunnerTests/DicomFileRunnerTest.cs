@@ -5,7 +5,7 @@ using IsIdentifiable.Runners;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 
 
@@ -63,13 +63,14 @@ public class DicomFileRunnerTest
             IgnoreTextLessThan = ignoreShortText ? 170 : 0U
         };
 
+        var fileSystem = new System.IO.Abstractions.FileSystem();
+
         string fileName = Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(DicomFileRunnerTest), "f1.dcm");
-        TestData.Create(new FileInfo(fileName), TestData.BURNED_IN_TEXT_IMG);
+        TestData.Create(fileSystem.FileInfo.New(fileName), TestData.BURNED_IN_TEXT_IMG);
+        
+        var runner = new DicomFileRunner(opts, fileSystem);
 
-        var runner = new DicomFileRunner(opts);
-
-        var fileSystem = new FileSystem();
-        IFileInfo fileInfo = fileSystem.FileInfo.New(fileName);
+        var fileInfo = fileSystem.FileInfo.New(fileName);
         Assert.True(fileInfo.Exists);
 
         var toMemory = new ToMemoryFailureReport();

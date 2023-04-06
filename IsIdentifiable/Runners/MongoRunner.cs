@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,7 +16,7 @@ using NLog;
 using System.Xml.Linq;
 using YamlDotNet.Core.Tokens;
 using SharpCompress.Common;
-
+using System.IO.Abstractions;
 
 namespace IsIdentifiable.Runners;
 
@@ -60,8 +59,9 @@ public class MongoRunner : IsIdentifiableAbstractRunner
     /// specified in <paramref name="opts"/>
     /// </summary>
     /// <param name="opts"></param>
-    public MongoRunner(IsIdentifiableMongoOptions opts)
-        : base(opts)
+    /// <param name="fileSystem"></param>
+    public MongoRunner(IsIdentifiableMongoOptions opts, IFileSystem fileSystem)
+        : base(opts, fileSystem)
     {
         _logger = LogManager.GetLogger(GetType().Name);
         _opts = opts;
@@ -70,7 +70,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
 
         if (opts.TreeReport)
         {
-            _treeReport = new TreeFailureReport(opts.GetTargetName());
+            _treeReport = new TreeFailureReport(opts.GetTargetName(FileSystem), FileSystem);
             Reports.Add(_treeReport);
         }
 
@@ -80,7 +80,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
         _collection = TryGetCollection(db, _opts.CollectionName);
 
         if (!string.IsNullOrWhiteSpace(_opts.QueryFile))
-            _queryString = File.ReadAllText(_opts.QueryFile);
+            _queryString = FileSystem.File.ReadAllText(_opts.QueryFile);
 
         // if specified, batch size must be g.t. 1:
         // https://docs.mongodb.com/manual/reference/method/cursor.batchSize/

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -42,9 +42,10 @@ public class ReportReader
     /// Reads the <paramref name="csvFile"/> and populates <see cref="Failures"/>
     /// </summary>
     /// <param name="csvFile">A CSV file created by a <see cref="FailureStoreReport"/></param>
-    public ReportReader(FileInfo csvFile)
+    /// <param name="fileSystem"></param>
+    public ReportReader(IFileInfo csvFile, IFileSystem fileSystem)
     {
-        var report = new FailureStoreReport("", 0);
+        var report = new FailureStoreReport("", 0, fileSystem);
         Failures = report.Deserialize(csvFile).ToArray();
     }
 
@@ -54,9 +55,10 @@ public class ReportReader
     /// <param name="csvFile"></param>
     /// <param name="loadedRows"></param>
     /// <param name="token"></param>
-    public ReportReader(FileInfo csvFile, Action<int> loadedRows, CancellationToken token)
+    /// <param name="fileSystem"></param>
+    public ReportReader(IFileInfo csvFile, Action<int> loadedRows, CancellationToken token, IFileSystem fileSystem)
     {
-        var report = new FailureStoreReport("", 0);
+        var report = new FailureStoreReport("", 0, fileSystem);
         Failures = report.Deserialize(csvFile, loadedRows, token).ToArray();
     }
 

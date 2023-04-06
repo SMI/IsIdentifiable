@@ -1,6 +1,6 @@
 ﻿using IsIdentifiable.Rules;
 using System.Collections.Generic;
-using System.IO;
+using System.IO.Abstractions;
 using Terminal.Gui;
 
 namespace IsIdentifiable.Views.Manager;
@@ -17,7 +17,7 @@ class RuleDetailView : View
         Add(lblType);
     }
 
-    public void SetupFor(object obj, FileInfo file)
+    public void SetupFor(object obj, IFileInfo file)
     {
         ClearProperties();
 

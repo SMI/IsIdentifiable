@@ -1,5 +1,5 @@
-using System.IO;
 using NUnit.Framework;
+using System.IO.Abstractions;
 
 namespace IsIdentifiableTests;
 
@@ -18,18 +18,20 @@ public sealed class TestData
     /// <summary>
     /// Creates the test image <see cref="IMG_013"/> in the file location specified
     /// </summary>
-    /// <param name="fileInfo"></param>
+    /// <param name="IFileInfo"></param>
     /// <param name="testFile">The test file to create, should be a static member of this class.  Defaults to <see cref="IMG_013"/></param>
     /// <returns></returns>
-    public static FileInfo Create(FileInfo fileInfo, string testFile=null)
+    public static IFileInfo Create(IFileInfo dest, string testFile=null)
     {
-        var from = Path.Combine(TestContext.CurrentContext.TestDirectory, testFile??IMG_013);
+        var from = System.IO.Path.Combine(TestContext.CurrentContext.TestDirectory, testFile??IMG_013);
+        var bytes = System.IO.File.ReadAllBytes(from);
 
-        if(!fileInfo.Directory.Exists)
-            fileInfo.Directory.Create();
+        if(!dest.Directory.Exists)
+            dest.Directory.Create();
 
-        File.Copy(from,fileInfo.FullName,true);
-
-        return fileInfo;
+        using var stream = dest.OpenWrite();
+        stream.Write(bytes);
+        
+        return dest;
     }
 }

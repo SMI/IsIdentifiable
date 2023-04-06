@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IO.Abstractions;
 using CommandLine;
 using CommandLine.Text;
 
@@ -90,9 +90,9 @@ public class IsIdentifiableDicomFileOptions : IsIdentifiableBaseOptions
     /// Returns the name of the root directory being evaluated
     /// </summary>
     /// <returns></returns>
-    public override string GetTargetName()
+    public override string GetTargetName(IFileSystem fileSystem)
     {
-        return Directory == null ?"No Directory Specified":new DirectoryInfo(Directory).Name;
+        return Directory == null ?"No Directory Specified": fileSystem.DirectoryInfo.New(Directory).Name;
     }
 
     /// <summary>

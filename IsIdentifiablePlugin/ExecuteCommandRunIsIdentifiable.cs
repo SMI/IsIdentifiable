@@ -3,6 +3,7 @@ using IsIdentifiable.Runners;
 using Rdmp.Core.CommandExecution;
 using Rdmp.Core.Curation.Data;
 using ReusableLibraryCode.DataAccess;
+using System.IO.Abstractions;
 using YamlDotNet.Serialization;
 
 namespace IsIdentifiablePlugin;
@@ -64,7 +65,7 @@ internal class ExecuteCommandRunIsIdentifiable : BasicCommandExecution
         dbOpts.DatabaseType = server.DatabaseType;
         dbOpts.TableName = _table.GetRuntimeName();
 
-        var runner = new DatabaseRunner(dbOpts);
+        var runner = new DatabaseRunner(dbOpts, new FileSystem());
         using var cts = new CancellationTokenSource();
 
         BasicActivator.Wait("Evaluating Table", Task.Run(()=>

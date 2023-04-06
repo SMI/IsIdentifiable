@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -40,8 +39,8 @@ public class SocketRule : ICustomRule,IDisposable
         
     private TcpClient _tcp;
     private NetworkStream _stream;
-    private StreamWriter _write;
-    private StreamReader _read;
+    private System.IO.StreamWriter _write;
+    private System.IO.StreamReader _read;
 
     /// <summary>
     /// Sends the <paramref name="fieldValue"/> to the service listening on <see cref="Host"/>.  The
@@ -59,8 +58,8 @@ public class SocketRule : ICustomRule,IDisposable
         {
             _tcp = new TcpClient(Host, Port);
             _stream = _tcp.GetStream();
-            _write = new StreamWriter(_stream);
-            _read = new StreamReader(_stream);
+            _write = new System.IO.StreamWriter(_stream);
+            _read = new System.IO.StreamReader(_stream);
         }
 
         // Translate the passed message into ASCII and store it as a Byte array.

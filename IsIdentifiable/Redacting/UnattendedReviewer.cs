@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
@@ -24,7 +24,8 @@ public class UnattendedReviewer
     private readonly ReportReader _reportReader;
     private readonly RowUpdater _updater;
     private readonly IgnoreRuleGenerator _ignorer;
-    private readonly FileInfo _outputFile;
+    private readonly IFileSystem _fileSystem;
+    private readonly IFileInfo _outputFile;
 
     /// <summary>
     /// The number of <see cref="Failure"/> that were redacted in the database.  Where there are multiple UPDATE statements run per failure, Updates will only be incremented once.
@@ -57,27 +58,30 @@ public class UnattendedReviewer
     /// <param name="target">DBMS to connect to for redacting</param>
     /// <param name="ignorer">Rules base for detecting false positives</param>
     /// <param name="updater">Rules base for redacting true positives</param>
-    public UnattendedReviewer(IsIdentifiableReviewerOptions opts, Target target, IgnoreRuleGenerator ignorer, RowUpdater updater)
-    {
+    /// <param name="fileSystem"></param>
+    public UnattendedReviewer(IsIdentifiableReviewerOptions opts, Target target, IgnoreRuleGenerator ignorer, RowUpdater updater, IFileSystem fileSystem)
+    {        
         _log = LogManager.GetCurrentClassLogger();
+
+        _fileSystem = fileSystem;
 
         if (string.IsNullOrWhiteSpace(opts.FailuresCsv))
             throw new Exception("Unattended requires a file of errors to process");
 
-        var fi = new FileInfo(opts.FailuresCsv);
+        var fi = _fileSystem.FileInfo.New(opts.FailuresCsv);
 
         if (!fi.Exists)
-            throw new FileNotFoundException($"Could not find Failures file '{fi.FullName}'");
+            throw new System.IO.FileNotFoundException($"Could not find Failures file '{fi.FullName}'");
 
         if (!opts.OnlyRules)
             _target = target ?? throw new Exception("A single Target must be supplied for database updates");
 
-        _reportReader = new ReportReader(fi);
+        _reportReader = new ReportReader(fi, fileSystem);
 
         if (string.IsNullOrWhiteSpace(opts.UnattendedOutputPath))
             throw new Exception("An output path must be specified for Failures that could not be resolved");
 
-        _outputFile = new FileInfo(opts.UnattendedOutputPath);
+        _outputFile = _fileSystem.FileInfo.New(opts.UnattendedOutputPath);
 
         _ignorer = ignorer;
         _updater = updater;
@@ -93,12 +97,12 @@ public class UnattendedReviewer
         var server = _target?.Discover();
         List<Exception> errors = new List<Exception>();
 
-        var storeReport = new FailureStoreReport(_outputFile.Name, 100);
+        var storeReport = new FailureStoreReport(_outputFile.Name, 100, _fileSystem);
 
         Stopwatch sw = new Stopwatch();
         sw.Start();
 
-        using (var storeReportDestination = new CsvDestination(new IsIdentifiableDicomFileOptions(), _outputFile))
+        using (var storeReportDestination = new CsvDestination(new IsIdentifiableDicomFileOptions(), _outputFile, _fileSystem))
         {
             IsIdentifiableRule updateRule;
 

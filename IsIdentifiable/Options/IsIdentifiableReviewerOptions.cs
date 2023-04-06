@@ -2,7 +2,6 @@ using CommandLine;
 using IsIdentifiable.Redacting;
 using IsIdentifiable.Reporting.Reports;
 using System;
-using System.IO;
 
 namespace IsIdentifiable.Options;
 

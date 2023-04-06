@@ -28,8 +28,8 @@ internal class PixelTextFailureReport : FailureReport
         "Overlay"
     };
 
-    public PixelTextFailureReport(string targetName)
-        : base(targetName)
+    public PixelTextFailureReport(string targetName, IFileSystem fileSystem)
+        : base(targetName, fileSystem)
     {
         foreach (string s in _headerRow)
             _dt.Columns.Add(s);

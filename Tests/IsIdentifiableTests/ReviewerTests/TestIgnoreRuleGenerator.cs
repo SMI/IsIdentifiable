@@ -1,14 +1,22 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Reporting;
 using NUnit.Framework;
 using IsIdentifiable.Redacting;
+using System.IO.Abstractions.TestingHelpers;
 
 namespace IsIdentifiableTests.ReviewerTests;
 
 class TestIgnoreRuleGenerator
 {
+    private MockFileSystem _fileSystem;
+
+    [SetUp]
+    public void SetUp()
+    {
+        _fileSystem = new MockFileSystem();
+    }
+
     [Test]
     public void TestRepeatedIgnoring()
     {
@@ -24,13 +32,9 @@ class TestIgnoreRuleGenerator
             ResourcePrimaryKey = "1.2.3.4"
         };
 
-        var newRules = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "IgnoreList.yaml"));
+        var newRules = _fileSystem.FileInfo.New("IgnoreList.yaml");
 
-        //make sure repeat test runs work properly
-        if(File.Exists(newRules.FullName))
-            File.Delete(newRules.FullName);
-
-        IgnoreRuleGenerator ignorer = new IgnoreRuleGenerator(newRules);
+        IgnoreRuleGenerator ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
 
         //it should be novel i.e. require user decision
         Assert.IsTrue(ignorer.OnLoad(failure,out _));
@@ -42,7 +46,7 @@ class TestIgnoreRuleGenerator
             @"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$
-",File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
+",_fileSystem.File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
 
         //it should be no longer be novel
         Assert.IsFalse(ignorer.OnLoad(failure, out _));
@@ -74,13 +78,9 @@ class TestIgnoreRuleGenerator
             ResourcePrimaryKey = "1.2.3.5"
         };
 
-        var newRules = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "IgnoreList.yaml"));
+        var newRules = _fileSystem.FileInfo.New("IgnoreList.yaml");
 
-        //make sure repeat test runs work properly
-        if (File.Exists(newRules.FullName))
-            File.Delete(newRules.FullName);
-
-        IgnoreRuleGenerator ignorer = new IgnoreRuleGenerator(newRules);
+        IgnoreRuleGenerator ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
 
 
         //we tell it to ignore this value
@@ -91,13 +91,13 @@ class TestIgnoreRuleGenerator
             @"
 - Action: Ignore
   IfColumn: Narrative
-  IfPattern: ^Hadock$".Trim(), File.ReadAllText(newRules.FullName));
+  IfPattern: ^Hadock$".Trim(), _fileSystem.File.ReadAllText(newRules.FullName));
 
         TestHelpers.Contains(
             @"
 - Action: Ignore
   IfColumn: Narrative
-  IfPattern: ^Bass$".Trim(), File.ReadAllText(newRules.FullName));
+  IfPattern: ^Bass$".Trim(), _fileSystem.File.ReadAllText(newRules.FullName));
 
         ignorer.Rules.Remove(ignorer.Rules.Last());
         ignorer.Save();
@@ -107,18 +107,18 @@ class TestIgnoreRuleGenerator
             @"
 - Action: Ignore
   IfColumn: Narrative
-  IfPattern: ^Hadock$".Trim(), File.ReadAllText(newRules.FullName));
+  IfPattern: ^Hadock$".Trim(), _fileSystem.File.ReadAllText(newRules.FullName));
 
         TestHelpers.DoesNotContain(
             @"
 - Action: Ignore
   IfColumn: Narrative
-  IfPattern: ^Bass$".Trim(), File.ReadAllText(newRules.FullName));
+  IfPattern: ^Bass$".Trim(), _fileSystem.File.ReadAllText(newRules.FullName));
 
 
         ignorer.Rules.Clear();
         ignorer.Save();
-        Assert.IsTrue(string.IsNullOrWhiteSpace(File.ReadAllText(newRules.FullName)));
+        Assert.IsTrue(string.IsNullOrWhiteSpace(_fileSystem.File.ReadAllText(newRules.FullName)));
 
 
     }
@@ -138,19 +138,15 @@ class TestIgnoreRuleGenerator
             ResourcePrimaryKey = "1.2.3.4"
         };
 
-        var newRules = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "IgnoreList.yaml"));
-
-        //make sure repeat test runs work properly
-        if(File.Exists(newRules.FullName))
-            File.Delete(newRules.FullName);
+        var newRules = _fileSystem.FileInfo.New("IgnoreList.yaml");
 
         //create an existing rule to check that Undo doesn't just nuke the entire file
-        File.WriteAllText(newRules.FullName,@"- Action: Ignore
+        _fileSystem.File.WriteAllText(newRules.FullName,@"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^Joker Wuz Ere$
 ");
 
-        IgnoreRuleGenerator ignorer = new IgnoreRuleGenerator(newRules);
+        IgnoreRuleGenerator ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
 
         //it should be novel i.e. require user decision
         Assert.IsTrue(ignorer.OnLoad(failure,out _));
@@ -162,7 +158,7 @@ class TestIgnoreRuleGenerator
             @"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$
-",File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
+",_fileSystem.File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
 
         //it should be no longer be novel
         Assert.IsFalse(ignorer.OnLoad(failure, out _));
@@ -179,7 +175,7 @@ class TestIgnoreRuleGenerator
         Assert.AreEqual(@"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^Joker Wuz Ere$
-",File.ReadAllText(newRules.FullName));
+",_fileSystem.File.ReadAllText(newRules.FullName));
 
         //repeated undo calls do nothing
         ignorer.Undo();
@@ -203,19 +199,15 @@ class TestIgnoreRuleGenerator
             ResourcePrimaryKey = "1.2.3.4"
         };
 
-        var newRules = new FileInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "IgnoreList.yaml"));
-
-        //make sure repeat test runs work properly
-        if(File.Exists(newRules.FullName))
-            File.Delete(newRules.FullName);
+        var newRules = _fileSystem.FileInfo.New("IgnoreList.yaml");
 
         //create an existing rule to check that Undo doesn't just nuke the entire file
-        File.WriteAllText(newRules.FullName,@"- Action: Ignore
+        _fileSystem.File.WriteAllText(newRules.FullName,@"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^Joker Wuz Ere$
 ");
 
-        IgnoreRuleGenerator ignorer = new IgnoreRuleGenerator(newRules);
+        IgnoreRuleGenerator ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
 
         //it should be novel i.e. require user decision
         Assert.IsTrue(ignorer.OnLoad(failure,out _));
@@ -227,7 +219,7 @@ class TestIgnoreRuleGenerator
             @"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$
-",File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
+",_fileSystem.File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
 
         //it should be no longer be novel
         Assert.IsFalse(ignorer.OnLoad(failure, out _));
@@ -242,7 +234,7 @@ class TestIgnoreRuleGenerator
         Assert.AreEqual(1,ignorer.Rules.Count);
 
 
-        var newRulebaseYaml = File.ReadAllText(newRules.FullName);
+        var newRulebaseYaml = _fileSystem.File.ReadAllText(newRules.FullName);
 
         //only the original one should be there
         StringAssert.Contains(@"- Action: Ignore

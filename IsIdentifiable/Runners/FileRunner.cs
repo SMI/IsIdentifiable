@@ -6,8 +6,8 @@ using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
 using NLog;
 using CsvHelper;
-using System.IO;
 using System.Globalization;
+using System.IO.Abstractions;
 
 namespace IsIdentifiable.Runners;
 
@@ -24,7 +24,9 @@ public class FileRunner : IsIdentifiableAbstractRunner
     /// and detecting identifiable data
     /// </summary>
     /// <param name="opts"></param>
-    public FileRunner(IsIdentifiableFileOptions opts) : base(opts)
+    /// <param name="fileSystem"></param>
+    public FileRunner(IsIdentifiableFileOptions opts, IFileSystem fileSystem)
+        : base(opts, fileSystem)
     {
         _opts = opts;
         LogProgressNoun = "rows";
@@ -38,36 +40,35 @@ public class FileRunner : IsIdentifiableAbstractRunner
     /// <exception cref="Exception"></exception>
     public override int Run()
     {
-        using( var fs = new StreamReader(_opts.File.OpenRead()))
+        using var stream = _opts.File.OpenRead();
+        using var fs = new System.IO.StreamReader(stream);
+        var culture = string.IsNullOrWhiteSpace(_opts.Culture) ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(_opts.Culture);
+
+        using (var r = new CsvReader(fs, culture))
         {
-            var culture = string.IsNullOrWhiteSpace(_opts.Culture) ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(_opts.Culture);
-                
-            using(var r = new CsvReader(fs,culture))
+            if (!r.Read() || !r.ReadHeader())
+                throw new Exception("Csv file had no headers");
+
+            _logger.Info($"Headers are:{string.Join(",", r.HeaderRecord)}");
+
+            int done = 0;
+
+            while (r.Read())
             {
-                if(!r.Read() || !r.ReadHeader())
-                    throw new Exception("Csv file had no headers");
+                foreach (Failure failure in GetFailuresIfAny(r))
+                    AddToReports(failure);
 
-                _logger.Info($"Headers are:{string.Join(",", r.HeaderRecord)}");
+                done++;
 
-                int done = 0;
-
-                while(r.Read())
-                {
-                    foreach (Failure failure in GetFailuresIfAny(r))
-                        AddToReports(failure);
-                    
-                    done++;
-
-                    // if we have done all we were asked to do then stop
-                    if (_opts.Top > 0 && done >= _opts.Top)
-                        break;                    
-                }
-                
-                CloseReports();
+                // if we have done all we were asked to do then stop
+                if (_opts.Top > 0 && done >= _opts.Top)
+                    break;
             }
 
-            return 0;
+            CloseReports();
         }
+
+        return 0;
 
     }
 

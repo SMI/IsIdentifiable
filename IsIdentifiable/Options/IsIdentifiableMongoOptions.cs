@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Abstractions;
 using CommandLine;
 using CommandLine.Text;
 
@@ -82,7 +83,7 @@ public class IsIdentifiableMongoOptions : IsIdentifiableDicomOptions
     /// reference to <see cref="QueryFile"/>
     /// </summary>
     /// <returns></returns>
-    public override string GetTargetName()
+    public override string GetTargetName(IFileSystem _)
     {
         return $"MongoDB-{DatabaseName}-{CollectionName}-";
     }

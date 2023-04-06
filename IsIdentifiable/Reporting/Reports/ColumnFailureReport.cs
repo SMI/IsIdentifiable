@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO.Abstractions;
 using System.Threading;
 
 namespace IsIdentifiable.Reporting.Reports;
@@ -13,8 +14,8 @@ internal class ColumnFailureReport : FailureReport
     private readonly Dictionary<string, int> _failureCounts = new Dictionary<string, int>();
 
 
-    public ColumnFailureReport(string targetName)
-        : base(targetName) { }
+    public ColumnFailureReport(string targetName, IFileSystem fileSystem)
+        : base(targetName, fileSystem) { }
 
     public override void DoneRows(int numberDone)
     {

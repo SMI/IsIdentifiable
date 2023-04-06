@@ -8,10 +8,11 @@ using FellowOakDicom;
 using IsIdentifiable.Options;
 using IsIdentifiable.Redacting;
 using IsIdentifiable.Runners;
-using NLog;
 using Microsoft.Extensions.FileSystemGlobbing;
-using System.Linq;
 using YamlDotNet.Serialization;
+using System.IO.Abstractions;
+using System;
+using System.Linq;
 
 namespace IsIdentifiable;
 
@@ -54,11 +55,13 @@ public static class Program
 
         var settingsFileLocation = SettingsFile;
 
+        var fileSystem = new FileSystem();
+
         // if user specified -y on command line
         if (!string.IsNullOrWhiteSpace(explicitLocation))
         {
             //verify the file they told us about is real
-            if (!File.Exists(explicitLocation))
+            if (!fileSystem.File.Exists(explicitLocation))
             {
                 Console.Error.WriteLine($"Could not find file: {explicitLocation}");
                 return 1;
@@ -69,11 +72,11 @@ public static class Program
         }
 
         // load GlobalOptions
-        if(File.Exists(settingsFileLocation))
+        if(fileSystem.File.Exists(settingsFileLocation))
         {
             try
             {
-                GlobalOptions = Deserialize(settingsFileLocation);
+                GlobalOptions = Deserialize(settingsFileLocation, fileSystem);
             }
             catch (Exception ex)
             {
@@ -103,11 +106,11 @@ public static class Program
                 IsIdentifiableFileGlobOptions,
                 IsIdentifiableReviewerOptions>(args)
             .MapResult(
-                (IsIdentifiableRelationalDatabaseOptions o) => Run(o),
-                (IsIdentifiableDicomFileOptions o) => Run(o),
-                (IsIdentifiableMongoOptions o) => Run(o),
-                (IsIdentifiableFileGlobOptions o) => Run(o),
-                (IsIdentifiableReviewerOptions o) => Run(o),
+                (IsIdentifiableRelationalDatabaseOptions o) => Run(o, fileSystem),
+                (IsIdentifiableDicomFileOptions o) => Run(o, fileSystem),
+                (IsIdentifiableMongoOptions o) => Run(o, fileSystem),
+                (IsIdentifiableFileGlobOptions o) => Run(o, fileSystem),
+                (IsIdentifiableReviewerOptions o) => Run(o, fileSystem),
                 
                 // return exit code 0 for user requests for help
                 errors => args.Any(a=>a.Equals("--help",StringComparison.InvariantCultureIgnoreCase)) ? 0: 1);
@@ -115,32 +118,32 @@ public static class Program
         return res;
     }
 
-    public static GlobalOptions? Deserialize(string settingsFileLocation)
+    public static GlobalOptions? Deserialize(string settingsFileLocation, IFileSystem fileSystem)
     {
         IDeserializer deserializer = new DeserializerBuilder()
                         .IgnoreUnmatchedProperties()
                         .Build();
 
-        return deserializer.Deserialize<GlobalOptions>(File.ReadAllText(settingsFileLocation));
+        return deserializer.Deserialize<GlobalOptions>(fileSystem.File.ReadAllText(settingsFileLocation));
     }
 
-    private static int Run(IsIdentifiableReviewerOptions opts)
+    private static int Run(IsIdentifiableReviewerOptions opts, IFileSystem fileSystem)
     {
         Inherit(opts);
 
-        var reviewer = new ReviewerRunner(GlobalOptions?.IsIdentifiableOptions, opts);
+        var reviewer = new ReviewerRunner(GlobalOptions?.IsIdentifiableOptions, opts, fileSystem);
         return reviewer.Run();
     }
 
 
-    private static int Run(IsIdentifiableDicomFileOptions opts)
+    private static int Run(IsIdentifiableDicomFileOptions opts, IFileSystem fileSystem)
     {
-        var result = Inherit(opts);
+        var result = Inherit(opts, fileSystem);
 
         if (result != 0)
             return result;
 
-        using var runner = new DicomFileRunner(opts)
+        using var runner = new DicomFileRunner(opts, fileSystem)
         {
             ThrowOnError = false,
             LogProgressEvery = 1000
@@ -148,28 +151,28 @@ public static class Program
         return runner.Run();
     }
 
-    private static int Run(IsIdentifiableRelationalDatabaseOptions opts)
+    private static int Run(IsIdentifiableRelationalDatabaseOptions opts, IFileSystem fileSystem)
     {
         ImplementationManager.Load<MicrosoftSQLImplementation>();
         ImplementationManager.Load<MySqlImplementation>();
         ImplementationManager.Load<PostgreSqlImplementation>();
         ImplementationManager.Load<OracleImplementation>();
 
-        var result = Inherit(opts);
+        var result = Inherit(opts, fileSystem);
 
         if (result != 0)
             return result;
 
-        using var runner = new DatabaseRunner(opts)
+        using var runner = new DatabaseRunner(opts, fileSystem)
         {
             LogProgressEvery = 1000
         };
         return runner.Run();
     }
 
-    private static int Run(IsIdentifiableFileGlobOptions opts)
+    private static int Run(IsIdentifiableFileGlobOptions opts, IFileSystem fileSystem)
     {
-        var result = Inherit(opts);
+        var result = Inherit(opts, fileSystem);
 
         if (result != 0)
             return result;
@@ -180,12 +183,12 @@ public static class Program
         }           
 
         // if user has specified the full path of a file to -f
-        if (File.Exists(opts.File))
+        if (fileSystem.File.Exists(opts.File.FullName))
         {
             // Run on the file
-            ((IsIdentifiableFileOptions)opts).File = new FileInfo(opts.File);
+            opts.File = fileSystem.FileInfo.New(opts.File.FullName);
 
-            using var runner = new FileRunner(opts)
+            using var runner = new FileRunner(opts, fileSystem)
             {
                 LogProgressEvery = 1000
             };
@@ -194,18 +197,18 @@ public static class Program
         }
 
         // user has specified a directory as -f
-        if(Directory.Exists(opts.File))
+        if(fileSystem.Directory.Exists(opts.File.FullName))
         {
             Matcher matcher = new();
             matcher.AddInclude(opts.Glob);
             result = 0;
 
-            foreach (var match in matcher.GetResultsInFullPath(opts.File))
+            foreach (var match in matcher.GetResultsInFullPath(opts.File.FullName))
             {
                 // set file to operate on to the current file
-                ((IsIdentifiableFileOptions)opts).File = new FileInfo(match);
+                opts.File = fileSystem.FileInfo.New(match);
 
-                using var runner = new FileRunner(opts)
+                using var runner = new FileRunner(opts, fileSystem)
                 {
                     LogProgressEvery = 1000
                 };
@@ -223,14 +226,14 @@ public static class Program
         }
         else
         {
-            throw new DirectoryNotFoundException($"Could not find a file or directory called '{opts.File}'");
+            throw new System.IO.DirectoryNotFoundException($"Could not find a file or directory called '{opts.File}'");
         }
     }
-    private static int Run(IsIdentifiableMongoOptions opts)
+    private static int Run(IsIdentifiableMongoOptions opts, IFileSystem fileSystem)
     {
-        Inherit(opts);
+        Inherit(opts, fileSystem);
 
-        using var runner = new MongoRunner(opts)
+        using var runner = new MongoRunner(opts, fileSystem)
         {
             LogProgressEvery = 1000
         };
@@ -243,14 +246,14 @@ public static class Program
             opts.InheritValuesFrom(GlobalOptions.IsIdentifiableReviewerOptions);
         }
     }
-    private static int Inherit(IsIdentifiableBaseOptions opts)
+    private static int Inherit(IsIdentifiableBaseOptions opts, IFileSystem fileSystem)
     {
         if (GlobalOptions?.IsIdentifiableOptions != null)
         {
             opts.InheritValuesFrom(GlobalOptions.IsIdentifiableOptions);
         }
 
-        return opts.UpdateConnectionStringsToUseTargets(out _);
+        return opts.UpdateConnectionStringsToUseTargets(out _, fileSystem);
     }
 
 }

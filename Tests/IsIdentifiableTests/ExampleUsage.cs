@@ -3,6 +3,7 @@ using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Runners;
 using NUnit.Framework;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 
 namespace IsIdentifiable.Tests;
@@ -11,9 +12,9 @@ internal class ExampleUsage
 {
     class CustomRunner : IsIdentifiableAbstractRunner
     {
-        public CustomRunner(IFailureReport report) :base(new IsIdentifiableBaseOptions(),report)
-        {
-        }
+        public CustomRunner(IFailureReport report, MockFileSystem fileSystem)
+            : base(new IsIdentifiableBaseOptions(), fileSystem, report)
+        { }
 
         public override int Run()
         {
@@ -52,7 +53,7 @@ internal class ExampleUsage
         var dest = new ToMemoryFailureReport();
 
         // Your runner that fetches and validates data
-        var runner = new CustomRunner(dest);
+        var runner = new CustomRunner(dest, new MockFileSystem());
 
         // fetch and analyise data
         runner.Run();

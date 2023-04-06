@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.IO.Abstractions;
 using System.Text.RegularExpressions;
 using IsIdentifiable.Options;
 
@@ -16,15 +17,22 @@ public abstract class ReportDestination : IReportDestination
     /// </summary>
     protected IsIdentifiableBaseOptions Options { get; }
 
+    /// <summary>
+    /// FileSystem to use for I/O
+    /// </summary>
+    protected readonly IFileSystem FileSystem;
+
     private readonly Regex _multiSpaceRegex = new Regex(" {2,}");
 
     /// <summary>
     /// Initializes the report destination and sets <see cref="Options"/>
     /// </summary>
     /// <param name="options"></param>
-    protected ReportDestination(IsIdentifiableBaseOptions options)
+    /// <param name="fileSystem"></param>
+    protected ReportDestination(IsIdentifiableBaseOptions options, IFileSystem fileSystem)
     {
         Options = options;
+        FileSystem = fileSystem;
     }
 
     /// <summary>
