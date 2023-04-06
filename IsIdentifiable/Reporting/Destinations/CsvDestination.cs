@@ -20,6 +20,7 @@ public class CsvDestination : ReportDestination
     public string ReportPath { get; private set; }
 
     private System.IO.StreamWriter _streamwriter;
+    private readonly CsvConfiguration _csvConfiguration;
     private CsvWriter _csvWriter;
 
     private readonly object _oHeaderLock = new object();
@@ -31,8 +32,15 @@ public class CsvDestination : ReportDestination
     /// <param name="options"></param>
     /// <param name="reportName"></param>
     /// <param name="addTimestampToFilename">True to add the time to the CSV filename generated</param>
+    /// <param name="csvConfiguration"></param>
     /// <param name="fileSystem"></param>
-    public CsvDestination(IsIdentifiableBaseOptions options, string reportName, IFileSystem fileSystem, bool addTimestampToFilename = true)
+    public CsvDestination(
+        IsIdentifiableBaseOptions options,
+        string reportName,
+        IFileSystem fileSystem,
+        bool addTimestampToFilename = true,
+        CsvConfiguration csvConfiguration = null
+    )
         : base(options, fileSystem)
     {
         var destDir = FileSystem.DirectoryInfo.New(Options.DestinationCsvFolder);
@@ -43,6 +51,8 @@ public class CsvDestination : ReportDestination
         ReportPath = addTimestampToFilename ?
             FileSystem.Path.Combine(destDir.FullName, $"{DateTime.UtcNow:yyyy-MM-dd-HH-mm}-{reportName}.csv") :
             FileSystem.Path.Combine(destDir.FullName, $"{reportName}.csv");
+
+        _csvConfiguration = csvConfiguration;
     }
 
     /// <summary>
@@ -51,10 +61,17 @@ public class CsvDestination : ReportDestination
     /// <param name="options"></param>
     /// <param name="file"></param>
     /// <param name="fileSystem"></param>
-    public CsvDestination(IsIdentifiableBaseOptions options, IFileInfo file, IFileSystem fileSystem)
+    /// <param name="csvConfiguration"></param>
+    public CsvDestination(
+        IsIdentifiableBaseOptions options,
+        IFileInfo file,
+        IFileSystem fileSystem,
+        CsvConfiguration csvConfiguration = null
+    )
         : base(options, fileSystem)
     {
         ReportPath = file.FullName;
+        _csvConfiguration = csvConfiguration; ;
     }
 
     /// <summary>
@@ -72,10 +89,15 @@ public class CsvDestination : ReportDestination
             _headerWritten = true;
 
             var csvFile = FileSystem.FileInfo.New(ReportPath);
-            CsvConfiguration csvconf;
             string sep = Options.DestinationCsvSeparator;
+
+            CsvConfiguration csvconf;
+            if (_csvConfiguration != null)
+            {
+                csvconf = _csvConfiguration;
+            }
             // If there is an overriding separator and it's not a comma, then use the users desired delimiter string
-            if (!string.IsNullOrWhiteSpace(sep) && !sep.Trim().Equals(","))
+            else if (!string.IsNullOrWhiteSpace(sep) && !sep.Trim().Equals(","))
             {
                 csvconf = new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture)
                 {
