@@ -1,10 +1,12 @@
-﻿using IsIdentifiable.Options;
+using CsvHelper.Configuration;
+using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Destinations;
 using IsIdentifiable.Reporting.Reports;
 using NUnit.Framework;
 using System;
 using System.Data;
+using System.Globalization;
 using System.IO.Abstractions.TestingHelpers;
 
 namespace IsIdentifiableTests;
@@ -88,6 +90,25 @@ cell1 with some new lines and tabs	cell2
         var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationCsvFolder = OUT_DIR };
         var dest = new CsvDestination(opts, "test", _fileSystem, false);
         dest.Dispose();
+    }
+
+    [Test]
+    public void CsvDestination_WithCsvConfiguration()
+    {
+        var opts = new IsIdentifiableRelationalDatabaseOptions { DestinationCsvFolder = OUT_DIR };
+        var conf = new CsvConfiguration(CultureInfo.CurrentCulture)
+        {
+            Delimiter = "|",
+        };
+
+        using (var dest = new CsvDestination(opts, "test", _fileSystem, false, conf))
+        {
+            dest.WriteHeader("foo", "bar");
+        }
+
+        string fileCreatedContents = _fileSystem.File.ReadAllText(_fileSystem.Path.Combine(OUT_DIR, "test.csv"));
+
+        Assert.True(fileCreatedContents.StartsWith("foo|bar"));
     }
 }
 
