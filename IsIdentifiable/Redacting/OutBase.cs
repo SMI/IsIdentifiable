@@ -178,10 +178,7 @@ public abstract class OutBase
     /// <param name="toFile"></param>
     public void Save(IFileInfo toFile = null)
     {
-        if (toFile == null)
-        {
-            toFile = RulesFile;
-        }
+        toFile ??= RulesFile;
 
         toFile.Delete();
 

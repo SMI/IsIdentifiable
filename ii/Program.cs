@@ -1,3 +1,4 @@
+using System;
 using CommandLine;
 using FAnsi.Implementation;
 using FAnsi.Implementations.MicrosoftSQL;
@@ -11,7 +12,6 @@ using IsIdentifiable.Runners;
 using Microsoft.Extensions.FileSystemGlobbing;
 using YamlDotNet.Serialization;
 using System.IO.Abstractions;
-using System;
 using System.Linq;
 
 namespace IsIdentifiable;

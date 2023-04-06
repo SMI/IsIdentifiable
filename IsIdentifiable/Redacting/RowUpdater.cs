@@ -54,14 +54,13 @@ public class RowUpdater : OutBase
     public void Update(DiscoveredServer server, Failure failure, IsIdentifiableRule usingRule)
     {
         //there's no rule yet so create one (and add to Reportlist.yaml)
-        if (usingRule == null)
-            usingRule = Add(failure, RuleAction.Report);
+        usingRule ??= Add(failure, RuleAction.Report);
 
         //if we are running in rules only mode we don't need to also update the database
         if (RulesOnly)
             return;
 
-        var syntax = server.GetQuerySyntaxHelper();
+        var syntax = server?.GetQuerySyntaxHelper();
 
         //the fully specified name e.g. [mydb]..[mytbl]
         string tableName = failure.Resource;

@@ -45,10 +45,7 @@ internal class RuleSetFileNode
             throw new System.Exception("Cannot save before children have been created, expected GetRuleSet() to have been called before now");
         }
 
-        if(toFile == null)
-        {
-            toFile = File;
-        }
+        toFile ??= File;
             
         //populated rules file already existed
         var builder = new SerializerBuilder()
@@ -56,10 +53,8 @@ internal class RuleSetFileNode
             .WithIndentedSequences();
 
         var serializer = builder.Build();
-        using (var sw = new System.IO.StreamWriter(toFile.FullName))
-        {
-            serializer.Serialize(sw, _ruleSet);
-        }
+        using var sw = new System.IO.StreamWriter(toFile.FullName);
+        serializer.Serialize(sw, _ruleSet);
     }
 
     public override string ToString()

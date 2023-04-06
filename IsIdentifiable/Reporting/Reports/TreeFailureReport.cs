@@ -94,12 +94,9 @@ internal class TreeFailureReport : FailureReport
     {
         lock (_nodeFailuresLock)
         {
-            foreach (KeyValuePair<string, int[]> failureInfo in _nodeFailures)
+            foreach (var failureInfo in _nodeFailures.Where(failureInfo => !_nodeRegex.IsMatch(failureInfo.Key)))
             {
-                if (!_nodeRegex.IsMatch(failureInfo.Key))
-                    continue;
-
-                //TODO Magic
+                // TODO: Actually do something here?
             }
         }
     }

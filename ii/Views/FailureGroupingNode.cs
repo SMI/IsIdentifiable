@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Terminal.Gui;
+﻿using System.Linq;
 using Terminal.Gui.Trees;
 
 namespace IsIdentifiable.Views;
@@ -12,9 +10,9 @@ internal class FailureGroupingNode : TreeNodeWithCount
 
     public FailureGroupingNode(string group, OutstandingFailureNode[] failures):base(group)
     {
-        this.Group = group;
-        this.Failures = failures;
+        Group = group;
+        Failures = failures;
 
-        Children = failures.OrderByDescending(f=>f.NumberOfTimesReported).Cast<ITreeNode>().ToList();
+        base.Children = failures.OrderByDescending(f=>f.NumberOfTimesReported).Cast<ITreeNode>().ToList();
     }
 }

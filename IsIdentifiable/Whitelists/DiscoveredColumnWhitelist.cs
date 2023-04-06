@@ -33,21 +33,17 @@ public class DiscoveredColumnAllowlist : IAllowlistSource
     {
         var colName = _column.GetRuntimeName();
 
-        using (var con = _discoveredTable.Database.Server.GetConnection())
+        using var con = _discoveredTable.Database.Server.GetConnection();
+        con.Open();
+
+        var cmd = _discoveredTable.GetCommand(
+            $"Select DISTINCT {_column.GetFullyQualifiedName()} FROM {_discoveredTable.GetFullyQualifiedName()}", con);
+        var r = cmd.ExecuteReader();
+
+        while(r.Read())
         {
-            con.Open();
-
-            var cmd = _discoveredTable.GetCommand(
-                $"Select DISTINCT {_column.GetFullyQualifiedName()} FROM {_discoveredTable.GetFullyQualifiedName()}", con);
-            var r = cmd.ExecuteReader();
-
-            while(r.Read())
-            {
-                var o = r[colName] as string;
-
-                if(o != null)
-                    yield return o.Trim();
-            }
+            if(r[colName] is string o)
+                yield return o.Trim();
         }
     }
 

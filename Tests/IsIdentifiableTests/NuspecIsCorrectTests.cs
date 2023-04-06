@@ -80,21 +80,18 @@ public class NuspecIsCorrectTests
             //And make sure it appears in the packages.md file
             if (packagesMarkdown != null)
             {
+                Regex packageRegex = new Regex($@"\|\s*[\s[]{Regex.Escape(package)}[\s\]]", RegexOptions.IgnoreCase);
                 found = false;
-                foreach (string line in File.ReadAllLines(packagesMarkdown))
+                foreach (string line in File.ReadLines(packagesMarkdown).Where(l=>packageRegex.IsMatch(l)))
                 {
-                    if (Regex.IsMatch(line, $@"\|\s*[\s[]{Regex.Escape(package)}[\s\]]", RegexOptions.IgnoreCase))
-                    {
-                        int count = new Regex(Regex.Escape(version)).Matches(line).Count;
-
-                        Assert.AreEqual(2, count, "Markdown file {0} did not contain 2 instances of the version {1} for package {2} in {3}", packagesMarkdown, version, package, csproj);
-                        found = true;
-                    }
+                    int count = new Regex(Regex.Escape(version)).Matches(line).Count;
+                    Assert.AreEqual(2, count, "Markdown file {0} did not contain 2 instances of the version {1} for package {2} in {3}", packagesMarkdown, version, package, csproj);
+                    found = true;
                 }
 
                 if (!found)
-                    undocumented.AppendLine(String.Format("Package {0} in {1} is not documented in {2}. Recommended line is:\r\n{3}", package, csproj, packagesMarkdown,
-                        BuildRecommendedMarkdownLine(package, version)));
+                    undocumented.AppendLine(
+                        $"Package {package} in {csproj} is not documented in {packagesMarkdown}. Recommended line is:\r\n{BuildRecommendedMarkdownLine(package, version)}");
             }
         }
 
@@ -102,13 +99,13 @@ public class NuspecIsCorrectTests
         Assert.IsEmpty(undocumented.ToString());
     }
 
-    private object BuildRecommendedDependencyLine(string package, string version)
+    private static object BuildRecommendedDependencyLine(string package, string version)
     {
-        return string.Format("<dependency id=\"{0}\" version=\"{1}\" />", package, version);
+        return $"<dependency id=\"{package}\" version=\"{version}\" />";
     }
 
-    private object BuildRecommendedMarkdownLine(string package, string version)
+    private static object BuildRecommendedMarkdownLine(string package, string version)
     {
-        return string.Format("| {0} | [GitHub]() | [{1}](https://www.nuget.org/packages/{0}/{1}) | | | |", package, version);
+        return $"| {package} | [GitHub]() | [{version}](https://www.nuget.org/packages/{package}/{version}) | | | |";
     }
 }

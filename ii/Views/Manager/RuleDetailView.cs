@@ -1,5 +1,5 @@
-﻿using IsIdentifiable.Rules;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using IsIdentifiable.Rules;
 using System.IO.Abstractions;
 using Terminal.Gui;
 
@@ -14,7 +14,7 @@ class RuleDetailView : View
     {
         lblType = new Label() { Text = "Type:", Height = 1, Width = Dim.Fill()};
 
-        Add(lblType);
+        base.Add(lblType);
     }
 
     public void SetupFor(object obj, IFileInfo file)

@@ -1,13 +1,9 @@
 ﻿using IsIdentifiable.Failures;
 using IsIdentifiable.Rules;
 using IsIdentifiable.Runners;
-using Moq;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using YamlDotNet.Serialization;
 
 namespace IsIdentifiableTests;
 
@@ -66,8 +62,9 @@ class ConsensusRuleTests
         var result = rule.Apply("ff","abc is so cool",out IEnumerable<FailurePart> badParts);
 
         Assert.AreEqual(RuleAction.Report,result);
-        Assert.AreEqual(10,badParts.Single().Offset);
-        Assert.AreEqual("ab",badParts.Single().Word);
+        var badPart=badParts.Single();
+        Assert.AreEqual(10,badPart.Offset);
+        Assert.AreEqual("ab",badPart.Word);
     }
 
     [Test]

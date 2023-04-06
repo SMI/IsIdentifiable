@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO.Abstractions;
-using System.Linq;
+﻿using System.IO.Abstractions;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Rules;
 

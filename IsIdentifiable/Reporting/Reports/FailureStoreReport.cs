@@ -149,19 +149,15 @@ public class FailureStoreReport : FailureReport
             token.ThrowIfCancellationRequested();
 
             lineNumber++;
-            var parts = new List<FailurePart>();
 
+            List<FailurePart> parts;
             try
             {
-
                 var words = r["PartWords"].Split(Separator);
                 var classes = r["PartClassifications"].Split(Separator);
                 var offsets = r["PartOffsets"].Split(Separator);
 
-                for (int i = 0; i < words.Length; i++)
-                    parts.Add(new FailurePart(words[i],
-                        (FailureClassification)Enum.Parse(typeof(FailureClassification), classes[i], true),
-                        int.Parse(offsets[i])));
+                parts = words.Select((t, i) => new FailurePart(t, (FailureClassification)Enum.Parse(typeof(FailureClassification), classes[i], true), int.Parse(offsets[i]))).ToList();
             }
             catch (Exception e)
             {

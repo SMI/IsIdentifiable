@@ -13,9 +13,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using NLog;
-using System.Xml.Linq;
-using YamlDotNet.Core.Tokens;
-using SharpCompress.Common;
 using System.IO.Abstractions;
 
 namespace IsIdentifiable.Runners;
@@ -341,9 +338,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
             string fullTagPath = groupPrefix + tagTree + kw;
 
             //TODO OverlayRows...
-            if (!nodeCounts.ContainsKey(fullTagPath))
-                nodeCounts.Add(fullTagPath, 1);
-            else
+            if (!nodeCounts.TryAdd(fullTagPath,1))
                 nodeCounts[fullTagPath]++;
 
             if (element.Count == 0)
@@ -371,8 +366,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
 
     private void AddNodeCounts(IDictionary<string, int> nodeCounts)
     {
-        if (_treeReport != null)
-            _treeReport.AddNodeCounts(nodeCounts);
+        _treeReport?.AddNodeCounts(nodeCounts);
     }
 
     private IMongoDatabase TryGetDatabase(MongoClient client, string dbName)

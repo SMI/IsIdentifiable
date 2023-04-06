@@ -106,10 +106,8 @@ public class SymbolsRulesFactory : IRulePatternFactory
     {
         StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < failure.ProblemValue.Length; i++)
+        foreach (var cur in failure.ProblemValue)
         {
-            char cur = failure.ProblemValue[i];
-
             if (char.IsDigit(cur))
                 sb.Append("\\d");
             else

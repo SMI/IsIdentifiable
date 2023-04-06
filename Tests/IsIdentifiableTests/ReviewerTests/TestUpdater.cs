@@ -42,7 +42,7 @@ class TestUpdater : DatabaseTests
             Resource = $"{dbname}.HappyOzz"
         };
 
-        DataTable dt = new DataTable();
+        using var dt = new DataTable();
         dt.Columns.Add("MyPk");
         dt.Columns.Add("Narrative");
 
@@ -58,8 +58,10 @@ class TestUpdater : DatabaseTests
 
         var newRules = _fileSystem.FileInfo.New("Reportlist.yaml");
 
-        RowUpdater updater = new RowUpdater(_fileSystem, newRules);
-        updater.UpdateStrategy = new ProblemValuesUpdateStrategy();
+        RowUpdater updater = new RowUpdater(_fileSystem, newRules)
+        {
+            UpdateStrategy = new ProblemValuesUpdateStrategy()
+        };
 
         //it should be novel i.e. require user decision
         Assert.IsTrue(updater.OnLoad(db.Server, failure, out _));
@@ -109,7 +111,7 @@ class TestUpdater : DatabaseTests
             Resource = $"{dbname}.HappyOzz"
         };
 
-        DataTable dt = new DataTable();
+        using var dt = new DataTable();
         dt.Columns.Add("MyPk");
         dt.Columns.Add("Narrative");
 

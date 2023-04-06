@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Views;
@@ -12,10 +7,15 @@ using IsIdentifiable.Views.Manager;
 using Terminal.Gui;
 using IsIdentifiable.Redacting;
 using System.IO.Abstractions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace IsIdentifiable;
 
-class MainWindow : IRulePatternFactory
+class MainWindow : IRulePatternFactory, IDisposable
 {
     /// <summary>
     /// The report CSV file that is currently open
@@ -47,31 +47,31 @@ class MainWindow : IRulePatternFactory
     /// </summary>
     public static int DlgBoundary = 2;
 
-    private FailureView _valuePane;
-    private Label _info;
-    private SpinnerView spinner;
-    private TextField _gotoTextField;
-    private IRulePatternFactory _origUpdaterRulesFactory;
-    private IRulePatternFactory _origIgnorerRulesFactory;
-    private Label _ignoreRuleLabel;
-    private Label _updateRuleLabel;
-    private Label _currentReportLabel;
+    private readonly FailureView _valuePane;
+    private readonly Label _info;
+    private readonly SpinnerView _spinner;
+    private readonly TextField _gotoTextField;
+    private readonly IRulePatternFactory _origUpdaterRulesFactory;
+    private readonly IRulePatternFactory _origIgnorerRulesFactory;
+    private readonly Label _ignoreRuleLabel;
+    private readonly Label _updateRuleLabel;
+    private readonly Label _currentReportLabel;
 
     /// <summary>
     /// Record of new rules added (e.g. Ignore with pattern X) along with the index of the failure.  This allows undoing user decisions
     /// </summary>
-    Stack<MainWindowHistory> History = new Stack<MainWindowHistory>();
+    readonly Stack<MainWindowHistory> History = new();
 
-    ColorScheme _greyOnBlack = new ColorScheme()
+    readonly ColorScheme _greyOnBlack = new()
     {
         Normal = Application.Driver.MakeAttribute(Color.Black,Color.Gray),
         HotFocus = Application.Driver.MakeAttribute(Color.Black,Color.Gray),
         Disabled = Application.Driver.MakeAttribute(Color.Black,Color.Gray),
         Focus = Application.Driver.MakeAttribute(Color.Black,Color.Gray),
     };
-    private MenuItem miCustomPatterns;
-    private RulesView rulesView;
-    private AllRulesManagerView rulesManager;
+    private readonly MenuItem miCustomPatterns;
+    private readonly RulesView rulesView;
+    private readonly AllRulesManagerView rulesManager;
     private readonly IFileSystem _fileSystem;
 
     public MenuBar Menu { get; private set; }
@@ -85,6 +85,8 @@ G - creates a regex pattern that matches only the failing part(s)
 \d - replaces all digits with regex wildcards
 \c - replaces all characters with regex wildcards
 \d\c - replaces all digits and characters with regex wildcards";
+
+    private readonly View viewMain;
 
     public MainWindow(IsIdentifiableBaseOptions analyserOpts, IsIdentifiableReviewerOptions opts, IgnoreRuleGenerator ignorer, RowUpdater updater, IFileSystem fileSystem)
     {
@@ -106,7 +108,7 @@ G - creates a regex pattern that matches only the failing part(s)
         });
 
 
-        var viewMain = new View() { Width = Dim.Fill(), Height = Dim.Fill() };
+        viewMain = new View() { Width = Dim.Fill(), Height = Dim.Fill() };
         rulesView = new RulesView();
         rulesManager = new AllRulesManagerView(analyserOpts, opts, fileSystem);
 
@@ -115,10 +117,9 @@ G - creates a regex pattern that matches only the failing part(s)
             X = 0,
             Y = 0,
             Width = Dim.Fill()-1,
-            Height = 1
+            Height = 1,
+            ColorScheme = _greyOnBlack
         };
-
-        _info.ColorScheme = _greyOnBlack;
 
         _valuePane = new FailureView()
         {
@@ -180,7 +181,7 @@ G - creates a regex pattern that matches only the failing part(s)
             X = 11,
             Y = 2
         };
-        undoButton.Clicked += () => Undo();
+        undoButton.Clicked += Undo;
         frame.Add(undoButton);
 
         frame.Add(new Label(0, 4, "Default Patterns"));
@@ -198,10 +199,12 @@ G - creates a regex pattern that matches only the failing part(s)
 
         viewMain.Add(_info);
 
-        spinner = new SpinnerView();
-        spinner.X = Pos.Right(_info);
-        viewMain.Add(spinner);
-        spinner.Visible = false;
+        _spinner = new SpinnerView
+        {
+            X = Pos.Right(_info)
+        };
+        viewMain.Add(_spinner);
+        _spinner.Visible = false;
 
         viewMain.Add(_valuePane);
         viewMain.Add(frame);
@@ -332,7 +335,7 @@ G - creates a regex pattern that matches only the failing part(s)
         if(_valuePane.CurrentFailure == null || CurrentReport == null)
             return;
 
-        spinner.Visible = true;
+        _spinner.Visible = true;
 
         int skipped = 0;
         int updated = 0;
@@ -361,10 +364,10 @@ G - creates a regex pattern that matches only the failing part(s)
         }
         finally
         {
-            spinner.Visible = false;
+            _spinner.Visible = false;
         }
 
-        StringBuilder info = new StringBuilder();
+        StringBuilder info = new();
 
         info.Append(CurrentReport.DescribeProgress());
 
@@ -466,8 +469,8 @@ G - creates a regex pattern that matches only the failing part(s)
         var cts = new CancellationTokenSource();
 
         using var btn = new Button("Cancel");
-        Action cancelFunc = ()=>{cts.Cancel();};
-        Action closeFunc = ()=>{Application.RequestStop();};
+        void cancelFunc() { cts.Cancel(); }
+        void closeFunc() { Application.RequestStop(); }
         btn.Clicked += cancelFunc;
 
         using var dlg = new Dialog("Opening",MainWindow.DlgWidth,5,btn);
@@ -525,7 +528,7 @@ G - creates a regex pattern that matches only the failing part(s)
     {
         var e2 = e;
         const string stackTraceOption = "Stack Trace";
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         while (e2 != null)
         {
@@ -583,7 +586,7 @@ G - creates a regex pattern that matches only the failing part(s)
             
         foreach (var value in options)
         {
-            T v1 = (T) value;
+            T v1 = value;
 
             string name = value?.ToString() ?? "";
 
@@ -606,7 +609,7 @@ G - creates a regex pattern that matches only the failing part(s)
         chosen = result;
         return optionChosen;
     }
-    private bool GetText(string title, string message, string initialValue, out string chosen,
+    private static bool GetText(string title, string message, string initialValue, out string chosen,
         Dictionary<string, string> buttons)
     {
         bool optionChosen = false;
@@ -717,18 +720,20 @@ G - creates a regex pattern that matches only the failing part(s)
 
     public string GetPattern(object sender,Failure failure)
     {
-        var defaultFactory = sender == Updater ? _origUpdaterRulesFactory : _origIgnorerRulesFactory;
+        var defaultFactory = ReferenceEquals(sender,Updater) ? _origUpdaterRulesFactory : _origIgnorerRulesFactory;
 
         var recommendedPattern = defaultFactory.GetPattern(sender,failure);
-            
-        Dictionary<string,string> buttons = new Dictionary<string, string>();
-        buttons.Add("x","");
-        buttons.Add("F",_origIgnorerRulesFactory.GetPattern(sender,failure));
-        buttons.Add("G",_origUpdaterRulesFactory.GetPattern(sender,failure));
-             
-        buttons.Add(@"\d",new SymbolsRulesFactory {Mode= SymbolsRuleFactoryMode.DigitsOnly}.GetPattern(sender,failure));
-        buttons.Add(@"\c",new SymbolsRulesFactory{Mode= SymbolsRuleFactoryMode.CharactersOnly}.GetPattern(sender,failure));
-        buttons.Add(@"\d\c",new SymbolsRulesFactory().GetPattern(sender,failure));
+
+        var buttons = new Dictionary<string, string>
+        {
+            { "x", "" },
+            { "F", _origIgnorerRulesFactory.GetPattern(sender, failure) },
+            { "G", _origUpdaterRulesFactory.GetPattern(sender, failure) },
+
+            { @"\d", new SymbolsRulesFactory { Mode = SymbolsRuleFactoryMode.DigitsOnly }.GetPattern(sender, failure) },
+            { @"\c", new SymbolsRulesFactory { Mode = SymbolsRuleFactoryMode.CharactersOnly }.GetPattern(sender, failure) },
+            { @"\d\c", new SymbolsRulesFactory().GetPattern(sender, failure) }
+        };
 
 
 
@@ -765,4 +770,20 @@ G - creates a regex pattern that matches only the failing part(s)
         throw new OperationCanceledException("User chose not to enter a pattern");
     }
 
+    public void Dispose()
+    {
+        _valuePane.Dispose();
+        _info.Dispose();
+        _spinner.Dispose();
+        _gotoTextField.Dispose();
+        _ignoreRuleLabel.Dispose();
+        _updateRuleLabel.Dispose();
+        _currentReportLabel.Dispose();
+        rulesView.Dispose();
+        rulesManager.Dispose();
+        taskToLoadNext?.Dispose();
+        viewMain.Dispose();
+        Menu.Dispose();
+        Body.Dispose();
+    }
 }

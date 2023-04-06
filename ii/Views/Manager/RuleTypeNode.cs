@@ -1,7 +1,6 @@
-﻿using IsIdentifiable.Rules;
-using System;
+﻿using System;
+using IsIdentifiable.Rules;
 using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace IsIdentifiable.Views.Manager;

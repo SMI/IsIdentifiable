@@ -18,7 +18,7 @@ public sealed class TestData
     /// <summary>
     /// Creates the test image <see cref="IMG_013"/> in the file location specified
     /// </summary>
-    /// <param name="IFileInfo"></param>
+    /// <param name="dest"></param>
     /// <param name="testFile">The test file to create, should be a static member of this class.  Defaults to <see cref="IMG_013"/></param>
     /// <returns></returns>
     public static IFileInfo Create(IFileInfo dest, string testFile=null)
@@ -26,7 +26,7 @@ public sealed class TestData
         var from = System.IO.Path.Combine(TestContext.CurrentContext.TestDirectory, testFile??IMG_013);
         var bytes = System.IO.File.ReadAllBytes(from);
 
-        if(!dest.Directory.Exists)
+        if(dest.Directory?.Exists==false)
             dest.Directory.Create();
 
         using var stream = dest.OpenWrite();

@@ -1,10 +1,10 @@
-﻿using FAnsi.Implementation;
+﻿using System;
+using FAnsi.Implementation;
 using FAnsi.Implementations.MicrosoftSQL;
 using FAnsi.Implementations.MySql;
 using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
 using IsIdentifiable.Options;
-using System;
 using System.IO.Abstractions;
 using System.Linq;
 using Terminal.Gui;
@@ -120,7 +120,7 @@ public class ReviewerRunner
 
                 var top = Application.Top;
 
-                var mainWindow = new MainWindow(_analyserOpts ?? new IsIdentifiableBaseOptions(), _reviewerOptions, ignorer, updater, _fileSystem);
+                using var mainWindow = new MainWindow(_analyserOpts ?? new IsIdentifiableBaseOptions(), _reviewerOptions, ignorer, updater, _fileSystem);
 
 
                 // Creates the top-level window to show

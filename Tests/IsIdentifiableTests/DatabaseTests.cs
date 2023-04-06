@@ -37,11 +37,9 @@ public class DatabaseTests
                 typeof(MySqlServerHelper).Assembly,
                 typeof(PostgreSqlServerHelper).Assembly);
 
-            var file = TestFilename;
+            Assert.IsTrue(System.IO.File.Exists(TestFilename), "Could not find " + TestFilename);
 
-            Assert.IsTrue(System.IO.File.Exists(file), "Could not find " + TestFilename);
-
-            var doc = XDocument.Load(file);
+            var doc = XDocument.Load(TestFilename);
 
             var root = doc.Element("TestDatabases");
             if (root == null)
@@ -67,9 +65,8 @@ public class DatabaseTests
             foreach (XElement element in root.Elements("TestDatabase"))
             {
                 var type = element.Element("DatabaseType").Value;
-                DatabaseType databaseType;
 
-                if (!DatabaseType.TryParse(type, out databaseType))
+                if (!DatabaseType.TryParse(type, out DatabaseType databaseType))
                     throw new Exception($"Could not parse DatabaseType {type}");
 
 
@@ -177,7 +174,7 @@ public class DatabaseTests
             foreach (DataRow row2 in dt2.Rows)
             {
                 bool rowMatch = true;
-                foreach (DataColumn column in dt1.Columns)
+                foreach (DataColumn column in dt1.Columns.Cast<DataColumn>())
                 {
                     if (!AreBasicallyEquals(row1[column.ColumnName], row2[column.ColumnName]))
                         rowMatch = false;

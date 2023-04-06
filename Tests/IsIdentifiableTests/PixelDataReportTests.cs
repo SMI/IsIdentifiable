@@ -47,9 +47,8 @@ internal class PixelDataReportTests
     {
         var reader = new ReportReader(_fileSystem.FileInfo.New(_pixelDataReportPath), (s) => { }, CancellationToken.None, _fileSystem);
 
-        for (int i = 0; i < reader.Failures.Length; i++)
+        foreach (var l in reader.Failures)
         {
-            Failure l = reader.Failures[i];
             new MatchProblemValuesPatternFactory().GetPattern(this, l);
         }
     }

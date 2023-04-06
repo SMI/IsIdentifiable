@@ -1,7 +1,4 @@
 ﻿using IsIdentifiable.Reporting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Equ;
 
 namespace IsIdentifiable.Failures;

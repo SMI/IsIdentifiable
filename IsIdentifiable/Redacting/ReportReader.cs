@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Reports;

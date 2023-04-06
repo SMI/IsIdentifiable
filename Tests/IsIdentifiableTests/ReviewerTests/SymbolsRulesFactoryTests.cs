@@ -67,7 +67,7 @@ public class SymbolsRulesFactoryTests
     public void TestNoParts()
     {
         var f = new SymbolsRulesFactory();
-        var ex = Assert.Throws<ArgumentException>(()=> f.GetPattern(this, new Failure(new FailurePart[0]) {ProblemValue = "fdslkfl;asdf"}));
+        var ex = Assert.Throws<ArgumentException>(()=> f.GetPattern(this, new Failure(Array.Empty<FailurePart>()) {ProblemValue = "fdslkfl;asdf"}));
         Assert.AreEqual("Failure had no Parts",ex.Message);
 
     }

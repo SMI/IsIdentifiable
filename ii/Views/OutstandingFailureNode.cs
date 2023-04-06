@@ -1,6 +1,5 @@
 ﻿using IsIdentifiable.Failures;
 using IsIdentifiable.Reporting;
-using Terminal.Gui;
 using Terminal.Gui.Trees;
 
 namespace IsIdentifiable.Views;
@@ -8,7 +7,7 @@ namespace IsIdentifiable.Views;
 internal class OutstandingFailureNode : TreeNode
 {
     /// <summary>
-    /// The first failure that was seen after which all <see cref="NumberOfTimesReported"/> only needs to match the <see cref="Failure.ProblemValue"/> (i.e. not the offset or the classification)
+    /// The first failure that was seen after which all <see cref="NumberOfTimesReported"/> only needs to match the <see cref="P:Failure.ProblemValue"/> (i.e. not the offset or the classification)
     /// </summary>
     public Failure Failure{ get; }
 

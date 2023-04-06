@@ -1,11 +1,8 @@
-﻿using IsIdentifiable.Failures;
-using IsIdentifiable.Reporting;
+﻿using System;
 using IsIdentifiable.Rules;
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Terminal.Gui;
@@ -25,7 +22,7 @@ class RulesView : View
     /// <summary>
     /// When the user bulk ignores many records at once how should the ignore patterns be generated
     /// </summary>
-    private IRulePatternFactory? bulkIgnorePatternFactory;
+    private IRulePatternFactory? _bulkIgnorePatternFactory;
 
 
     Label lblInitialSummary;
@@ -36,10 +33,10 @@ class RulesView : View
         Height = Dim.Fill();
 
         lblInitialSummary = new Label("No report loaded") { Width = Dim.Fill() };
-        Add(lblInitialSummary);
+        base.Add(lblInitialSummary);
 
         var lblEvaluate = new Label($"Evaluate:") { Y = Pos.Bottom(lblInitialSummary) + 1 };
-        Add(lblEvaluate);
+        base.Add(lblEvaluate);
 
 
         var ruleCollisions = new Button("Rule Coverage")
@@ -47,10 +44,10 @@ class RulesView : View
             Y = Pos.Bottom(lblEvaluate)
         };
 
-        ruleCollisions.Clicked += () => EvaluateRuleCoverage();
-        Add(ruleCollisions);
+        ruleCollisions.Clicked += EvaluateRuleCoverage;
+        base.Add(ruleCollisions);
 
-        _treeView = new TreeView()
+        _treeView = new TreeView
         {
             Y = Pos.Bottom(ruleCollisions) + 1,
             Width = Dim.Fill(),
@@ -60,7 +57,7 @@ class RulesView : View
         _treeView.ObjectActivated += _treeView_ObjectActivated;
         _treeView.SelectionChanged += _treeView_SelectionChanged;
 
-        Add(_treeView);
+        base.Add(_treeView);
     }
 
 
@@ -108,7 +105,7 @@ class RulesView : View
         CurrentReport = currentReport;
         Ignorer = ignorer;
         Updater = updater;
-        this.bulkIgnorePatternFactory = bulkIgnorePatternFactory;
+        _bulkIgnorePatternFactory = bulkIgnorePatternFactory;
 
         lblInitialSummary.Text = $"There are {ignorer.Rules.Count} ignore rules and {updater.Rules.Count} update rules.  Current report contains {CurrentReport.Failures.Length:N0} Failures";
             
@@ -116,9 +113,7 @@ class RulesView : View
 
     private void _treeView_ObjectActivated(ObjectActivatedEventArgs<ITreeNode> obj)
     {
-        var ofn = obj.ActivatedObject as OutstandingFailureNode;
-
-        if (ofn != null)
+        if (obj.ActivatedObject is OutstandingFailureNode ofn)
         {
             Activate(ofn);
         }
@@ -126,56 +121,36 @@ class RulesView : View
 
     private void _treeView_KeyPress(KeyEventEventArgs e)
     {
-        if(_treeView.HasFocus && _treeView.CanFocus)
+        if (_treeView is not { HasFocus: true, CanFocus: true } || e.KeyEvent.Key != Key.DeleteChar) return;
+        var all = _treeView.GetAllSelectedObjects().ToArray();
+        var single = _treeView.SelectedObject;
+
+        switch (single)
         {
-            switch(e.KeyEvent.Key)
-            {
-                case Key.DeleteChar:
+            case CollidingRulesNode crn when all.Length == 1:
+                Delete(crn);
+                break;
+            case FailureGroupingNode fgn when all.Length == 1:
+                Delete(fgn);
+                break;
+        }
 
-                    var all = _treeView.GetAllSelectedObjects().ToArray();
-                    var single = _treeView.SelectedObject;
+        var usages = all.OfType<RuleUsageNode>().ToArray();
+        if (usages.Any() && MessageBox.Query("Delete", $"Delete {usages.Length} Rules?", "Yes", "No") == 0)
+        {
+            foreach (var u in usages)
+                Delete(u);
+        }
 
-                    var crn = single as CollidingRulesNode;
-                    if(crn!=null && all.Length == 1)
-                    {
-                        Delete(crn);
-                    }
+        e.Handled = true;
 
-                    var fgn = single as FailureGroupingNode;
-                    if(fgn!= null && all.Length == 1)
-                    {
-                        Delete(fgn);
-                    }
+        var ignoreAll = all.OfType<OutstandingFailureNode>().ToArray();
 
-                    var usages = all.OfType<RuleUsageNode>().ToArray();
-                    if (usages.Any())
-                    {
-                        var answer = MessageBox.Query("Delete",$"Delete {usages.Length} Rules?", "Yes", "No");
-
-                        if (answer == 0)
-                        {
-                            foreach (var u in usages)
-                                Delete(u);
-                        }
-                    }
-
-                    e.Handled = true;
-
-                    var ignoreAll = all.OfType<OutstandingFailureNode>().ToArray();
-                        
-                    if(ignoreAll.Any())
-                    {
-                        if(MessageBox.Query("Ignore",$"Ignore {ignoreAll.Length} failures?","Yes","No") == 0)
-                        {
-                            foreach (var f in ignoreAll)
-                            {
-                                Ignore(f,ignoreAll.Length > 1);
-                            }
-                        }
-                    }
-
-                    break;
-            }
+        if (ignoreAll.Any() &&
+            MessageBox.Query("Ignore", $"Ignore {ignoreAll.Length} failures?", "Yes", "No") == 0)
+        {
+            foreach (var f in ignoreAll)
+                Ignore(f, ignoreAll.Length > 1);
         }
     }
 
@@ -314,7 +289,7 @@ class RulesView : View
 
         if (isBulkIgnore)
         {
-            Ignorer.Add(ofn.Failure, bulkIgnorePatternFactory);
+            Ignorer.Add(ofn.Failure, _bulkIgnorePatternFactory);
         }
         else
         {

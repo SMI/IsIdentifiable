@@ -22,7 +22,7 @@ using System.IO.Abstractions;
 namespace IsIdentifiable.Runners;
 
 /// <summary>
-/// Base class for all classes which evaluate datasources to detect identifiable data.
+/// Base class for all classes which evaluate data sources to detect identifiable data.
 /// Subclass to add support for new data sources.  Current sources include reading from
 /// CSV files, Dicom files and database tables.
 /// </summary>
@@ -468,10 +468,10 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         }
 
         //does the string contain chis which represent an actual date?
-        foreach (Match m in _chiRegex.Matches(fieldValue))
-            if (DateTime.TryParseExact(m.Value[..6], "ddMMyy", CultureInfo.InvariantCulture,
-                    DateTimeStyles.None, out _))
-                yield return new FailurePart(m.Value, FailureClassification.PrivateIdentifier, m.Index);
+        foreach (Match m in _chiRegex.Matches(fieldValue).Where(m => DateTime.TryParseExact(m.Value[..6], "ddMMyy",
+                     CultureInfo.InvariantCulture,
+                     DateTimeStyles.None, out _)))
+            yield return new FailurePart(m.Value, FailureClassification.PrivateIdentifier, m.Index);
 
         if (!_opts.IgnorePostcodes)
             foreach (Match m in _postcodeRegex.Matches(fieldValue))

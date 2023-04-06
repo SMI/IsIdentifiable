@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.IO.Abstractions;
+﻿using System.IO.Abstractions;
 using CommandLine;
 
 namespace IsIdentifiable.Options;

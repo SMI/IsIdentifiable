@@ -9,7 +9,6 @@ using IsIdentifiable.Reporting.Destinations;
 using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Rules;
 using NLog;
-using NLog.Fluent;
 
 namespace IsIdentifiable.Redacting;
 
