@@ -140,7 +140,7 @@ public class ReviewerRunner
 
                 win.Add(mainWindow.Body);
 
-                Application.Run();
+                Application.Run(top);
 
                 return 0;
             }
