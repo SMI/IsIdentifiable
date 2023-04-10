@@ -1,6 +1,6 @@
 ﻿using IsIdentifiable.Options;
 
-namespace IsIdentifiable;
+namespace ii;
 
 public class GlobalOptions
 {

@@ -13,9 +13,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using NLog;
-using System.Xml.Linq;
-using YamlDotNet.Core.Tokens;
-using SharpCompress.Common;
 using System.IO.Abstractions;
 
 namespace IsIdentifiable.Runners;
@@ -37,19 +34,19 @@ public class MongoRunner : IsIdentifiableAbstractRunner
 
     private readonly string _queryString;
 
-    private readonly FindOptions<BsonDocument> _findOptionsBase = new FindOptions<BsonDocument>
+    private readonly FindOptions<BsonDocument> _findOptionsBase = new()
     {
         NoCursorTimeout = true
     };
 
-    private readonly ParallelOptions _parallelOptions = new ParallelOptions
+    private readonly ParallelOptions _parallelOptions = new()
     {
         MaxDegreeOfParallelism = Environment.ProcessorCount > 1 ? Environment.ProcessorCount / 2 : 1
     };
 
 
     private Task _runnerTask;
-    private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
+    private readonly CancellationTokenSource _tokenSource = new();
     private bool _stopping;
 
     private readonly MongoDbFailureFactory _factory;
@@ -76,7 +73,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
 
         var mongoClient = new MongoClient(opts.MongoConnectionString);
 
-        IMongoDatabase db = TryGetDatabase(mongoClient,_opts.DatabaseName);
+        var db = TryGetDatabase(mongoClient,_opts.DatabaseName);
         _collection = TryGetCollection(db, _opts.CollectionName);
 
         if (!string.IsNullOrWhiteSpace(_opts.QueryFile))
@@ -113,9 +110,9 @@ public class MongoRunner : IsIdentifiableAbstractRunner
         var failedToRebuildCount = 0;
 
         _logger.Debug("Performing query");
-        DateTime start = DateTime.Now;
+        var start = DateTime.Now;
 
-        using (IAsyncCursor<BsonDocument> cursor = await MongoQueryParser.GetCursor(_collection, _findOptionsBase, _queryString))
+        using (var cursor = await MongoQueryParser.GetCursor(_collection, _findOptionsBase, _queryString))
         {
             _logger.Info("Query completed in {0:g}. Starting checks with cursor", (DateTime.Now - start));
             _logger.Info(
@@ -128,7 +125,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
             {
                 _logger.Debug("Received new batch");
 
-                IEnumerable<BsonDocument> batch = cursor.Current;
+                var batch = cursor.Current;
                 var batchCount = 0;
 
                 var batchFailures = new List<Failure>();
@@ -137,7 +134,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
 
                 Parallel.ForEach(batch, _parallelOptions, document =>
                 {
-                    ObjectId documentId = document["_id"].AsObjectId;
+                    var documentId = document["_id"].AsObjectId;
 
                     if(_opts.IsDicomFiles)
                     {
@@ -158,7 +155,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
             }
         }
 
-        TimeSpan queryTime = DateTime.Now - start;
+        var queryTime = DateTime.Now - start;
         _logger.Info($"Processing finished or cancelled, total time elapsed: {queryTime:g}");
 
         _logger.Info("{0} documents were processed in total", totalProcessed);
@@ -192,7 +189,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
         }
 
         // Validate the dataset against our rules
-        IList<Reporting.Failure> documentFailures = ProcessDataset(documentId, ds);
+        var documentFailures = ProcessDataset(documentId, ds);
 
         if (documentFailures.Any())
             lock (oListLock)
@@ -204,7 +201,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
     private void ProcessDocumentAsUnstructured(BsonDocument document, ObjectId documentId, object oListLock, ref int batchCount, List<Failure> batchFailures)
     {
         // Validate the dataset against our rules
-        IList<Reporting.Failure> documentFailures = ProcessDocument(documentId,"", document);
+        var documentFailures = ProcessDocument(documentId,"", document);
 
         if (documentFailures.Any())
             lock (oListLock)
@@ -217,7 +214,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
     {
         var failures = new List<Failure>();
 
-        foreach (BsonElement element in document)
+        foreach (var element in document)
         {
             failures.AddRange(ProcessBsonValue(documentId, tagTree, element.Name, element.Value,false));
         }
@@ -249,9 +246,9 @@ public class MongoRunner : IsIdentifiableAbstractRunner
             // array of values
             case BsonType.Array:
 
-                int i = 0;
+                var i = 0;
                 // values could be mixed type
-                foreach (BsonValue entry in (BsonArray)value)
+                foreach (var entry in (BsonArray)value)
                 {
                     // process each array element
                     failures.AddRange(
@@ -280,7 +277,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
     {
         var valueAsString = value.ToString();
 
-        List<FailurePart> parts = Validate(name, valueAsString).ToList();
+        var parts = Validate(name, valueAsString).ToList();
 
         if (parts.Any())
             yield return _factory.Create(documentId, fullTagPath, valueAsString, parts);
@@ -292,6 +289,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
     /// </summary>
     public override void Dispose()
     {
+        GC.SuppressFinalize(this);
         base.Dispose();
 
         if (_stopping)
@@ -310,8 +308,8 @@ public class MongoRunner : IsIdentifiableAbstractRunner
         var nodeCounts = new Dictionary<string, int>();
         var failures = new List<Failure>();
 
-        ds.TryGetString(DicomTag.Modality, out string modality);
-        bool hasImageType = ds.TryGetValues(DicomTag.ImageType, out string[] imageTypeArr);
+        ds.TryGetString(DicomTag.Modality, out var modality);
+        var hasImageType = ds.TryGetValues(DicomTag.ImageType, out string[] imageTypeArr);
 
         var imageTypeStr = "";
 
@@ -319,11 +317,11 @@ public class MongoRunner : IsIdentifiableAbstractRunner
             imageTypeStr = string.Join(@"\\", imageTypeArr.Take(2));
 
         // Prefix the Modality and ImageType tags to allow grouping. This is a temporary solution until the reporting API supports grouping.
-        string groupPrefix = modality + SEP + imageTypeStr + SEP;
+        var groupPrefix = modality + SEP + imageTypeStr + SEP;
 
-        foreach (DicomItem item in ds)
+        foreach (var item in ds)
         {
-            string kw = item.Tag.DictionaryEntry.Keyword;
+            var kw = item.Tag.DictionaryEntry.Keyword;
 
             if (item is DicomSequence asSequence)
             {
@@ -338,12 +336,10 @@ public class MongoRunner : IsIdentifiableAbstractRunner
             }
 
             var element = ds.GetDicomItem<DicomElement>(item.Tag);
-            string fullTagPath = groupPrefix + tagTree + kw;
+            var fullTagPath = groupPrefix + tagTree + kw;
 
             //TODO OverlayRows...
-            if (!nodeCounts.ContainsKey(fullTagPath))
-                nodeCounts.Add(fullTagPath, 1);
-            else
+            if (!nodeCounts.TryAdd(fullTagPath,1))
                 nodeCounts[fullTagPath]++;
 
             if (element.Count == 0)
@@ -355,13 +351,10 @@ public class MongoRunner : IsIdentifiableAbstractRunner
 
             // For each string in the element
             //TODO This is slow and should be refactored
-            foreach (string s in ds.GetValues<string>(element.Tag))
-            {
-                List<FailurePart> parts = Validate(kw, s).ToList();
-
-                if (parts.Any())
-                    failures.Add(_factory.Create(documentId, fullTagPath, s, parts));
-            }
+            failures.AddRange(ds.GetValues<string>(element.Tag)
+                .Select(s => new { s, parts = Validate(kw, s).ToList() })
+                .Where(t => t.parts.Any())
+                .Select(t => _factory.Create(documentId, fullTagPath, t.s, t.parts)));
         }
 
         AddNodeCounts(nodeCounts);
@@ -371,11 +364,10 @@ public class MongoRunner : IsIdentifiableAbstractRunner
 
     private void AddNodeCounts(IDictionary<string, int> nodeCounts)
     {
-        if (_treeReport != null)
-            _treeReport.AddNodeCounts(nodeCounts);
+        _treeReport?.AddNodeCounts(nodeCounts);
     }
 
-    private IMongoDatabase TryGetDatabase(MongoClient client, string dbName)
+    private static IMongoDatabase TryGetDatabase(MongoClient client, string dbName)
     {
         if (!client.ListDatabaseNames().ToList().Contains(dbName))
             throw new MongoException($"Database '{dbName}' does not exist on the server");
@@ -383,9 +375,9 @@ public class MongoRunner : IsIdentifiableAbstractRunner
         return client.GetDatabase(dbName);
     }
 
-    private IMongoCollection<BsonDocument> TryGetCollection(IMongoDatabase database, string collectionName)
+    private static IMongoCollection<BsonDocument> TryGetCollection(IMongoDatabase database, string collectionName)
     {
-        ListCollectionNamesOptions listOptions = new ListCollectionNamesOptions
+        var listOptions = new ListCollectionNamesOptions
         {
             Filter = new BsonDocument("name", collectionName)
         };
@@ -423,18 +415,18 @@ public class MongoRunner : IsIdentifiableAbstractRunner
 
             // Required
 
-            if (!TryParseDocumentProperty(docQuery, "find", out BsonDocument find))
+            if (!TryParseDocumentProperty(docQuery, "find", out var find))
                 throw new ApplicationException("Parsed document did not contain a \"find\" node");
 
             // Optional
 
-            if (TryParseDocumentProperty(docQuery, "sort", out BsonDocument sort))
+            if (TryParseDocumentProperty(docQuery, "sort", out var sort))
                 findOptions.Sort = sort;
 
-            if (TryParseIntProperty(docQuery, "limit", out int limit))
+            if (TryParseIntProperty(docQuery, "limit", out var limit))
                 findOptions.Limit = limit;
 
-            if (TryParseIntProperty(docQuery, "skip", out int skip))
+            if (TryParseIntProperty(docQuery, "skip", out var skip))
                 findOptions.Skip = skip;
 
 
@@ -443,7 +435,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
 
         private static bool TryParseDocumentProperty(BsonDocument docQuery, string propertyName, out BsonDocument propertyDocument)
         {
-            if (docQuery.TryGetValue(propertyName, out BsonValue value))
+            if (docQuery.TryGetValue(propertyName, out var value))
                 try
                 {
                     propertyDocument = value.AsBsonDocument;
@@ -465,7 +457,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
 
         private static bool TryParseIntProperty(BsonDocument docQuery, string propertyName, out int propertyValue)
         {
-            if (docQuery.TryGetValue(propertyName, out BsonValue value))
+            if (docQuery.TryGetValue(propertyName, out var value))
             {
                 try
                 {

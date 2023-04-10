@@ -8,7 +8,7 @@ using IsIdentifiable.Rules;
 using IsIdentifiable.Runners;
 using NUnit.Framework;
 
-namespace IsIdentifiableTests;
+namespace IsIdentifiable.Tests;
 
 public class IsIdentifiableRunnerTests
 {
@@ -26,7 +26,7 @@ public class IsIdentifiableRunnerTests
         var runner = new TestRunner("hey there,0101010101 excited to see you", _fileSystem);
         runner.Run();
 
-        FailurePart p = runner.ResultsOfValidate.Single();
+        var p = runner.ResultsOfValidate.Single();
 
         Assert.AreEqual("0101010101", p.Word);
         Assert.AreEqual(10, p.Offset);
@@ -238,7 +238,7 @@ BasicRules:
         runner.Run();
         Assert.AreEqual(1, runner.ResultsOfValidate.Count);
 
-        FailurePart w1 = runner.ResultsOfValidate[0];
+        var w1 = runner.ResultsOfValidate[0];
             
         /* Names are now picked up by the Socket NER Daemon
         //FailurePart w2 = runner.ResultsOfValidate[1];
@@ -386,7 +386,7 @@ BasicRules:
         public string FieldToTest {get;set; }
         public string ValueToTest {get;set; }
 
-        public readonly List<FailurePart> ResultsOfValidate = new List<FailurePart>();
+        public readonly List<FailurePart> ResultsOfValidate = new();
 
         public TestRunner(string valueToTest, MockFileSystem fileSystem)
             : base(new TestOpts(), fileSystem)

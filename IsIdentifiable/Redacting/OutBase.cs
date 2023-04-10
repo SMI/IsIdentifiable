@@ -37,7 +37,7 @@ public abstract class OutBase
     /// <summary>
     /// Record of changes to <see cref="Rules"/> (and <see cref="RulesFile"/>).
     /// </summary>
-    public Stack<OutBaseHistory> History = new Stack<OutBaseHistory>();
+    public Stack<OutBaseHistory> History = new();
 
     /// <summary>
     /// Creates a new instance, populating <see cref="Rules"/> with the files serialized in <paramref name="rulesFile"/>
@@ -135,7 +135,7 @@ public abstract class OutBase
             .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
             .Build();
 
-        string yaml = serializer.Serialize(new List<IsIdentifiableRule> { rule });
+        var yaml = serializer.Serialize(new List<IsIdentifiableRule> { rule });
 
         if (!addCreatorComment)
             return yaml;
@@ -178,10 +178,7 @@ public abstract class OutBase
     /// <param name="toFile"></param>
     public void Save(IFileInfo toFile = null)
     {
-        if (toFile == null)
-        {
-            toFile = RulesFile;
-        }
+        toFile ??= RulesFile;
 
         toFile.Delete();
 
@@ -215,7 +212,7 @@ public abstract class OutBase
         if (Equals(oldText, newText))
             return false;
 
-        string temp = $"{RulesFile.FullName}.tmp";
+        var temp = $"{RulesFile.FullName}.tmp";
 
         //write to a new temp file
         FileSystem.File.WriteAllText(temp, newText);

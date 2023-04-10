@@ -1,3 +1,6 @@
+using System;
+using System.IO.Abstractions;
+using System.Linq;
 using CommandLine;
 using FAnsi.Implementation;
 using FAnsi.Implementations.MicrosoftSQL;
@@ -6,15 +9,11 @@ using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
 using FellowOakDicom;
 using IsIdentifiable.Options;
-using IsIdentifiable.Redacting;
 using IsIdentifiable.Runners;
 using Microsoft.Extensions.FileSystemGlobbing;
 using YamlDotNet.Serialization;
-using System.IO.Abstractions;
-using System;
-using System.Linq;
 
-namespace IsIdentifiable;
+namespace ii;
 
 public static class Program
 {
@@ -34,10 +33,7 @@ public static class Program
             // remove -y myfile
             newArgs = args.Take(idx).ToArray();
 
-            foreach (var after in args.Skip(idx + 2))
-            {
-                newArgs = newArgs.Append(after).ToArray();
-            }
+            newArgs = args.Skip(idx + 2).Aggregate(newArgs, (current, after) => current.Append(after).ToArray());
 
             return settingsFileLocation;
         }
@@ -50,7 +46,7 @@ public static class Program
     public static int Main(string[] args)
     {
 
-        string? explicitLocation = CutSettingsFileArgs(args, out var newArgs);
+        var explicitLocation = CutSettingsFileArgs(args, out var newArgs);
         args = newArgs;
 
         var settingsFileLocation = SettingsFile;
@@ -88,7 +84,7 @@ public static class Program
         // Disable fo-dicom's DICOM validation globally from here
         new DicomSetupBuilder().SkipValidation();
 
-        ParserSettings defaults = Parser.Default.Settings;
+        var defaults = Parser.Default.Settings;
         using var parser = new Parser(settings =>
         {
             settings.CaseInsensitiveEnumValues = true;
@@ -120,7 +116,7 @@ public static class Program
 
     public static GlobalOptions? Deserialize(string settingsFileLocation, IFileSystem fileSystem)
     {
-        IDeserializer deserializer = new DeserializerBuilder()
+        var deserializer = new DeserializerBuilder()
                         .IgnoreUnmatchedProperties()
                         .Build();
 

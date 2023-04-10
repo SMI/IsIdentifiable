@@ -1,20 +1,20 @@
-﻿using IsIdentifiable.Rules;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO.Abstractions;
+using IsIdentifiable.Rules;
 using Terminal.Gui;
 
-namespace IsIdentifiable.Views.Manager;
+namespace ii.Views.Manager;
 
 class RuleDetailView : View
 {
-    private Label lblType;
-    private List<Label> properties = new List<Label>();
+    private readonly Label _lblType;
+    private readonly List<Label> _properties = new();
 
     public RuleDetailView()
     {
-        lblType = new Label() { Text = "Type:", Height = 1, Width = Dim.Fill()};
+        _lblType = new Label() { Text = "Type:", Height = 1, Width = Dim.Fill()};
 
-        Add(lblType);
+        base.Add(_lblType);
     }
 
     public void SetupFor(object obj, IFileInfo file)
@@ -22,7 +22,7 @@ class RuleDetailView : View
         ClearProperties();
 
         var type = obj.GetType();
-        lblType.Text = $"Type:{type.Name}";
+        _lblType.Text = $"Type:{type.Name}";
 
         var lbl1 = new Label("Path:")
         {
@@ -46,10 +46,10 @@ class RuleDetailView : View
         Add(lbl3);
         Add(lbl4);
 
-        properties.Add(lbl1);
-        properties.Add(lbl2);
-        properties.Add(lbl3);
-        properties.Add(lbl4);
+        _properties.Add(lbl1);
+        _properties.Add(lbl2);
+        _properties.Add(lbl3);
+        _properties.Add(lbl4);
 
         SetNeedsDisplay();
     }
@@ -59,9 +59,9 @@ class RuleDetailView : View
         ClearProperties();
 
         var type = rule.GetType();
-        lblType.Text = $"Type:{type.Name}";
+        _lblType.Text = $"Type:{type.Name}";
 
-        int y = 1;
+        var y = 1;
         foreach(var prop in type.GetProperties())
         {
             var val = prop.GetValue(rule);
@@ -72,7 +72,7 @@ class RuleDetailView : View
             y++;
 
             Add(lbl);
-            properties.Add(lbl);
+            _properties.Add(lbl);
         }
 
         SetNeedsDisplay();
@@ -80,12 +80,12 @@ class RuleDetailView : View
 
     private void ClearProperties()
     {
-        foreach (var c in properties)
+        foreach (var c in _properties)
         {
             Remove(c);
             c.Dispose();
         }
 
-        properties.Clear();
+        _properties.Clear();
     }
 }

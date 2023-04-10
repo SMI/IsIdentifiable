@@ -12,8 +12,6 @@ namespace IsIdentifiable.Redacting;
 /// </summary>
 public class MatchProblemValuesPatternFactory : IRulePatternFactory
 {
-    private MatchWholeStringRulePatternFactory _fallback = new MatchWholeStringRulePatternFactory();
-
     /// <summary>
     /// Returns a pattern that matches <see cref="FailurePart.Word"/> in <see cref="Failure.ProblemValue"/>.  If the word appears at the start/end of the value then ^ or $ is used.  When there are multiple failing parts anything is permitted inbweteen i.e. .*
     /// </summary>
@@ -27,20 +25,18 @@ public class MatchProblemValuesPatternFactory : IRulePatternFactory
             return $"^{Regex.Escape(failure.ProblemValue)}$";
 
 
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         var minOffset = failure.Parts.Min(p => p.Offset);
         var maxPartEnding = failure.Parts.Max(p => p.Offset + p.Word.Length);
 
         if (minOffset == 0)
-            sb.Append("^");
+            sb.Append('^');
 
         foreach (var p in failure.ConflateParts())
         {
             //match with capture group the given Word
-            sb.Append($"({Regex.Escape(p)})");
-
-            sb.Append(".*");
+            sb.Append($"({Regex.Escape(p)}).*");
         }
 
         // source is image pixel data
@@ -49,13 +45,6 @@ public class MatchProblemValuesPatternFactory : IRulePatternFactory
 
         // If there is a failure part that ends at the end of the input string then the pattern should have a terminator
         // to denote that we only care about problem values ending in this pattern (user can always override that decision)
-        if (maxPartEnding == failure.ProblemValue.Length)
-        {
-            return $"{sb.ToString(0, sb.Length - 2)}$";
-        }
-        else
-        {
-            return sb.ToString(0, sb.Length - 2);
-        }
+        return maxPartEnding == failure.ProblemValue.Length ? $"{sb.ToString(0, sb.Length - 2)}$" : sb.ToString(0, sb.Length - 2);
     }
 }

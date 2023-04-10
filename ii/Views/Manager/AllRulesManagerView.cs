@@ -1,14 +1,14 @@
-﻿using IsIdentifiable.Rules;
-using Terminal.Gui;
-using Terminal.Gui.Trees;
+﻿using System;
+using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.Linq;
 using IsIdentifiable.Options;
 using IsIdentifiable.Redacting;
-using System.IO.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using IsIdentifiable.Rules;
+using Terminal.Gui;
+using Terminal.Gui.Trees;
 
-namespace IsIdentifiable.Views.Manager;
+namespace ii.Views.Manager;
 
 /// <summary>
 /// View allowing editing and viewing of all rules for both IsIdentifiable and IsIdentifiableReviewer
@@ -19,8 +19,8 @@ class AllRulesManagerView : View, ITreeBuilder<object>
     private const string Reviewer = "Reviewer Rules";
     private readonly IsIdentifiableBaseOptions? _analyserOpts;
     private readonly IsIdentifiableReviewerOptions _reviewerOpts;
-    private RuleDetailView detailView;
-    private TreeView<object> treeView;
+    private readonly RuleDetailView _detailView;
+    private readonly TreeView<object> _treeView;
     private readonly IFileSystem _fileSystem;
 
     public AllRulesManagerView(IsIdentifiableBaseOptions? analyserOpts , IsIdentifiableReviewerOptions reviewerOpts, IFileSystem fileSystem)
@@ -30,29 +30,31 @@ class AllRulesManagerView : View, ITreeBuilder<object>
         Width = Dim.Fill();
         Height = Dim.Fill();
 
-        this._analyserOpts = analyserOpts;
-        this._reviewerOpts = reviewerOpts;
+        _analyserOpts = analyserOpts;
+        _reviewerOpts = reviewerOpts;
 
-        treeView = new TreeView<object>(this);
-        treeView.Width = Dim.Percent(50);
-        treeView.Height = Dim.Fill();
-        treeView.AspectGetter = NodeAspectGetter;
-        treeView.AddObject(Analyser);
-        treeView.AddObject(Reviewer);
-        Add(treeView);
-
-        detailView = new RuleDetailView()
+        _treeView = new TreeView<object>(this)
         {
-            X = Pos.Right(treeView),
+            AspectGetter = NodeAspectGetter,
+            Width = Dim.Percent(50),
+            Height = Dim.Fill()
+        };
+        _treeView.AddObject(Analyser);
+        _treeView.AddObject(Reviewer);
+        base.Add(_treeView);
+
+        _detailView = new RuleDetailView()
+        {
+            X = Pos.Right(_treeView),
             Y = 0,
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
-        Add(detailView);
+        base.Add(_detailView);
 
-        treeView.SelectionChanged += Tv_SelectionChanged;
-        treeView.ObjectActivated += Tv_ObjectActivated;
-        treeView.KeyPress += Tv_KeyPress;
+        _treeView.SelectionChanged += Tv_SelectionChanged;
+        _treeView.ObjectActivated += Tv_ObjectActivated;
+        _treeView.KeyPress += Tv_KeyPress;
     }
 
     /// <summary>
@@ -61,57 +63,49 @@ class AllRulesManagerView : View, ITreeBuilder<object>
     /// <returns></returns>
     public void RebuildTree()
     {
-        treeView.RebuildTree();
+        _treeView.RebuildTree();
     }
 
     private void Tv_KeyPress(KeyEventEventArgs obj)
     {
         try
         {
-            if (obj.KeyEvent.Key == Key.DeleteChar)
+            if (obj.KeyEvent.Key != Key.DeleteChar) return;
+            var allSelected = _treeView.GetAllSelectedObjects().ToArray();
+
+            // Proceed only if all the things selected are rules
+            if (!allSelected.All(s => s is ICustomRule)) return;
+            // and the unique parents among them
+            var parents = allSelected.Select(r => _treeView.GetParent(r)).Distinct().ToArray();
+            if (parents.Length != 1) return;
+
+            //is only 1 and it is an OutBase (rules file)
+            // then it is a Reviewer rule being deleted
+            if (parents[0] is OutBase outBase)
             {
-                var allSelected = treeView.GetAllSelectedObjects().ToArray();
-
-                // if all the things selected are rules
-                if (allSelected.All(s=>s is ICustomRule))
+                if (MessageBox.Query("Delete Rules", $"Delete {allSelected.Length} rules?", "Yes", "No") != 0)
+                    return;
+                foreach(var r in allSelected.Cast<IsIdentifiableRule>())
                 {
-                    // and the unique parents among them
-                    var parents = allSelected.Select(r => treeView.GetParent(r)).Distinct().ToArray();
-
-                    //is only 1 and it is an OutBase (rules file)
-                    // then it is a Reviewer rule being deleted
-                    if(parents.Length == 1 && parents[0] is OutBase outBase)
-                    {
-                        if(MessageBox.Query("Delete Rules", $"Delete {allSelected.Length} rules?", "Yes", "No") == 0)
-                        {
-                            foreach(var r in allSelected.Cast<IsIdentifiableRule>())
-                            {
-                                // remove the rules
-                                outBase.Rules.Remove(r);
-                            }
-
-                            // and save;
-                            outBase.Save();
-                            treeView.RefreshObject(outBase);
-                        }
-                    }
-
-                    //is only 1 and it is an Analyser rule under a RuleTypeNode
-                    if (parents.Length == 1 && parents[0] is RuleTypeNode ruleTypeNode)
-                    {
-                        if(ruleTypeNode.Rules == null)
-                            throw new Exception("RuleTypeNode did not contain any rules, how are you deleting a node!?");
-
-                        foreach(ICustomRule rule in allSelected)
-                        {
-
-                            ruleTypeNode.Rules.Remove(rule);
-                        }
-
-                        ruleTypeNode.Parent.Save();
-                        treeView.RefreshObject(ruleTypeNode);
-                    }
+                    // remove the rules
+                    outBase.Rules.Remove(r);
                 }
+
+                // and save;
+                outBase.Save();
+                _treeView.RefreshObject(outBase);
+            }
+
+            //is only 1 and it is an Analyser rule under a RuleTypeNode
+            if (parents[0] is RuleTypeNode ruleTypeNode)
+            {
+                if(ruleTypeNode.Rules == null)
+                    throw new Exception("RuleTypeNode did not contain any rules, how are you deleting a node!?");
+
+                foreach(var rule in allSelected.Cast<ICustomRule>()) ruleTypeNode.Rules.Remove(rule);
+
+                ruleTypeNode.Parent.Save();
+                _treeView.RefreshObject(ruleTypeNode);
             }
         }
         catch (Exception ex)
@@ -132,16 +126,16 @@ class AllRulesManagerView : View, ITreeBuilder<object>
     {
         if(e.NewValue is ICustomRule r)
         {
-            detailView.SetupFor(r);
+            _detailView.SetupFor(r);
         }
         if (e.NewValue is OutBase rulesFile)
         {
-            detailView.SetupFor(rulesFile,rulesFile.RulesFile);
+            _detailView.SetupFor(rulesFile,rulesFile.RulesFile);
         }
 
         if(e.NewValue is RuleSetFileNode rsf)
         {
-            detailView.SetupFor(rsf,rsf.File);
+            _detailView.SetupFor(rsf,rsf.File);
         }
     }
 
@@ -174,14 +168,8 @@ class AllRulesManagerView : View, ITreeBuilder<object>
     public bool CanExpand(object toExpand)
     {
         // These are the things that cannot be expanded upon
-        if (toExpand is Exception)
-            return false;
-
-        if (toExpand is ICustomRule)
-            return false;
-
+        return toExpand is not (Exception or ICustomRule);
         //everything else can be expanded
-        return true;
     }
 
     public IEnumerable<object> GetChildren(object forObject)

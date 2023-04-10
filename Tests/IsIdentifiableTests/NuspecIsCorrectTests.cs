@@ -1,11 +1,11 @@
-﻿using NUnit.Framework;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using NUnit.Framework;
 
-namespace IsIdentifiableTests;
+namespace IsIdentifiable.Tests;
 
 /// <summary>
 /// Tests to confirm that the dependencies in csproj files (NuGet packages) match those in the .nuspec files and that packages.md 
@@ -34,22 +34,22 @@ public class NuspecIsCorrectTests
         if (packagesMarkdown != null && !File.Exists(packagesMarkdown))
             Assert.Fail("Could not find file {0}", packagesMarkdown);
 
-        StringBuilder unlistedDependencies = new StringBuilder();
-        StringBuilder undocumented = new StringBuilder();
+        var unlistedDependencies = new StringBuilder();
+        var undocumented = new StringBuilder();
 
         //<PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
-        Regex rPackageRef = new Regex(@"<PackageReference\s+Include=""(.*)""\s+Version=""([^""]*)""", RegexOptions.IgnoreCase);
+        var rPackageRef = new Regex(@"<PackageReference\s+Include=""(.*)""\s+Version=""([^""]*)""", RegexOptions.IgnoreCase);
 
         //<dependency id="CsvHelper" version="12.1.2" />
-        Regex rDependencyRef = new Regex(@"<dependency\s+id=""(.*)""\s+version=""([^""]*)""", RegexOptions.IgnoreCase);
+        var rDependencyRef = new Regex(@"<dependency\s+id=""(.*)""\s+version=""([^""]*)""", RegexOptions.IgnoreCase);
 
         //For each dependency listed in the csproj
         foreach (Match p in rPackageRef.Matches(File.ReadAllText(csproj)))
         {
-            string package = p.Groups[1].Value;
-            string version = p.Groups[2].Value.Trim('[', ']');
+            var package = p.Groups[1].Value;
+            var version = p.Groups[2].Value.Trim('[', ']');
 
-            bool found = false;
+            var found = false;
 
             // Not one we need to pass on to the package consumers
             if (package.Contains("Microsoft.NETFramework.ReferenceAssemblies.net461"))
@@ -61,8 +61,8 @@ public class NuspecIsCorrectTests
                 //make sure it appears in the nuspec
                 foreach (Match d in rDependencyRef.Matches(File.ReadAllText(nuspec)))
                 {
-                    string packageDependency = d.Groups[1].Value;
-                    string versionDependency = d.Groups[2].Value.Trim('[',']');
+                    var packageDependency = d.Groups[1].Value;
+                    var versionDependency = d.Groups[2].Value.Trim('[',']');
 
                     if (packageDependency.Equals(package))
                     {
@@ -80,21 +80,18 @@ public class NuspecIsCorrectTests
             //And make sure it appears in the packages.md file
             if (packagesMarkdown != null)
             {
+                var packageRegex = new Regex($@"\|\s*[\s[]{Regex.Escape(package)}[\s\]]", RegexOptions.IgnoreCase);
                 found = false;
-                foreach (string line in File.ReadAllLines(packagesMarkdown))
+                foreach (var line in File.ReadLines(packagesMarkdown).Where(l=>packageRegex.IsMatch(l)))
                 {
-                    if (Regex.IsMatch(line, $@"\|\s*[\s[]{Regex.Escape(package)}[\s\]]", RegexOptions.IgnoreCase))
-                    {
-                        int count = new Regex(Regex.Escape(version)).Matches(line).Count;
-
-                        Assert.AreEqual(2, count, "Markdown file {0} did not contain 2 instances of the version {1} for package {2} in {3}", packagesMarkdown, version, package, csproj);
-                        found = true;
-                    }
+                    var count = new Regex(Regex.Escape(version)).Matches(line).Count;
+                    Assert.AreEqual(2, count, "Markdown file {0} did not contain 2 instances of the version {1} for package {2} in {3}", packagesMarkdown, version, package, csproj);
+                    found = true;
                 }
 
                 if (!found)
-                    undocumented.AppendLine(String.Format("Package {0} in {1} is not documented in {2}. Recommended line is:\r\n{3}", package, csproj, packagesMarkdown,
-                        BuildRecommendedMarkdownLine(package, version)));
+                    undocumented.AppendLine(
+                        $"Package {package} in {csproj} is not documented in {packagesMarkdown}. Recommended line is:\r\n{BuildRecommendedMarkdownLine(package, version)}");
             }
         }
 
@@ -102,13 +99,13 @@ public class NuspecIsCorrectTests
         Assert.IsEmpty(undocumented.ToString());
     }
 
-    private object BuildRecommendedDependencyLine(string package, string version)
+    private static object BuildRecommendedDependencyLine(string package, string version)
     {
-        return string.Format("<dependency id=\"{0}\" version=\"{1}\" />", package, version);
+        return $"<dependency id=\"{package}\" version=\"{version}\" />";
     }
 
-    private object BuildRecommendedMarkdownLine(string package, string version)
+    private static object BuildRecommendedMarkdownLine(string package, string version)
     {
-        return string.Format("| {0} | [GitHub]() | [{1}](https://www.nuget.org/packages/{0}/{1}) | | | |", package, version);
+        return $"| {package} | [GitHub]() | [{version}](https://www.nuget.org/packages/{package}/{version}) | | | |";
     }
 }

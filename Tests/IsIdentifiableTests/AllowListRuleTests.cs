@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using IsIdentifiable.Failures;
+﻿using IsIdentifiable.Failures;
 using IsIdentifiable.Rules;
 using NUnit.Framework;
 
-namespace IsIdentifiableTests;
+namespace IsIdentifiable.Tests;
 
 class AllowlistRuleTests
 {
@@ -13,10 +10,12 @@ class AllowlistRuleTests
     [Test]
     public void TestAllowlistRule_IfPattern_CaseSensitivity()
     {
-        var rule = new AllowlistRule();
+        var rule = new AllowlistRule
+        {
+            //Ignore any failure where any of the input string matches "fff"
+            IfPattern = "fff"
+        };
 
-        //Ignore any failure where any of the input string matches "fff"
-        rule.IfPattern = "fff";
         Assert.IsFalse(rule.CaseSensitive);
 
         Assert.AreEqual(
@@ -31,10 +30,12 @@ class AllowlistRuleTests
     [Test]
     public void TestAllowlistRule_IfPartPattern_CaseSensitivity()
     {
-        var rule = new AllowlistRule();
+        var rule = new AllowlistRule
+        {
+            //Ignore any failure the specific section that is bad is this:
+            IfPartPattern = "^troll$"
+        };
 
-        //Ignore any failure the specific section that is bad is this:
-        rule.IfPartPattern = "^troll$";
         Assert.IsFalse(rule.CaseSensitive);
 
         Assert.AreEqual(
@@ -49,13 +50,14 @@ class AllowlistRuleTests
     [Test]
     public void TestAllowlistRule_As()
     {
-        var rule = new AllowlistRule();
+        var rule = new AllowlistRule
+        {
+            //Ignore any failure the specific section that is bad is this:
+            IfPartPattern = "^troll$",
+            As = FailureClassification.Person
+        };
 
-        //Ignore any failure the specific section that is bad is this:
-        rule.IfPartPattern = "^troll$";
-        rule.As = FailureClassification.Person;
-            
-            
+
         Assert.AreEqual(
             RuleAction.None,rule.ApplyAllowlistRule("aba", "FFF Troll",
                 new FailurePart("Troll", FailureClassification.Location, 0)),"Rule should not apply when FailureClassification is Location");

@@ -1,15 +1,11 @@
-﻿using IsIdentifiable.Failures;
+﻿using System.Collections.Generic;
+using System.Linq;
+using IsIdentifiable.Failures;
 using IsIdentifiable.Rules;
 using IsIdentifiable.Runners;
-using Moq;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using YamlDotNet.Serialization;
 
-namespace IsIdentifiableTests;
+namespace IsIdentifiable.Tests;
 
 class ConsensusRuleTests
 {
@@ -25,7 +21,7 @@ class ConsensusRuleTests
             }
         };
 
-        var result = rule.Apply("ff","vv",out IEnumerable<FailurePart> badParts);
+        var result = rule.Apply("ff","vv",out var badParts);
 
         Assert.AreEqual(RuleAction.None,result);
         Assert.IsEmpty(badParts);
@@ -44,7 +40,7 @@ class ConsensusRuleTests
             }
         };
 
-        var result = rule.Apply("ff","vv",out IEnumerable<FailurePart> badParts);
+        var result = rule.Apply("ff","vv",out var badParts);
 
         Assert.AreEqual(RuleAction.Report,result);
         Assert.AreEqual(offset,badParts.Single().Offset);
@@ -63,17 +59,18 @@ class ConsensusRuleTests
             }
         };
 
-        var result = rule.Apply("ff","abc is so cool",out IEnumerable<FailurePart> badParts);
+        var result = rule.Apply("ff","abc is so cool",out var badParts);
 
         Assert.AreEqual(RuleAction.Report,result);
-        Assert.AreEqual(10,badParts.Single().Offset);
-        Assert.AreEqual("ab",badParts.Single().Word);
+        var badPart=badParts.Single();
+        Assert.AreEqual(10,badPart.Offset);
+        Assert.AreEqual("ab",badPart.Word);
     }
 
     [Test]
     public void TestDeserialization()
     {
-        string yaml = 
+        var yaml = 
             @"ConsensusRules:
     - Rules:
       - !SocketRule

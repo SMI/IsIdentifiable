@@ -1,10 +1,10 @@
 ﻿using System;
 using IsIdentifiable.Failures;
+using IsIdentifiable.Redacting;
 using IsIdentifiable.Reporting;
 using NUnit.Framework;
-using IsIdentifiable.Redacting;
 
-namespace IsIdentifiableTests.ReviewerTests;
+namespace IsIdentifiable.Tests.ReviewerTests;
 
 public class SymbolsRulesFactoryTests
 {
@@ -67,7 +67,7 @@ public class SymbolsRulesFactoryTests
     public void TestNoParts()
     {
         var f = new SymbolsRulesFactory();
-        var ex = Assert.Throws<ArgumentException>(()=> f.GetPattern(this, new Failure(new FailurePart[0]) {ProblemValue = "fdslkfl;asdf"}));
+        var ex = Assert.Throws<ArgumentException>(()=> f.GetPattern(this, new Failure(Array.Empty<FailurePart>()) {ProblemValue = "fdslkfl;asdf"}));
         Assert.AreEqual("Failure had no Parts",ex.Message);
 
     }

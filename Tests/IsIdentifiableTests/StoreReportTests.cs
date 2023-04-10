@@ -7,7 +7,7 @@ using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Reports;
 using NUnit.Framework;
 
-namespace IsIdentifiableTests;
+namespace IsIdentifiable.Tests;
 
 class StoreReportTests
 {
@@ -30,14 +30,14 @@ class StoreReportTests
         opts.TableName = "HappyOzz";
         opts.StoreReport = true;
             
-        FailureStoreReport report = new FailureStoreReport("HappyOzz",1000, _fileSystem);
+        var report = new FailureStoreReport("HappyOzz",1000, _fileSystem);
         report.AddDestinations(opts);
 
         var failure = new Failure(
             new FailurePart[]
             {
-                new FailurePart("Kansas", FailureClassification.Location, 12),
-                new FailurePart("Toto", FailureClassification.Location, 28)
+                new("Kansas", FailureClassification.Location, 12),
+                new("Toto", FailureClassification.Location, 28)
             })
         {
             ProblemValue = "We aren't in Kansas anymore Toto",
@@ -81,7 +81,7 @@ class StoreReportTests
     [Test]
     public void Test_Includes()
     {
-        string origin = "this word fff is the problem";
+        var origin = "this word fff is the problem";
             
         var part = new FailurePart("fff", FailureClassification.Organization, origin.IndexOf("fff"));
             
@@ -96,7 +96,7 @@ class StoreReportTests
     [Test]
     public void Test_IncludesSingleChar()
     {
-        string origin = "this word f is the problem";
+        var origin = "this word f is the problem";
             
         var part = new FailurePart("f", FailureClassification.Organization, origin.IndexOf("f"));
             

@@ -1,15 +1,15 @@
+using System;
+using System.Data;
+using System.Globalization;
+using System.IO.Abstractions.TestingHelpers;
 using CsvHelper.Configuration;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Destinations;
 using IsIdentifiable.Reporting.Reports;
 using NUnit.Framework;
-using System;
-using System.Data;
-using System.Globalization;
-using System.IO.Abstractions.TestingHelpers;
 
-namespace IsIdentifiableTests;
+namespace IsIdentifiable.Tests;
 
 internal class TestDestinations
 {
@@ -32,7 +32,7 @@ internal class TestDestinations
         report.WriteToDestinations();
         report.CloseReport();
 
-        string fileCreatedContents = _fileSystem.File.ReadAllText(_fileSystem.Path.Combine(OUT_DIR, "test.csv"));
+        var fileCreatedContents = _fileSystem.File.ReadAllText(_fileSystem.Path.Combine(OUT_DIR, "test.csv"));
         fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
 
         TestHelpers.AreEqualIgnoringLineEndings(@"col1,col2
@@ -76,7 +76,7 @@ cell1 with some new lines and tabs,cell2
         report.WriteToDestinations();
         report.CloseReport();
 
-        string fileCreatedContents = _fileSystem.File.ReadAllText(_fileSystem.Path.Combine(OUT_DIR, "test.csv"));
+        var fileCreatedContents = _fileSystem.File.ReadAllText(_fileSystem.Path.Combine(OUT_DIR, "test.csv"));
         fileCreatedContents = fileCreatedContents.Replace("\r\n", Environment.NewLine);
 
         TestHelpers.AreEqualIgnoringLineEndings(@"col1	col2
@@ -106,7 +106,7 @@ cell1 with some new lines and tabs	cell2
             dest.WriteHeader("foo", "bar");
         }
 
-        string fileCreatedContents = _fileSystem.File.ReadAllText(_fileSystem.Path.Combine(OUT_DIR, "test.csv"));
+        var fileCreatedContents = _fileSystem.File.ReadAllText(_fileSystem.Path.Combine(OUT_DIR, "test.csv"));
 
         Assert.True(fileCreatedContents.StartsWith("foo|bar"));
     }
@@ -116,7 +116,7 @@ internal class TestFailureReport : IFailureReport
 {
     private readonly IReportDestination _dest;
 
-    private readonly DataTable _dt = new DataTable();
+    private readonly DataTable _dt = new();
 
     public TestFailureReport(IReportDestination dest)
     {

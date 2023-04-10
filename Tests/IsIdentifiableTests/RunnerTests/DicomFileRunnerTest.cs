@@ -1,15 +1,13 @@
-﻿using IsIdentifiable.Options;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Runners;
 using NUnit.Framework;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
 
-
-namespace IsIdentifiableTests.RunnerTests;
+namespace IsIdentifiable.Tests.RunnerTests;
 
 public class DicomFileRunnerTest
 {
@@ -26,7 +24,7 @@ public class DicomFileRunnerTest
 
         _tessDir = new DirectoryInfo(Path.Combine(testRulesDir.Parent.FullName, "tessdata"));
         _tessDir.Create();
-        string dest = Path.Combine(_tessDir.FullName, "eng.traineddata");
+        var dest = Path.Combine(_tessDir.FullName, "eng.traineddata");
         if (!File.Exists(dest))
             File.Copy(Path.Combine(DataDirectory, "tessdata", "eng.traineddata"), dest);
 
@@ -65,7 +63,7 @@ public class DicomFileRunnerTest
 
         var fileSystem = new System.IO.Abstractions.FileSystem();
 
-        string fileName = Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(DicomFileRunnerTest), "f1.dcm");
+        var fileName = Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(DicomFileRunnerTest), "f1.dcm");
         TestData.Create(fileSystem.FileInfo.New(fileName), TestData.BURNED_IN_TEXT_IMG);
         
         var runner = new DicomFileRunner(opts, fileSystem);
@@ -78,7 +76,7 @@ public class DicomFileRunnerTest
 
         runner.ValidateDicomFile(fileInfo);
 
-        List<Failure> failures = toMemory.Failures.ToList();
+        var failures = toMemory.Failures.ToList();
         Assert.AreEqual(ignoreShortText ? 1 : 3, failures.Count);
     }
 

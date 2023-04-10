@@ -1,26 +1,21 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using CsvHelper;
 using CsvHelper.Configuration;
 
-namespace IsIdentifiable.Allowlists;
+namespace IsIdentifiable.AllowLists;
 
 /// <summary>
-/// A Allowlist source which returns the values in the first column of the provided Csv file.  The file must be properly escaped
+/// An AllowList source which returns the values in the first column of the provided Csv file.  The file must be properly escaped
 /// if it has commas in fields etc.  There must be no header record.
 /// </summary>
-public class CsvAllowlist : IAllowlistSource
+public class CsvAllowList : IAllowListSource
 {
-    private readonly System.IO.Stream _stream;
-    private readonly System.IO.StreamReader _streamreader;
+    private readonly StreamReader _streamReader;
     private readonly CsvReader _reader;
-    private bool firstTime = true;
-
-    /// <summary>
-    /// FileSystem to use for I/O
-    /// </summary>
-    protected readonly IFileSystem FileSystem;
+    private bool _firstTime = true;
 
     /// <summary>
     /// Reads all values in <paramref name="filePath"/>.  The contents of each line
@@ -30,16 +25,14 @@ public class CsvAllowlist : IAllowlistSource
     /// <param name="filePath"></param>
     /// <param name="fileSystem"></param>
     /// <exception cref="Exception"></exception>
-    public CsvAllowlist(string filePath, IFileSystem fileSystem)
+    public CsvAllowList(string filePath, IFileSystem fileSystem)
     {
-        FileSystem = fileSystem;
+        if(!fileSystem.File.Exists(filePath))
+            throw new Exception($"Could not find AllowList file at '{filePath}'");
 
-        if(!FileSystem.File.Exists(filePath))
-            throw new Exception($"Could not find Allowlist file at '{filePath}'");
-
-        _stream = FileSystem.File.OpenRead(filePath);
-        _streamreader = new System.IO.StreamReader(_stream);
-        _reader = new CsvReader(_streamreader,new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture)
+        Stream stream = fileSystem.File.OpenRead(filePath);
+        _streamReader = new StreamReader(stream);
+        _reader = new CsvReader(_streamReader,new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture)
         {
             HasHeaderRecord=false
         });
@@ -49,15 +42,15 @@ public class CsvAllowlist : IAllowlistSource
     /// Returns all 
     /// </summary>
     /// <returns></returns>
-    public IEnumerable<string> GetAllowlist()
+    public IEnumerable<string> GetAllowList()
     {
-        if (!firstTime)
+        if (!_firstTime)
             throw new Exception("Allow list has already been read from file.  This method should only be called once");
 
         while (_reader.Read())
             yield return _reader[0];
 
-        firstTime = false;
+        _firstTime = false;
     }
 
     /// <summary>
@@ -65,7 +58,8 @@ public class CsvAllowlist : IAllowlistSource
     /// </summary>
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
         _reader.Dispose();
-        _streamreader.Dispose();
+        _streamReader.Dispose();
     }
 }

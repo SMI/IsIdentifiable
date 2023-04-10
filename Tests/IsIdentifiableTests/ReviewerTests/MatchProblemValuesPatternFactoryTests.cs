@@ -1,16 +1,16 @@
 ﻿using IsIdentifiable.Failures;
+using IsIdentifiable.Redacting;
 using IsIdentifiable.Reporting;
 using NUnit.Framework;
-using IsIdentifiable.Redacting;
 
-namespace IsIdentifiableTests.ReviewerTests;
+namespace IsIdentifiable.Tests.ReviewerTests;
 
 public class MatchProblemValuesPatternFactoryTests
 {
     [Test]
     public void OverlappingMatches_SinglePart()
     {
-        Failure f = new Failure(new[]
+        var f = new Failure(new[]
             {
                 new FailurePart("F",FailureClassification.Person,0),
             })
@@ -23,7 +23,7 @@ public class MatchProblemValuesPatternFactoryTests
     [Test]
     public void OverlappingMatches_ExactOverlap()
     {
-        Failure f = new Failure(new[]
+        var f = new Failure(new[]
             {
                 new FailurePart("Freq",FailureClassification.Person,0),
                 new FailurePart("Freq",FailureClassification.Organization,0),
@@ -36,7 +36,7 @@ public class MatchProblemValuesPatternFactoryTests
     [Test]
     public void OverlappingMatches_OffsetOverlaps()
     {
-        Failure f = new Failure(new[]
+        var f = new Failure(new[]
             {
                 new FailurePart("req",FailureClassification.Person,1),
                 new FailurePart("q",FailureClassification.Organization,3),
@@ -52,7 +52,7 @@ public class MatchProblemValuesPatternFactoryTests
     [Test]
     public void OverlappingMatches_NoOverlaps()
     {
-        Failure f = new Failure(new[]
+        var f = new Failure(new[]
             {
                 new FailurePart("re",FailureClassification.Person,1),
                 new FailurePart("quent",FailureClassification.Organization,3),

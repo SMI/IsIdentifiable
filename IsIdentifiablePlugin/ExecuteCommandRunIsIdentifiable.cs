@@ -38,10 +38,7 @@ internal class ExecuteCommandRunIsIdentifiable : BasicCommandExecution
         if(_table == null)
             throw new System.Exception("No table picked to run on");
 
-        if (file == null)
-        {
-            file = BasicActivator.SelectFile("YAMLConfigFile", "YAML File", "*.yaml");
-        }
+        file ??= BasicActivator.SelectFile("YAMLConfigFile", "YAML File", "*.yaml");
 
         // user cancelled
         if (file == null)
@@ -52,7 +49,7 @@ internal class ExecuteCommandRunIsIdentifiable : BasicCommandExecution
         var deserializer = new Deserializer();
         var baseOptions = deserializer.Deserialize<GlobalOptions>(File.ReadAllText(file.FullName));
 
-        if (baseOptions == null || baseOptions.IsIdentifiableOptions == null)
+        if (baseOptions?.IsIdentifiableOptions == null)
             throw new Exception($"Yaml file did not contain IsIdentifiableOptions");
 
         // use the settings in the users file

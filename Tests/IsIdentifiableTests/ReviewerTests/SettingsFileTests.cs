@@ -1,5 +1,6 @@
-﻿using NUnit.Framework;
-using System.IO.Abstractions.TestingHelpers;
+﻿using System;
+using ii;
+using NUnit.Framework;
 
 namespace IsIdentifiable.Tests.ReviewerTests
 {
@@ -8,7 +9,7 @@ namespace IsIdentifiable.Tests.ReviewerTests
         [Test]
         public void TestCutSettingsFileArgs_NoArgs()
         {
-            Assert.IsNull(Program.CutSettingsFileArgs(new string[0],out var result));
+            Assert.IsNull(Program.CutSettingsFileArgs(Array.Empty<string>(),out var result));
             Assert.IsEmpty(result);
         }
 

@@ -23,7 +23,7 @@ public class CsvDestination : ReportDestination
     private readonly CsvConfiguration _csvConfiguration;
     private CsvWriter _csvWriter;
 
-    private readonly object _oHeaderLock = new object();
+    private readonly object _oHeaderLock = new();
     private bool _headerWritten;
 
     /// <summary>
@@ -89,7 +89,7 @@ public class CsvDestination : ReportDestination
             _headerWritten = true;
 
             var csvFile = FileSystem.FileInfo.New(ReportPath);
-            string sep = Options.DestinationCsvSeparator;
+            var sep = Options.DestinationCsvSeparator;
 
             CsvConfiguration csvconf;
             if (_csvConfiguration != null)

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using IsIdentifiable.Failures;
 
@@ -24,25 +25,25 @@ public class ConsensusRule : ICustomRule
     public RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
     {
         RuleAction? firstRuleOperation = null;
-        List<FailurePart> parts = new List<FailurePart>();
+        var parts = new List<FailurePart>();
 
         foreach(var rule in Rules)
         {
             //first time
             if(firstRuleOperation == null)
             {
-                firstRuleOperation = rule.Apply(fieldName,fieldValue,out IEnumerable<FailurePart> newParts);
+                firstRuleOperation = rule.Apply(fieldName,fieldValue,out var newParts);
                 parts.AddRange(newParts);
             }
             else
             {
                 //subsequent times
-                var newOperation = rule.Apply(fieldName,fieldValue,out IEnumerable<FailurePart> newParts);
+                var newOperation = rule.Apply(fieldName,fieldValue,out var newParts);
 
                 // There is not consensus on whether the value should be classified as bad
                 if(newOperation != firstRuleOperation)
                 {
-                    badParts = new FailurePart[0];
+                    badParts = Array.Empty<FailurePart>();
                     return RuleAction.None;
                 }
 
@@ -54,7 +55,7 @@ public class ConsensusRule : ICustomRule
 
                     //do not report anything
                         
-                    badParts = new FailurePart[0];
+                    badParts = Array.Empty<FailurePart>();
                     return RuleAction.None;
                 }
             }
@@ -62,7 +63,7 @@ public class ConsensusRule : ICustomRule
             //if anyone wants no action taken at any point stop consulting others.  Either they will agree in which case we have wasted time or they disagree so we say there is no consensus
             if(firstRuleOperation == RuleAction.None)
             {
-                badParts = new FailurePart[0];
+                badParts = Array.Empty<FailurePart>();
                 return RuleAction.None;
             }
         }

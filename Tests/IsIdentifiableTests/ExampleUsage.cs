@@ -25,9 +25,10 @@ internal class ExampleUsage
             var badParts = Validate(field,content);
 
             // You can ignore or adjust these badParts if you want before passing to destination reports
-            if(badParts.Any())
+            var failureParts = badParts.ToList();
+            if(failureParts.Any())
             {
-                var f = new Failure(badParts)
+                var f = new Failure(failureParts)
                 {
                     ProblemField = field,
                     ProblemValue = content,

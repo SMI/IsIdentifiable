@@ -1,7 +1,4 @@
 ﻿using IsIdentifiable.Reporting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Equ;
 
 namespace IsIdentifiable.Failures;
@@ -69,7 +66,7 @@ public class FailurePart : MemberwiseEquatable<FailurePart>
     /// <returns></returns>
     public bool Includes(int start, int length)
     {
-        for (int i = start; i < start + length; i++)
+        for (var i = start; i < start + length; i++)
             if(Includes(i))
                 return true;
 

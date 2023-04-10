@@ -1,12 +1,12 @@
-﻿using IsIdentifiable.Options;
+﻿using System.IO.Abstractions.TestingHelpers;
+using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Runners;
 using Moq;
 using NUnit.Framework;
-using System.IO.Abstractions.TestingHelpers;
 
-namespace IsIdentifiableTests.RunnerTests;
+namespace IsIdentifiable.Tests.RunnerTests;
 
 class FileRunnerTests
 {
@@ -56,7 +56,7 @@ class FileRunnerTests
             s.WriteLine("Fish,Chi,Bob");
             
             // create a 100 line file
-            for(int i=0;i<100;i++)
+            for(var i=0;i<100;i++)
                 s.WriteLine("123,0102821172,32 Ankleberry lane");
 
             s.Flush();
@@ -67,7 +67,7 @@ class FileRunnerTests
 
         var reporter = new Mock<IFailureReport>(MockBehavior.Strict);
 
-        int done = 0;
+        var done = 0;
 
         reporter.Setup(f => f.Add(It.IsAny<Failure>())).Callback<Failure>(f => Assert.AreEqual("0102821172", f.ProblemValue));
         reporter.Setup(f => f.DoneRows(1)).Callback(()=>done++);

@@ -1,24 +1,25 @@
+using System;
 using System.Collections.Generic;
 using FAnsi.Discovery;
 
-namespace IsIdentifiable.Allowlists;
+namespace IsIdentifiable.AllowLists;
 
 /// <summary>
 /// Generates a list of allowed (ignored) strings based on the contents of a
 /// table in a remote database.  All values in the referenced column will
 /// be ignored as false positives when detected by NLP or other reporting rules
 /// </summary>
-public class DiscoveredColumnAllowlist : IAllowlistSource
+public class DiscoveredColumnAllowList : IAllowListSource
 {
     private readonly DiscoveredTable _discoveredTable;
-    private DiscoveredColumn _column;
+    private readonly DiscoveredColumn _column;
 
     /// <summary>
     /// Creates a new instance prepared to fetch all distinct values in the
     /// given <paramref name="col"/> as an allowed values list.
     /// </summary>
     /// <param name="col"></param>
-    public DiscoveredColumnAllowlist(DiscoveredColumn col)
+    public DiscoveredColumnAllowList(DiscoveredColumn col)
     {
         _discoveredTable = col.Table;
         _column = col;
@@ -29,25 +30,21 @@ public class DiscoveredColumnAllowlist : IAllowlistSource
     /// values so they can be used for ignoring other system rules (e.g. NLP false positives)
     /// </summary>
     /// <returns></returns>
-    public IEnumerable<string> GetAllowlist()
+    public IEnumerable<string> GetAllowList()
     {
         var colName = _column.GetRuntimeName();
 
-        using (var con = _discoveredTable.Database.Server.GetConnection())
+        using var con = _discoveredTable.Database.Server.GetConnection();
+        con.Open();
+
+        using var cmd = _discoveredTable.GetCommand(
+            $"Select DISTINCT {_column.GetFullyQualifiedName()} FROM {_discoveredTable.GetFullyQualifiedName()}", con);
+        using var r = cmd.ExecuteReader();
+
+        while(r.Read())
         {
-            con.Open();
-
-            var cmd = _discoveredTable.GetCommand(
-                $"Select DISTINCT {_column.GetFullyQualifiedName()} FROM {_discoveredTable.GetFullyQualifiedName()}", con);
-            var r = cmd.ExecuteReader();
-
-            while(r.Read())
-            {
-                var o = r[colName] as string;
-
-                if(o != null)
-                    yield return o.Trim();
-            }
+            if(r[colName] is string o)
+                yield return o.Trim();
         }
     }
 
@@ -56,5 +53,6 @@ public class DiscoveredColumnAllowlist : IAllowlistSource
     /// </summary>
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
     }
 }

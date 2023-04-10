@@ -1,14 +1,14 @@
 ﻿using System.Data;
+using System.IO.Abstractions.TestingHelpers;
 using FAnsi;
 using IsIdentifiable.Failures;
+using IsIdentifiable.Redacting;
+using IsIdentifiable.Redacting.UpdateStrategies;
 using IsIdentifiable.Reporting;
 using Moq;
 using NUnit.Framework;
-using IsIdentifiable.Redacting;
-using IsIdentifiable.Redacting.UpdateStrategies;
-using System.IO.Abstractions.TestingHelpers;
 
-namespace IsIdentifiableTests.ReviewerTests;
+namespace IsIdentifiable.Tests.ReviewerTests;
 
 class TestUpdater : DatabaseTests
 {
@@ -32,8 +32,8 @@ class TestUpdater : DatabaseTests
         var failure = new Failure(
             new FailurePart[]
             {
-                new FailurePart("Kansas", FailureClassification.Location, 13),
-                new FailurePart("Toto", FailureClassification.Location, 28)
+                new("Kansas", FailureClassification.Location, 13),
+                new("Toto", FailureClassification.Location, 28)
             })
         {
             ProblemValue = "We aren't in Kansas anymore Toto",
@@ -42,7 +42,7 @@ class TestUpdater : DatabaseTests
             Resource = $"{dbname}.HappyOzz"
         };
 
-        DataTable dt = new DataTable();
+        using var dt = new DataTable();
         dt.Columns.Add("MyPk");
         dt.Columns.Add("Narrative");
 
@@ -58,8 +58,10 @@ class TestUpdater : DatabaseTests
 
         var newRules = _fileSystem.FileInfo.New("Reportlist.yaml");
 
-        RowUpdater updater = new RowUpdater(_fileSystem, newRules);
-        updater.UpdateStrategy = new ProblemValuesUpdateStrategy();
+        var updater = new RowUpdater(_fileSystem, newRules)
+        {
+            UpdateStrategy = new ProblemValuesUpdateStrategy()
+        };
 
         //it should be novel i.e. require user decision
         Assert.IsTrue(updater.OnLoad(db.Server, failure, out _));
@@ -99,8 +101,8 @@ class TestUpdater : DatabaseTests
         var failure = new Failure(
             new FailurePart[]
             {
-                new FailurePart("Kansas", FailureClassification.Location, 13),
-                new FailurePart("Toto", FailureClassification.Location, 28)
+                new("Kansas", FailureClassification.Location, 13),
+                new("Toto", FailureClassification.Location, 28)
             })
         {
             ProblemValue = "We aren't in Kansas anymore Toto",
@@ -109,7 +111,7 @@ class TestUpdater : DatabaseTests
             Resource = $"{dbname}.HappyOzz"
         };
 
-        DataTable dt = new DataTable();
+        using var dt = new DataTable();
         dt.Columns.Add("MyPk");
         dt.Columns.Add("Narrative");
 
@@ -125,10 +127,10 @@ class TestUpdater : DatabaseTests
 
         var newRules = _fileSystem.FileInfo.New("Reportlist.yaml");
 
-        RowUpdater updater = new RowUpdater(_fileSystem, newRules);
+        var updater = new RowUpdater(_fileSystem, newRules);
 
         //But the user told us that only the Toto bit is a problem
-        string rule = provideCaptureGroup ? "(Toto)$" : "Toto$";
+        var rule = provideCaptureGroup ? "(Toto)$" : "Toto$";
         updater.RulesFactory = Mock.Of<IRulePatternFactory>(m => m.GetPattern(It.IsAny<object>(), It.IsAny<Failure>()) == rule);
 
         //this is the thing we are actually testing, where we update based on the usersRule not the failing parts

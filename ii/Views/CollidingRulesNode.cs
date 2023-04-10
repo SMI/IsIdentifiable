@@ -1,11 +1,9 @@
-﻿using IsIdentifiable.Reporting;
+﻿using System.Collections.Generic;
+using IsIdentifiable.Reporting;
 using IsIdentifiable.Rules;
-using System;
-using System.Collections.Generic;
-using Terminal.Gui;
 using Terminal.Gui.Trees;
 
-namespace IsIdentifiable.Views;
+namespace ii.Views;
 
 internal class CollidingRulesNode : TreeNode
 {
@@ -22,13 +20,13 @@ internal class CollidingRulesNode : TreeNode
     /// <summary>
     /// Input failures that match both the <see cref="IgnoreRule"/> and the <see cref="UpdateRule"/>
     /// </summary>
-    public List<Failure> CollideOn = new List<Failure>();
+    public readonly List<Failure> CollideOn;
 
     public CollidingRulesNode(IsIdentifiableRule ignoreRule, IsIdentifiableRule updateRule, Failure f)
     {
-        this.IgnoreRule = ignoreRule;
-        this.UpdateRule = updateRule;
-        this.CollideOn = new List<Failure>(new []{f });
+        IgnoreRule = ignoreRule;
+        UpdateRule = updateRule;
+        CollideOn = new List<Failure>(new []{f });
     }
 
     public override string ToString()

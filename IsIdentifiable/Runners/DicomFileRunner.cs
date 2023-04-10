@@ -29,12 +29,12 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
 {
     private readonly IsIdentifiableDicomFileOptions _opts;
     private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-    private readonly DicomFileFailureFactory factory = new DicomFileFailureFactory();
+    private readonly DicomFileFailureFactory _factory = new();
 
     private readonly TesseractEngine _tesseractEngine;
     private readonly PixelTextFailureReport _tesseractReport;
 
-    private DateTime? _zeroDate = null;
+    private readonly DateTime? _zeroDate = null;
 
     private readonly uint _ignoreTextLessThan;
 
@@ -232,7 +232,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                     break;
                 }
                 case DateTime time when _opts.NoDateFields && _zeroDate != time:
-                    AddToReports(factory.Create(fi, dicomFile, time.ToString(), dicomItem.Tag.DictionaryEntry.Keyword, new[] { new FailurePart(time.ToString(), FailureClassification.Date, 0) }));
+                    AddToReports(_factory.Create(fi, dicomFile, time.ToString(), dicomItem.Tag.DictionaryEntry.Keyword, new[] { new FailurePart(time.ToString(), FailureClassification.Date, 0) }));
                     break;
             }
         }
@@ -252,7 +252,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         var parts = Validate(tagName, fieldValue).ToList();
 
         if (parts.Any())
-            AddToReports(factory.Create(fi, dicomFile, fieldValue, tagName, parts));
+            AddToReports(_factory.Create(fi, dicomFile, fieldValue, tagName, parts));
     }
 
     void ValidateDicomPixelData(IFileInfo fi, DicomFile dicomFile, DicomDataset ds)
@@ -353,7 +353,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                     }
 
                     // Convert each frame into a BMP, then into a MemoryStream
-                    MagickReadSettings msett = new MagickReadSettings
+                    MagickReadSettings msett = new()
                     {
                         ColorType = ColorType.Grayscale,
                         Width = overlay.Columns,
@@ -411,7 +411,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
             _logger.Debug($"Ignoring pixel data discovery in {fi.Name} of length {text.Length} because it is below the threshold {_ignoreTextLessThan}");
         else
         {
-            var f = factory.Create(fi, dicomFile, text, problemField, new[] { new FailurePart(text, FailureClassification.PixelText) });
+            var f = _factory.Create(fi, dicomFile, text, problemField, new[] { new FailurePart(text, FailureClassification.PixelText) });
             AddToReports(f);
             _tesseractReport.FoundPixelData(fi, sopID, studyID, seriesID, modality, imageType, meanConfidence, text.Length, text, rotationIfAny, frame, overlay);
         }
@@ -452,7 +452,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     /// </summary>
     /// <param name="ds"></param>
     /// <returns></returns>
-    string[] GetImageType(DicomDataset ds)
+    static string[] GetImageType(DicomDataset ds)
     {
         var result = new string[3];
 
@@ -486,11 +486,8 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     /// <param name="ds"></param>
     /// <param name="dt"></param>
     /// <returns></returns>
-    string GetTagOrUnknown(DicomDataset ds, DicomTag dt)
+    private static string GetTagOrUnknown(DicomDataset ds, DicomTag dt)
     {
-        if (ds.Contains(dt))
-            return ds.GetValue<string>(dt, 0);
-
-        return null;
+        return ds.Contains(dt) ? ds.GetValue<string>(dt, 0):null;
     }
 }

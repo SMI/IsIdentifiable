@@ -24,13 +24,13 @@ public class TesseractLinuxLoaderFix {
   {
     if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 		  return; // Only apply patch on Linux
-      var harmony = new Harmony("uk.ac.dundee.hic.tesseract");
-      var ll = typeof(LibraryLoader);
-      var self = typeof(TesseractLinuxLoaderFix);
-      loadedAssemblies=ll.GetField("loadedAssemblies",BindingFlags.NonPublic|BindingFlags.Instance).GetValue(LibraryLoader.Instance) as Dictionary<string, IntPtr>;
-      harmony.Patch(ll.GetMethod("LoadLibrary"), prefix: new HarmonyMethod(self.GetMethod(nameof(LoadLibraryPatch),BindingFlags.NonPublic|BindingFlags.Static)));
-      harmony.Patch(ll.GetMethod("GetProcAddress"), prefix: new HarmonyMethod(self.GetMethod(nameof(GetProcAddressPatch),BindingFlags.NonPublic|BindingFlags.Static)));
-      harmony.Patch(ll.GetMethod("FreeLibrary"), prefix: new HarmonyMethod(self.GetMethod(nameof(FreeLibraryPatch),BindingFlags.NonPublic|BindingFlags.Static)));
+    var harmony = new Harmony("uk.ac.dundee.hic.tesseract");
+    var ll = typeof(LibraryLoader);
+    var self = typeof(TesseractLinuxLoaderFix);
+    loadedAssemblies=ll.GetField("loadedAssemblies",BindingFlags.NonPublic|BindingFlags.Instance).GetValue(LibraryLoader.Instance) as Dictionary<string, IntPtr>;
+    harmony.Patch(ll.GetMethod("LoadLibrary"), prefix: new HarmonyMethod(self.GetMethod(nameof(LoadLibraryPatch),BindingFlags.NonPublic|BindingFlags.Static)));
+    harmony.Patch(ll.GetMethod("GetProcAddress"), prefix: new HarmonyMethod(self.GetMethod(nameof(GetProcAddressPatch),BindingFlags.NonPublic|BindingFlags.Static)));
+    harmony.Patch(ll.GetMethod("FreeLibrary"), prefix: new HarmonyMethod(self.GetMethod(nameof(FreeLibraryPatch),BindingFlags.NonPublic|BindingFlags.Static)));
   }
 
   private static bool LoadLibraryPatch(string fileName, string platformName, ref IntPtr __result)

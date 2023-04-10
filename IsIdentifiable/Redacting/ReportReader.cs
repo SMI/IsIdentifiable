@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Reports;
@@ -36,7 +34,7 @@ public class ReportReader
     /// <summary>
     /// True if <see cref="CurrentIndex"/> is after the end of the <see cref="Failures"/>
     /// </summary>
-    public bool Exhausted => !(_current < Failures.Length);
+    public bool Exhausted => _current >= Failures.Length;
 
     /// <summary>
     /// Reads the <paramref name="csvFile"/> and populates <see cref="Failures"/>
@@ -56,10 +54,10 @@ public class ReportReader
     /// <param name="loadedRows"></param>
     /// <param name="token"></param>
     /// <param name="fileSystem"></param>
-    public ReportReader(IFileInfo csvFile, Action<int> loadedRows, CancellationToken token, IFileSystem fileSystem)
+    public ReportReader(IFileInfo csvFile, Action<int> loadedRows, IFileSystem fileSystem, CancellationToken token)
     {
         var report = new FailureStoreReport("", 0, fileSystem);
-        Failures = report.Deserialize(csvFile, loadedRows, token).ToArray();
+        Failures = FailureStoreReport.Deserialize(csvFile, loadedRows, token).ToArray();
     }
 
     /// <summary>

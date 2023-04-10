@@ -297,7 +297,7 @@ public class IsIdentifiableBaseOptions : ITargetsFileOptions
     {
         // load Targets.yaml
         var logger = LogManager.GetCurrentClassLogger();
-        int result = IsIdentifiableBaseOptions.LoadTargets(this, logger, fileSystem, out targets);
+        var result = IsIdentifiableBaseOptions.LoadTargets(this, logger, fileSystem, out targets);
         if (result != 0)
             return result;
 
@@ -334,7 +334,7 @@ public class IsIdentifiableBaseOptions : ITargetsFileOptions
     /// <returns></returns>
     public static int LoadTargets(ITargetsFileOptions opts, NLog.Logger logger, IFileSystem fileSystem, out List<Target> targets)
     {
-        Deserializer d = new Deserializer();
+        var d = new Deserializer();
         targets = new List<Target>();
 
         fileSystem ??= new FileSystem();

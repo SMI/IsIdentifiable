@@ -1,18 +1,15 @@
-﻿using IsIdentifiable.Failures;
-using IsIdentifiable.Reporting;
-using IsIdentifiable.Rules;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using IsIdentifiable.Redacting;
+using IsIdentifiable.Rules;
 using Terminal.Gui;
 using Terminal.Gui.Trees;
-using IsIdentifiable.Redacting;
 
-namespace IsIdentifiable.Views;
+namespace ii.Views;
 
 class RulesView : View
 {
@@ -20,26 +17,26 @@ class RulesView : View
     public IgnoreRuleGenerator? Ignorer { get; private set; }
     public RowUpdater? Updater { get; private set; }
 
-    private TreeView _treeView;
+    private readonly TreeView _treeView;
 
     /// <summary>
     /// When the user bulk ignores many records at once how should the ignore patterns be generated
     /// </summary>
-    private IRulePatternFactory? bulkIgnorePatternFactory;
+    private IRulePatternFactory? _bulkIgnorePatternFactory;
 
 
-    Label lblInitialSummary;
+    readonly Label _lblInitialSummary;
 
     public RulesView()
     {
         Width = Dim.Fill();
         Height = Dim.Fill();
 
-        lblInitialSummary = new Label("No report loaded") { Width = Dim.Fill() };
-        Add(lblInitialSummary);
+        _lblInitialSummary = new Label("No report loaded") { Width = Dim.Fill() };
+        base.Add(_lblInitialSummary);
 
-        var lblEvaluate = new Label($"Evaluate:") { Y = Pos.Bottom(lblInitialSummary) + 1 };
-        Add(lblEvaluate);
+        var lblEvaluate = new Label($"Evaluate:") { Y = Pos.Bottom(_lblInitialSummary) + 1 };
+        base.Add(lblEvaluate);
 
 
         var ruleCollisions = new Button("Rule Coverage")
@@ -47,24 +44,24 @@ class RulesView : View
             Y = Pos.Bottom(lblEvaluate)
         };
 
-        ruleCollisions.Clicked += () => EvaluateRuleCoverage();
-        Add(ruleCollisions);
+        ruleCollisions.Clicked += EvaluateRuleCoverage;
+        base.Add(ruleCollisions);
 
-        _treeView = new TreeView()
+        _treeView = new TreeView
         {
             Y = Pos.Bottom(ruleCollisions) + 1,
             Width = Dim.Fill(),
             Height = Dim.Fill(1)
         };
-        _treeView.KeyPress += _treeView_KeyPress;
-        _treeView.ObjectActivated += _treeView_ObjectActivated;
-        _treeView.SelectionChanged += _treeView_SelectionChanged;
+        _treeView.KeyPress += TreeView_KeyPress;
+        _treeView.ObjectActivated += TreeView_ObjectActivated;
+        _treeView.SelectionChanged += TreeView_SelectionChanged;
 
-        Add(_treeView);
+        base.Add(_treeView);
     }
 
 
-    private void _treeView_SelectionChanged(object? sender, SelectionChangedEventArgs<ITreeNode> e)
+    private void TreeView_SelectionChanged(object? sender, SelectionChangedEventArgs<ITreeNode> e)
     {
         if(e.NewValue != null)
         {
@@ -108,74 +105,49 @@ class RulesView : View
         CurrentReport = currentReport;
         Ignorer = ignorer;
         Updater = updater;
-        this.bulkIgnorePatternFactory = bulkIgnorePatternFactory;
+        _bulkIgnorePatternFactory = bulkIgnorePatternFactory;
 
-        lblInitialSummary.Text = $"There are {ignorer.Rules.Count} ignore rules and {updater.Rules.Count} update rules.  Current report contains {CurrentReport.Failures.Length:N0} Failures";
+        _lblInitialSummary.Text = $"There are {ignorer.Rules.Count} ignore rules and {updater.Rules.Count} update rules.  Current report contains {CurrentReport.Failures.Length:N0} Failures";
             
     }
 
-    private void _treeView_ObjectActivated(ObjectActivatedEventArgs<ITreeNode> obj)
+    private void TreeView_ObjectActivated(ObjectActivatedEventArgs<ITreeNode> obj)
     {
-        var ofn = obj.ActivatedObject as OutstandingFailureNode;
-
-        if (ofn != null)
-        {
-            Activate(ofn);
-        }
+        if (obj.ActivatedObject is OutstandingFailureNode ofn) Activate(ofn);
     }
 
-    private void _treeView_KeyPress(KeyEventEventArgs e)
+    private void TreeView_KeyPress(KeyEventEventArgs e)
     {
-        if(_treeView.HasFocus && _treeView.CanFocus)
+        if (_treeView is not { HasFocus: true, CanFocus: true } || e.KeyEvent.Key != Key.DeleteChar) return;
+        var all = _treeView.GetAllSelectedObjects().ToArray();
+        var single = _treeView.SelectedObject;
+
+        switch (single)
         {
-            switch(e.KeyEvent.Key)
-            {
-                case Key.DeleteChar:
+            case CollidingRulesNode crn when all.Length == 1:
+                Delete(crn);
+                break;
+            case FailureGroupingNode fgn when all.Length == 1:
+                Delete(fgn);
+                break;
+        }
 
-                    var all = _treeView.GetAllSelectedObjects().ToArray();
-                    var single = _treeView.SelectedObject;
+        var usages = all.OfType<RuleUsageNode>().ToArray();
+        if (usages.Any() && MessageBox.Query("Delete", $"Delete {usages.Length} Rules?", "Yes", "No") == 0)
+        {
+            foreach (var u in usages)
+                Delete(u);
+        }
 
-                    var crn = single as CollidingRulesNode;
-                    if(crn!=null && all.Length == 1)
-                    {
-                        Delete(crn);
-                    }
+        e.Handled = true;
 
-                    var fgn = single as FailureGroupingNode;
-                    if(fgn!= null && all.Length == 1)
-                    {
-                        Delete(fgn);
-                    }
+        var ignoreAll = all.OfType<OutstandingFailureNode>().ToArray();
 
-                    var usages = all.OfType<RuleUsageNode>().ToArray();
-                    if (usages.Any())
-                    {
-                        var answer = MessageBox.Query("Delete",$"Delete {usages.Length} Rules?", "Yes", "No");
-
-                        if (answer == 0)
-                        {
-                            foreach (var u in usages)
-                                Delete(u);
-                        }
-                    }
-
-                    e.Handled = true;
-
-                    var ignoreAll = all.OfType<OutstandingFailureNode>().ToArray();
-                        
-                    if(ignoreAll.Any())
-                    {
-                        if(MessageBox.Query("Ignore",$"Ignore {ignoreAll.Length} failures?","Yes","No") == 0)
-                        {
-                            foreach (var f in ignoreAll)
-                            {
-                                Ignore(f,ignoreAll.Length > 1);
-                            }
-                        }
-                    }
-
-                    break;
-            }
+        if (ignoreAll.Any() &&
+            MessageBox.Query("Ignore", $"Ignore {ignoreAll.Length} failures?", "Yes", "No") == 0)
+        {
+            foreach (var f in ignoreAll)
+                Ignore(f, ignoreAll.Length > 1);
         }
     }
 
@@ -314,7 +286,7 @@ class RulesView : View
 
         if (isBulkIgnore)
         {
-            Ignorer.Add(ofn.Failure, bulkIgnorePatternFactory);
+            Ignorer.Add(ofn.Failure, _bulkIgnorePatternFactory);
         }
         else
         {
@@ -389,8 +361,8 @@ class RulesView : View
         var cts = new CancellationTokenSource();
 
         using var btn = new Button("Cancel");
-        Action cancelFunc = ()=>{cts.Cancel();};
-        Action closeFunc = ()=>{Application.RequestStop();};
+        var cancelFunc = ()=>{cts.Cancel();};
+        var closeFunc = ()=>{Application.RequestStop();};
         btn.Clicked += cancelFunc;
 
         using var dlg = new Dialog("Evaluating",MainWindow.DlgWidth,6,btn);
@@ -404,7 +376,7 @@ class RulesView : View
         dlg.Add(textProgress);
 
 
-        bool done = false;
+        var done = false;
 
         Application.MainLoop.AddTimeout(TimeSpan.FromSeconds(1), (s) =>
         {
@@ -413,7 +385,7 @@ class RulesView : View
         });
 
         Task.Run(()=>{
-            EvaluateRuleCoverageAsync(stage,progress,textProgress,cts.Token,colliding,ignore,update,outstanding);
+            EvaluateRuleCoverageAsync(stage,progress,textProgress,colliding,ignore,update,outstanding, cts.Token);
         },cts.Token).ContinueWith((t,s)=>{
                 
             btn.Clicked -= cancelFunc;
@@ -429,7 +401,7 @@ class RulesView : View
         Application.Run(dlg);
     }
         
-    private void EvaluateRuleCoverageAsync(Label stage,ProgressBar progress, Label textProgress, CancellationToken token,TreeNodeWithCount colliding,TreeNodeWithCount ignore,TreeNodeWithCount update,TreeNodeWithCount outstanding)
+    private void EvaluateRuleCoverageAsync(Label stage,ProgressBar progress, Label textProgress,TreeNodeWithCount colliding,TreeNodeWithCount ignore,TreeNodeWithCount update,TreeNodeWithCount outstanding, CancellationToken token)
     {
         if(CurrentReport == null)
             return;
@@ -439,12 +411,12 @@ class RulesView : View
         if(Updater == null)
             throw new Exception("No Updater class set");
 
-        ConcurrentDictionary<IsIdentifiableRule,int> rulesUsed = new ConcurrentDictionary<IsIdentifiableRule, int>();
-        ConcurrentDictionary<string,OutstandingFailureNode> outstandingFailures = new ConcurrentDictionary<string, OutstandingFailureNode>();
+        ConcurrentDictionary<IsIdentifiableRule,int> rulesUsed = new();
+        ConcurrentDictionary<string,OutstandingFailureNode> outstandingFailures = new();
             
-        int done = 0;
-        var max = CurrentReport.Failures.Count();
-        object lockObj = new object();
+        var done = 0;
+        var max = CurrentReport.Failures.Length;
+        var lockObj = new object();
 
 
         var result = Parallel.ForEach(CurrentReport.Failures,
@@ -459,13 +431,10 @@ class RulesView : View
                 var updateRule = Updater.Rules.FirstOrDefault(r => r.Apply(f.ProblemField, f.ProblemValue, out _) != RuleAction.None);
 
                 // record how often each reviewer rule was used with a failure
-                foreach (var r in new[] { ignoreRule, updateRule })
-                    if (r != null)
+                foreach (var r in new[] { ignoreRule, updateRule }.Where(r=>r is not null).Cast<IsIdentifiableRule>())
+                    lock (lockObj)
                     {
-                        lock(lockObj)
-                        {
-                            rulesUsed.AddOrUpdate(r, 1, (k, v) => Interlocked.Increment(ref v));
-                        }
+                        _ = rulesUsed.AddOrUpdate(r, 1, (k, v) => Interlocked.Increment(ref v));
                     }
 
                 // There are 2 conflicting rules for this input value (it should be updated and ignored!)
@@ -503,7 +472,7 @@ class RulesView : View
             
         var ignoreRulesUsed = rulesUsed.Where(r=>r.Key.Action == RuleAction.Ignore).ToList();
         stage.Text = "Evaluating Ignore Rules Used";
-        max = ignoreRulesUsed.Count();
+        max = ignoreRulesUsed.Count;
         done = 0;
 
         foreach(var used in ignoreRulesUsed.OrderByDescending(kvp => kvp.Value))
@@ -521,7 +490,7 @@ class RulesView : View
             
         stage.Text = "Evaluating Update Rules Used";
         var updateRulesUsed = rulesUsed.Where(r=>r.Key.Action == RuleAction.Report).ToList();
-        max = updateRulesUsed.Count();
+        max = updateRulesUsed.Count;
         done = 0;
 
         foreach(var used in updateRulesUsed.OrderByDescending(kvp=>kvp.Value)){
@@ -546,7 +515,7 @@ class RulesView : View
                 .ToList();
     }
 
-    private void SetProgress(ProgressBar pb, Label tp, int done, int max)
+    private static void SetProgress(ProgressBar pb, View tp, int done, int max)
     {
         if(max != 0)
             pb.Fraction = done/(float)max;
@@ -562,21 +531,15 @@ class RulesView : View
         _treeView.AddObject(root);
     }
 
-    public IEnumerable<DuplicateRulesNode> GetDuplicates(IList<IsIdentifiableRule> rules)
+    public static IEnumerable<DuplicateRulesNode> GetDuplicates(IList<IsIdentifiableRule> rules)
     {
         // Find all rules that have identical patterns
-        foreach(var dup in rules.Where(r=>!string.IsNullOrEmpty(r.IfPattern)).GroupBy(r=>r.IfPattern))
-        {
-            var duplicateRules = dup.ToArray();
-
-            if(
-                // Multiple rules with same pattern
-                duplicateRules.Length > 1 &&
-                // targeting the same column
-                duplicateRules.Select(r=>r.IfColumn).Distinct().Count() == 1)
-            {
-                yield return new DuplicateRulesNode(dup.Key,duplicateRules);
-            }
-        }
+        return rules.Where(r => !string.IsNullOrEmpty(r.IfPattern))
+            .GroupBy(r => r.IfPattern)
+            .Select(dup => new { dup, duplicateRules = dup.ToArray() })
+            .Where(t => t.duplicateRules.Length > 1 &&
+                         // targeting the same column
+                         t.duplicateRules.Select(r => r.IfColumn).Distinct().Count() == 1)
+            .Select(t => new DuplicateRulesNode(t.dup.Key, t.duplicateRules));
     }
 }

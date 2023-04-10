@@ -61,7 +61,7 @@ namespace IsIdentifiable.Tests
         [TestCase(null, false)]
         public void TestUsingTargetNameForConstr(string constr,bool expectToUseTargets)
         {
-            string targetConstr = "Server=localhost;Username=root;Password=fff";
+            var targetConstr = "Server=localhost;Username=root;Password=fff";
 
             // create a Targets.yaml file with a valid target
             _fileSystem.File.WriteAllText(

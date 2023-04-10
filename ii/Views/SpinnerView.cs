@@ -1,17 +1,17 @@
 ﻿using System;
 using Terminal.Gui;
 
-namespace IsIdentifiable.Views;
+namespace ii.Views;
 
-class SpinnerView : View
+internal class SpinnerView : View
 {
-    int stage;
+    int _stage;
 
     public SpinnerView()
     {
         Width = 1;
         Height = 1;
-        CanFocus = false;
+        base.CanFocus = false;
 
         Application.MainLoop.AddTimeout(TimeSpan.FromSeconds(0.25), Tick);
     }
@@ -20,7 +20,7 @@ class SpinnerView : View
     {
         if (Visible)
         {
-            stage = (stage + 1) % 4;
+            _stage = (_stage + 1) % 4;
             SetNeedsDisplay();
         }
 
@@ -33,22 +33,14 @@ class SpinnerView : View
 
         Move(0, 0);
 
-        Rune rune;
-        switch(stage)
+        var rune = _stage switch
         {
-            case 0:
-                rune = Driver.VLine;
-                break;
-            case 1: rune= '/';
-                break;
-            case 2:
-                rune = Driver.HLine;
-                break;
-            case 3:
-                rune = '\\';
-                break;
-            default: throw new ArgumentOutOfRangeException(nameof(stage));
-        }
+            0 => Driver.VLine,
+            1 => '/',
+            2 => Driver.HLine,
+            3 => '\\',
+            _ => throw new ArgumentOutOfRangeException(nameof(_stage))
+        };
 
         AddRune(0,0,rune);
 

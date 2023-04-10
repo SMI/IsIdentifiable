@@ -1,9 +1,9 @@
-﻿using IsIdentifiable;
+﻿using ii;
 using NUnit.Framework;
 using Terminal.Gui;
 using YamlDotNet.Serialization;
 
-namespace IsIdentifiableTests;
+namespace IsIdentifiable.Tests;
 
 class TerminalGuiThemeTests
 {

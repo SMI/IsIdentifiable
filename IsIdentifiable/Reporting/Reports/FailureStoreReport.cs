@@ -21,7 +21,7 @@ namespace IsIdentifiable.Reporting.Reports;
 /// </summary>
 public class FailureStoreReport : FailureReport
 {
-    private readonly object _odtLock = new object();
+    private readonly object _odtLock = new();
     private readonly DataTable _dtAllFailures;
 
     private readonly int _maxSize;
@@ -41,7 +41,7 @@ public class FailureStoreReport : FailureReport
     {
         _dtAllFailures = new DataTable();
 
-        foreach (string s in _headerRow)
+        foreach (var s in _headerRow)
             _dtAllFailures.Columns.Add(s);
 
         if (maxSize < 0)
@@ -130,9 +130,9 @@ public class FailureStoreReport : FailureReport
     /// <param name="token">Cancellation token for aborting the file deserialication (and closing the file again)</param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public IEnumerable<Failure> Deserialize(IFileInfo oldFile,Action<int> loadedRows, CancellationToken token)
+    public static IEnumerable<Failure> Deserialize(IFileInfo oldFile,Action<int> loadedRows, CancellationToken token)
     {
-        int lineNumber = 0;
+        var lineNumber = 0;
 
         using var stream = oldFile.OpenRead();
         using var sr = new System.IO.StreamReader(stream);
@@ -147,27 +147,15 @@ public class FailureStoreReport : FailureReport
         while (r.Read())
         {
             token.ThrowIfCancellationRequested();
-
             lineNumber++;
-            var parts = new List<FailurePart>();
+            var words = r["PartWords"].Split(Separator);
+            var classes = r["PartClassifications"].Split(Separator);
+            var offsets = r["PartOffsets"].Split(Separator);
 
-            try
-            {
-
-                var words = r["PartWords"].Split(Separator);
-                var classes = r["PartClassifications"].Split(Separator);
-                var offsets = r["PartOffsets"].Split(Separator);
-
-                for (int i = 0; i < words.Length; i++)
-                    parts.Add(new FailurePart(words[i],
-                        (FailureClassification)Enum.Parse(typeof(FailureClassification), classes[i], true),
-                        int.Parse(offsets[i])));
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Error Deserializing line {lineNumber}", e);
-            }
-
+            var parts = words.Select((t, i) => new FailurePart(
+                t,
+                Enum.TryParse<FailureClassification>(classes[i], true,out var classification)?classification:throw new Exception($"Invalid failure classification '{classes[i]}' on line {lineNumber}"),
+                int.TryParse(offsets[i],out var offset)?offset:throw new Exception($"Invalid offset '{offsets[i]}' on line {lineNumber}"))).ToList();
             yield return new Failure(parts)
             {
                 Resource = r["Resource"],

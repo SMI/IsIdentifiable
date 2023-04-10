@@ -1,8 +1,8 @@
-﻿using CommandLine;
+﻿using System.IO.Abstractions;
+using CommandLine;
 using IsIdentifiable.Options;
-using System.IO.Abstractions;
 
-namespace IsIdentifiable;
+namespace ii;
 
 /// <summary>
 /// Overrides <see cref="IsIdentifiableFileOptions"/> to support looped running over multiple files
