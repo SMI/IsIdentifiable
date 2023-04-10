@@ -17,6 +17,7 @@ using YamlDotNet.Serialization;
 using IsIdentifiable.Reporting;
 using System.Threading;
 using System.IO.Abstractions;
+using IsIdentifiable.Allowlists;
 using IsIdentifiable.Whitelists;
 
 namespace IsIdentifiable.Runners;
@@ -97,7 +98,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// </summary>
     private readonly HashSet<string> _skipColumns = new(StringComparer.CurrentCultureIgnoreCase);
 
-    private HashSet<string> _Allowlist;
+    private readonly HashSet<string> _AllowList;
 
     /// <summary>
     /// Custom rules you want to apply e.g. always ignore column X if value is Y
@@ -107,7 +108,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// <summary>
     /// Custom Allowlist rules you want to apply e.g. always ignore a failure if column is X AND value is Y
     /// </summary>
-    public List<ICustomRule> CustomAllowlistRules { get; set; } = new();
+    public List<ICustomRule> CustomAllowListRules { get; set; } = new();
 
     /// <summary>
     /// One cache per field in the data being evaluated, records the recent values passed to <see cref="Validate(string, string)"/> and the results to avoid repeated lookups
@@ -137,7 +138,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// <summary>
     /// Duration the class has existed for
     /// </summary>
-    private Stopwatch _lifetime { get; }
+    private Stopwatch Lifetime { get; }
 
     /// <summary>
     /// Set this to a positive number to output on <see cref="LogProgressLevel"/> about the number
@@ -174,7 +175,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     {
         FileSystem = fileSystem;
 
-        _lifetime = Stopwatch.StartNew();
+        Lifetime = Stopwatch.StartNew();
         _opts = opts;
         _opts.ValidateOptions();
         MaxValidationCacheSize = opts.MaxValidationCacheSize ?? IsIdentifiableBaseOptions.MaxValidationCacheSizeDefault;
@@ -264,14 +265,14 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
             _logger.Info("Fetching Allowlist...");
             try
             {
-                _Allowlist = new HashSet<string>(source.GetAllowlist(),StringComparer.CurrentCultureIgnoreCase);
+                _AllowList = new HashSet<string>(source.GetAllowlist(),StringComparer.CurrentCultureIgnoreCase);
             }
             catch (Exception e)
             {
                 throw new Exception($"Error fetching values for IAllowlistSource {source.GetType().Name}", e);
             }
 
-            _logger.Info($"Allowlist built with {_Allowlist.Count} exact strings");
+            _logger.Info($"Allowlist built with {_AllowList.Count} exact strings");
         }
     }
 
@@ -363,7 +364,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
 
         if(ruleSet.AllowlistRules != null)
         {
-            CustomAllowlistRules.AddRange(ruleSet.AllowlistRules);
+            CustomAllowListRules.AddRange(ruleSet.AllowlistRules);
             result = result || ruleSet.AllowlistRules.Any();
         }
 
@@ -427,7 +428,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         fieldValue = fieldValue.Replace('^', ' ');
 
         //if there is a Allowlist and it says to ignore the (full string) value
-        if (_Allowlist != null && _Allowlist.Contains(fieldValue.Trim()))
+        if (_AllowList?.Contains(fieldValue.Trim()) == true)
             yield break;
                     
         //for each custom rule
@@ -444,23 +445,8 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
                 //if the rule is to report it then report as a failure but also run other classifiers
                 case RuleAction.Report:
                     foreach (var p in parts)
-                    {
-                        var Allowlisted = false;
-                        foreach (AllowlistRule whiterule in CustomAllowlistRules)
-                        {
-                            switch (whiterule.ApplyAllowlistRule(fieldName, fieldValue, p))
-                            {
-                                case RuleAction.Ignore: Allowlisted = true; break;
-                                case RuleAction.None:
-                                case RuleAction.Report: break;
-                                default: throw new ArgumentOutOfRangeException();
-                            }
-                            if (Allowlisted)
-                                break;
-                        }
-                        if (!Allowlisted)
+                        if (CustomAllowListRules.Cast<AllowlistRule>().All(allowListRule => allowListRule.ApplyAllowlistRule(fieldName, fieldValue, p) != RuleAction.Ignore))
                             yield return p;
-                    }
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -583,10 +569,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     {
         var server = new DiscoveredServer(databaseConnectionString, databaseType);
 
-        var db = server.GetCurrentDatabase();
-
-        if (db == null)
-            throw new Exception("No current database");
+        var db = server.GetCurrentDatabase()??throw new Exception("No current database");
 
         return db;
     }
@@ -616,10 +599,11 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// </summary>
     public virtual void Dispose()
     {
+        GC.SuppressFinalize(this);
         foreach (var d in CustomRules.OfType<IDisposable>()) 
             d.Dispose();
 
-        _logger?.Info($"Total runtime for {GetType().Name}:{_lifetime.Elapsed}");
+        _logger?.Info($"Total runtime for {GetType().Name}:{Lifetime.Elapsed}");
         _logger?.Info($"ValidateCacheHits:{ValidateCacheHits} Total ValidateCacheMisses:{ValidateCacheMisses}");
         _logger?.Info($"Total FailurePart identified: {CountOfFailureParts}");
     }

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.IO.Abstractions;
 using CsvHelper;
 using CsvHelper.Configuration;
+using IsIdentifiable.Whitelists;
 
-namespace IsIdentifiable.Whitelists;
+namespace IsIdentifiable.Allowlists;
 
 /// <summary>
 /// A Allowlist source which returns the values in the first column of the provided Csv file.  The file must be properly escaped
@@ -65,6 +66,7 @@ public class CsvAllowlist : IAllowlistSource
     /// </summary>
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
         _reader.Dispose();
         _streamreader.Dispose();
     }

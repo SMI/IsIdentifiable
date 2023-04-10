@@ -57,7 +57,7 @@ public class ReportReader
     public ReportReader(IFileInfo csvFile, Action<int> loadedRows, IFileSystem fileSystem, CancellationToken token)
     {
         var report = new FailureStoreReport("", 0, fileSystem);
-        Failures = report.Deserialize(csvFile, loadedRows, token).ToArray();
+        Failures = FailureStoreReport.Deserialize(csvFile, loadedRows, token).ToArray();
     }
 
     /// <summary>

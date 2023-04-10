@@ -1,4 +1,4 @@
-﻿<?xml version="1.0"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>IsIdentifiable</AssemblyName>
@@ -15,13 +15,13 @@
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Rules.template.yaml"/>
+    <None Remove="Rules.template.yaml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs"/>
+    <Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <NativeLibs Include="$(MSBuildThisFileDirectory)runtimes\**\*.so"/>
+    <NativeLibs Include="$(MSBuildThisFileDirectory)runtimes\**\*.so" />
     <Content Include="@(NativeLibs)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -30,18 +30,18 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.9.1"/>
-    <PackageReference Include="CsvHelper" Version="30.0.1"/>
-    <PackageReference Include="Equ" Version="2.3.0"/>
-    <PackageReference Include="fo-dicom.Imaging.ImageSharp" Version="5.0.3"/>
-    <PackageReference Include="HIC.DicomTypeTranslation" Version="4.0.3"/>
-    <PackageReference Include="HIC.FAnsiSql" Version="3.0.1"/>
-    <PackageReference Include="Lib.Harmony" Version="2.2.2"/>
-    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.0.1"/>
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0"/>
-    <PackageReference Include="NLog" Version="5.1.3"/>
-    <PackageReference Include="System.IO.Abstractions" Version="19.2.4"/>
-    <PackageReference Include="System.IO.FileSystem" Version="4.3.0"/>
-    <PackageReference Include="Tesseract" Version="4.1.1"/>
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="CsvHelper" Version="30.0.1" />
+    <PackageReference Include="Equ" Version="2.3.0" />
+    <PackageReference Include="fo-dicom.Imaging.ImageSharp" Version="5.0.3" />
+    <PackageReference Include="HIC.DicomTypeTranslation" Version="4.0.3" />
+    <PackageReference Include="HIC.FAnsiSql" Version="3.0.1" />
+    <PackageReference Include="Lib.Harmony" Version="2.2.2" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
+    <PackageReference Include="NLog" Version="5.1.3" />
+    <PackageReference Include="System.IO.Abstractions" Version="19.2.4" />
+    <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
+    <PackageReference Include="Tesseract" Version="4.1.1" />
   </ItemGroup>
 </Project>
