@@ -15,7 +15,7 @@ namespace IsIdentifiable.Redacting.UpdateStrategies;
 /// </summary>
 public class RegexUpdateStrategy : UpdateStrategy
 {
-    ProblemValuesUpdateStrategy _fallback = new();
+    private readonly ProblemValuesUpdateStrategy _fallback = new();
 
     /// <summary>
     /// Returns SQL for updating the <paramref name="table"/> to redact the capture groups in <see cref="IsIdentifiableRule.IfPattern"/>.  If no capture groups are represented in the <paramref name="usingRule"/> then this class falls back on <see cref="ProblemValuesUpdateStrategy"/>

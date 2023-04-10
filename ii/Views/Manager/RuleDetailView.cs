@@ -8,7 +8,7 @@ namespace ii.Views.Manager;
 class RuleDetailView : View
 {
     private Label lblType;
-    private List<Label> properties = new();
+    private readonly List<Label> _properties = new();
 
     public RuleDetailView()
     {
@@ -46,10 +46,10 @@ class RuleDetailView : View
         Add(lbl3);
         Add(lbl4);
 
-        properties.Add(lbl1);
-        properties.Add(lbl2);
-        properties.Add(lbl3);
-        properties.Add(lbl4);
+        _properties.Add(lbl1);
+        _properties.Add(lbl2);
+        _properties.Add(lbl3);
+        _properties.Add(lbl4);
 
         SetNeedsDisplay();
     }
@@ -72,7 +72,7 @@ class RuleDetailView : View
             y++;
 
             Add(lbl);
-            properties.Add(lbl);
+            _properties.Add(lbl);
         }
 
         SetNeedsDisplay();
@@ -80,12 +80,12 @@ class RuleDetailView : View
 
     private void ClearProperties()
     {
-        foreach (var c in properties)
+        foreach (var c in _properties)
         {
             Remove(c);
             c.Dispose();
         }
 
-        properties.Clear();
+        _properties.Clear();
     }
 }
