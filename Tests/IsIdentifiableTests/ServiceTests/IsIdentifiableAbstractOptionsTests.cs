@@ -1,9 +1,9 @@
-﻿using FAnsi;
+﻿using System;
+using FAnsi;
 using IsIdentifiable.Options;
 using NUnit.Framework;
-using System;
 
-namespace IsIdentifiableTests.ServiceTests;
+namespace IsIdentifiable.Tests.ServiceTests;
 
 class IsIdentifiableAbstractOptionsTests
 {

@@ -1,6 +1,6 @@
 ﻿using Terminal.Gui;
 
-namespace IsIdentifiable;
+namespace ii;
 
 public class TerminalGuiTheme
 {

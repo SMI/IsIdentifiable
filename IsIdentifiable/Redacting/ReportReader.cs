@@ -34,7 +34,7 @@ public class ReportReader
     /// <summary>
     /// True if <see cref="CurrentIndex"/> is after the end of the <see cref="Failures"/>
     /// </summary>
-    public bool Exhausted => !(_current < Failures.Length);
+    public bool Exhausted => _current >= Failures.Length;
 
     /// <summary>
     /// Reads the <paramref name="csvFile"/> and populates <see cref="Failures"/>

@@ -2,7 +2,7 @@
 using IsIdentifiable.Rules;
 using NUnit.Framework;
 
-namespace IsIdentifiableTests;
+namespace IsIdentifiable.Tests;
 
 class AllowlistRuleTests
 {

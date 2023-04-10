@@ -5,7 +5,7 @@ using IsIdentifiable.Reporting;
 using Terminal.Gui;
 using Attribute = Terminal.Gui.Attribute;
 
-namespace IsIdentifiable.Views;
+namespace ii.Views;
 
 class FailureView : View
 {
@@ -56,10 +56,9 @@ class FailureView : View
                 }
                 else
                 {
-                    if (CurrentFailure != null && CurrentFailure.Parts.Any(p => p.Includes(characterOffset)))
-                        newColor = _attHighlight;
-                    else
-                        newColor = _attNormal;
+                    newColor = CurrentFailure?.Parts.Any(p => p.Includes(characterOffset))==true
+                        ? _attHighlight
+                        : _attNormal;
 
                     symbol = currentLine[x];
                     characterOffset++;

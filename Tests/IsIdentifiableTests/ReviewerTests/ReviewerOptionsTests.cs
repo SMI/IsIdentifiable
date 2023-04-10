@@ -1,7 +1,7 @@
 ﻿using IsIdentifiable.Options;
 using NUnit.Framework;
 
-namespace IsIdentifiableTests.ReviewerTests;
+namespace IsIdentifiable.Tests.ReviewerTests;
 
 class ReviewerOptionsTests
 {

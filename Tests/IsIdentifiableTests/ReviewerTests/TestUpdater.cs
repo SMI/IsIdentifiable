@@ -1,14 +1,14 @@
 ﻿using System.Data;
+using System.IO.Abstractions.TestingHelpers;
 using FAnsi;
 using IsIdentifiable.Failures;
+using IsIdentifiable.Redacting;
+using IsIdentifiable.Redacting.UpdateStrategies;
 using IsIdentifiable.Reporting;
 using Moq;
 using NUnit.Framework;
-using IsIdentifiable.Redacting;
-using IsIdentifiable.Redacting.UpdateStrategies;
-using System.IO.Abstractions.TestingHelpers;
 
-namespace IsIdentifiableTests.ReviewerTests;
+namespace IsIdentifiable.Tests.ReviewerTests;
 
 class TestUpdater : DatabaseTests
 {

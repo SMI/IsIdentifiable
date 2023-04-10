@@ -8,7 +8,7 @@ using IsIdentifiable.Rules;
 using IsIdentifiable.Runners;
 using NUnit.Framework;
 
-namespace IsIdentifiableTests;
+namespace IsIdentifiable.Tests;
 
 public class IsIdentifiableRunnerTests
 {

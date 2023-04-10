@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace IsIdentifiable.Allowlists;
+namespace IsIdentifiable.Whitelists;
 
 /// <summary>
 /// Interface for classes that produce a list of values which when

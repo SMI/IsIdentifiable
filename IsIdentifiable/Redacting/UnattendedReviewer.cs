@@ -132,21 +132,14 @@ public class UnattendedReviewer
                     }
                     else
                     {
-
-                        if (!_ignoreRulesUsed.ContainsKey(ignoreRule))
-                            _ignoreRulesUsed.Add(ignoreRule, 1);
-                        else
+                        if (!_ignoreRulesUsed.TryAdd(ignoreRule, 1))
                             _ignoreRulesUsed[ignoreRule]++;
-
                         Ignores++;
                     }
                 else
                 {
-                    if (!_updateRulesUsed.ContainsKey(updateRule))
-                        _updateRulesUsed.Add(updateRule, 1);
-                    else
+                    if (!_updateRulesUsed.TryAdd(updateRule,1))
                         _updateRulesUsed[updateRule]++;
-
                     Updates++;
                 }
 

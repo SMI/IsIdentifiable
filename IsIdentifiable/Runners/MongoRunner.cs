@@ -350,13 +350,10 @@ public class MongoRunner : IsIdentifiableAbstractRunner
 
             // For each string in the element
             //TODO This is slow and should be refactored
-            foreach (string s in ds.GetValues<string>(element.Tag))
-            {
-                List<FailurePart> parts = Validate(kw, s).ToList();
-
-                if (parts.Any())
-                    failures.Add(_factory.Create(documentId, fullTagPath, s, parts));
-            }
+            failures.AddRange(ds.GetValues<string>(element.Tag)
+                .Select(s => new { s, parts = Validate(kw, s).ToList() })
+                .Where(t => t.parts.Any())
+                .Select(t => _factory.Create(documentId, fullTagPath, t.s, t.parts)));
         }
 
         AddNodeCounts(nodeCounts);

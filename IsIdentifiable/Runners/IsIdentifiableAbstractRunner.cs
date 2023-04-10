@@ -11,13 +11,13 @@ using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Rules;
-using IsIdentifiable.Allowlists;
 using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using YamlDotNet.Serialization;
 using IsIdentifiable.Reporting;
 using System.Threading;
 using System.IO.Abstractions;
+using IsIdentifiable.Whitelists;
 
 namespace IsIdentifiable.Runners;
 

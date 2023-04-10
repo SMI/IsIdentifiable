@@ -67,28 +67,18 @@ public class DatabaseRunner : IsIdentifiableAbstractRunner
 
             var cmd = server.GetCommand(
 $@"SELECT 
-{(top != null && top.Location == QueryComponent.SELECT ? top.SQL : "")}
-{string.Join($",{Environment.NewLine}", _columns.Select(c => c.GetFullyQualifiedName()).ToArray())}
+{(top is { Location: QueryComponent.SELECT } ? top.SQL : "")}
+{string.Join($",{Environment.NewLine}", _columns.Select(c => c.GetFullyQualifiedName()))}
 FROM 
 {tbl.GetFullyQualifiedName()}
-{(top != null && top.Location == QueryComponent.Postfix ? top.SQL : "")}"
+{(top is { Location: QueryComponent.Postfix } ? top.SQL : "")}"
             ,con);
 
             _logger.Info($"About to send command:{Environment.NewLine}{cmd.CommandText}");
 
-            var reader = cmd.ExecuteReader();
-            Int64 rowNum = 0;
+            using var reader = cmd.ExecuteReader();
 
-            foreach (Failure failure in reader.Cast<DbDataRecord>().SelectMany(GetFailuresIfAny))
-            {
-                AddToReports(failure);
-                rowNum++;
-
-                if (rowNum % 10000 == 0)
-                {
-                    GC.Collect(); // lgtm[cs/call-to-gc]
-                }
-            }
+            foreach (var failure in reader.Cast<DbDataRecord>().SelectMany(GetFailuresIfAny)) AddToReports(failure);
 
             CloseReports();
         }
@@ -98,7 +88,7 @@ FROM
     private IEnumerable<Reporting.Failure> GetFailuresIfAny(DbDataRecord record)
     {
         //Get the primary key of the current row
-        string[] primaryKey = _factory.PrimaryKeys.Select(k => record[k.GetRuntimeName()].ToString()).ToArray();
+        var primaryKey = _factory.PrimaryKeys.Select(k => record[k.GetRuntimeName()].ToString()).ToArray();
 
         //For each column in the table
         for (var i = 0; i < _columnsNames.Length; i++)
@@ -110,16 +100,9 @@ FROM
                 if (string.IsNullOrWhiteSpace(asString))
                     continue;
 
-                var parts = new List<FailurePart>();
-
-                foreach (string part in asString.Split('\\'))
-                {
-                    // Some strings contain null characters?!  Remove them all.
-                    // XXX hopefully this won't break any special character encoding (eg. UTF)
-                    string partCleaned = part.Replace("\0", "");
-                    parts.AddRange(Validate(_columnsNames[i], partCleaned));
-                }
-
+                // Some strings contain null characters?!  Remove them all.
+                // XXX hopefully this won't break any special character encoding (eg. UTF)
+                var parts = asString.Split('\\').SelectMany(part => Validate(_columnsNames[i], part.Replace("\0", ""))).ToList();
                 if (parts.Any())
                     yield return _factory.Create(_columnsNames[i], asString, parts, primaryKey);
             }

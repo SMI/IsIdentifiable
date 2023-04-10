@@ -147,23 +147,15 @@ public class FailureStoreReport : FailureReport
         while (r.Read())
         {
             token.ThrowIfCancellationRequested();
-
             lineNumber++;
+            var words = r["PartWords"].Split(Separator);
+            var classes = r["PartClassifications"].Split(Separator);
+            var offsets = r["PartOffsets"].Split(Separator);
 
-            List<FailurePart> parts;
-            try
-            {
-                var words = r["PartWords"].Split(Separator);
-                var classes = r["PartClassifications"].Split(Separator);
-                var offsets = r["PartOffsets"].Split(Separator);
-
-                parts = words.Select((t, i) => new FailurePart(t, (FailureClassification)Enum.Parse(typeof(FailureClassification), classes[i], true), int.Parse(offsets[i]))).ToList();
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Error Deserializing line {lineNumber}", e);
-            }
-
+            var parts = words.Select((t, i) => new FailurePart(
+                t,
+                Enum.TryParse<FailureClassification>(classes[i], true,out var classification)?classification:throw new Exception($"Invalid failure classification '{classes[i]}' on line {lineNumber}"),
+                int.TryParse(offsets[i],out var offset)?offset:throw new Exception($"Invalid offset '{offsets[i]}' on line {lineNumber}"))).ToList();
             yield return new Failure(parts)
             {
                 Resource = r["Resource"],

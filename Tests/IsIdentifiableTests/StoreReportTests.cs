@@ -7,7 +7,7 @@ using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Reports;
 using NUnit.Framework;
 
-namespace IsIdentifiableTests;
+namespace IsIdentifiable.Tests;
 
 class StoreReportTests
 {

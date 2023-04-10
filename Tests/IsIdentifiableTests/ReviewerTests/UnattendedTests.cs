@@ -1,15 +1,15 @@
 ﻿using System;
+using System.IO.Abstractions.TestingHelpers;
 using FAnsi.Implementation;
 using FAnsi.Implementations.MicrosoftSQL;
 using FAnsi.Implementations.MySql;
 using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
-using NUnit.Framework;
 using IsIdentifiable.Options;
 using IsIdentifiable.Redacting;
-using System.IO.Abstractions.TestingHelpers;
+using NUnit.Framework;
 
-namespace IsIdentifiableTests.ReviewerTests;
+namespace IsIdentifiable.Tests.ReviewerTests;
 
 public class UnattendedTests
 {

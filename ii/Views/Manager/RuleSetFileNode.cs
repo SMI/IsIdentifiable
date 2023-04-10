@@ -1,9 +1,9 @@
-﻿using IsIdentifiable.Rules;
+﻿using System.IO.Abstractions;
+using IsIdentifiable.Rules;
 using IsIdentifiable.Runners;
-using System.IO.Abstractions;
 using YamlDotNet.Serialization;
 
-namespace IsIdentifiable.Views.Manager;
+namespace ii.Views.Manager;
 
 internal class RuleSetFileNode
 {

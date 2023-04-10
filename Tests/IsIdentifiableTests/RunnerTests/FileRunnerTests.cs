@@ -1,12 +1,12 @@
-﻿using IsIdentifiable.Options;
+﻿using System.IO.Abstractions.TestingHelpers;
+using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Runners;
 using Moq;
 using NUnit.Framework;
-using System.IO.Abstractions.TestingHelpers;
 
-namespace IsIdentifiableTests.RunnerTests;
+namespace IsIdentifiable.Tests.RunnerTests;
 
 class FileRunnerTests
 {

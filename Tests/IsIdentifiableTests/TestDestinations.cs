@@ -1,15 +1,15 @@
+using System;
+using System.Data;
+using System.Globalization;
+using System.IO.Abstractions.TestingHelpers;
 using CsvHelper.Configuration;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Destinations;
 using IsIdentifiable.Reporting.Reports;
 using NUnit.Framework;
-using System;
-using System.Data;
-using System.Globalization;
-using System.IO.Abstractions.TestingHelpers;
 
-namespace IsIdentifiableTests;
+namespace IsIdentifiable.Tests;
 
 internal class TestDestinations
 {

@@ -1,15 +1,15 @@
 ﻿using System;
-using IsIdentifiable.Rules;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using IsIdentifiable.Redacting;
+using IsIdentifiable.Rules;
 using Terminal.Gui;
 using Terminal.Gui.Trees;
-using IsIdentifiable.Redacting;
 
-namespace IsIdentifiable.Views;
+namespace ii.Views;
 
 class RulesView : View
 {
@@ -17,7 +17,7 @@ class RulesView : View
     public IgnoreRuleGenerator? Ignorer { get; private set; }
     public RowUpdater? Updater { get; private set; }
 
-    private TreeView _treeView;
+    private readonly TreeView _treeView;
 
     /// <summary>
     /// When the user bulk ignores many records at once how should the ignore patterns be generated
@@ -25,17 +25,17 @@ class RulesView : View
     private IRulePatternFactory? _bulkIgnorePatternFactory;
 
 
-    Label lblInitialSummary;
+    readonly Label _lblInitialSummary;
 
     public RulesView()
     {
         Width = Dim.Fill();
         Height = Dim.Fill();
 
-        lblInitialSummary = new Label("No report loaded") { Width = Dim.Fill() };
-        base.Add(lblInitialSummary);
+        _lblInitialSummary = new Label("No report loaded") { Width = Dim.Fill() };
+        base.Add(_lblInitialSummary);
 
-        var lblEvaluate = new Label($"Evaluate:") { Y = Pos.Bottom(lblInitialSummary) + 1 };
+        var lblEvaluate = new Label($"Evaluate:") { Y = Pos.Bottom(_lblInitialSummary) + 1 };
         base.Add(lblEvaluate);
 
 
@@ -107,7 +107,7 @@ class RulesView : View
         Updater = updater;
         _bulkIgnorePatternFactory = bulkIgnorePatternFactory;
 
-        lblInitialSummary.Text = $"There are {ignorer.Rules.Count} ignore rules and {updater.Rules.Count} update rules.  Current report contains {CurrentReport.Failures.Length:N0} Failures";
+        _lblInitialSummary.Text = $"There are {ignorer.Rules.Count} ignore rules and {updater.Rules.Count} update rules.  Current report contains {CurrentReport.Failures.Length:N0} Failures";
             
     }
 
@@ -434,13 +434,10 @@ class RulesView : View
                 var updateRule = Updater.Rules.FirstOrDefault(r => r.Apply(f.ProblemField, f.ProblemValue, out _) != RuleAction.None);
 
                 // record how often each reviewer rule was used with a failure
-                foreach (var r in new[] { ignoreRule, updateRule })
-                    if (r != null)
+                foreach (var r in new[] { ignoreRule, updateRule }.Where(r=>r is not null).Cast<IsIdentifiableRule>())
+                    lock (lockObj)
                     {
-                        lock(lockObj)
-                        {
-                            rulesUsed.AddOrUpdate(r, 1, (k, v) => Interlocked.Increment(ref v));
-                        }
+                        _ = rulesUsed.AddOrUpdate(r, 1, (k, v) => Interlocked.Increment(ref v));
                     }
 
                 // There are 2 conflicting rules for this input value (it should be updated and ignored!)
@@ -540,18 +537,12 @@ class RulesView : View
     public IEnumerable<DuplicateRulesNode> GetDuplicates(IList<IsIdentifiableRule> rules)
     {
         // Find all rules that have identical patterns
-        foreach(var dup in rules.Where(r=>!string.IsNullOrEmpty(r.IfPattern)).GroupBy(r=>r.IfPattern))
-        {
-            var duplicateRules = dup.ToArray();
-
-            if(
-                // Multiple rules with same pattern
-                duplicateRules.Length > 1 &&
-                // targeting the same column
-                duplicateRules.Select(r=>r.IfColumn).Distinct().Count() == 1)
-            {
-                yield return new DuplicateRulesNode(dup.Key,duplicateRules);
-            }
-        }
+        return rules.Where(r => !string.IsNullOrEmpty(r.IfPattern))
+            .GroupBy(r => r.IfPattern)
+            .Select(dup => new { dup, duplicateRules = dup.ToArray() })
+            .Where(t => t.duplicateRules.Length > 1 &&
+                         // targeting the same column
+                         t.duplicateRules.Select(r => r.IfColumn).Distinct().Count() == 1)
+            .Select(t => new DuplicateRulesNode(t.dup.Key, t.duplicateRules));
     }
 }

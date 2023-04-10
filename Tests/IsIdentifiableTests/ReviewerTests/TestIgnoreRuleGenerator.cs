@@ -1,11 +1,11 @@
-﻿using System.Linq;
+﻿using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 using IsIdentifiable.Failures;
+using IsIdentifiable.Redacting;
 using IsIdentifiable.Reporting;
 using NUnit.Framework;
-using IsIdentifiable.Redacting;
-using System.IO.Abstractions.TestingHelpers;
 
-namespace IsIdentifiableTests.ReviewerTests;
+namespace IsIdentifiable.Tests.ReviewerTests;
 
 class TestIgnoreRuleGenerator
 {

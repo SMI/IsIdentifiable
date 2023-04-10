@@ -59,11 +59,13 @@ public class RowUpdater : OutBase
         //if we are running in rules only mode we don't need to also update the database
         if (RulesOnly)
             return;
+        // Server can only be null if we are running in RulesOnly mode
+        ArgumentNullException.ThrowIfNull(server);
 
-        var syntax = server?.GetQuerySyntaxHelper();
+        var syntax = server.GetQuerySyntaxHelper();
 
         //the fully specified name e.g. [mydb]..[mytbl]
-        string tableName = failure.Resource;
+        var tableName = failure.Resource;
 
         var tokens = tableName.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
@@ -76,7 +78,7 @@ public class RowUpdater : OutBase
         db = syntax.GetRuntimeName(db);
         tableName = syntax.GetRuntimeName(tableName);
 
-        DiscoveredTable table = server.ExpectDatabase(db).ExpectTable(tableName);
+        var table = server.ExpectDatabase(db).ExpectTable(tableName);
 
         //if we've never seen this table before
         if (!_primaryKeys.ContainsKey(table))
@@ -85,16 +87,12 @@ public class RowUpdater : OutBase
             _primaryKeys.Add(table, pk);
         }
 
-        using (var con = server.GetConnection())
-        {
-            con.Open();
+        using var con = server.GetConnection();
+        con.Open();
 
-            foreach (var sql in UpdateStrategy.GetUpdateSql(table, _primaryKeys, failure, usingRule))
-            {
-                var cmd = server.GetCommand(sql, con);
-                cmd.ExecuteNonQuery();
-            }
-        }
+        foreach (var cmd in UpdateStrategy.GetUpdateSql(table, _primaryKeys, failure, usingRule)
+                     .Select(sql => server.GetCommand(sql, con)))
+            cmd.ExecuteNonQuery();
     }
 
     /// <summary>

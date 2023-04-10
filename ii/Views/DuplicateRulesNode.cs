@@ -1,7 +1,7 @@
 ﻿using IsIdentifiable.Rules;
 using Terminal.Gui.Trees;
 
-namespace IsIdentifiable.Views;
+namespace ii.Views;
 
 internal class DuplicateRulesNode : TreeNode
 {

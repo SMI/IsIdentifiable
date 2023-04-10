@@ -1,6 +1,6 @@
 ﻿using Terminal.Gui.Trees;
 
-namespace IsIdentifiable.Views;
+namespace ii.Views;
 
 internal class TreeNodeWithCount : TreeNode
 {

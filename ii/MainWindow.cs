@@ -1,19 +1,19 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
-using IsIdentifiable.Options;
-using IsIdentifiable.Reporting;
-using IsIdentifiable.Views;
-using IsIdentifiable.Views.Manager;
-using Terminal.Gui;
-using IsIdentifiable.Redacting;
-using System.IO.Abstractions;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IO.Abstractions;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using ii.Views;
+using ii.Views.Manager;
+using IsIdentifiable.Options;
+using IsIdentifiable.Redacting;
+using IsIdentifiable.Reporting;
+using Terminal.Gui;
 
-namespace IsIdentifiable;
+namespace ii;
 
 class MainWindow : IRulePatternFactory, IDisposable
 {
@@ -536,10 +536,9 @@ G - creates a regex pattern that matches only the failing part(s)
             e2 = e2.InnerException;
         }
 
-        if(GetChoice(msg, sb.ToString(), out string? chosen, "Ok", stackTraceOption))
-            if(string.Equals(chosen,stackTraceOption))
-                ShowMessage("Stack Trace",e.ToString());
-
+        if (GetChoice(msg, sb.ToString(), out string? chosen, "Ok", stackTraceOption) &&
+            string.Equals(chosen, stackTraceOption)) 
+            ShowMessage("Stack Trace", e.ToString());
     }
     public static bool GetChoice<T>(string title, string body, out T? chosen, params T[] options)
     {

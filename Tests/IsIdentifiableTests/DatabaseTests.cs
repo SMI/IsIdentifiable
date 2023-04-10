@@ -7,13 +7,13 @@ using FAnsi;
 using FAnsi.Discovery;
 using FAnsi.Discovery.Constraints;
 using FAnsi.Implementation;
+using FAnsi.Implementations.MicrosoftSQL;
 using FAnsi.Implementations.MySql;
 using FAnsi.Implementations.Oracle;
-using FAnsi.Implementations.MicrosoftSQL;
 using FAnsi.Implementations.PostgreSql;
 using NUnit.Framework;
 
-namespace IsIdentifiableTests;
+namespace IsIdentifiable.Tests;
 
 [SingleThreaded]
 [NonParallelizable]
@@ -169,23 +169,8 @@ public class DatabaseTests
 
         foreach (DataRow row1 in dt1.Rows)
         {
-            bool match = false;
-
-            foreach (DataRow row2 in dt2.Rows)
-            {
-                bool rowMatch = true;
-                foreach (DataColumn column in dt1.Columns.Cast<DataColumn>())
-                {
-                    if (!AreBasicallyEquals(row1[column.ColumnName], row2[column.ColumnName]))
-                        rowMatch = false;
-                }
-
-                if (rowMatch)
-                    match = true;
-            }
-
-            Assert.IsTrue(match, "Couldn't find match for row:" + string.Join(",", row1.ItemArray));
-
+            var match = dt2.Rows.Cast<DataRow>().Any(row2=> dt1.Columns.Cast<DataColumn>().All(column => AreBasicallyEquals(row1[column.ColumnName], row2[column.ColumnName])));
+            Assert.IsTrue(match, "Couldn't find match for row:{0}", string.Join(",", row1.ItemArray));
         }
 
     }

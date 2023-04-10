@@ -1,9 +1,9 @@
 ﻿using IsIdentifiable.Failures;
+using IsIdentifiable.Redacting;
 using IsIdentifiable.Reporting;
 using NUnit.Framework;
-using IsIdentifiable.Redacting;
 
-namespace IsIdentifiableTests.ReviewerTests;
+namespace IsIdentifiable.Tests.ReviewerTests;
 
 public class MatchProblemValuesPatternFactoryTests
 {

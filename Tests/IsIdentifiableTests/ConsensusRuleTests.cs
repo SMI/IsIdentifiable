@@ -1,11 +1,11 @@
-﻿using IsIdentifiable.Failures;
+﻿using System.Collections.Generic;
+using System.Linq;
+using IsIdentifiable.Failures;
 using IsIdentifiable.Rules;
 using IsIdentifiable.Runners;
 using NUnit.Framework;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace IsIdentifiableTests;
+namespace IsIdentifiable.Tests;
 
 class ConsensusRuleTests
 {

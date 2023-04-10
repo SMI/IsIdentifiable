@@ -4,7 +4,7 @@ using System.IO.Abstractions;
 using CsvHelper;
 using CsvHelper.Configuration;
 
-namespace IsIdentifiable.Allowlists;
+namespace IsIdentifiable.Whitelists;
 
 /// <summary>
 /// A Allowlist source which returns the values in the first column of the provided Csv file.  The file must be properly escaped

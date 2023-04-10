@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using IsIdentifiable.Rules;
 using System.IO.Abstractions;
+using IsIdentifiable.Rules;
 using Terminal.Gui;
 
-namespace IsIdentifiable.Views.Manager;
+namespace ii.Views.Manager;
 
 class RuleDetailView : View
 {

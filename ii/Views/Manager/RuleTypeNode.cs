@@ -1,14 +1,14 @@
 ﻿using System;
-using IsIdentifiable.Rules;
 using System.Collections;
 using System.Reflection;
+using IsIdentifiable.Rules;
 
-namespace IsIdentifiable.Views.Manager;
+namespace ii.Views.Manager;
 
 internal class RuleTypeNode
 {
     public RuleSetFileNode Parent { get; set; }
-    private PropertyInfo? prop;
+    private readonly PropertyInfo _prop;
 
     public IList? Rules { get; internal set; }
 
@@ -19,18 +19,12 @@ internal class RuleTypeNode
     /// <param name="ruleProperty"></param>
     public RuleTypeNode(RuleSetFileNode ruleSet, string ruleProperty)
     {
-        prop = typeof(RuleSet).GetProperty(ruleProperty);
-        if(prop == null)
-        {
-            throw new ArgumentException($"No property called {ruleProperty} exists on Type RuleSet");
-        }
+        _prop = typeof(RuleSet).GetProperty(ruleProperty) ??
+                throw new ArgumentException($"No property called {ruleProperty} exists on Type RuleSet");
 
         Parent = ruleSet;
-        Rules = (IList?)prop.GetValue(ruleSet.GetRuleSet());
+        Rules = (IList?)_prop.GetValue(ruleSet.GetRuleSet());
     }
 
-    public override string ToString()
-    {
-        return prop?.Name ?? "Unknown Property";
-    }
+    public override string ToString() => _prop.Name;
 }

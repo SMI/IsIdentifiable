@@ -95,22 +95,19 @@ public class IsIdentifiableReviewerOptions : ITargetsFileOptions
     /// <param name="globalOpts"></param>
     public virtual void InheritValuesFrom(IsIdentifiableReviewerOptions globalOpts)
     {
-        if (globalOpts == null)
-            throw new ArgumentNullException(nameof(globalOpts));
+        ArgumentNullException.ThrowIfNull(globalOpts);
 
         // if we don't have a value for it yet
-        if (string.IsNullOrWhiteSpace(TargetsFile) || TargetsFile == TargetsFileDefault)
-            // and global configs has got a value for it
-            if (!string.IsNullOrWhiteSpace(globalOpts.TargetsFile))
-                TargetsFile = globalOpts.TargetsFile; // use the globals config value
+        if ((string.IsNullOrWhiteSpace(TargetsFile) || TargetsFile == TargetsFileDefault) && !string.IsNullOrWhiteSpace(globalOpts.TargetsFile)) // and global config has has got a value for it
+            TargetsFile = globalOpts.TargetsFile; // use the global config value
 
-        if (string.IsNullOrWhiteSpace(IgnoreList) || IgnoreList == IgnoreRuleGenerator.DefaultFileName)
-            if (!string.IsNullOrWhiteSpace(globalOpts.IgnoreList))
-                IgnoreList = globalOpts.IgnoreList;
+        if ((string.IsNullOrWhiteSpace(IgnoreList) || IgnoreList == IgnoreRuleGenerator.DefaultFileName) &&
+            !string.IsNullOrWhiteSpace(globalOpts.IgnoreList)) 
+            IgnoreList = globalOpts.IgnoreList;
 
-        if (string.IsNullOrWhiteSpace(Reportlist) || Reportlist == RowUpdater.DefaultFileName)
-            if (!string.IsNullOrWhiteSpace(globalOpts.Reportlist))
-                Reportlist = globalOpts.Reportlist;
+        if ((string.IsNullOrWhiteSpace(Reportlist) || Reportlist == RowUpdater.DefaultFileName) &&
+            !string.IsNullOrWhiteSpace(globalOpts.Reportlist)) 
+            Reportlist = globalOpts.Reportlist;
 
         if (Theme == null && !string.IsNullOrWhiteSpace(globalOpts.Theme))
             Theme = globalOpts.Theme;

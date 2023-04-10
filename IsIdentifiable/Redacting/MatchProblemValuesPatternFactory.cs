@@ -49,13 +49,6 @@ public class MatchProblemValuesPatternFactory : IRulePatternFactory
 
         // If there is a failure part that ends at the end of the input string then the pattern should have a terminator
         // to denote that we only care about problem values ending in this pattern (user can always override that decision)
-        if (maxPartEnding == failure.ProblemValue.Length)
-        {
-            return $"{sb.ToString(0, sb.Length - 2)}$";
-        }
-        else
-        {
-            return sb.ToString(0, sb.Length - 2);
-        }
+        return maxPartEnding == failure.ProblemValue.Length ? $"{sb.ToString(0, sb.Length - 2)}$" : sb.ToString(0, sb.Length - 2);
     }
 }

@@ -6,7 +6,7 @@ using IsIdentifiable.Rules;
 using NUnit.Framework;
 using YamlDotNet.Serialization;
 
-namespace IsIdentifiableTests;
+namespace IsIdentifiable.Tests;
 
 class IsIdentifiableRuleTests
 {

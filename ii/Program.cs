@@ -1,4 +1,6 @@
 using System;
+using System.IO.Abstractions;
+using System.Linq;
 using CommandLine;
 using FAnsi.Implementation;
 using FAnsi.Implementations.MicrosoftSQL;
@@ -7,14 +9,11 @@ using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
 using FellowOakDicom;
 using IsIdentifiable.Options;
-using IsIdentifiable.Redacting;
 using IsIdentifiable.Runners;
 using Microsoft.Extensions.FileSystemGlobbing;
 using YamlDotNet.Serialization;
-using System.IO.Abstractions;
-using System.Linq;
 
-namespace IsIdentifiable;
+namespace ii;
 
 public static class Program
 {
@@ -34,10 +33,7 @@ public static class Program
             // remove -y myfile
             newArgs = args.Take(idx).ToArray();
 
-            foreach (var after in args.Skip(idx + 2))
-            {
-                newArgs = newArgs.Append(after).ToArray();
-            }
+            newArgs = args.Skip(idx + 2).Aggregate(newArgs, (current, after) => current.Append(after).ToArray());
 
             return settingsFileLocation;
         }

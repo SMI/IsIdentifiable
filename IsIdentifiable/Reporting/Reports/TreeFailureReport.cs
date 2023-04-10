@@ -92,12 +92,12 @@ internal class TreeFailureReport : FailureReport
 
     private void GenerateAggregateCounts()
     {
-        lock (_nodeFailuresLock)
-        {
-            foreach (var failureInfo in _nodeFailures.Where(failureInfo => !_nodeRegex.IsMatch(failureInfo.Key)))
-            {
-                // TODO: Actually do something here?
-            }
-        }
+        // lock (_nodeFailuresLock)
+        // {
+        //     foreach (var failureInfo in _nodeFailures.Where(failureInfo => !_nodeRegex.IsMatch(failureInfo.Key)))
+        //     {
+        //         // TODO: Actually do something here?
+        //     }
+        // }
     }
 }

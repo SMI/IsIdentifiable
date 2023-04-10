@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using FAnsi.Discovery;
 
-namespace IsIdentifiable.Allowlists;
+namespace IsIdentifiable.Whitelists;
 
 /// <summary>
 /// Generates a list of allowed (ignored) strings based on the contents of a
