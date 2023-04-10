@@ -6,7 +6,7 @@ namespace IsIdentifiable.Reporting.Reports;
 
 internal class PixelTextFailureReport : FailureReport
 {
-    private readonly DataTable _dt = new DataTable();
+    private readonly DataTable _dt = new();
 
     private readonly string[] _headerRow =
     {
@@ -31,7 +31,7 @@ internal class PixelTextFailureReport : FailureReport
     public PixelTextFailureReport(string targetName, IFileSystem fileSystem)
         : base(targetName, fileSystem)
     {
-        foreach (string s in _headerRow)
+        foreach (var s in _headerRow)
             _dt.Columns.Add(s);
     }
 
@@ -48,7 +48,7 @@ internal class PixelTextFailureReport : FailureReport
     //TODO Replace argument list with object
     public void FoundPixelData(IFileInfo fi, string sopID, string studyID, string seriesID, string modality, string[] imageType, float meanConfidence, int textLength, string pixelText, int rotation, int frame, int overlay)
     {
-        DataRow dr = _dt.Rows.Add();
+        var dr = _dt.Rows.Add();
 
         if (imageType != null && imageType.Length > 0)
             dr["ImageType1"] = imageType[0];

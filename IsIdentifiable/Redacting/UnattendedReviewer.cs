@@ -45,10 +45,10 @@ public class UnattendedReviewer
     /// Total number of <see cref="Failure"/> processed so far
     /// </summary>
     public int Total = 0;
-    private Logger _log;
+    private readonly Logger _log;
 
-    Dictionary<IsIdentifiableRule, int> _updateRulesUsed = new Dictionary<IsIdentifiableRule, int>();
-    Dictionary<IsIdentifiableRule, int> _ignoreRulesUsed = new Dictionary<IsIdentifiableRule, int>();
+    readonly Dictionary<IsIdentifiableRule, int> _updateRulesUsed = new();
+    readonly Dictionary<IsIdentifiableRule, int> _ignoreRulesUsed = new();
 
     /// <summary>
     /// Creates a new instance that will connect to the database server (<paramref name="target"/>) and perform redactions using the <paramref name="updater"/>
@@ -94,11 +94,11 @@ public class UnattendedReviewer
     {
         //In RulesOnly mode this will be null
         var server = _target?.Discover();
-        List<Exception> errors = new List<Exception>();
+        var errors = new List<Exception>();
 
         var storeReport = new FailureStoreReport(_outputFile.Name, 100, _fileSystem);
 
-        Stopwatch sw = new Stopwatch();
+        var sw = new Stopwatch();
         sw.Start();
 
         using (var storeReportDestination = new CsvDestination(new IsIdentifiableDicomFileOptions(), _outputFile, _fileSystem))
@@ -124,7 +124,7 @@ public class UnattendedReviewer
                 //is it novel for updater
                 if (noUpdate)
                     //is it novel for ignorer
-                    if (_ignorer.OnLoad(_reportReader.Current, out IsIdentifiableRule ignoreRule))
+                    if (_ignorer.OnLoad(_reportReader.Current, out var ignoreRule))
                     {
                         //we can't process it unattended
                         storeReport.Add(_reportReader.Current);

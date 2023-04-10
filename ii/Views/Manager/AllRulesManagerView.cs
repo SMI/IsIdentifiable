@@ -33,10 +33,12 @@ class AllRulesManagerView : View, ITreeBuilder<object>
         _analyserOpts = analyserOpts;
         _reviewerOpts = reviewerOpts;
 
-        _treeView = new TreeView<object>(this);
-        _treeView.Width = Dim.Percent(50);
-        _treeView.Height = Dim.Fill();
-        _treeView.AspectGetter = NodeAspectGetter;
+        _treeView = new TreeView<object>(this)
+        {
+            AspectGetter = NodeAspectGetter,
+            Width = Dim.Percent(50),
+            Height = Dim.Fill()
+        };
         _treeView.AddObject(Analyser);
         _treeView.AddObject(Reviewer);
         base.Add(_treeView);
@@ -100,7 +102,7 @@ class AllRulesManagerView : View, ITreeBuilder<object>
                 if(ruleTypeNode.Rules == null)
                     throw new Exception("RuleTypeNode did not contain any rules, how are you deleting a node!?");
 
-                foreach(ICustomRule rule in allSelected) ruleTypeNode.Rules.Remove(rule);
+                foreach(var rule in allSelected.Cast<ICustomRule>()) ruleTypeNode.Rules.Remove(rule);
 
                 ruleTypeNode.Parent.Save();
                 _treeView.RefreshObject(ruleTypeNode);

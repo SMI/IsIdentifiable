@@ -10,8 +10,8 @@ internal class ColumnFailureReport : FailureReport
 {
     private int _rowsProcessed;
 
-    private readonly object _oFailureCountLock = new object();
-    private readonly Dictionary<string, int> _failureCounts = new Dictionary<string, int>();
+    private readonly object _oFailureCountLock = new();
+    private readonly Dictionary<string, int> _failureCounts = new();
 
 
     public ColumnFailureReport(string targetName, IFileSystem fileSystem)
@@ -42,12 +42,12 @@ internal class ColumnFailureReport : FailureReport
         {
             lock (_oFailureCountLock)
             {
-                foreach (string col in _failureCounts.Keys)
+                foreach (var col in _failureCounts.Keys)
                     dt.Columns.Add(col);
 
-                DataRow r = dt.Rows.Add();
+                var r = dt.Rows.Add();
 
-                foreach (KeyValuePair<string, int> kvp in _failureCounts)
+                foreach (var kvp in _failureCounts)
                     r[kvp.Key] = ((double)kvp.Value) / _rowsProcessed;
             }
 

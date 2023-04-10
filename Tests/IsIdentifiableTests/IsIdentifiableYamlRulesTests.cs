@@ -13,7 +13,7 @@ class IsIdentifiableRuleTests
     [Test]
     public void TestYamlDeserialization_OfRules()
     {
-        string yaml = @"
+        var yaml = @"
 BasicRules: 
   # Ignore any values in the column Modality
   - Action: Ignore
@@ -61,7 +61,7 @@ SocketRules:
             As = FailureClassification.Date
         };
 
-        Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("MODALITY","CT", out IEnumerable<FailurePart> bad));
+        Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("MODALITY","CT", out var bad));
             
         if(isReport)
             Assert.AreEqual(FailureClassification.Date,bad.Single().Classification);
@@ -83,7 +83,7 @@ SocketRules:
             As = FailureClassification.Date
         };
 
-        Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("MODALITY","1,2,3", out IEnumerable<FailurePart> bad));
+        Assert.AreEqual(isReport? RuleAction.Report : RuleAction.Ignore,rule.Apply("MODALITY","1,2,3", out var bad));
 
         if (isReport)
         {

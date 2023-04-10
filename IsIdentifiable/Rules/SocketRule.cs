@@ -66,7 +66,7 @@ public class SocketRule : ICustomRule,IDisposable
         _write.Write($"{fieldValue.Replace("\0", "")}\0");
         _write.Flush();
 
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         int last,c = ' ';
         do
@@ -95,7 +95,7 @@ public class SocketRule : ICustomRule,IDisposable
     /// <exception cref="Exception"></exception>
     public IEnumerable<FailurePart> HandleResponse(string responseData)
     {
-        int parts = 3;
+        var parts = 3;
         if (string.Equals(responseData, "\0") || string.IsNullOrWhiteSpace(responseData))
             yield break;
 
@@ -107,7 +107,7 @@ public class SocketRule : ICustomRule,IDisposable
         if(result.Length % parts != 0)
             throw new Exception($"Expected tokens to arrive in multiples of {parts} (but got '{result.Length}').  Full message was '{responseData}' (expected <classification><offset> or <null terminator>)");
 
-        for (int i = 0; i < result.Length; i+=parts)
+        for (var i = 0; i < result.Length; i+=parts)
         {
             if (!Enum.TryParse(typeof(FailureClassification), result[i],true, out var c))
                 throw new Exception($"Could not parse TCP client classification '{result[i]}' (expected a member of Enum FailureClassification)");
@@ -116,7 +116,7 @@ public class SocketRule : ICustomRule,IDisposable
             if(!int.TryParse(result[i+1],out var offset))
                 throw new Exception($"Failed to parse offset from TCP client response.  Response was '{result[i+1]}' (expected int)");
 
-            string badWord = result[i+2];
+            var badWord = result[i+2];
 
             yield return new FailurePart(badWord,classification,offset);
         }

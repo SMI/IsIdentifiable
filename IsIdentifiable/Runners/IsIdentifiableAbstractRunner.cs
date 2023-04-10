@@ -42,29 +42,29 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// instances as they are detected by this runner.  A report may total up e.g. by column
     /// or may just write all the values out in full (serialize) for later review
     /// </summary>
-    public readonly List<IFailureReport> Reports = new List<IFailureReport>();
+    public readonly List<IFailureReport> Reports = new();
 
     // DDMMYY + 4 digits 
     // \b bounded i.e. not more than 10 digits
-    private readonly Regex _chiRegex = new Regex(@"\b[0-3][0-9][0-1][0-9][0-9]{6}\b");
-    readonly Regex _postcodeRegex = new Regex(@"\b((GIR 0AA)|((([A-Z-[QVX]][0-9][0-9]?)|(([A-Z-[QVX]][A-Z-[IJZ]][0-9][0-9]?)|(([A-Z-[QVX]][0-9][A-HJKSTUW])|([A-Z-[QVX]][A-Z-[IJZ]][0-9][ABEHMNPRVWXY]))))\s?[0-9][A-Z-[CIKMOV]]{2}))\b", RegexOptions.IgnoreCase);
+    private readonly Regex _chiRegex = new(@"\b[0-3][0-9][0-1][0-9][0-9]{6}\b");
+    readonly Regex _postcodeRegex = new(@"\b((GIR 0AA)|((([A-Z-[QVX]][0-9][0-9]?)|(([A-Z-[QVX]][A-Z-[IJZ]][0-9][0-9]?)|(([A-Z-[QVX]][0-9][A-HJKSTUW])|([A-Z-[QVX]][A-Z-[IJZ]][0-9][ABEHMNPRVWXY]))))\s?[0-9][A-Z-[CIKMOV]]{2}))\b", RegexOptions.IgnoreCase);
 
     /// <summary>
     /// Matches a 'symbol' (digit followed by an optional th, rd or separator) then a month name (e.g. Jan or January)
     /// </summary>
-    readonly Regex _symbolThenMonth = new Regex(@"\d+((th)|(rd)|(st)|[\-/\\])?\s?((Jan(uary)?)|(Feb(ruary)?)|(Mar(ch)?)|(Apr(il)?)|(May)|(June?)|(July?)|(Aug(ust)?)|(Sep(tember)?)|(Oct(ober)?)|(Nov(ember)?)|(Dec(ember)?))", RegexOptions.IgnoreCase);
+    readonly Regex _symbolThenMonth = new(@"\d+((th)|(rd)|(st)|[\-/\\])?\s?((Jan(uary)?)|(Feb(ruary)?)|(Mar(ch)?)|(Apr(il)?)|(May)|(June?)|(July?)|(Aug(ust)?)|(Sep(tember)?)|(Oct(ober)?)|(Nov(ember)?)|(Dec(ember)?))", RegexOptions.IgnoreCase);
 
     /// <summary>
     /// Matches a month name (e.g. Jan or January) followed by a 'symbol' (digit followed by an optional th, rd or separator) then a
     /// </summary>
-    readonly Regex _monthThenSymbol = new Regex(@"((Jan(uary)?)|(Feb(ruary)?)|(Mar(ch)?)|(Apr(il)?)|(May)|(June?)|(July?)|(Aug(ust)?)|(Sep(tember)?)|(Oct(ober)?)|(Nov(ember)?)|(Dec(ember)?))[\s\-/\\]?\d+((th)|(rd)|(st))?", RegexOptions.IgnoreCase);
+    readonly Regex _monthThenSymbol = new(@"((Jan(uary)?)|(Feb(ruary)?)|(Mar(ch)?)|(Apr(il)?)|(May)|(June?)|(July?)|(Aug(ust)?)|(Sep(tember)?)|(Oct(ober)?)|(Nov(ember)?)|(Dec(ember)?))[\s\-/\\]?\d+((th)|(rd)|(st))?", RegexOptions.IgnoreCase);
 
     /// <summary>
     /// Matches digits followed by a separator (: - \ etc) followed by more digits with optional AM / PM / GMT at the end
     /// However this looks more like a time than a date and I would argue that times are not PII?
     /// It's also not restrictive enough so matches too many non-PII numerics.
     /// </summary>
-    readonly Regex _date = new Regex(
+    readonly Regex _date = new(
         @"\b\d+([:\-/\\]\d+)+\s?((AM)|(PM)|(GMT))?\b", RegexOptions.IgnoreCase);
 
     // The following regex were adapted from:
@@ -74,19 +74,19 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// <summary>
     /// Matches year last, i.e d/m/y or m/d/y
     /// </summary>
-    readonly Regex _dateYearLast = new Regex(
+    readonly Regex _dateYearLast = new(
         @"\b(?:(1[0-2]|0?[1-9])[ ]?[/-][ ]?(3[01]|[12][0-9]|0?[1-9])|(3[01]|[12][0-9]|0?[1-9])[ ]?[/-][ ]?(1[0-2]|0?[1-9]))[ ]?[/-][ ]?(?:[0-9]{2})?[0-9]{2}(\b|T)" // year last
     );
     /// <summary>
     /// Matches year first, i.e y/m/d or y/d/m
     /// </summary>
-    readonly Regex _dateYearFirst = new Regex(
+    readonly Regex _dateYearFirst = new(
         @"\b(?:[0-9]{2})?[0-9]{2}[ ]?[/-][ ]?(?:(1[0-2]|0?[1-9])[ ]?[/-][ ]?(3[01]|[12][0-9]|0?[1-9])|(3[01]|[12][0-9]|0?[1-9])[ ]?[/-][ ]?(1[0-2]|0?[1-9]))(\b|T)" // year first
     );
     /// <summary>
     /// Matches year missing, i.e d/m or m/d
     /// </summary>
-    readonly Regex _dateYearMissing = new Regex(
+    readonly Regex _dateYearMissing = new(
         @"\b(?:(1[0-2]|0?[1-9])[ ]?[/-][ ]?(3[01]|[12][0-9]|0?[1-9])|(3[01]|[12][0-9]|0?[1-9])[ ]?[/-][ ]?(1[0-2]|0?[1-9]))(\b|T)" // year missing
     );
 
@@ -95,24 +95,24 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// List of columns/tags which should not be processed.  This is automatically handled by the <see cref="Validate"/> method.
     /// <para>This is a case insensitive hash collection based on <see cref="IsIdentifiableBaseOptions.SkipColumns"/></para>
     /// </summary>
-    private readonly HashSet<string> _skipColumns = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
+    private readonly HashSet<string> _skipColumns = new(StringComparer.CurrentCultureIgnoreCase);
 
     private HashSet<string> _Allowlist;
 
     /// <summary>
     /// Custom rules you want to apply e.g. always ignore column X if value is Y
     /// </summary>
-    public List<ICustomRule> CustomRules { get; set; } = new List<ICustomRule>();
+    public List<ICustomRule> CustomRules { get; set; } = new();
 
     /// <summary>
     /// Custom Allowlist rules you want to apply e.g. always ignore a failure if column is X AND value is Y
     /// </summary>
-    public List<ICustomRule> CustomAllowlistRules { get; set; } = new List<ICustomRule>();
+    public List<ICustomRule> CustomAllowlistRules { get; set; } = new();
 
     /// <summary>
     /// One cache per field in the data being evaluated, records the recent values passed to <see cref="Validate(string, string)"/> and the results to avoid repeated lookups
     /// </summary>
-    public ConcurrentDictionary<string, MemoryCache> Caches { get; set; } = new ConcurrentDictionary<string, MemoryCache>();
+    public ConcurrentDictionary<string, MemoryCache> Caches { get; set; } = new();
 
     /// <summary>
     /// The maximum size of a Cache before we clear it out to prevent running out of RAM
@@ -179,7 +179,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         _opts.ValidateOptions();
         MaxValidationCacheSize = opts.MaxValidationCacheSize ?? IsIdentifiableBaseOptions.MaxValidationCacheSizeDefault;
 
-        string targetName = _opts.GetTargetName(FileSystem);
+        var targetName = _opts.GetTargetName(FileSystem);
 
         if (opts.ColumnReport)
             Reports.Add(new ColumnFailureReport(targetName, fileSystem));
@@ -201,7 +201,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         Reports.ForEach(r => r.AddDestinations(_opts));
 
         if (!string.IsNullOrWhiteSpace(_opts.SkipColumns))
-            foreach (string c in _opts.SkipColumns.Split(','))
+            foreach (var c in _opts.SkipColumns.Split(','))
                 _skipColumns.Add(c);
 
         // is there a single rules yaml file specified?
@@ -227,7 +227,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         if (!string.IsNullOrWhiteSpace(opts.RulesDirectory))
         {
             var di = FileSystem.DirectoryInfo.New(opts.RulesDirectory);
-            bool loadedAtLeastOne = false;
+            var loadedAtLeastOne = false;
             foreach (var fi in di.GetFiles("*.yaml"))
             {
                 _logger.Info($"Loading rules from {fi.Name}");
@@ -330,7 +330,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// <returns>True if the yaml read was deserialized into a <see cref="RuleSet"/> with at least 1 rule</returns>
     public bool LoadRules(string yaml)
     {
-        bool result = false;
+        var result = false;
 
         _logger.Info("Loading Rules Yaml");
         _logger.Debug($"Loading Rules Yaml:{Environment.NewLine}{yaml}");
@@ -431,9 +431,9 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
             yield break;
                     
         //for each custom rule
-        foreach (ICustomRule rule in CustomRules)
+        foreach (var rule in CustomRules)
         {
-            switch (rule.Apply(fieldName, fieldValue, out IEnumerable<FailurePart> parts))
+            switch (rule.Apply(fieldName, fieldValue, out var parts))
             {
                 case RuleAction.None:
                     break;
@@ -445,7 +445,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
                 case RuleAction.Report:
                     foreach (var p in parts)
                     {
-                        bool Allowlisted = false;
+                        var Allowlisted = false;
                         foreach (AllowlistRule whiterule in CustomAllowlistRules)
                         {
                             switch (whiterule.ApplyAllowlistRule(fieldName, fieldValue, p))
@@ -468,7 +468,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         }
 
         //does the string contain chis which represent an actual date?
-        foreach (Match m in _chiRegex.Matches(fieldValue).Where(m => DateTime.TryParseExact(m.Value[..6], "ddMMyy",
+        foreach (var m in _chiRegex.Matches(fieldValue).Where(m => DateTime.TryParseExact(m.Value[..6], "ddMMyy",
                      CultureInfo.InvariantCulture,
                      DateTimeStyles.None, out _)))
             yield return new FailurePart(m.Value, FailureClassification.PrivateIdentifier, m.Index);
@@ -542,8 +542,8 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         else if (!string.IsNullOrWhiteSpace(_opts.AllowlistConnectionString) && _opts.AllowlistDatabaseType.HasValue)
         {
             // If there's a database Allowlist
-            DiscoveredTable tbl = GetServer(_opts.AllowlistConnectionString, _opts.AllowlistDatabaseType.Value, _opts.AllowlistTableName);
-            DiscoveredColumn col = tbl.DiscoverColumn(_opts.AllowlistColumn);
+            var tbl = GetServer(_opts.AllowlistConnectionString, _opts.AllowlistDatabaseType.Value, _opts.AllowlistTableName);
+            var col = tbl.DiscoverColumn(_opts.AllowlistColumn);
             source = new DiscoveredColumnAllowlist(col);
             _logger.Info($"Loaded a Allowlist from {tbl.GetFullyQualifiedName()}");
         }
@@ -562,8 +562,8 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// <returns></returns>
     protected DiscoveredTable GetServer(string databaseConnectionString, DatabaseType databaseType, string tableName)
     {
-        DiscoveredDatabase db = GetServer(databaseConnectionString, databaseType);
-        DiscoveredTable tbl = db.ExpectTable(tableName);
+        var db = GetServer(databaseConnectionString, databaseType);
+        var tbl = db.ExpectTable(tableName);
 
         if (!tbl.Exists())
             throw new Exception("Table did not exist");
@@ -583,7 +583,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     {
         var server = new DiscoveredServer(databaseConnectionString, databaseType);
 
-        DiscoveredDatabase db = server.GetCurrentDatabase();
+        var db = server.GetCurrentDatabase();
 
         if (db == null)
             throw new Exception("No current database");

@@ -31,7 +31,7 @@ public class RowUpdater : OutBase
     /// </summary>
     public bool RulesOnly { get; set; }
 
-    Dictionary<DiscoveredTable, DiscoveredColumn> _primaryKeys = new Dictionary<DiscoveredTable, DiscoveredColumn>();
+    readonly Dictionary<DiscoveredTable, DiscoveredColumn> _primaryKeys = new();
 
     /// <summary>
     /// The strategy to use to build SQL updates to run on the database

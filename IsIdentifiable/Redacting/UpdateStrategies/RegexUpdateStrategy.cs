@@ -15,7 +15,7 @@ namespace IsIdentifiable.Redacting.UpdateStrategies;
 /// </summary>
 public class RegexUpdateStrategy : UpdateStrategy
 {
-    ProblemValuesUpdateStrategy _fallback = new ProblemValuesUpdateStrategy();
+    ProblemValuesUpdateStrategy _fallback = new();
 
     /// <summary>
     /// Returns SQL for updating the <paramref name="table"/> to redact the capture groups in <see cref="IsIdentifiableRule.IfPattern"/>.  If no capture groups are represented in the <paramref name="usingRule"/> then this class falls back on <see cref="ProblemValuesUpdateStrategy"/>
@@ -32,7 +32,7 @@ public class RegexUpdateStrategy : UpdateStrategy
 
         try
         {
-            Regex r = new Regex(usingRule.IfPattern);
+            var r = new Regex(usingRule.IfPattern);
             var match = r.Match(failure.ProblemValue);
 
             //Group 1 (index 0) is always the full match, we want selective updates

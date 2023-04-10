@@ -18,7 +18,7 @@ class IsIdentifiableAbstractOptionsTests
     [Test]
     public void FillMissingWithValuesUsing_Override()
     {
-        int propsCounted = 0;
+        var propsCounted = 0;
 
         foreach(var gProp in typeof(IsIdentifiableBaseOptions).GetProperties())
         {
@@ -50,7 +50,7 @@ class IsIdentifiableAbstractOptionsTests
     [Test]
     public void FillMissingWithValuesUsing_NoOverride()
     {
-        int propsCounted = 0;
+        var propsCounted = 0;
 
         foreach (var gProp in typeof(IsIdentifiableBaseOptions).GetProperties())
         {

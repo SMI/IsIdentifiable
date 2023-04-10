@@ -31,20 +31,20 @@ class FailureView : View
         //if the original string validated 
         var originalNewlines = new HashSet<int>();
 
-        for (int i = 0; i < toDisplay.Length; i++)
+        for (var i = 0; i < toDisplay.Length; i++)
             if (toDisplay[i] == '\n')
                 originalNewlines.Add(i);
 
         var lines = MainWindow.Wrap(toDisplay, bounds.Width).Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
-        int characterOffset = 0;
+        var characterOffset = 0;
         Attribute? oldColor = null;
 
-        for (int y = 0; y < h; y++)
+        for (var y = 0; y < h; y++)
         {
             var currentLine = lines.Length > y ? lines[y] : null;
 
-            for (int x = 0; x < w; x++)
+            for (var x = 0; x < w; x++)
             {
                 Attribute newColor;
                 char symbol;
@@ -83,10 +83,10 @@ class FailureView : View
             Driver.SetAttribute(_attNormal);
             Move(0, h);
 
-            string classification =
+            var classification =
                 $"C:{string.Join(",", CurrentFailure.Parts.Select(p => p.Classification).Distinct().ToArray())}";
 
-            string field = CurrentFailure.ProblemField;
+            var field = CurrentFailure.ProblemField;
             classification = classification.PadRight(w - field.Length);
 
             Driver.AddStr(classification + field);

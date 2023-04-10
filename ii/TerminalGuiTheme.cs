@@ -4,11 +4,11 @@ namespace ii;
 
 public class TerminalGuiTheme
 {
-    public ColorSchemeBlueprint TopLevel { get; set; } = new ColorSchemeBlueprint();
-    public ColorSchemeBlueprint Base { get; set; } = new ColorSchemeBlueprint();
-    public ColorSchemeBlueprint Dialog { get; set; } = new ColorSchemeBlueprint();
-    public ColorSchemeBlueprint Menu { get; set; } = new ColorSchemeBlueprint();
-    public ColorSchemeBlueprint Error { get; set; } = new ColorSchemeBlueprint();
+    public ColorSchemeBlueprint TopLevel { get; set; } = new();
+    public ColorSchemeBlueprint Base { get; set; } = new();
+    public ColorSchemeBlueprint Dialog { get; set; } = new();
+    public ColorSchemeBlueprint Menu { get; set; } = new();
+    public ColorSchemeBlueprint Error { get; set; } = new();
 }
 
 public class ColorSchemeBlueprint

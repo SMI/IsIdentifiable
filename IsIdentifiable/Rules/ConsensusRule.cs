@@ -25,20 +25,20 @@ public class ConsensusRule : ICustomRule
     public RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
     {
         RuleAction? firstRuleOperation = null;
-        List<FailurePart> parts = new List<FailurePart>();
+        var parts = new List<FailurePart>();
 
         foreach(var rule in Rules)
         {
             //first time
             if(firstRuleOperation == null)
             {
-                firstRuleOperation = rule.Apply(fieldName,fieldValue,out IEnumerable<FailurePart> newParts);
+                firstRuleOperation = rule.Apply(fieldName,fieldValue,out var newParts);
                 parts.AddRange(newParts);
             }
             else
             {
                 //subsequent times
-                var newOperation = rule.Apply(fieldName,fieldValue,out IEnumerable<FailurePart> newParts);
+                var newOperation = rule.Apply(fieldName,fieldValue,out var newParts);
 
                 // There is not consensus on whether the value should be classified as bad
                 if(newOperation != firstRuleOperation)

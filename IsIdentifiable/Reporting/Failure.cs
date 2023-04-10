@@ -76,10 +76,10 @@ public class Failure : MemberwiseEquatable<Failure>
     public IEnumerable<string> ConflateParts()
     {
         var origValue = ProblemValue;
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         // for each character in the input string
-        for(int i=0;i<origValue.Length;i++)
+        for(var i=0;i<origValue.Length;i++)
         {
             // while there are failures that include this element
             if(Parts.Any(p=>p.Includes(i)))

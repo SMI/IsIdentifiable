@@ -7,8 +7,8 @@ namespace IsIdentifiable.Reporting.Reports;
 
 internal class FailingValuesReport : FailureReport
 {
-    private readonly object _oFailuresLock = new object();
-    private readonly Dictionary<string, HashSet<string>> _failures = new Dictionary<string, HashSet<string>>();
+    private readonly object _oFailuresLock = new();
+    private readonly Dictionary<string, HashSet<string>> _failures = new();
 
     public FailingValuesReport(string targetName, IFileSystem fileSystem)
         : base(targetName, fileSystem) { }
@@ -33,8 +33,8 @@ internal class FailingValuesReport : FailureReport
 
 
             lock (_oFailuresLock)
-                foreach (KeyValuePair<string, HashSet<string>> kvp in _failures)
-                foreach (string v in kvp.Value)
+                foreach (var kvp in _failures)
+                foreach (var v in kvp.Value)
                     dt.Rows.Add(kvp.Key, v);
 
             foreach (var d in Destinations)

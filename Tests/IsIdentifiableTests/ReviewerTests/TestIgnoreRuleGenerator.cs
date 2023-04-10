@@ -23,8 +23,8 @@ class TestIgnoreRuleGenerator
         var failure = new Failure(
             new FailurePart[]
             {
-                new FailurePart("Kansas", FailureClassification.Location, 13),
-                new FailurePart("Toto", FailureClassification.Location, 28)
+                new("Kansas", FailureClassification.Location, 13),
+                new("Toto", FailureClassification.Location, 28)
             })
         {
             ProblemValue = "We aren't in Kansas anymore Toto",
@@ -34,7 +34,7 @@ class TestIgnoreRuleGenerator
 
         var newRules = _fileSystem.FileInfo.New("IgnoreList.yaml");
 
-        IgnoreRuleGenerator ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
+        var ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
 
         //it should be novel i.e. require user decision
         Assert.IsTrue(ignorer.OnLoad(failure,out _));
@@ -60,7 +60,7 @@ class TestIgnoreRuleGenerator
         var failure1 = new Failure(
             new FailurePart[]
             {
-                new FailurePart("Hadock", FailureClassification.Location, 0),
+                new("Hadock", FailureClassification.Location, 0),
             })
         {
             ProblemValue = "Hadock",
@@ -70,7 +70,7 @@ class TestIgnoreRuleGenerator
         var failure2 = new Failure(
             new FailurePart[]
             {
-                new FailurePart("Bass", FailureClassification.Location, 0),
+                new("Bass", FailureClassification.Location, 0),
             })
         {
             ProblemValue = "Bass",
@@ -80,7 +80,7 @@ class TestIgnoreRuleGenerator
 
         var newRules = _fileSystem.FileInfo.New("IgnoreList.yaml");
 
-        IgnoreRuleGenerator ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
+        var ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
 
 
         //we tell it to ignore this value
@@ -129,8 +129,8 @@ class TestIgnoreRuleGenerator
         var failure = new Failure(
             new FailurePart[]
             {
-                new FailurePart("Kansas", FailureClassification.Location, 13),
-                new FailurePart("Toto", FailureClassification.Location, 28)
+                new("Kansas", FailureClassification.Location, 13),
+                new("Toto", FailureClassification.Location, 28)
             })
         {
             ProblemValue = "We aren't in Kansas anymore Toto",
@@ -146,7 +146,7 @@ class TestIgnoreRuleGenerator
   IfPattern: ^Joker Wuz Ere$
 ");
 
-        IgnoreRuleGenerator ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
+        var ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
 
         //it should be novel i.e. require user decision
         Assert.IsTrue(ignorer.OnLoad(failure,out _));
@@ -190,8 +190,8 @@ class TestIgnoreRuleGenerator
         var failure = new Failure(
             new FailurePart[]
             {
-                new FailurePart("Kansas", FailureClassification.Location, 13),
-                new FailurePart("Toto", FailureClassification.Location, 28)
+                new("Kansas", FailureClassification.Location, 13),
+                new("Toto", FailureClassification.Location, 28)
             })
         {
             ProblemValue = "We aren't in Kansas anymore Toto",
@@ -207,7 +207,7 @@ class TestIgnoreRuleGenerator
   IfPattern: ^Joker Wuz Ere$
 ");
 
-        IgnoreRuleGenerator ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
+        var ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
 
         //it should be novel i.e. require user decision
         Assert.IsTrue(ignorer.OnLoad(failure,out _));

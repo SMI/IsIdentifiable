@@ -24,7 +24,7 @@ namespace IsIdentifiable.Tests.RunnerTests
 
         public static MongoClientSettings GetMongoClientSettings()
         {
-            IDeserializer deserializer = new DeserializerBuilder()
+            var deserializer = new DeserializerBuilder()
                 .IgnoreUnmatchedProperties()
                 .Build();
 
@@ -75,7 +75,7 @@ namespace IsIdentifiable.Tests.RunnerTests
         private MongoClient GetMongoClient()
         {
 
-            MongoClientSettings address = GetMongoClientSettings();
+            var address = GetMongoClientSettings();
 
             TestContext.Out.WriteLine("Checking the following configuration:" + Environment.NewLine + address);
 
@@ -83,11 +83,11 @@ namespace IsIdentifiable.Tests.RunnerTests
 
             try
             {
-                using IAsyncCursor<BsonDocument> _ = client.ListDatabases();
+                using var _ = client.ListDatabases();
             }
             catch (Exception e)
             {
-                string msg =
+                var msg =
                     e is MongoNotPrimaryException
                     ? "Connected to non-primary MongoDB server. Check replication is enabled"
                     : $"Could not connect to MongoDB at {address}";
@@ -171,13 +171,13 @@ namespace IsIdentifiable.Tests.RunnerTests
             db.DropCollection(collectionName);
             db.CreateCollection(collectionName);
 
-            BsonDocument doc = BsonDocument.Parse(json);
+            var doc = BsonDocument.Parse(json);
 
             // Insert document into database
-            IMongoCollection<BsonDocument> collection =
+            var collection =
                 db.GetCollection<BsonDocument>(collectionName);
 
-            BulkWriteResult<BsonDocument> res = collection.BulkWrite(new[] {
+            var res = collection.BulkWrite(new[] {
                 doc
             }.Select(d => new InsertOneModel<BsonDocument>(d)));
 

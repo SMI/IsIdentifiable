@@ -81,7 +81,7 @@ public class IsIdentifiableRelationalDatabaseOptions : IsIdentifiableBaseOptions
     public override int UpdateConnectionStringsToUseTargets(out List<Target> targets, IFileSystem fileSystem)
     {
         var logger = LogManager.GetCurrentClassLogger();
-        int result = base.UpdateConnectionStringsToUseTargets(out targets, fileSystem);
+        var result = base.UpdateConnectionStringsToUseTargets(out targets, fileSystem);
 
         if (result != 0)
             return result;

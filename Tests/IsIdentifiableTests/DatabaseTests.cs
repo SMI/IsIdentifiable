@@ -19,7 +19,7 @@ namespace IsIdentifiable.Tests;
 [NonParallelizable]
 public class DatabaseTests
 {
-    protected Dictionary<DatabaseType, string> TestConnectionStrings = new Dictionary<DatabaseType, string>();
+    protected Dictionary<DatabaseType, string> TestConnectionStrings = new();
 
     protected bool AllowDatabaseCreation;
     private string _testScratchDatabase;
@@ -37,40 +37,31 @@ public class DatabaseTests
                 typeof(MySqlServerHelper).Assembly,
                 typeof(PostgreSqlServerHelper).Assembly);
 
-            Assert.IsTrue(System.IO.File.Exists(TestFilename), "Could not find " + TestFilename);
+            Assert.IsTrue(System.IO.File.Exists(TestFilename), "Could not find {0}", TestFilename);
 
             var doc = XDocument.Load(TestFilename);
 
-            var root = doc.Element("TestDatabases");
-            if (root == null)
-                throw new Exception($"Missing element 'TestDatabases' in {TestFilename}");
+            var root = doc.Element("TestDatabases")??throw new Exception($"Missing element 'TestDatabases' in {TestFilename}");
 
-            var settings = root.Element("Settings");
+            var settings = root.Element("Settings")??throw new Exception($"Missing element 'Settings' in {TestFilename}");
 
-            if (settings == null)
-                throw new Exception($"Missing element 'Settings' in {TestFilename}");
-
-            var e = settings.Element("AllowDatabaseCreation");
-            if (e == null)
-                throw new Exception($"Missing element 'AllowDatabaseCreation' in {TestFilename}");
+            var e = settings.Element("AllowDatabaseCreation")??throw new Exception($"Missing element 'AllowDatabaseCreation' in {TestFilename}");
 
             AllowDatabaseCreation = Convert.ToBoolean(e.Value);
 
-            e = settings.Element("TestScratchDatabase");
-            if (e == null)
-                throw new Exception($"Missing element 'TestScratchDatabase' in {TestFilename}");
+            e = settings.Element("TestScratchDatabase")??throw new Exception($"Missing element 'TestScratchDatabase' in {TestFilename}");
 
             _testScratchDatabase = e.Value;
 
-            foreach (XElement element in root.Elements("TestDatabase"))
+            foreach (var element in root.Elements("TestDatabase"))
             {
-                var type = element.Element("DatabaseType").Value;
+                var type = element?.Element("DatabaseType")?.Value;
 
-                if (!DatabaseType.TryParse(type, out DatabaseType databaseType))
+                if (!Enum.TryParse(type, out DatabaseType databaseType))
                     throw new Exception($"Could not parse DatabaseType {type}");
 
 
-                var constr = element.Element("ConnectionString").Value;
+                var constr = element?.Element("ConnectionString")?.Value;
 
                 TestConnectionStrings.Add(databaseType, constr);
             }
@@ -142,7 +133,7 @@ public class DatabaseTests
             Assert.Inconclusive("Test cannot run when AllowDatabaseCreation is false");
     }
 
-    protected bool AreBasicallyEquals(object o, object o2, bool handleSlashRSlashN = true)
+    protected static bool AreBasicallyEquals(object o, object o2, bool handleSlashRSlashN = true)
     {
         //if they are legit equals
         if (Equals(o, o2))

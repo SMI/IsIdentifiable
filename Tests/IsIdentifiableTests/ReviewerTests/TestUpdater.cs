@@ -32,8 +32,8 @@ class TestUpdater : DatabaseTests
         var failure = new Failure(
             new FailurePart[]
             {
-                new FailurePart("Kansas", FailureClassification.Location, 13),
-                new FailurePart("Toto", FailureClassification.Location, 28)
+                new("Kansas", FailureClassification.Location, 13),
+                new("Toto", FailureClassification.Location, 28)
             })
         {
             ProblemValue = "We aren't in Kansas anymore Toto",
@@ -58,7 +58,7 @@ class TestUpdater : DatabaseTests
 
         var newRules = _fileSystem.FileInfo.New("Reportlist.yaml");
 
-        RowUpdater updater = new RowUpdater(_fileSystem, newRules)
+        var updater = new RowUpdater(_fileSystem, newRules)
         {
             UpdateStrategy = new ProblemValuesUpdateStrategy()
         };
@@ -101,8 +101,8 @@ class TestUpdater : DatabaseTests
         var failure = new Failure(
             new FailurePart[]
             {
-                new FailurePart("Kansas", FailureClassification.Location, 13),
-                new FailurePart("Toto", FailureClassification.Location, 28)
+                new("Kansas", FailureClassification.Location, 13),
+                new("Toto", FailureClassification.Location, 28)
             })
         {
             ProblemValue = "We aren't in Kansas anymore Toto",
@@ -127,10 +127,10 @@ class TestUpdater : DatabaseTests
 
         var newRules = _fileSystem.FileInfo.New("Reportlist.yaml");
 
-        RowUpdater updater = new RowUpdater(_fileSystem, newRules);
+        var updater = new RowUpdater(_fileSystem, newRules);
 
         //But the user told us that only the Toto bit is a problem
-        string rule = provideCaptureGroup ? "(Toto)$" : "Toto$";
+        var rule = provideCaptureGroup ? "(Toto)$" : "Toto$";
         updater.RulesFactory = Mock.Of<IRulePatternFactory>(m => m.GetPattern(It.IsAny<object>(), It.IsAny<Failure>()) == rule);
 
         //this is the thing we are actually testing, where we update based on the usersRule not the failing parts

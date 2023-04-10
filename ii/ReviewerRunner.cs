@@ -34,7 +34,7 @@ public class ReviewerRunner
     {
         var logger = NLog.LogManager.GetCurrentClassLogger();
 
-        int returnCode = IsIdentifiableBaseOptions.LoadTargets(_reviewerOptions,logger, _fileSystem, out var targets);
+        var returnCode = IsIdentifiableBaseOptions.LoadTargets(_reviewerOptions,logger, _fileSystem, out var targets);
         
         if (returnCode != 0)
             return returnCode;
@@ -52,7 +52,7 @@ public class ReviewerRunner
 
             try
             {
-                foreach (Target t in targets)
+                foreach (var t in targets)
                     Console.WriteLine(t.Discover().Exists()
                         ? $"Successfully connected to {t.Name}"
                         : $"Failed to connect to {t.Name}");
@@ -150,7 +150,7 @@ public class ReviewerRunner
         {
             logger.Error(e, $"Application crashed");
 
-            int tries = 5;
+            var tries = 5;
             while (Application.Top != null && tries-- > 0)
                 try
                 {

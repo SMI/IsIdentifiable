@@ -53,15 +53,15 @@ class RulesView : View
             Width = Dim.Fill(),
             Height = Dim.Fill(1)
         };
-        _treeView.KeyPress += _treeView_KeyPress;
-        _treeView.ObjectActivated += _treeView_ObjectActivated;
-        _treeView.SelectionChanged += _treeView_SelectionChanged;
+        _treeView.KeyPress += TreeView_KeyPress;
+        _treeView.ObjectActivated += TreeView_ObjectActivated;
+        _treeView.SelectionChanged += TreeView_SelectionChanged;
 
         base.Add(_treeView);
     }
 
 
-    private void _treeView_SelectionChanged(object? sender, SelectionChangedEventArgs<ITreeNode> e)
+    private void TreeView_SelectionChanged(object? sender, SelectionChangedEventArgs<ITreeNode> e)
     {
         if(e.NewValue != null)
         {
@@ -111,15 +111,12 @@ class RulesView : View
             
     }
 
-    private void _treeView_ObjectActivated(ObjectActivatedEventArgs<ITreeNode> obj)
+    private void TreeView_ObjectActivated(ObjectActivatedEventArgs<ITreeNode> obj)
     {
-        if (obj.ActivatedObject is OutstandingFailureNode ofn)
-        {
-            Activate(ofn);
-        }
+        if (obj.ActivatedObject is OutstandingFailureNode ofn) Activate(ofn);
     }
 
-    private void _treeView_KeyPress(KeyEventEventArgs e)
+    private void TreeView_KeyPress(KeyEventEventArgs e)
     {
         if (_treeView is not { HasFocus: true, CanFocus: true } || e.KeyEvent.Key != Key.DeleteChar) return;
         var all = _treeView.GetAllSelectedObjects().ToArray();
@@ -364,8 +361,8 @@ class RulesView : View
         var cts = new CancellationTokenSource();
 
         using var btn = new Button("Cancel");
-        Action cancelFunc = ()=>{cts.Cancel();};
-        Action closeFunc = ()=>{Application.RequestStop();};
+        var cancelFunc = ()=>{cts.Cancel();};
+        var closeFunc = ()=>{Application.RequestStop();};
         btn.Clicked += cancelFunc;
 
         using var dlg = new Dialog("Evaluating",MainWindow.DlgWidth,6,btn);
@@ -379,7 +376,7 @@ class RulesView : View
         dlg.Add(textProgress);
 
 
-        bool done = false;
+        var done = false;
 
         Application.MainLoop.AddTimeout(TimeSpan.FromSeconds(1), (s) =>
         {
@@ -388,7 +385,7 @@ class RulesView : View
         });
 
         Task.Run(()=>{
-            EvaluateRuleCoverageAsync(stage,progress,textProgress,cts.Token,colliding,ignore,update,outstanding);
+            EvaluateRuleCoverageAsync(stage,progress,textProgress,colliding,ignore,update,outstanding, cts.Token);
         },cts.Token).ContinueWith((t,s)=>{
                 
             btn.Clicked -= cancelFunc;
@@ -404,7 +401,7 @@ class RulesView : View
         Application.Run(dlg);
     }
         
-    private void EvaluateRuleCoverageAsync(Label stage,ProgressBar progress, Label textProgress, CancellationToken token,TreeNodeWithCount colliding,TreeNodeWithCount ignore,TreeNodeWithCount update,TreeNodeWithCount outstanding)
+    private void EvaluateRuleCoverageAsync(Label stage,ProgressBar progress, Label textProgress,TreeNodeWithCount colliding,TreeNodeWithCount ignore,TreeNodeWithCount update,TreeNodeWithCount outstanding, CancellationToken token)
     {
         if(CurrentReport == null)
             return;
@@ -414,12 +411,12 @@ class RulesView : View
         if(Updater == null)
             throw new Exception("No Updater class set");
 
-        ConcurrentDictionary<IsIdentifiableRule,int> rulesUsed = new ConcurrentDictionary<IsIdentifiableRule, int>();
-        ConcurrentDictionary<string,OutstandingFailureNode> outstandingFailures = new ConcurrentDictionary<string, OutstandingFailureNode>();
+        ConcurrentDictionary<IsIdentifiableRule,int> rulesUsed = new();
+        ConcurrentDictionary<string,OutstandingFailureNode> outstandingFailures = new();
             
-        int done = 0;
-        var max = CurrentReport.Failures.Count();
-        object lockObj = new object();
+        var done = 0;
+        var max = CurrentReport.Failures.Length;
+        var lockObj = new object();
 
 
         var result = Parallel.ForEach(CurrentReport.Failures,
@@ -475,7 +472,7 @@ class RulesView : View
             
         var ignoreRulesUsed = rulesUsed.Where(r=>r.Key.Action == RuleAction.Ignore).ToList();
         stage.Text = "Evaluating Ignore Rules Used";
-        max = ignoreRulesUsed.Count();
+        max = ignoreRulesUsed.Count;
         done = 0;
 
         foreach(var used in ignoreRulesUsed.OrderByDescending(kvp => kvp.Value))
@@ -493,7 +490,7 @@ class RulesView : View
             
         stage.Text = "Evaluating Update Rules Used";
         var updateRulesUsed = rulesUsed.Where(r=>r.Key.Action == RuleAction.Report).ToList();
-        max = updateRulesUsed.Count();
+        max = updateRulesUsed.Count;
         done = 0;
 
         foreach(var used in updateRulesUsed.OrderByDescending(kvp=>kvp.Value)){
@@ -518,7 +515,7 @@ class RulesView : View
                 .ToList();
     }
 
-    private void SetProgress(ProgressBar pb, Label tp, int done, int max)
+    private static void SetProgress(ProgressBar pb, View tp, int done, int max)
     {
         if(max != 0)
             pb.Fraction = done/(float)max;
@@ -534,7 +531,7 @@ class RulesView : View
         _treeView.AddObject(root);
     }
 
-    public IEnumerable<DuplicateRulesNode> GetDuplicates(IList<IsIdentifiableRule> rules)
+    public static IEnumerable<DuplicateRulesNode> GetDuplicates(IList<IsIdentifiableRule> rules)
     {
         // Find all rules that have identical patterns
         return rules.Where(r => !string.IsNullOrEmpty(r.IfPattern))

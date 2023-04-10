@@ -8,7 +8,7 @@ namespace ii.Views.Manager;
 class RuleDetailView : View
 {
     private Label lblType;
-    private List<Label> properties = new List<Label>();
+    private List<Label> properties = new();
 
     public RuleDetailView()
     {
@@ -61,7 +61,7 @@ class RuleDetailView : View
         var type = rule.GetType();
         lblType.Text = $"Type:{type.Name}";
 
-        int y = 1;
+        var y = 1;
         foreach(var prop in type.GetProperties())
         {
             var val = prop.GetValue(rule);

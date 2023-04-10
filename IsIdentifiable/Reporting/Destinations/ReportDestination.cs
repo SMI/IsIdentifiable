@@ -22,7 +22,7 @@ public abstract class ReportDestination : IReportDestination
     /// </summary>
     protected readonly IFileSystem FileSystem;
 
-    private readonly Regex _multiSpaceRegex = new Regex(" {2,}");
+    private readonly Regex _multiSpaceRegex = new(" {2,}");
 
     /// <summary>
     /// Initializes the report destination and sets <see cref="Options"/>

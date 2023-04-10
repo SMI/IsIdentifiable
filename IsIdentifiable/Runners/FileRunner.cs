@@ -51,11 +51,11 @@ public class FileRunner : IsIdentifiableAbstractRunner
 
             _logger.Info($"Headers are:{string.Join(",", r.HeaderRecord)}");
 
-            int done = 0;
+            var done = 0;
 
             while (r.Read())
             {
-                foreach (Failure failure in GetFailuresIfAny(r))
+                foreach (var failure in GetFailuresIfAny(r))
                     AddToReports(failure);
 
                 done++;

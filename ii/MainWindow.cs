@@ -98,11 +98,11 @@ G - creates a regex pattern that matches only the failing part(s)
         _origIgnorerRulesFactory = ignorer.RulesFactory;
 
         Menu = new MenuBar(new MenuBarItem[] {
-            new MenuBarItem ("_File (F9)", new MenuItem [] {
-                new MenuItem("_Open Report",null, OpenReport),
-                new MenuItem ("_Quit", null, static () => Application.RequestStop())
+            new("_File (F9)", new MenuItem [] {
+                new("_Open Report",null, OpenReport),
+                new("_Quit", null, static () => Application.RequestStop())
             }),
-            new MenuBarItem ("_Options", new MenuItem [] {
+            new("_Options", new MenuItem [] {
                 miCustomPatterns = new MenuItem("_Custom Patterns",null,ToggleCustomPatterns){CheckType = MenuItemCheckStyle.Checked,Checked = false}
             })
         });
@@ -337,8 +337,8 @@ G - creates a regex pattern that matches only the failing part(s)
 
         _spinner.Visible = true;
 
-        int skipped = 0;
-        int updated = 0;
+        var skipped = 0;
+        var updated = 0;
         try
         {
             while(CurrentReport.Next())
@@ -478,7 +478,7 @@ G - creates a regex pattern that matches only the failing part(s)
             Width = Dim.Fill() };
         dlg.Add(rows);
 
-        bool done = false;
+        var done = false;
 
         Application.MainLoop.AddTimeout(TimeSpan.FromSeconds(1),(s) =>
         {
@@ -490,7 +490,7 @@ G - creates a regex pattern that matches only the failing part(s)
                 try
                 {
                     CurrentReport = new ReportReader(_fileSystem.FileInfo.New(path),(s)=>
-                        rows.Text = $"Loaded: {s:N0} rows",cts.Token, _fileSystem);
+                        rows.Text = $"Loaded: {s:N0} rows", _fileSystem, cts.Token);
                     SetupToShow(CurrentReport.Failures.FirstOrDefault());
                     BeginNext();
 
@@ -548,7 +548,7 @@ G - creates a regex pattern that matches only the failing part(s)
     public static bool RunDialog<T>(string title, string message,out T? chosen, params T[] options)
     {
         var result = default(T);
-        bool optionChosen = false;
+        var optionChosen = false;
 
         using var dlg = new Dialog(title, Math.Min(Console.WindowWidth,DlgWidth), DlgHeight);
             
@@ -556,7 +556,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
         if (!string.IsNullOrWhiteSpace(message))
         {
-            int width = Math.Min(Console.WindowWidth,DlgWidth) - (DlgBoundary * 2);
+            var width = Math.Min(Console.WindowWidth,DlgWidth) - (DlgBoundary * 2);
 
             var msg = Wrap(message, width-1).TrimEnd();
 
@@ -566,7 +566,7 @@ G - creates a regex pattern that matches only the failing part(s)
             };
 
             //if it is too long a message
-            int newlines = msg.Count(c => c == '\n');
+            var newlines = msg.Count(c => c == '\n');
             if (newlines > line - 1)
             {
                 var view = new ScrollView(new Rect(0, 0, width, line - 1))
@@ -585,9 +585,9 @@ G - creates a regex pattern that matches only the failing part(s)
             
         foreach (var value in options)
         {
-            T v1 = value;
+            var v1 = value;
 
-            string name = value?.ToString() ?? "";
+            var name = value?.ToString() ?? "";
 
             var btn = new Button(0, line++, name);
             btn.Clicked += () =>
@@ -611,7 +611,7 @@ G - creates a regex pattern that matches only the failing part(s)
     private static bool GetText(string title, string message, string initialValue, out string chosen,
         Dictionary<string, string> buttons)
     {
-        bool optionChosen = false;
+        var optionChosen = false;
 
         using var dlg = new Dialog(title, Math.Min(Console.WindowWidth,DlgWidth), DlgHeight);
 
@@ -619,7 +619,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
         if (!string.IsNullOrWhiteSpace(message))
         {
-            int width = Math.Min(Console.WindowWidth,DlgWidth) - (DlgBoundary * 2);
+            var width = Math.Min(Console.WindowWidth,DlgWidth) - (DlgBoundary * 2);
 
             var msg = Wrap(message, width-1).TrimEnd();
 
@@ -629,7 +629,7 @@ G - creates a regex pattern that matches only the failing part(s)
             };
 
             //if it is too long a message
-            int newlines = msg.Count(c => c == '\n');
+            var newlines = msg.Count(c => c == '\n');
             if (newlines > line - 1)
             {
                 var view = new ScrollView(new Rect(0, 0, width, line - 1))
@@ -664,7 +664,7 @@ G - creates a regex pattern that matches only the failing part(s)
         dlg.Add(btn);
 
 
-        int x = 10;
+        var x = 10;
         if(buttons != null)
             foreach (var kvp in buttons)
             {
@@ -736,7 +736,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
 
 
-        if (GetText("Pattern", "Enter pattern to match failure", recommendedPattern, out string chosen,buttons))
+        if (GetText("Pattern", "Enter pattern to match failure", recommendedPattern, out var chosen,buttons))
         {
             Regex regex;
 
@@ -753,7 +753,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
             if (!regex.IsMatch(failure.ProblemValue))
             {
-                GetChoice("Pattern Match Failure","The provided pattern did not match the original ProblemValue.  Try a different pattern?",out string? retry,new []{"Yes","No"});
+                GetChoice("Pattern Match Failure","The provided pattern did not match the original ProblemValue.  Try a different pattern?",out var retry,new []{"Yes","No"});
 
                 if (retry == "Yes")
                     return GetPattern(sender,failure);

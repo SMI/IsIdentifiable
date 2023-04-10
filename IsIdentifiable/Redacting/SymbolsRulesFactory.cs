@@ -53,21 +53,21 @@ public class SymbolsRulesFactory : IRulePatternFactory
         if (failure.ProblemField?.StartsWith(DicomFileRunner.PixelData) ?? false)
             return $"^{Regex.Escape(failure.ProblemValue)}$";
 
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         var minOffset = failure.Parts.Min(p => p.Offset);
         var maxPartEnding = failure.Parts.Max(p => p.Offset + p.Word.Length);
 
         if (minOffset == 0)
-            sb.Append("^");
+            sb.Append('^');
 
         foreach (var p in failure.ConflateParts())
         {
 
             //match with capture group the given Word
-            sb.Append("(");
+            sb.Append('(');
 
-            foreach (char cur in p)
+            foreach (var cur in p)
             {
                 if (char.IsDigit(cur) && Mode != SymbolsRuleFactoryMode.CharactersOnly)
                     sb.Append("\\d");
@@ -78,10 +78,7 @@ public class SymbolsRulesFactory : IRulePatternFactory
                     sb.Append(Regex.Escape(cur.ToString()));
             }
 
-            sb.Append(")");
-
-
-            sb.Append(".*");
+            sb.Append(").*");
         }
 
         // If there is a failure part that ends at the end of the input string then the pattern should have a terminator
@@ -97,7 +94,7 @@ public class SymbolsRulesFactory : IRulePatternFactory
     /// <returns></returns>
     private string FullStringSymbols(object sender, Failure failure)
     {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         foreach (var cur in failure.ProblemValue)
         {

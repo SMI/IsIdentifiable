@@ -46,7 +46,7 @@ public static class Program
     public static int Main(string[] args)
     {
 
-        string? explicitLocation = CutSettingsFileArgs(args, out var newArgs);
+        var explicitLocation = CutSettingsFileArgs(args, out var newArgs);
         args = newArgs;
 
         var settingsFileLocation = SettingsFile;
@@ -84,7 +84,7 @@ public static class Program
         // Disable fo-dicom's DICOM validation globally from here
         new DicomSetupBuilder().SkipValidation();
 
-        ParserSettings defaults = Parser.Default.Settings;
+        var defaults = Parser.Default.Settings;
         using var parser = new Parser(settings =>
         {
             settings.CaseInsensitiveEnumValues = true;
@@ -116,7 +116,7 @@ public static class Program
 
     public static GlobalOptions? Deserialize(string settingsFileLocation, IFileSystem fileSystem)
     {
-        IDeserializer deserializer = new DeserializerBuilder()
+        var deserializer = new DeserializerBuilder()
                         .IgnoreUnmatchedProperties()
                         .Build();
 

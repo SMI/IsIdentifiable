@@ -15,7 +15,7 @@ public class ToMemoryFailureReport : IFailureReport
     /// <summary>
     /// All identifiable information detected by the runner
     /// </summary>
-    public List<Failure> Failures { get; } = new List<Reporting.Failure>();
+    public List<Failure> Failures { get; } = new();
 
 
     /// <summary>

@@ -47,7 +47,7 @@ public class DatabaseRunner : IsIdentifiableAbstractRunner
     /// <returns>0 if all went well</returns>
     public override int Run()
     {
-        DiscoveredTable tbl = GetServer(_opts.DatabaseConnectionString, _opts.DatabaseType, _opts.TableName);
+        var tbl = GetServer(_opts.DatabaseConnectionString, _opts.DatabaseType, _opts.TableName);
         var server = tbl.Database.Server;
 
         _factory = new DatabaseFailureFactory(tbl);
@@ -56,17 +56,16 @@ public class DatabaseRunner : IsIdentifiableAbstractRunner
         _columnsNames = _columns.Select(c => c.GetRuntimeName()).ToArray();
         _stringColumns = _columns.Select(c => c.GetGuesser().Guess.CSharpType == typeof(string)).ToArray();
 
-        using (var con = server.GetConnection())
-        {
-            con.Open();
+        using var con = server.GetConnection();
+        con.Open();
 
-            TopXResponse top = _opts.Top > 0 ? server.GetQuerySyntaxHelper().HowDoWeAchieveTopX(_opts.Top) : null;
+        var top = _opts.Top > 0 ? server.GetQuerySyntaxHelper().HowDoWeAchieveTopX(_opts.Top) : null;
 
-            // assembles command 'SELECT TOP x a,b,c from Tbl'
-            // or for MySql/Oracle 'SELECT a,b,c from Tbl LIMIT x'
+        // assembles command 'SELECT TOP x a,b,c from Tbl'
+        // or for MySql/Oracle 'SELECT a,b,c from Tbl LIMIT x'
 
-            var cmd = server.GetCommand(
-$@"SELECT 
+        var cmd = server.GetCommand(
+            $@"SELECT 
 {(top is { Location: QueryComponent.SELECT } ? top.SQL : "")}
 {string.Join($",{Environment.NewLine}", _columns.Select(c => c.GetFullyQualifiedName()))}
 FROM 
@@ -74,14 +73,13 @@ FROM
 {(top is { Location: QueryComponent.Postfix } ? top.SQL : "")}"
             ,con);
 
-            _logger.Info($"About to send command:{Environment.NewLine}{cmd.CommandText}");
+        _logger.Info($"About to send command:{Environment.NewLine}{cmd.CommandText}");
 
-            using var reader = cmd.ExecuteReader();
+        using var reader = cmd.ExecuteReader();
 
-            foreach (var failure in reader.Cast<DbDataRecord>().SelectMany(GetFailuresIfAny)) AddToReports(failure);
+        foreach (var failure in reader.Cast<DbDataRecord>().SelectMany(GetFailuresIfAny)) AddToReports(failure);
 
-            CloseReports();
-        }
+        CloseReports();
         return 0;
     }
 

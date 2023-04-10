@@ -27,7 +27,7 @@ public abstract class FailureReport : IFailureReport
     /// <summary>
     /// The output adapters to which this reports data will be written e.g. CSV, database etc
     /// </summary>
-    public List<IReportDestination> Destinations = new List<IReportDestination>();
+    public List<IReportDestination> Destinations = new();
 
 
     /// <summary>
