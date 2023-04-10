@@ -7,14 +7,14 @@ namespace ii.Views.Manager;
 
 class RuleDetailView : View
 {
-    private Label lblType;
+    private readonly Label _lblType;
     private readonly List<Label> _properties = new();
 
     public RuleDetailView()
     {
-        lblType = new Label() { Text = "Type:", Height = 1, Width = Dim.Fill()};
+        _lblType = new Label() { Text = "Type:", Height = 1, Width = Dim.Fill()};
 
-        base.Add(lblType);
+        base.Add(_lblType);
     }
 
     public void SetupFor(object obj, IFileInfo file)
@@ -22,7 +22,7 @@ class RuleDetailView : View
         ClearProperties();
 
         var type = obj.GetType();
-        lblType.Text = $"Type:{type.Name}";
+        _lblType.Text = $"Type:{type.Name}";
 
         var lbl1 = new Label("Path:")
         {
@@ -59,7 +59,7 @@ class RuleDetailView : View
         ClearProperties();
 
         var type = rule.GetType();
-        lblType.Text = $"Type:{type.Name}";
+        _lblType.Text = $"Type:{type.Name}";
 
         var y = 1;
         foreach(var prop in type.GetProperties())

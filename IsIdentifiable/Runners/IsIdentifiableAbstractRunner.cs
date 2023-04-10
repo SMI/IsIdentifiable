@@ -17,8 +17,7 @@ using YamlDotNet.Serialization;
 using IsIdentifiable.Reporting;
 using System.Threading;
 using System.IO.Abstractions;
-using IsIdentifiable.Allowlists;
-using IsIdentifiable.Whitelists;
+using IsIdentifiable.AllowLists;
 
 namespace IsIdentifiable.Runners;
 
@@ -249,15 +248,15 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
 
         SortRules();
 
-        IAllowlistSource source = null;
+        IAllowListSource source;
 
         try
         {
-            source = GetAllowlistSource();
+            source = GetAllowListSource();
         }
         catch (Exception e)
         {
-            throw new Exception("Error getting Allowlist Source", e);
+            throw new Exception("Error getting AllowList Source", e);
         }
             
         if (source != null)
@@ -265,11 +264,11 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
             _logger.Info("Fetching Allowlist...");
             try
             {
-                _AllowList = new HashSet<string>(source.GetAllowlist(),StringComparer.CurrentCultureIgnoreCase);
+                _AllowList = new HashSet<string>(source.GetAllowList(),StringComparer.CurrentCultureIgnoreCase);
             }
             catch (Exception e)
             {
-                throw new Exception($"Error fetching values for IAllowlistSource {source.GetType().Name}", e);
+                throw new Exception($"Error fetching values for {nameof(IAllowListSource)} {source.GetType().Name}", e);
             }
 
             _logger.Info($"Allowlist built with {_AllowList.Count} exact strings");
@@ -515,22 +514,22 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         LogProgress(_done, true);
     }
 
-    private IAllowlistSource GetAllowlistSource()
+    private IAllowListSource GetAllowListSource()
     {
-        IAllowlistSource source = null;
+        IAllowListSource source = null;
 
         if (!string.IsNullOrWhiteSpace(_opts.AllowlistCsv))
         {
-            // If there's a file Allowlist
-            source = new CsvAllowlist(_opts.AllowlistCsv, FileSystem);
+            // If there's a file AllowList
+            source = new CsvAllowList(_opts.AllowlistCsv, FileSystem);
             _logger.Info($"Loaded a Allowlist from {FileSystem.Path.GetFullPath(_opts.AllowlistCsv)}");
         }
         else if (!string.IsNullOrWhiteSpace(_opts.AllowlistConnectionString) && _opts.AllowlistDatabaseType.HasValue)
         {
-            // If there's a database Allowlist
+            // If there's a database AllowList
             var tbl = GetServer(_opts.AllowlistConnectionString, _opts.AllowlistDatabaseType.Value, _opts.AllowlistTableName);
             var col = tbl.DiscoverColumn(_opts.AllowlistColumn);
-            source = new DiscoveredColumnAllowlist(col);
+            source = new DiscoveredColumnAllowList(col);
             _logger.Info($"Loaded a Allowlist from {tbl.GetFullyQualifiedName()}");
         }
 
