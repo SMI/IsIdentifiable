@@ -4,6 +4,21 @@
 
 ...
 
+# [0.1.0] - 2023-04-12
+
+## Added
+
+-   Add CodeQL workflow for GitHub code scanning #240 and #242
+-   Add coverage #267
+-   Add filesystem abstractions #290
+-   Add ability to create `CsvDestination` with an existing `CsvConfiguration` #291
+
+## Fixed
+
+-   Explicitly pass `top` view to `Application.Run` #294
+-   Cleanup warnings and CodeQL issues #292
+-   Validate the date part of each possible CHI before complaining #247
+
 # [0.0.9] - 2022-11-21
 
 ## Added
@@ -99,7 +114,8 @@
 
 Initial version
 
-[Unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.0.9..main
+[Unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.1.0..main
+[0.1.0]: https://github.com/SMI/IsIdentifiable/compare/v0.0.9..v0.1.0
 [0.0.9]: https://github.com/SMI/IsIdentifiable/compare/v0.0.8..v0.0.9
 [0.0.8]: https://github.com/SMI/IsIdentifiable/compare/v0.0.7..v0.0.8
 [0.0.7]: https://github.com/SMI/IsIdentifiable/compare/v0.0.6..v0.0.7
