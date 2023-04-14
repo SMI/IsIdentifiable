@@ -296,7 +296,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
                 RuleAction.Ignore => 100,
                 //then consider the report explicit rules (by pattern)
                 RuleAction.Report => 0,
-                _ => throw new ArgumentOutOfRangeException()
+                _ => throw new ArgumentOutOfRangeException(nameof(arg),$"Invalid action {irule.Action} for {nameof(IsIdentifiableRule)} {arg}")
             },
             //socket rules sink to the bottom
             SocketRule => -5000,
