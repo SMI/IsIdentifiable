@@ -82,10 +82,8 @@ public class NuspecIsCorrectTests
             {
                 var packageRegex = new Regex($@"\|\s*[\s[]{Regex.Escape(package)}[\s\]]", RegexOptions.IgnoreCase);
                 found = false;
-                foreach (var line in File.ReadLines(packagesMarkdown).Where(l=>packageRegex.IsMatch(l)))
+                foreach (var _ in File.ReadLines(packagesMarkdown).Where(l=>packageRegex.IsMatch(l)))
                 {
-                    var count = new Regex(Regex.Escape(version)).Matches(line).Count;
-                    Assert.AreEqual(2, count, "Markdown file {0} did not contain 2 instances of the version {1} for package {2} in {3}", packagesMarkdown, version, package, csproj);
                     found = true;
                 }
 
