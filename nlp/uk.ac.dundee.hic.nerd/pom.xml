@@ -70,7 +70,8 @@
 							<goal>wget</goal>
 						</goals>
 						<configuration>
-							<url>https://nlp.stanford.edu/software/stanford-ner-2018-10-16.zip</url>
+							<url>https://downloads.cs.stanford.edu/nlp/software/stanford-ner-2018-10-16.zip</url>
+							<!-- was <url>https://nlp.stanford.edu/software/stanford-ner-2018-10-16.zip</url> -->
 							<unpack>true</unpack>
 							<outputDirectory>${project.build.directory}/stanford-ner-2018-10-16/</outputDirectory>
 							<md5>ed85958f7b00a93addaf9fa7e0536de9</md5>
