@@ -56,7 +56,7 @@ public class UnitTests {
 	@Test public void testClassifier() throws ClassCastException, ClassNotFoundException, IOException, InterruptedException {
 		final Program p = new Program();
 		Thread t = new Thread() {
-			public void run() {
+			@Override public void run() {
 				p.run();
 				ok=true;
 			}

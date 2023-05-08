@@ -27,8 +27,8 @@ jobs:
           - 5432:5432
 
     steps:
-    - name: Disable disk flushing on CI
-      run: sudo apt-get install -y libeatmydata1
+    - name: Disable disk flushing on CI and add libarchive-tools
+      run: sudo apt-get install -y libeatmydata1 libarchive-tools
     - uses: actions/checkout@v3
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v3
@@ -41,11 +41,8 @@ jobs:
         cache: 'maven'
     - name: Start MySQL
       run: |
-        sed -i'' -e 's/Password=;/Password=pgpass4291;/' Tests/IsIdentifiableTests/TestDatabases.xml
-        sed -i'' -e 's/Uid=root;Pwd=;/Uid=root;Pwd=root;AllowPublicKeyRetrieval=True;/' Tests/IsIdentifiableTests/TestDatabases.xml
-        sudo mkdir -p /var/run/mysqld
-        sudo chown mysql:mysql /var/run/mysqld
-        sudo mysqld_safe --port=3306 &
+        mv Tests/IsIdentifiableTests/TestDatabases-github.xml Tests/IsIdentifiableTests/TestDatabases.xml
+        sudo systemctl start mysql.service
     - name: Start MongoDb
       uses: supercharge/mongodb-github-action@1.9.0
       with:
@@ -73,7 +70,9 @@ jobs:
     - name: Build Java NERD
       run: |
         cd nlp/uk.ac.dundee.hic.nerd
-        mvn -B -q clean compile assembly:single
+        mkdir -p target/stanford-ner-2018-10-16
+        curl -sL https://nlp.stanford.edu/software/stanford-ner-2018-10-16.zip | bsdtar -xf- -C target/stanford-ner-2018-10-16
+        mvn -B -q compile assembly:single
         java -jar target/nerd-0.0.1-SNAPSHOT.jar &
         timeout 30 sh -c 'until nc -z 127.0.0.1 1881; do sleep 1; done'
         printf "University of Dundee\0Fred Bloggs\0Ninewells Hospital\0person\0woman\0man\0camera\0tv\0" | nc -N 127.0.0.1 1881
