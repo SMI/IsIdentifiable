@@ -52,7 +52,7 @@ public class Program {
 	Program() throws IOException, ClassCastException, ClassNotFoundException {
 		this.listener = new ServerSocket(1881,255,InetAddress.getByName("127.0.0.1"));
 		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
+			@Override public void run() {
 				shutdown();
 			}
 		});
@@ -119,7 +119,7 @@ public class Program {
 			try {
 				final Socket client = listener.accept();
 				new Thread() {
-					public void run() {
+					@Override public void run() {
 						try {
 							handlein(client);
 							client.close();
