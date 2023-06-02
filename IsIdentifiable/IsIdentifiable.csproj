@@ -35,7 +35,7 @@
     <PackageReference Include="Equ" Version="2.3.0" />
     <PackageReference Include="fo-dicom.Imaging.ImageSharp" Version="5.1.0" />
     <PackageReference Include="HIC.DicomTypeTranslation" Version="4.0.3" />
-    <PackageReference Include="HIC.FAnsiSql" Version="3.0.1" />
+    <PackageReference Include="HIC.FAnsiSql" Version="3.1.0" />
     <PackageReference Include="Lib.Harmony" Version="2.2.2" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.1.2" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
