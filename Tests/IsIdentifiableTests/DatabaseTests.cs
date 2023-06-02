@@ -31,11 +31,10 @@ public class DatabaseTests
     {
         try
         {
-            ImplementationManager.Load(
-                typeof(MicrosoftSQLServerHelper).Assembly,
-                typeof(OracleServerHelper).Assembly,
-                typeof(MySqlServerHelper).Assembly,
-                typeof(PostgreSqlServerHelper).Assembly);
+            ImplementationManager.Load<MicrosoftSQLImplementation>();
+            ImplementationManager.Load<MySqlImplementation>();
+            ImplementationManager.Load<OracleImplementation>();
+            ImplementationManager.Load<PostgreSqlImplementation>();
 
             Assert.IsTrue(System.IO.File.Exists(TestFilename), "Could not find {0}", TestFilename);
 
