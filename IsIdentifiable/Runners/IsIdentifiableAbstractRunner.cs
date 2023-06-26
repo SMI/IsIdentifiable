@@ -29,7 +29,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
 {
     private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-    private readonly IsIdentifiableBaseOptions _opts;
+    private readonly IsIdentifiableOptions _opts;
 
     /// <summary>
     /// FileSystem to use for I/O
@@ -92,7 +92,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
 
     /// <summary>
     /// List of columns/tags which should not be processed.  This is automatically handled by the <see cref="Validate"/> method.
-    /// <para>This is a case insensitive hash collection based on <see cref="IsIdentifiableBaseOptions.SkipColumns"/></para>
+    /// <para>This is a case insensitive hash collection based on <see cref="IsIdentifiableOptions.SkipColumns"/></para>
     /// </summary>
     private readonly HashSet<string> _skipColumns = new(StringComparer.CurrentCultureIgnoreCase);
 
@@ -169,14 +169,14 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// <param name="fileSystem"></param>
     /// <param name="customReports">Any custom reports that should be added in addition to those specified in <paramref name="opts"/></param>
     /// <exception cref="Exception"></exception>
-    protected IsIdentifiableAbstractRunner(IsIdentifiableBaseOptions opts, IFileSystem fileSystem, params IFailureReport[] customReports)
+    protected IsIdentifiableAbstractRunner(IsIdentifiableOptions opts, IFileSystem fileSystem, params IFailureReport[] customReports)
     {
         FileSystem = fileSystem;
 
         Lifetime = Stopwatch.StartNew();
         _opts = opts;
         _opts.ValidateOptions();
-        MaxValidationCacheSize = opts.MaxValidationCacheSize ?? IsIdentifiableBaseOptions.MaxValidationCacheSizeDefault;
+        MaxValidationCacheSize = opts.MaxValidationCacheSize ?? IsIdentifiableOptions.MaxValidationCacheSizeDefault;
 
         var targetName = _opts.GetTargetName(FileSystem);
 
@@ -187,7 +187,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
             Reports.Add(new FailingValuesReport(targetName, fileSystem));
 
         if (opts.StoreReport)
-            Reports.Add(new FailureStoreReport(targetName, _opts.MaxCacheSize ?? IsIdentifiableBaseOptions.MaxCacheSizeDefault, FileSystem));
+            Reports.Add(new FailureStoreReport(targetName, _opts.MaxCacheSize ?? IsIdentifiableOptions.MaxCacheSizeDefault, FileSystem));
 
         // add custom reports
         foreach (var report in customReports)
@@ -214,7 +214,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
             else
             {
                 // file specified did not exist... but that's ok if it's the default (Rules.yaml)
-                if (_opts.RulesFile != IsIdentifiableBaseOptions.DefaultRulesFile)
+                if (_opts.RulesFile != IsIdentifiableOptions.DefaultRulesFile)
                 {
                     throw new Exception($"Error reading {_opts.RulesFile}");
                 }

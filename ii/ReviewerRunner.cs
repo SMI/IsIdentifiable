@@ -16,11 +16,11 @@ namespace ii;
 
 public class ReviewerRunner
 {
-    private readonly IsIdentifiableBaseOptions? _analyserOpts;
+    private readonly IsIdentifiableOptions? _analyserOpts;
     private readonly IsIdentifiableReviewerOptions _reviewerOptions;
     private readonly IFileSystem _fileSystem;
 
-    public ReviewerRunner(IsIdentifiableBaseOptions? analyserOpts, IsIdentifiableReviewerOptions reviewerOptions, IFileSystem fileSystem)
+    public ReviewerRunner(IsIdentifiableOptions? analyserOpts, IsIdentifiableReviewerOptions reviewerOptions, IFileSystem fileSystem)
     {
         _analyserOpts = analyserOpts;
         _reviewerOptions = reviewerOptions;
@@ -35,7 +35,7 @@ public class ReviewerRunner
     {
         var logger = LogManager.GetCurrentClassLogger();
 
-        var returnCode = IsIdentifiableBaseOptions.LoadTargets(_reviewerOptions, logger, _fileSystem, out var targets);
+        var returnCode = IsIdentifiableOptions.LoadTargets(_reviewerOptions, logger, _fileSystem, out var targets);
 
         if (returnCode != 0)
             return returnCode;
@@ -122,7 +122,7 @@ public class ReviewerRunner
 
                 var top = Application.Top;
 
-                using var mainWindow = new MainWindow(_analyserOpts ?? new IsIdentifiableBaseOptions(), _reviewerOptions, ignorer, updater, _fileSystem);
+                using var mainWindow = new MainWindow(_analyserOpts ?? new IsIdentifiableOptions(), _reviewerOptions, ignorer, updater, _fileSystem);
 
 
                 // Creates the top-level window to show

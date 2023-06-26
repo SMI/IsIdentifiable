@@ -15,7 +15,7 @@ public interface IFailureReport
     /// Set the destination for the report, based on the given options
     /// </summary>
     /// <param name="options"></param>
-    void AddDestinations(IsIdentifiableBaseOptions options);
+    void AddDestinations(IsIdentifiableOptions options);
 
     /// <summary>
     /// Call to indicate that you have processed <paramref name="numberDone"/> since you last called this method

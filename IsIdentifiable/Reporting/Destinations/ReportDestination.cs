@@ -15,7 +15,7 @@ public abstract class ReportDestination : IReportDestination
     /// <summary>
     /// The options used to run IsIdentifiable
     /// </summary>
-    protected IsIdentifiableBaseOptions Options { get; }
+    protected IsIdentifiableOptions Options { get; }
 
     /// <summary>
     /// FileSystem to use for I/O
@@ -29,7 +29,7 @@ public abstract class ReportDestination : IReportDestination
     /// </summary>
     /// <param name="options"></param>
     /// <param name="fileSystem"></param>
-    protected ReportDestination(IsIdentifiableBaseOptions options, IFileSystem fileSystem)
+    protected ReportDestination(IsIdentifiableOptions options, IFileSystem fileSystem)
     {
         Options = options;
         FileSystem = fileSystem;
@@ -54,7 +54,7 @@ public abstract class ReportDestination : IReportDestination
     public virtual void Dispose() { }
 
     /// <summary>
-    /// Returns <paramref name="o"/> with whitespace stripped (if it is a string and <see cref="IsIdentifiableBaseOptions.DestinationNoWhitespace"/>
+    /// Returns <paramref name="o"/> with whitespace stripped (if it is a string and <see cref="IsIdentifiableOptions.DestinationNoWhitespace"/>
     /// is set on command line options).
     /// </summary>
     /// <param name="o"></param>

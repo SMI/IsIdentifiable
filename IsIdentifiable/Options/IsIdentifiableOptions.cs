@@ -13,7 +13,7 @@ namespace IsIdentifiable.Options;
 /// <summary>
 /// Base class for all options that go to a datasource.  Implement on each new place e.g. dicom, DBMS, CSV etc
 /// </summary>
-public class IsIdentifiableBaseOptions : ITargetsFileOptions
+public class IsIdentifiableOptions : ITargetsFileOptions
 {
     /// <summary>
     /// Optional. Full connection string to the database storing the Allowlist of valid entries
@@ -173,7 +173,7 @@ public class IsIdentifiableBaseOptions : ITargetsFileOptions
     /// For example with the name of the table that was read for data.  Defaults to "Unknown".
     /// </para>
     /// 
-    /// <para>Only applies to <see cref="IsIdentifiableBaseOptions"/>.  Other options may override
+    /// <para>Only applies to <see cref="IsIdentifiableOptions"/>.  Other options may override
     /// <see cref="GetTargetName"/> and so not respect this property.</para>
     /// </summary>
     public string TargetName { get; set; } = TargetNameDefault;
@@ -212,7 +212,7 @@ public class IsIdentifiableBaseOptions : ITargetsFileOptions
     /// <paramref name="globalOpts"/>
     /// </summary>
     /// <param name="globalOpts"></param>
-    public virtual void InheritValuesFrom(IsIdentifiableBaseOptions globalOpts)
+    public virtual void InheritValuesFrom(IsIdentifiableOptions globalOpts)
     {
         if (string.IsNullOrWhiteSpace(AllowlistConnectionString))
             AllowlistConnectionString = globalOpts.AllowlistConnectionString;
@@ -297,7 +297,7 @@ public class IsIdentifiableBaseOptions : ITargetsFileOptions
     {
         // load Targets.yaml
         var logger = LogManager.GetCurrentClassLogger();
-        var result = IsIdentifiableBaseOptions.LoadTargets(this, logger, fileSystem, out targets);
+        var result = IsIdentifiableOptions.LoadTargets(this, logger, fileSystem, out targets);
         if (result != 0)
             return result;
 

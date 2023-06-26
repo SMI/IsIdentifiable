@@ -412,7 +412,7 @@ BasicRules:
         }
     }
 
-    private class TestOpts : IsIdentifiableBaseOptions
+    private class TestOpts : IsIdentifiableOptions
     {
         public TestOpts()
         {

@@ -30,7 +30,7 @@ internal class TreeFailureReport : FailureReport
         _reportAggregateCounts = reportAggregateCounts;
     }
 
-    public override void AddDestinations(IsIdentifiableBaseOptions opts)
+    public override void AddDestinations(IsIdentifiableOptions opts)
     {
         base.AddDestinations(opts);
         Destinations.ForEach(d => d.WriteHeader(_headerRow));
