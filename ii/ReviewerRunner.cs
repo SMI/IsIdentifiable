@@ -1,10 +1,11 @@
-﻿using FAnsi.Implementation;
+using FAnsi.Implementation;
 using FAnsi.Implementations.MicrosoftSQL;
 using FAnsi.Implementations.MySql;
 using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
 using IsIdentifiable.Options;
 using IsIdentifiable.Redacting;
+using NLog;
 using System;
 using System.IO.Abstractions;
 using System.Linq;
@@ -32,7 +33,7 @@ public class ReviewerRunner
     /// <returns></returns>
     public int Run()
     {
-        var logger = NLog.LogManager.GetCurrentClassLogger();
+        var logger = LogManager.GetCurrentClassLogger();
 
         var returnCode = IsIdentifiableBaseOptions.LoadTargets(_reviewerOptions, logger, _fileSystem, out var targets);
 
