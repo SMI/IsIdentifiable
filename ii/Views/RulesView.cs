@@ -172,7 +172,7 @@ class RulesView : View
         // yes they really do want to ignore all errors in this col!
         if (answer == 0)
         {
-            var rule = new IsIdentifiableRule
+            var rule = new RegexRule
             {
                 IfColumn = fgn.Group,
                 Action = RuleAction.Ignore,
@@ -417,7 +417,7 @@ class RulesView : View
         if (Updater == null)
             throw new Exception("No Updater class set");
 
-        ConcurrentDictionary<IsIdentifiableRule, int> rulesUsed = new();
+        ConcurrentDictionary<RegexRule, int> rulesUsed = new();
         ConcurrentDictionary<string, OutstandingFailureNode> outstandingFailures = new();
 
         var done = 0;
@@ -437,7 +437,7 @@ class RulesView : View
                 var updateRule = Updater.Rules.FirstOrDefault(r => r.Apply(f.ProblemField, f.ProblemValue, out _) != RuleAction.None);
 
                 // record how often each reviewer rule was used with a failure
-                foreach (var r in new[] { ignoreRule, updateRule }.Where(r => r is not null).Cast<IsIdentifiableRule>())
+                foreach (var r in new[] { ignoreRule, updateRule }.Where(r => r is not null).Cast<RegexRule>())
                     lock (lockObj)
                     {
                         _ = rulesUsed.AddOrUpdate(r, 1, (k, v) => Interlocked.Increment(ref v));
@@ -530,7 +530,7 @@ class RulesView : View
         tp.Text = $"{done:N0}/{max:N0}";
     }
 
-    private void AddDuplicatesToTree(List<IsIdentifiableRule> allRules)
+    private void AddDuplicatesToTree(List<RegexRule> allRules)
     {
         var root = new TreeNodeWithCount("Identical Rules");
         var children = GetDuplicates(allRules).ToArray();
@@ -539,7 +539,7 @@ class RulesView : View
         _treeView.AddObject(root);
     }
 
-    public static IEnumerable<DuplicateRulesNode> GetDuplicates(IList<IsIdentifiableRule> rules)
+    public static IEnumerable<DuplicateRulesNode> GetDuplicates(IList<RegexRule> rules)
     {
         // Find all rules that have identical patterns
         return rules.Where(r => !string.IsNullOrEmpty(r.IfPattern))
