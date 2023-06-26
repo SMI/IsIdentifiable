@@ -1,12 +1,11 @@
 ﻿using Equ;
-using IsIdentifiable.Failures;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 
-namespace IsIdentifiable.Reporting;
+namespace IsIdentifiable.Failures;
 
 /// <summary>
 /// Describes all failing <see cref="Parts"/> of a single cell of data being evaluted

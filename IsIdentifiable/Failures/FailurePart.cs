@@ -1,5 +1,4 @@
 ﻿using Equ;
-using IsIdentifiable.Reporting;
 
 namespace IsIdentifiable.Failures;
 

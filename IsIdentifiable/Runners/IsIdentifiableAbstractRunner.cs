@@ -3,7 +3,6 @@ using FAnsi.Discovery;
 using IsIdentifiable.AllowLists;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
-using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Rules;
 using Microsoft.Extensions.Caching.Memory;

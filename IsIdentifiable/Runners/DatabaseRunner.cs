@@ -1,7 +1,7 @@
 using FAnsi.Discovery;
 using FAnsi.Discovery.QuerySyntax;
+using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
-using IsIdentifiable.Reporting;
 using NLog;
 using System;
 using System.Collections.Generic;

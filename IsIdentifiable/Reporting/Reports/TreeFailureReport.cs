@@ -1,3 +1,4 @@
+using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
 using System.Collections.Generic;
 using System.Data;

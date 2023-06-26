@@ -1,4 +1,5 @@
-﻿using IsIdentifiable.Options;
+using IsIdentifiable.Failures;
+using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Destinations;
 using System.Collections.Generic;
 
@@ -39,7 +40,7 @@ public class ToMemoryFailureReport : IFailureReport
     /// Adds the <paramref name="failure"/> to <see cref="Failures"/>
     /// </summary>
     /// <param name="failure"></param>
-    public void Add(Reporting.Failure failure)
+    public void Add(Failure failure)
     {
         Failures.Add(failure);
     }

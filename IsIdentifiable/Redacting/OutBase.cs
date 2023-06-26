@@ -1,5 +1,4 @@
 using IsIdentifiable.Failures;
-using IsIdentifiable.Reporting;
 using IsIdentifiable.Rules;
 using System;
 using System.Collections.Generic;

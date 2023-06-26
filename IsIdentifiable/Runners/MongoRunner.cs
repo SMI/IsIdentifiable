@@ -1,5 +1,6 @@
 using DicomTypeTranslation;
 using FellowOakDicom;
+using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Reports;

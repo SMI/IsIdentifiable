@@ -1,6 +1,6 @@
 ﻿using FAnsi.Discovery;
 using FAnsi.Discovery.QuerySyntax;
-using IsIdentifiable.Reporting;
+using IsIdentifiable.Failures;
 using IsIdentifiable.Rules;
 using System;
 using System.Collections.Generic;

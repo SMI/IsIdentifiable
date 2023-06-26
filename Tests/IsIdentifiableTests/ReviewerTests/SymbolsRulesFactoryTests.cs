@@ -1,6 +1,5 @@
 using IsIdentifiable.Failures;
 using IsIdentifiable.Redacting;
-using IsIdentifiable.Reporting;
 using IsIdentifiable.Rules;
 using NUnit.Framework;
 using System;

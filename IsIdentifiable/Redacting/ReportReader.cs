@@ -1,4 +1,4 @@
-using IsIdentifiable.Reporting;
+using IsIdentifiable.Failures;
 using IsIdentifiable.Reporting.Reports;
 using System;
 using System.IO.Abstractions;
