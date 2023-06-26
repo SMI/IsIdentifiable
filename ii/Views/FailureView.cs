@@ -18,7 +18,7 @@ class FailureView : View
     public FailureView()
     {
         _attNormal = Attribute.Make(Color.Gray, Color.Black);
-        _attHighlight = Attribute.Make(Color.BrightGreen, Color.Black);
+        _attHighlight = Attribute.Make(Color.BrightRed, Color.Black);
     }
 
     public override void Redraw(Rect bounds)
