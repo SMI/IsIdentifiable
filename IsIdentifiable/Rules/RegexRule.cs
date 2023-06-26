@@ -16,7 +16,7 @@ namespace IsIdentifiable.Rules;
 /// A simple Regex based rule that allows flexible white listing or blacklisting of values
 /// either in all columns or only a single column
 /// </summary>
-public class IsIdentifiableRule : IAppliableRule
+public class RegexRule : IAppliableRule
 {
 
     /// <summary>
@@ -136,7 +136,7 @@ public class IsIdentifiableRule : IAppliableRule
     /// <param name="other"></param>
     /// <param name="requireIdenticalAction">True (default) if identical must also include the same <see cref="Action"/> for values matching the rule</param>
     /// <returns></returns>
-    public bool AreIdentical(IsIdentifiableRule other, bool requireIdenticalAction = true)
+    public bool AreIdentical(RegexRule other, bool requireIdenticalAction = true)
     {
         return
             string.Equals(IfColumn, other.IfColumn, StringComparison.CurrentCultureIgnoreCase) &&

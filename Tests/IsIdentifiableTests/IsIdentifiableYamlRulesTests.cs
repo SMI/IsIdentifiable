@@ -53,7 +53,7 @@ SocketRules:
     [TestCase(false)]
     public void TestOneRule_IsColumnMatch_NoPattern(bool isReport)
     {
-        var rule = new IsIdentifiableRule()
+        var rule = new RegexRule()
         {
             Action = isReport ? RuleAction.Report : RuleAction.Ignore,
             IfColumn = "Modality",
@@ -74,7 +74,7 @@ SocketRules:
     [TestCase(false)]
     public void Test_RegexMultipleMatches(bool isReport)
     {
-        var rule = new IsIdentifiableRule()
+        var rule = new RegexRule()
         {
             Action = isReport ? RuleAction.Report : RuleAction.Ignore,
             IfColumn = "Modality",
@@ -108,7 +108,7 @@ SocketRules:
     [TestCase(false)]
     public void TestOneRule_IsColumnMatch_WithPattern(bool isReport)
     {
-        var rule = new IsIdentifiableRule()
+        var rule = new RegexRule()
         {
             Action = isReport ? RuleAction.Report : RuleAction.Ignore,
             IfColumn = "Modality",
@@ -125,7 +125,7 @@ SocketRules:
     [TestCase(false)]
     public void TestOneRule_NoColumn_WithPattern(bool isReport)
     {
-        var rule = new IsIdentifiableRule()
+        var rule = new RegexRule()
         {
             Action = isReport ? RuleAction.Report : RuleAction.Ignore,
             IfPattern = "^CT$",
@@ -140,8 +140,8 @@ SocketRules:
     [Test]
     public void TestAreIdentical()
     {
-        var rule1 = new IsIdentifiableRule();
-        var rule2 = new IsIdentifiableRule();
+        var rule1 = new RegexRule();
+        var rule2 = new RegexRule();
 
         Assert.IsTrue(rule1.AreIdentical(rule2));
 
@@ -172,7 +172,7 @@ SocketRules:
     public void TestOneRule_NoColumn_NoPattern(bool isReport)
     {
         //rule is to ignore everything
-        var rule = new IsIdentifiableRule()
+        var rule = new RegexRule()
         {
             Action = isReport ? RuleAction.Report : RuleAction.Ignore,
         };
