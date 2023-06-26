@@ -1,9 +1,9 @@
+using CsvHelper;
+using CsvHelper.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
-using CsvHelper;
-using CsvHelper.Configuration;
 
 namespace IsIdentifiable.AllowLists;
 
@@ -27,14 +27,14 @@ public class CsvAllowList : IAllowListSource
     /// <exception cref="Exception"></exception>
     public CsvAllowList(string filePath, IFileSystem fileSystem)
     {
-        if(!fileSystem.File.Exists(filePath))
+        if (!fileSystem.File.Exists(filePath))
             throw new Exception($"Could not find AllowList file at '{filePath}'");
 
         Stream stream = fileSystem.File.OpenRead(filePath);
         _streamReader = new StreamReader(stream);
-        _reader = new CsvReader(_streamReader,new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture)
+        _reader = new CsvReader(_streamReader, new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture)
         {
-            HasHeaderRecord=false
+            HasHeaderRecord = false
         });
     }
 

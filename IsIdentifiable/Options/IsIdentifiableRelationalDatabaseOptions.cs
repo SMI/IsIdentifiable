@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using System.Linq;
-using CommandLine;
+﻿using CommandLine;
 using CommandLine.Text;
 using FAnsi;
 using IsIdentifiable.Redacting;
 using NLog;
+using System;
+using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.Linq;
 
 namespace IsIdentifiable.Options;
 

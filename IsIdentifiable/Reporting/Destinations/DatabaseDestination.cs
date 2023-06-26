@@ -1,21 +1,21 @@
-﻿using System;
-using System.Data;
-using System.IO.Abstractions;
 using FAnsi.Discovery;
 using IsIdentifiable.Options;
+using System;
+using System.Data;
+using System.IO.Abstractions;
 
 namespace IsIdentifiable.Reporting.Destinations;
 
 internal class DatabaseDestination : ReportDestination
 {
     private readonly string _reportName;
-    private DiscoveredTable _tbl;
+    private readonly DiscoveredTable _tbl;
 
     public DatabaseDestination(IsIdentifiableBaseOptions options, string reportName, IFileSystem fileSystem)
         : base(options, fileSystem)
     {
 
-        if(options.DestinationDatabaseType == null)
+        if (options.DestinationDatabaseType == null)
         {
             throw new Exception($"{nameof(IsIdentifiableBaseOptions.DestinationDatabaseType)} must be specified to use this destination (it was null)");
         }
@@ -38,15 +38,13 @@ internal class DatabaseDestination : ReportDestination
         StripWhiteSpace(items);
 
         items.TableName = _reportName;
-            
+
         if (!_tbl.Exists())
             _tbl.Database.CreateTable(_tbl.GetRuntimeName(), items);
         else
         {
-            using (var insert = _tbl.BeginBulkInsert())
-            {
-                insert.Upload(items);
-            }
+            using var insert = _tbl.BeginBulkInsert();
+            insert.Upload(items);
         }
     }
 
@@ -55,8 +53,8 @@ internal class DatabaseDestination : ReportDestination
         if (Options.DestinationNoWhitespace)
         {
             foreach (DataRow row in items.Rows)
-            foreach (DataColumn col in items.Columns)
-                row[col] = StripWhitespace(row[col]);
+                foreach (DataColumn col in items.Columns)
+                    row[col] = StripWhitespace(row[col]);
         }
 
     }

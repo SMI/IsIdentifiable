@@ -1,13 +1,10 @@
+using NUnit.Framework;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using MongoDB.Driver.Search;
-using NUnit.Framework;
-using NUnit.Framework.Internal;
 
 namespace IsIdentifiable.Tests;
 
@@ -17,14 +14,14 @@ namespace IsIdentifiable.Tests;
 /// </summary>
 public class PackageListIsCorrectTests
 {
-    private static readonly EnumerationOptions EnumerationOptions = new() { RecurseSubdirectories = true,MatchCasing = MatchCasing.CaseInsensitive,IgnoreInaccessible = true};
+    private static readonly EnumerationOptions EnumerationOptions = new() { RecurseSubdirectories = true, MatchCasing = MatchCasing.CaseInsensitive, IgnoreInaccessible = true };
 
     //<PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
-    private static readonly Regex RPackageRef = new(@"<PackageReference\s+Include=""(.*)""\s+Version=""([^""]*)""", RegexOptions.IgnoreCase|RegexOptions.Compiled|RegexOptions.CultureInvariant);
+    private static readonly Regex RPackageRef = new(@"<PackageReference\s+Include=""(.*)""\s+Version=""([^""]*)""", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     // | Org.SomePackage |
     //
-    private static readonly Regex RMarkdownEntry = new(@"^\|\s*\[?([^ |\]]+)(\]\([^)]+\))?\s*\|", RegexOptions.IgnoreCase|RegexOptions.Compiled|RegexOptions.CultureInvariant);
+    private static readonly Regex RMarkdownEntry = new(@"^\|\s*\[?([^ |\]]+)(\]\([^)]+\))?\s*\|", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
 
     /// <summary>
@@ -32,21 +29,21 @@ public class PackageListIsCorrectTests
     /// </summary>
     /// <param name="rootPath"></param>
     [TestCase]
-    public void TestPackagesDocumentCorrect(string rootPath=null)
+    public void TestPackagesDocumentCorrect(string rootPath = null)
     {
-        var root= FindRoot(rootPath);
+        var root = FindRoot(rootPath);
         var undocumented = new StringBuilder();
 
         // Extract the named packages from PACKAGES.md
         var packagesMarkdown = File.ReadAllLines(GetPackagesMarkdown(root))
             .Select(line => RMarkdownEntry.Match(line))
-            .Where(m=>m.Success)
+            .Where(m => m.Success)
             .Select(m => m.Groups[1].Value)
             .ToHashSet(StringComparer.InvariantCultureIgnoreCase);
 
         // Extract the named packages from csproj files, then subtract those listed in PACKAGES.md (should be empty)
         var undocumentedPackages = GetCsprojFiles(root).Select(File.ReadAllText).SelectMany(s => RPackageRef.Matches(s))
-            .Select(m=>m.Groups[1].Value).Except(packagesMarkdown).Select(BuildRecommendedMarkdownLine);
+            .Select(m => m.Groups[1].Value).Except(packagesMarkdown).Select(BuildRecommendedMarkdownLine);
         undocumented.AppendJoin(Environment.NewLine, undocumentedPackages);
 
         Assert.IsEmpty(undocumented.ToString());

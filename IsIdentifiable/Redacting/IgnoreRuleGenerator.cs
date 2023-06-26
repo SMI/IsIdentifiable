@@ -1,6 +1,6 @@
-﻿using System.IO.Abstractions;
-using IsIdentifiable.Reporting;
+﻿using IsIdentifiable.Reporting;
 using IsIdentifiable.Rules;
+using System.IO.Abstractions;
 
 namespace IsIdentifiable.Redacting;
 

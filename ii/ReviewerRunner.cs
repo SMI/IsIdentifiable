@@ -1,13 +1,13 @@
-﻿using System;
-using System.IO.Abstractions;
-using System.Linq;
-using FAnsi.Implementation;
+﻿using FAnsi.Implementation;
 using FAnsi.Implementations.MicrosoftSQL;
 using FAnsi.Implementations.MySql;
 using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
 using IsIdentifiable.Options;
 using IsIdentifiable.Redacting;
+using System;
+using System.IO.Abstractions;
+using System.Linq;
 using Terminal.Gui;
 using YamlDotNet.Serialization;
 
@@ -34,8 +34,8 @@ public class ReviewerRunner
     {
         var logger = NLog.LogManager.GetCurrentClassLogger();
 
-        var returnCode = IsIdentifiableBaseOptions.LoadTargets(_reviewerOptions,logger, _fileSystem, out var targets);
-        
+        var returnCode = IsIdentifiableBaseOptions.LoadTargets(_reviewerOptions, logger, _fileSystem, out var targets);
+
         if (returnCode != 0)
             return returnCode;
 

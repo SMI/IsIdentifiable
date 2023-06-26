@@ -1,7 +1,7 @@
-﻿using System.Data;
+using IsIdentifiable.Options;
+using System.Data;
 using System.IO.Abstractions;
 using System.Text.RegularExpressions;
-using IsIdentifiable.Options;
 
 namespace IsIdentifiable.Reporting.Destinations;
 

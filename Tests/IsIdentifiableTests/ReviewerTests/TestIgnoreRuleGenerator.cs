@@ -1,9 +1,9 @@
-﻿using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using IsIdentifiable.Failures;
+﻿using IsIdentifiable.Failures;
 using IsIdentifiable.Redacting;
 using IsIdentifiable.Reporting;
 using NUnit.Framework;
+using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 
 namespace IsIdentifiable.Tests.ReviewerTests;
 
@@ -37,16 +37,16 @@ class TestIgnoreRuleGenerator
         var ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
 
         //it should be novel i.e. require user decision
-        Assert.IsTrue(ignorer.OnLoad(failure,out _));
+        Assert.IsTrue(ignorer.OnLoad(failure, out _));
 
         //we tell it to ignore this value
         ignorer.Add(failure);
-            
+
         TestHelpers.Contains(
             @"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$
-",_fileSystem.File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
+", _fileSystem.File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
 
         //it should be no longer be novel
         Assert.IsFalse(ignorer.OnLoad(failure, out _));
@@ -141,7 +141,7 @@ class TestIgnoreRuleGenerator
         var newRules = _fileSystem.FileInfo.New("IgnoreList.yaml");
 
         //create an existing rule to check that Undo doesn't just nuke the entire file
-        _fileSystem.File.WriteAllText(newRules.FullName,@"- Action: Ignore
+        _fileSystem.File.WriteAllText(newRules.FullName, @"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^Joker Wuz Ere$
 ");
@@ -149,33 +149,33 @@ class TestIgnoreRuleGenerator
         var ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
 
         //it should be novel i.e. require user decision
-        Assert.IsTrue(ignorer.OnLoad(failure,out _));
+        Assert.IsTrue(ignorer.OnLoad(failure, out _));
 
         //we tell it to ignore this value
         ignorer.Add(failure);
-            
+
         TestHelpers.Contains(
             @"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$
-",_fileSystem.File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
+", _fileSystem.File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
 
         //it should be no longer be novel
         Assert.IsFalse(ignorer.OnLoad(failure, out _));
 
         //Undo
-        Assert.AreEqual(1,ignorer.History.Count);
-        Assert.AreEqual(2,ignorer.Rules.Count);
+        Assert.AreEqual(1, ignorer.History.Count);
+        Assert.AreEqual(2, ignorer.Rules.Count);
         ignorer.Undo();
 
-        Assert.AreEqual(0,ignorer.History.Count);
-        Assert.AreEqual(1,ignorer.Rules.Count);
+        Assert.AreEqual(0, ignorer.History.Count);
+        Assert.AreEqual(1, ignorer.Rules.Count);
 
         //only the original one should be there
         Assert.AreEqual(@"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^Joker Wuz Ere$
-",_fileSystem.File.ReadAllText(newRules.FullName));
+", _fileSystem.File.ReadAllText(newRules.FullName));
 
         //repeated undo calls do nothing
         ignorer.Undo();
@@ -183,7 +183,7 @@ class TestIgnoreRuleGenerator
         ignorer.Undo();
     }
 
-        
+
     [Test]
     public void Test_DeleteRule()
     {
@@ -202,7 +202,7 @@ class TestIgnoreRuleGenerator
         var newRules = _fileSystem.FileInfo.New("IgnoreList.yaml");
 
         //create an existing rule to check that Undo doesn't just nuke the entire file
-        _fileSystem.File.WriteAllText(newRules.FullName,@"- Action: Ignore
+        _fileSystem.File.WriteAllText(newRules.FullName, @"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^Joker Wuz Ere$
 ");
@@ -210,28 +210,28 @@ class TestIgnoreRuleGenerator
         var ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
 
         //it should be novel i.e. require user decision
-        Assert.IsTrue(ignorer.OnLoad(failure,out _));
+        Assert.IsTrue(ignorer.OnLoad(failure, out _));
 
         //we tell it to ignore this value
         ignorer.Add(failure);
-            
+
         TestHelpers.Contains(
             @"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$
-",_fileSystem.File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
+", _fileSystem.File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
 
         //it should be no longer be novel
         Assert.IsFalse(ignorer.OnLoad(failure, out _));
 
         //Remove the last one
-        Assert.AreEqual(2,ignorer.Rules.Count);
+        Assert.AreEqual(2, ignorer.Rules.Count);
         var result = ignorer.Delete(ignorer.Rules[1]);
 
         Assert.IsTrue(result);
 
         //deleted from memory
-        Assert.AreEqual(1,ignorer.Rules.Count);
+        Assert.AreEqual(1, ignorer.Rules.Count);
 
 
         var newRulebaseYaml = _fileSystem.File.ReadAllText(newRules.FullName);
@@ -240,11 +240,11 @@ class TestIgnoreRuleGenerator
         StringAssert.Contains(@"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^Joker Wuz Ere$
-",newRulebaseYaml);
+", newRulebaseYaml);
 
-        StringAssert.Contains("# Rule deleted by ",newRulebaseYaml);
-                       
-        StringAssert.DoesNotContain("Kansas",newRulebaseYaml);
+        StringAssert.Contains("# Rule deleted by ", newRulebaseYaml);
+
+        StringAssert.DoesNotContain("Kansas", newRulebaseYaml);
 
         //repeated undo calls do nothing
         ignorer.Undo();

@@ -1,14 +1,13 @@
-﻿using System;
+﻿using FAnsi.Discovery;
+using FAnsi.Discovery.QuerySyntax;
+using IsIdentifiable.Options;
+using IsIdentifiable.Reporting;
+using NLog;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO.Abstractions;
 using System.Linq;
-using FAnsi.Discovery;
-using FAnsi.Discovery.QuerySyntax;
-using IsIdentifiable.Failures;
-using IsIdentifiable.Options;
-using IsIdentifiable.Reporting;
-using NLog;
 
 namespace IsIdentifiable.Runners;
 
@@ -71,7 +70,7 @@ public class DatabaseRunner : IsIdentifiableAbstractRunner
 FROM 
 {tbl.GetFullyQualifiedName()}
 {(top is { Location: QueryComponent.Postfix } ? top.SQL : "")}"
-            ,con);
+            , con);
 
         _logger.Info($"About to send command:{Environment.NewLine}{cmd.CommandText}");
 

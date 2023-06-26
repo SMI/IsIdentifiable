@@ -1,8 +1,8 @@
-﻿using System;
+﻿using CommandLine;
+using CommandLine.Text;
+using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
-using CommandLine;
-using CommandLine.Text;
 
 namespace IsIdentifiable.Options;
 
@@ -16,14 +16,14 @@ public class IsIdentifiableMongoOptions : IsIdentifiableDicomOptions
     /// <summary>
     /// The database to connect to
     /// </summary>
-    [Option('d',"db", Required = true, HelpText = "The database to scan")]
+    [Option('d', "db", Required = true, HelpText = "The database to scan")]
     public string DatabaseName { get; set; }
 
 
     /// <summary>
     /// The name of the collection which should be queried
     /// </summary>
-    [Option('l',"coll", Required = true, HelpText = "The collection to scan")]
+    [Option('l', "coll", Required = true, HelpText = "The collection to scan")]
     public string CollectionName { get; set; }
 
     /// <summary>

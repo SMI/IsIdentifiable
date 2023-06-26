@@ -1,10 +1,10 @@
-﻿using System;
+﻿using IsIdentifiable.Options;
+using IsIdentifiable.Redacting;
+using IsIdentifiable.Rules;
+using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
-using IsIdentifiable.Options;
-using IsIdentifiable.Redacting;
-using IsIdentifiable.Rules;
 using Terminal.Gui;
 using Terminal.Gui.Trees;
 
@@ -23,7 +23,7 @@ class AllRulesManagerView : View, ITreeBuilder<object>
     private readonly TreeView<object> _treeView;
     private readonly IFileSystem _fileSystem;
 
-    public AllRulesManagerView(IsIdentifiableBaseOptions? analyserOpts , IsIdentifiableReviewerOptions reviewerOpts, IFileSystem fileSystem)
+    public AllRulesManagerView(IsIdentifiableBaseOptions? analyserOpts, IsIdentifiableReviewerOptions reviewerOpts, IFileSystem fileSystem)
     {
         _fileSystem = fileSystem;
 
@@ -85,7 +85,7 @@ class AllRulesManagerView : View, ITreeBuilder<object>
             {
                 if (MessageBox.Query("Delete Rules", $"Delete {allSelected.Length} rules?", "Yes", "No") != 0)
                     return;
-                foreach(var r in allSelected.Cast<IsIdentifiableRule>())
+                foreach (var r in allSelected.Cast<IsIdentifiableRule>())
                 {
                     // remove the rules
                     outBase.Rules.Remove(r);
@@ -99,10 +99,10 @@ class AllRulesManagerView : View, ITreeBuilder<object>
             //is only 1 and it is an Analyser rule under a RuleTypeNode
             if (parents[0] is RuleTypeNode ruleTypeNode)
             {
-                if(ruleTypeNode.Rules == null)
+                if (ruleTypeNode.Rules == null)
                     throw new Exception("RuleTypeNode did not contain any rules, how are you deleting a node!?");
 
-                foreach(var rule in allSelected.Cast<ICustomRule>()) ruleTypeNode.Rules.Remove(rule);
+                foreach (var rule in allSelected.Cast<ICustomRule>()) ruleTypeNode.Rules.Remove(rule);
 
                 ruleTypeNode.Parent.Save();
                 _treeView.RefreshObject(ruleTypeNode);
@@ -124,24 +124,24 @@ class AllRulesManagerView : View, ITreeBuilder<object>
 
     private void Tv_SelectionChanged(object? sender, SelectionChangedEventArgs<object> e)
     {
-        if(e.NewValue is ICustomRule r)
+        if (e.NewValue is ICustomRule r)
         {
             _detailView.SetupFor(r);
         }
         if (e.NewValue is OutBase rulesFile)
         {
-            _detailView.SetupFor(rulesFile,rulesFile.RulesFile);
+            _detailView.SetupFor(rulesFile, rulesFile.RulesFile);
         }
 
-        if(e.NewValue is RuleSetFileNode rsf)
+        if (e.NewValue is RuleSetFileNode rsf)
         {
-            _detailView.SetupFor(rsf,rsf.File);
+            _detailView.SetupFor(rsf, rsf.File);
         }
     }
 
     private string NodeAspectGetter(object toRender)
     {
-        if(toRender is IsIdentifiableRule basicrule)
+        if (toRender is IsIdentifiableRule basicrule)
         {
             return basicrule.IfPattern;
         }
@@ -155,7 +155,7 @@ class AllRulesManagerView : View, ITreeBuilder<object>
             return ignoreRule.IfPattern ?? ignoreRule.IfPartPattern;
         }
 
-        if(toRender is OutBase outBase)
+        if (toRender is OutBase outBase)
         {
             return outBase.RulesFile.Name;
         }
@@ -188,11 +188,11 @@ class AllRulesManagerView : View, ITreeBuilder<object>
 
     private IEnumerable<object> GetChildrenImpl(object forObject)
     {
-        if(ReferenceEquals(forObject,Analyser))
+        if (ReferenceEquals(forObject, Analyser))
         {
-            if(!string.IsNullOrWhiteSpace(_analyserOpts?.RulesDirectory))
+            if (!string.IsNullOrWhiteSpace(_analyserOpts?.RulesDirectory))
             {
-                foreach (var f in _fileSystem.Directory.GetFiles(_analyserOpts.RulesDirectory,"*.yaml"))
+                foreach (var f in _fileSystem.Directory.GetFiles(_analyserOpts.RulesDirectory, "*.yaml"))
                 {
                     yield return new RuleSetFileNode(_fileSystem.FileInfo.New(f));
                 }
@@ -201,16 +201,16 @@ class AllRulesManagerView : View, ITreeBuilder<object>
             if (!string.IsNullOrWhiteSpace(_analyserOpts?.RulesFile))
             {
                 var file = _fileSystem.FileInfo.New(_analyserOpts.RulesFile);
-                
+
                 if (file.Exists)
                 {
                     yield return new RuleSetFileNode(file);
                 }
             }
         }
-        if (ReferenceEquals(forObject,Reviewer))
+        if (ReferenceEquals(forObject, Reviewer))
         {
-            if(!string.IsNullOrWhiteSpace(_reviewerOpts.Reportlist))
+            if (!string.IsNullOrWhiteSpace(_reviewerOpts.Reportlist))
             {
                 yield return new RowUpdater(_fileSystem, _fileSystem.FileInfo.New(_reviewerOpts.Reportlist));
             }
@@ -222,16 +222,16 @@ class AllRulesManagerView : View, ITreeBuilder<object>
 
         if (forObject is RuleSetFileNode ruleSet)
         {
-                
+
             yield return new RuleTypeNode(ruleSet, nameof(RuleSet.BasicRules));
             yield return new RuleTypeNode(ruleSet, nameof(RuleSet.SocketRules));
             yield return new RuleTypeNode(ruleSet, nameof(RuleSet.AllowlistRules));
-            yield return new RuleTypeNode(ruleSet, nameof(RuleSet.ConsensusRules));                
+            yield return new RuleTypeNode(ruleSet, nameof(RuleSet.ConsensusRules));
         }
 
-        if(forObject is RuleTypeNode ruleType && ruleType.Rules != null)
+        if (forObject is RuleTypeNode ruleType && ruleType.Rules != null)
         {
-            foreach(var r in ruleType.Rules)
+            foreach (var r in ruleType.Rules)
             {
                 yield return r;
             }

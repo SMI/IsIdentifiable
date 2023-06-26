@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO.Abstractions;
-using System.Linq;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Destinations;
 using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Rules;
 using NLog;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO.Abstractions;
+using System.Linq;
 
 namespace IsIdentifiable.Redacting;
 
@@ -59,7 +59,7 @@ public class UnattendedReviewer
     /// <param name="updater">Rules base for redacting true positives</param>
     /// <param name="fileSystem"></param>
     public UnattendedReviewer(IsIdentifiableReviewerOptions opts, Target target, IgnoreRuleGenerator ignorer, RowUpdater updater, IFileSystem fileSystem)
-    {        
+    {
         _log = LogManager.GetCurrentClassLogger();
 
         _fileSystem = fileSystem;
@@ -75,7 +75,7 @@ public class UnattendedReviewer
         if (!opts.OnlyRules)
             _target = target ?? throw new Exception("A single Target must be supplied for database updates");
 
-        _reportReader = new ReportReader(fi, fileSystem);
+        _reportReader = new ReportReader(fi);
 
         if (string.IsNullOrWhiteSpace(opts.UnattendedOutputPath))
             throw new Exception("An output path must be specified for Failures that could not be resolved");
@@ -138,7 +138,7 @@ public class UnattendedReviewer
                     }
                 else
                 {
-                    if (!_updateRulesUsed.TryAdd(updateRule,1))
+                    if (!_updateRulesUsed.TryAdd(updateRule, 1))
                         _updateRulesUsed[updateRule]++;
                     Updates++;
                 }

@@ -1,10 +1,10 @@
-﻿using System;
+﻿using FAnsi.Discovery;
+using IsIdentifiable.Reporting;
+using IsIdentifiable.Rules;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using FAnsi.Discovery;
-using IsIdentifiable.Reporting;
-using IsIdentifiable.Rules;
 
 namespace IsIdentifiable.Redacting.UpdateStrategies;
 

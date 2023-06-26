@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using IsIdentifiable.Options;
-using IsIdentifiable.Reporting;
+﻿using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Runners;
 using NUnit.Framework;
+using System.IO;
+using System.Linq;
 
 namespace IsIdentifiable.Tests.RunnerTests;
 
@@ -65,7 +63,7 @@ public class DicomFileRunnerTest
 
         var fileName = Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(DicomFileRunnerTest), "f1.dcm");
         TestData.Create(fileSystem.FileInfo.New(fileName), TestData.BURNED_IN_TEXT_IMG);
-        
+
         var runner = new DicomFileRunner(opts, fileSystem);
 
         var fileInfo = fileSystem.FileInfo.New(fileName);

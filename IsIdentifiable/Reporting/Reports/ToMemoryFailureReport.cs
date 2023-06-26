@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using IsIdentifiable.Options;
+﻿using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Destinations;
+using System.Collections.Generic;
 
 namespace IsIdentifiable.Reporting.Reports;
 
@@ -24,7 +24,7 @@ public class ToMemoryFailureReport : IFailureReport
     /// </summary>
     public void AddDestinations(IsIdentifiableBaseOptions options)
     {
-            
+
     }
 
     /// <summary>
@@ -32,7 +32,7 @@ public class ToMemoryFailureReport : IFailureReport
     /// </summary>
     public void DoneRows(int numberDone)
     {
-            
+
     }
 
     /// <summary>
@@ -49,6 +49,6 @@ public class ToMemoryFailureReport : IFailureReport
     /// </summary>
     public void CloseReport()
     {
-            
+
     }
 }

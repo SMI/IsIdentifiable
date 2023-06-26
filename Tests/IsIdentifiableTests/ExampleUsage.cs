@@ -22,11 +22,11 @@ internal class ExampleUsage
             var content = "Patient DoB is 2Mar he is my best buddy. CHI number is 0101010101";
 
             // validate some example data we might have fetched
-            var badParts = Validate(field,content);
+            var badParts = Validate(field, content);
 
             // You can ignore or adjust these badParts if you want before passing to destination reports
             var failureParts = badParts.ToList();
-            if(failureParts.Any())
+            if (failureParts.Any())
             {
                 var f = new Failure(failureParts)
                 {
@@ -59,7 +59,7 @@ internal class ExampleUsage
         // fetch and analyise data
         runner.Run();
 
-        Assert.AreEqual(1,dest.Failures.Count);
+        Assert.AreEqual(1, dest.Failures.Count);
         Assert.AreEqual(2, dest.Failures[0].Parts.Count);
         Assert.AreEqual("2Mar", dest.Failures[0].Parts[0].Word);
         Assert.AreEqual("0101010101", dest.Failures[0].Parts[1].Word);

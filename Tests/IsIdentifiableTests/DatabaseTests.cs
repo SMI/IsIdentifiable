@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Xml.Linq;
-using FAnsi;
+﻿using FAnsi;
 using FAnsi.Discovery;
 using FAnsi.Discovery.Constraints;
 using FAnsi.Implementation;
@@ -12,6 +7,11 @@ using FAnsi.Implementations.MySql;
 using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace IsIdentifiable.Tests;
 
@@ -40,15 +40,15 @@ public class DatabaseTests
 
             var doc = XDocument.Load(TestFilename);
 
-            var root = doc.Element("TestDatabases")??throw new Exception($"Missing element 'TestDatabases' in {TestFilename}");
+            var root = doc.Element("TestDatabases") ?? throw new Exception($"Missing element 'TestDatabases' in {TestFilename}");
 
-            var settings = root.Element("Settings")??throw new Exception($"Missing element 'Settings' in {TestFilename}");
+            var settings = root.Element("Settings") ?? throw new Exception($"Missing element 'Settings' in {TestFilename}");
 
-            var e = settings.Element("AllowDatabaseCreation")??throw new Exception($"Missing element 'AllowDatabaseCreation' in {TestFilename}");
+            var e = settings.Element("AllowDatabaseCreation") ?? throw new Exception($"Missing element 'AllowDatabaseCreation' in {TestFilename}");
 
             AllowDatabaseCreation = Convert.ToBoolean(e.Value);
 
-            e = settings.Element("TestScratchDatabase")??throw new Exception($"Missing element 'TestScratchDatabase' in {TestFilename}");
+            e = settings.Element("TestScratchDatabase") ?? throw new Exception($"Missing element 'TestScratchDatabase' in {TestFilename}");
 
             _testScratchDatabase = e.Value;
 
@@ -159,7 +159,7 @@ public class DatabaseTests
 
         foreach (DataRow row1 in dt1.Rows)
         {
-            var match = dt2.Rows.Cast<DataRow>().Any(row2=> dt1.Columns.Cast<DataColumn>().All(column => AreBasicallyEquals(row1[column.ColumnName], row2[column.ColumnName])));
+            var match = dt2.Rows.Cast<DataRow>().Any(row2 => dt1.Columns.Cast<DataColumn>().All(column => AreBasicallyEquals(row1[column.ColumnName], row2[column.ColumnName])));
             Assert.IsTrue(match, "Couldn't find match for row:{0}", string.Join(",", row1.ItemArray));
         }
 

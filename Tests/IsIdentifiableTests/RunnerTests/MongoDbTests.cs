@@ -1,4 +1,4 @@
-﻿using IsIdentifiable.Options;
+using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Rules;
 using IsIdentifiable.Runners;
@@ -72,9 +72,8 @@ namespace IsIdentifiable.Tests.RunnerTests
                 return Host + ":" + Port;
             }
         }
-        private MongoClient GetMongoClient()
+        private static MongoClient GetMongoClient()
         {
-
             var address = GetMongoClientSettings();
 
             TestContext.Out.WriteLine("Checking the following configuration:" + Environment.NewLine + address);
@@ -105,7 +104,7 @@ namespace IsIdentifiable.Tests.RunnerTests
             var client = GetMongoClient();
             var cursor = client.ListDatabases();
             cursor.Dispose();
-            
+
         }
 
         public const string ColorJson =
@@ -140,14 +139,12 @@ namespace IsIdentifiable.Tests.RunnerTests
 	}
 ]}";
 
-
-        static object[] TestDocuments =
+        private static readonly object[] TestDocuments =
         {
             new object[] { "{Name: \"hello\"}","Name", "[a-z]+","Name","hello"},
             new object[] { "{Name: [\"Clem\", \"Fandango\"]}","Name", "Fand.*", "Name[1]","Fandango"},
             new object[] { ColorJson,null, "magenta","Colors[4]->color","magenta"},
         };
-
 
         /// <summary>
         /// Tests picking up identifiable data in root level or sublevel tags of MongoDb documents
@@ -159,7 +156,7 @@ namespace IsIdentifiable.Tests.RunnerTests
         /// <param name="expectedFullPath">The fully expressed path you expect to see indicated in reports when picking up this pattern (MongoDb documents are tree data structures)</param>
         /// <param name="expectedFailingValue">The leaf value that your problem data should be found in (i.e. tag name)</param>
         [TestCaseSource(nameof(TestDocuments))]
-        public void TestAnalyseIdentifiableDataInMongoDb(string json, string column, string regex, string expectedFullPath,string expectedFailingValue)
+        public void TestAnalyseIdentifiableDataInMongoDb(string json, string column, string regex, string expectedFullPath, string expectedFailingValue)
         {
             const string collectionName = "SomeData";
             const string databaseName = "IsIdentifiableTests";
@@ -184,7 +181,7 @@ namespace IsIdentifiable.Tests.RunnerTests
             Assert.IsTrue(res.IsAcknowledged);
 
             var read = collection.WithReadConcern(ReadConcern.Available);
-            Assert.AreEqual(1, read.CountDocuments((d)=>true), "There should be exactly 1 document in the collection");
+            Assert.AreEqual(1, read.CountDocuments((d) => true), "There should be exactly 1 document in the collection");
 
             var settings = GetMongoClientSettings();
 
@@ -194,7 +191,7 @@ namespace IsIdentifiable.Tests.RunnerTests
                 CollectionName = collectionName,
                 MongoConnectionString = $"mongodb://{settings.Server}",
                 StoreReport = true
-            }, _fileSystem) ;
+            }, _fileSystem);
 
             runner.CustomRules.Add(new IsIdentifiableRule
             {
@@ -207,9 +204,9 @@ namespace IsIdentifiable.Tests.RunnerTests
             var toMem = new ToMemoryFailureReport();
             runner.Reports.Add(toMem);
 
-            Assert.AreEqual(0,runner.Run(),"MongoDb runner returned a non zero exit code. Indicating failure");
+            Assert.AreEqual(0, runner.Run(), "MongoDb runner returned a non zero exit code. Indicating failure");
             Assert.AreEqual(1, runner.CountOfFailureParts, "IsIdentifiable did not find exactly 1 failing value, this test only caters for single matches");
-            
+
 
             var f = toMem.Failures.Single();
             Assert.AreEqual(expectedFullPath, f.ProblemField);

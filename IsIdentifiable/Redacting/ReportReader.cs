@@ -1,9 +1,9 @@
-﻿using System;
+using IsIdentifiable.Reporting;
+using IsIdentifiable.Reporting.Reports;
+using System;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
-using IsIdentifiable.Reporting;
-using IsIdentifiable.Reporting.Reports;
 
 namespace IsIdentifiable.Redacting;
 
@@ -30,7 +30,7 @@ public class ReportReader
     /// The <see cref="CurrentIndex"/> of <see cref="Failures"/> or null
     /// </summary>
     public Failure Current => _current < Failures.Length ? Failures[_current] : null;
-        
+
     /// <summary>
     /// True if <see cref="CurrentIndex"/> is after the end of the <see cref="Failures"/>
     /// </summary>
@@ -40,11 +40,9 @@ public class ReportReader
     /// Reads the <paramref name="csvFile"/> and populates <see cref="Failures"/>
     /// </summary>
     /// <param name="csvFile">A CSV file created by a <see cref="FailureStoreReport"/></param>
-    /// <param name="fileSystem"></param>
-    public ReportReader(IFileInfo csvFile, IFileSystem fileSystem)
+    public ReportReader(IFileInfo csvFile)
     {
-        var report = new FailureStoreReport("", 0, fileSystem);
-        Failures = report.Deserialize(csvFile).ToArray();
+        Failures = FailureStoreReport.Deserialize(csvFile).ToArray();
     }
 
     /// <summary>

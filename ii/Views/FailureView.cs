@@ -1,7 +1,7 @@
-﻿using System;
+﻿using IsIdentifiable.Reporting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using IsIdentifiable.Reporting;
 using Terminal.Gui;
 using Attribute = Terminal.Gui.Attribute;
 
@@ -56,7 +56,7 @@ class FailureView : View
                 }
                 else
                 {
-                    newColor = CurrentFailure?.Parts.Any(p => p.Includes(characterOffset))==true
+                    newColor = CurrentFailure?.Parts.Any(p => p.Includes(characterOffset)) == true
                         ? _attHighlight
                         : _attNormal;
 

@@ -1,21 +1,21 @@
+using DicomTypeTranslation;
+using FellowOakDicom;
+using FellowOakDicom.Imaging;
+using ImageMagick;
+using IsIdentifiable.Failures;
+using IsIdentifiable.Options;
+using IsIdentifiable.Reporting;
+using IsIdentifiable.Reporting.Reports;
+using NLog;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
-using FellowOakDicom;
-using FellowOakDicom.Imaging;
-using DicomTypeTranslation;
-using IsIdentifiable.Failures;
-using IsIdentifiable.Options;
-using IsIdentifiable.Reporting;
-using IsIdentifiable.Reporting.Reports;
-using NLog;
 using Tesseract;
-using ImageMagick;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
 
 namespace IsIdentifiable.Runners;
 
@@ -29,7 +29,6 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
 {
     private readonly IsIdentifiableDicomFileOptions _opts;
     private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-    private readonly DicomFileFailureFactory _factory = new();
 
     private readonly TesseractEngine _tesseractEngine;
     private readonly PixelTextFailureReport _tesseractReport;
@@ -50,12 +49,12 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     /// not validation failures.  Any errors result in nonzero exit code
     /// </summary>
     private int errors = 0;
-        
+
 
     /// <summary>
     /// Determines system behaviour when invalid files are encountered 
     /// </summary>
-    public bool ThrowOnError {get;set;} = true;
+    public bool ThrowOnError { get; set; } = true;
 
     /// <summary>
     /// Creates a new instance based on the <paramref name="opts"/>.  Options include what
@@ -79,8 +78,8 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         //OR if using fo-dicom.Native DICOM codecs
         // (see https://github.com/fo-dicom/fo-dicom/issues/631)
         // Don't use WinForms, that makes us Windows-only! ImageManager.SetImplementation(new WinFormsImageManager()); 
-        new DicomSetupBuilder().RegisterServices(s=>s.AddImageManager<ImageSharpImageManager>()).Build();
- 
+        new DicomSetupBuilder().RegisterServices(s => s.AddImageManager<ImageSharpImageManager>()).Build();
+
         //if there is a value we are treating as a zero date
         if (!string.IsNullOrWhiteSpace(_opts.ZeroDate))
             _zeroDate = DateTime.Parse(_opts.ZeroDate);
@@ -99,7 +98,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
             var languageFile = FileSystem.FileInfo.New(FileSystem.Path.Combine(dir.FullName, "eng.traineddata"));
 
             if (!languageFile.Exists)
-                throw new System.IO.FileNotFoundException($"Could not find tesseract models file ('{languageFile.FullName}')",languageFile.FullName);
+                throw new System.IO.FileNotFoundException($"Could not find tesseract models file ('{languageFile.FullName}')", languageFile.FullName);
 
             TesseractLinuxLoaderFix.Patch();
             _tesseractEngine = new TesseractEngine(dir.FullName, "eng", EngineMode.Default)
@@ -145,21 +144,21 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
             {
                 ValidateDicomFile(FileSystem.FileInfo.New(file));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                if(ThrowOnError)
+                if (ThrowOnError)
                 {
                     throw;
                 }
                 else
                 {
-                    _logger.Error(ex,$"Failed to validate {file}");
+                    _logger.Error(ex, $"Failed to validate {file}");
                     errors++;
                 }
-                
+
             }
         }
-            
+
 
         //now directories
         foreach (var directory in FileSystem.Directory.GetDirectories(root))
@@ -202,8 +201,8 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         {
             var sequenceItemDataSets = dataset.GetSequence(dicomItem.Tag);
             foreach (var sequenceItemDataSet in sequenceItemDataSets)
-            foreach (var sequenceItem in sequenceItemDataSet)
-                ValidateDicomItem(fi, dicomFile, sequenceItemDataSet, sequenceItem);
+                foreach (var sequenceItem in sequenceItemDataSet)
+                    ValidateDicomItem(fi, dicomFile, sequenceItemDataSet, sequenceItem);
         }
         else
         {
@@ -226,13 +225,13 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                     Validate(fi, dicomFile, dicomItem, asString);
                     break;
                 case IEnumerable<string> enumerable:
-                {
-                    foreach (var s in enumerable)
-                        Validate(fi, dicomFile, dicomItem, s);
-                    break;
-                }
+                    {
+                        foreach (var s in enumerable)
+                            Validate(fi, dicomFile, dicomItem, s);
+                        break;
+                    }
                 case DateTime time when _opts.NoDateFields && _zeroDate != time:
-                    AddToReports(_factory.Create(fi, dicomFile, time.ToString(), dicomItem.Tag.DictionaryEntry.Keyword, new[] { new FailurePart(time.ToString(), FailureClassification.Date, 0) }));
+                    AddToReports(DicomFileFailureFactory.Create(fi, dicomFile, time.ToString(), dicomItem.Tag.DictionaryEntry.Keyword, new[] { new FailurePart(time.ToString(), FailureClassification.Date, 0) }));
                     break;
             }
         }
@@ -252,7 +251,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         var parts = Validate(tagName, fieldValue).ToList();
 
         if (parts.Any())
-            AddToReports(_factory.Create(fi, dicomFile, fieldValue, tagName, parts));
+            AddToReports(DicomFileFailureFactory.Create(fi, dicomFile, fieldValue, tagName, parts));
     }
 
     void ValidateDicomPixelData(IFileInfo fi, DicomFile dicomFile, DicomDataset ds)
@@ -271,7 +270,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         {
             var dicomImageObj = new DicomImage(fi.FullName);
             var numFrames = dicomImageObj.NumberOfFrames;
-            for (var frameNum=0; frameNum < numFrames; frameNum++)
+            for (var frameNum = 0; frameNum < numFrames; frameNum++)
             {
                 _logger.Info($" Frame {frameNum} in '{fi.FullName}'");
                 dicomImageObj.OverlayColor = 0xffffff; // white, as default magenta not good for tesseract
@@ -289,10 +288,10 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                 // Threshold the image to monochrome using a window size of 25 square
                 // The size 25 was determined empirically based on real images (could be larger, less effective if smaller)
                 mi.AdaptiveThreshold(25, 25);
-                ProcessBitmapMemStream(mi,false,fi, dicomFile, sopID, studyID, seriesID, modality, imageType, 0, frameNum);
+                ProcessBitmapMemStream(mi, false, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, 0, frameNum);
                 // Tesseract only works with black text on white background so run again negated
                 mi.Negate();
-                ProcessBitmapMemStream(mi,false, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, 0, frameNum);
+                ProcessBitmapMemStream(mi, false, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, 0, frameNum);
 
                 // Need to threshold and possibly negate the image for best results
                 // Magick.NET won't read from Bitmap directly in .net core so go via MemoryStream
@@ -300,7 +299,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                 //if user wants to rotate the image 90, 180 and 270 degrees
                 // XXX this is done from the dicomImage, maybe need to threshold/negate here too?
                 if (!_opts.Rotate) continue;
-                
+
                 for (var i = 0; i < 3; i++)
                 {
                     //rotate image 90 degrees and run OCR again
@@ -338,7 +337,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                 // Get multiple frames?
                 var numoverlayframes = overlay.NumberOfFrames;
                 var overlayframesize = overlay.Rows * overlay.Columns;
-                _logger.Debug($"Overlay {group-0x6000} in '{fi.FullName}' bitpos={bitpos}, {overlay.Columns}x{overlay.Rows} x{numframes} frames, bytes={overlayBytes.Length}");
+                _logger.Debug($"Overlay {group - 0x6000} in '{fi.FullName}' bitpos={bitpos}, {overlay.Columns}x{overlay.Rows} x{numframes} frames, bytes={overlayBytes.Length}");
 
                 var overlayBits = new BitArray(overlayBytes);
                 // XXX can we simply multiply height by numframes to make one very long image?
@@ -347,7 +346,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                 for (var ovframenum = 0; ovframenum < numoverlayframes; ovframenum++)
                 {
                     var overlayBuf = new byte[overlayframesize];
-                    for (var ii=0; ii<overlayframesize; ii++)
+                    for (var ii = 0; ii < overlayframesize; ii++)
                     {
                         overlayBuf[ii] = overlayBits.Get((ovframenum * overlayframesize) + ii) ? (byte)0 : (byte)255;
                     }
@@ -366,16 +365,16 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                     //magick_image.Write($"{fi.FullName}.ov{group-0x6000}.frame{ovframenum}.png", MagickFormat.Png);
                     // Tesseract only works with black text on white background so run again negated
                     magick_image.Negate();
-                    ProcessBitmapMemStream(magick_image,true, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, 0, group, ovframenum);
+                    ProcessBitmapMemStream(magick_image, true, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, 0, group, ovframenum);
                 }
-                
+
             }
         }
         catch (Exception e)
         {
             // An internal error should cause IsIdentifiable to exit
             _logger.Info(e, $"Could not run Tesseract on '{fi.FullName}'");
-            throw new ApplicationException ($"Could not run Tesseract on '{fi.FullName}'", e);
+            throw new ApplicationException($"Could not run Tesseract on '{fi.FullName}'", e);
 
             // OR add a message to the report saying we failed to run OCR
             //string problemField = "PixelData";
@@ -387,7 +386,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         }
     }
 
-    private void ProcessBitmapMemStream(byte [] bytes, IFileInfo fi, DicomFile dicomFile, string sopID,
+    private void ProcessBitmapMemStream(byte[] bytes, IFileInfo fi, DicomFile dicomFile, string sopID,
         string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0,
         int frame = -1, int overlay = -1)
     {
@@ -406,17 +405,17 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         if (string.IsNullOrWhiteSpace(text)) return;
 
         var problemField = rotationIfAny != 0 ? $"{PixelData}{rotationIfAny}" : PixelData;
-                
-        if(text.Length < _ignoreTextLessThan)
+
+        if (text.Length < _ignoreTextLessThan)
             _logger.Debug($"Ignoring pixel data discovery in {fi.Name} of length {text.Length} because it is below the threshold {_ignoreTextLessThan}");
         else
         {
-            var f = _factory.Create(fi, dicomFile, text, problemField, new[] { new FailurePart(text, FailureClassification.PixelText) });
+            var f = DicomFileFailureFactory.Create(fi, dicomFile, text, problemField, new[] { new FailurePart(text, FailureClassification.PixelText) });
             AddToReports(f);
             _tesseractReport.FoundPixelData(fi, sopID, studyID, seriesID, modality, imageType, meanConfidence, text.Length, text, rotationIfAny, frame, overlay);
         }
     }
-    
+
     /// <summary>
     /// Convert the provided MagickImage object to either a BMP or PGM format byte array, then process above
     /// </summary>
@@ -432,18 +431,18 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     /// <param name="rotationIfAny"></param>
     /// <param name="frame"></param>
     /// <param name="overlay"></param>
-    private void ProcessBitmapMemStream(MagickImage mi,bool forcePgm, IFileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0, int frame = -1, int overlay = -1)
+    private void ProcessBitmapMemStream(MagickImage mi, bool forcePgm, IFileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0, int frame = -1, int overlay = -1)
     {
         byte[] bytes;
         using (System.IO.MemoryStream ms = new())
         {
             if (forcePgm)
-                mi.Write(ms,MagickFormat.Pgm);
+                mi.Write(ms, MagickFormat.Pgm);
             else
                 mi.Write(ms);
             bytes = ms.ToArray();
         }
-        ProcessBitmapMemStream(bytes,fi,dicomFile,sopID,studyID,seriesID,modality,imageType,rotationIfAny, frame, overlay);
+        ProcessBitmapMemStream(bytes, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, rotationIfAny, frame, overlay);
     }
 
     /// <summary>
@@ -488,6 +487,6 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     /// <returns></returns>
     private static string GetTagOrUnknown(DicomDataset ds, DicomTag dt)
     {
-        return ds.Contains(dt) ? ds.GetValue<string>(dt, 0):null;
+        return ds.Contains(dt) ? ds.GetValue<string>(dt, 0) : null;
     }
 }

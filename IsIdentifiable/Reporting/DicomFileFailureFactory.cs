@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.IO.Abstractions;
 using FellowOakDicom;
 using IsIdentifiable.Failures;
+using System.Collections.Generic;
+using System.IO.Abstractions;
 
 namespace IsIdentifiable.Reporting;
 
@@ -12,7 +12,7 @@ namespace IsIdentifiable.Reporting;
 /// </summary>
 class DicomFileFailureFactory
 {
-    public Failure Create(IFileInfo file, DicomFile dcm, string problemValue, string problemField, IEnumerable<FailurePart> parts)
+    public static Failure Create(IFileInfo file, DicomFile dcm, string problemValue, string problemField, IEnumerable<FailurePart> parts)
     {
         string resourcePrimaryKey;
         try

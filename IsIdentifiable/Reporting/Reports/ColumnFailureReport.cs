@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO.Abstractions;
@@ -38,21 +38,20 @@ internal class ColumnFailureReport : FailureReport
         if (_rowsProcessed == 0)
             throw new Exception("No rows were processed");
 
-        using (var dt = new DataTable())
+        using var dt = new DataTable();
+
+        lock (_oFailureCountLock)
         {
-            lock (_oFailureCountLock)
-            {
-                foreach (var col in _failureCounts.Keys)
-                    dt.Columns.Add(col);
+            foreach (var col in _failureCounts.Keys)
+                dt.Columns.Add(col);
 
-                var r = dt.Rows.Add();
+            var r = dt.Rows.Add();
 
-                foreach (var kvp in _failureCounts)
-                    r[kvp.Key] = ((double)kvp.Value) / _rowsProcessed;
-            }
-
-            foreach (var d in Destinations) 
-                d.WriteItems(dt);
+            foreach (var kvp in _failureCounts)
+                r[kvp.Key] = ((double)kvp.Value) / _rowsProcessed;
         }
+
+        foreach (var d in Destinations)
+            d.WriteItems(dt);
     }
 }

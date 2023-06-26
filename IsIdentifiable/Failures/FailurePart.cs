@@ -1,5 +1,5 @@
-﻿using IsIdentifiable.Reporting;
-using Equ;
+﻿using Equ;
+using IsIdentifiable.Reporting;
 
 namespace IsIdentifiable.Failures;
 
@@ -35,7 +35,7 @@ public class FailurePart : MemberwiseEquatable<FailurePart>
     /// <param name="word">Part of <see cref="Failure.ProblemValue"/> that is identifiable</param>
     /// <param name="classification">The type of identifying information detected e.g. name, date</param>
     /// <param name="offset">index into the parent <see cref="Failure.ProblemValue"/> that the <paramref name="word"/> starts at</param>
-    public FailurePart(string word,FailureClassification classification,int offset =-1)
+    public FailurePart(string word, FailureClassification classification, int offset = -1)
     {
         Word = word;
         Classification = classification;
@@ -57,7 +57,7 @@ public class FailurePart : MemberwiseEquatable<FailurePart>
 
         return index >= Offset && index < Offset + Word.Length;
     }
-        
+
     /// <summary>
     /// Returns true if the failure part includes ANY of the indexes between start and start+length
     /// </summary>
@@ -67,7 +67,7 @@ public class FailurePart : MemberwiseEquatable<FailurePart>
     public bool Includes(int start, int length)
     {
         for (var i = start; i < start + length; i++)
-            if(Includes(i))
+            if (Includes(i))
                 return true;
 
         return false;

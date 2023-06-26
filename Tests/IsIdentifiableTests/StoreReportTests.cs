@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Reports;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 
 namespace IsIdentifiable.Tests;
 
@@ -14,11 +14,10 @@ class StoreReportTests
     private MockFileSystem _fileSystem;
 
     [SetUp]
-    public void SetUp() 
+    public void SetUp()
     {
         _fileSystem = new MockFileSystem();
     }
-
 
     [Test]
     public void TestReconstructionFromCsv()
@@ -29,8 +28,8 @@ class StoreReportTests
         opts.DestinationCsvFolder = dir.FullName;
         opts.TableName = "HappyOzz";
         opts.StoreReport = true;
-            
-        var report = new FailureStoreReport("HappyOzz",1000, _fileSystem);
+
+        var report = new FailureStoreReport("HappyOzz", 1000, _fileSystem);
         report.AddDestinations(opts);
 
         var failure = new Failure(
@@ -54,26 +53,25 @@ class StoreReportTests
 
         Assert.IsNotNull(created);
 
-        var report2 = new FailureStoreReport("", 0, _fileSystem);
-        var failures2 = report2.Deserialize(created).ToArray();
+        var failures2 = FailureStoreReport.Deserialize(created).ToArray();
 
         //read failure ok
-        Assert.AreEqual(1,failures2.Length);
-        Assert.AreEqual(failure.ProblemValue,failures2[0].ProblemValue);
-        Assert.AreEqual(failure.ProblemField,failures2[0].ProblemField);
-        Assert.AreEqual(failure.ResourcePrimaryKey,failures2[0].ResourcePrimaryKey);
-        Assert.AreEqual(failure.Resource,failures2[0].Resource);
+        Assert.AreEqual(1, failures2.Length);
+        Assert.AreEqual(failure.ProblemValue, failures2[0].ProblemValue);
+        Assert.AreEqual(failure.ProblemField, failures2[0].ProblemField);
+        Assert.AreEqual(failure.ResourcePrimaryKey, failures2[0].ResourcePrimaryKey);
+        Assert.AreEqual(failure.Resource, failures2[0].Resource);
 
         //read parts ok
-        Assert.AreEqual(2,failures2[0].Parts.Count);
+        Assert.AreEqual(2, failures2[0].Parts.Count);
 
-        Assert.AreEqual(failure.Parts[0].Classification,failures2[0].Parts[0].Classification);
-        Assert.AreEqual(failure.Parts[0].Offset,failures2[0].Parts[0].Offset);
-        Assert.AreEqual(failure.Parts[0].Word,failures2[0].Parts[0].Word);
+        Assert.AreEqual(failure.Parts[0].Classification, failures2[0].Parts[0].Classification);
+        Assert.AreEqual(failure.Parts[0].Offset, failures2[0].Parts[0].Offset);
+        Assert.AreEqual(failure.Parts[0].Word, failures2[0].Parts[0].Word);
 
-        Assert.AreEqual(failure.Parts[1].Classification,failures2[0].Parts[1].Classification);
-        Assert.AreEqual(failure.Parts[1].Offset,failures2[0].Parts[1].Offset);
-        Assert.AreEqual(failure.Parts[1].Word,failures2[0].Parts[1].Word);
+        Assert.AreEqual(failure.Parts[1].Classification, failures2[0].Parts[1].Classification);
+        Assert.AreEqual(failure.Parts[1].Offset, failures2[0].Parts[1].Offset);
+        Assert.AreEqual(failure.Parts[1].Word, failures2[0].Parts[1].Word);
 
     }
 
@@ -82,9 +80,9 @@ class StoreReportTests
     public void Test_Includes()
     {
         var origin = "this word fff is the problem";
-            
+
         var part = new FailurePart("fff", FailureClassification.Organization, origin.IndexOf("fff"));
-            
+
         Assert.IsFalse(part.Includes(0));
         Assert.IsFalse(part.Includes(9));
         Assert.IsTrue(part.Includes(10));
@@ -97,9 +95,9 @@ class StoreReportTests
     public void Test_IncludesSingleChar()
     {
         var origin = "this word f is the problem";
-            
+
         var part = new FailurePart("f", FailureClassification.Organization, origin.IndexOf("f"));
-            
+
         Assert.IsFalse(part.Includes(0));
         Assert.IsFalse(part.Includes(9));
         Assert.IsTrue(part.Includes(10));
@@ -108,7 +106,7 @@ class StoreReportTests
         Assert.IsFalse(part.Includes(13));
     }
 
-        
+
 
     [Test]
     public void Test_HaveSameProblem()
@@ -141,7 +139,7 @@ class StoreReportTests
             Resource = "MyTable",
             ResourcePrimaryKey = "1.2.3"
         };
-            
+
         Assert.IsTrue(f1.HaveSameProblem(f2));
         Assert.IsFalse(f1.HaveSameProblem(f3));
         Assert.IsFalse(f1.HaveSameProblem(f4));

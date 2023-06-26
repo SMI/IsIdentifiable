@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using IsIdentifiable.Failures;
+﻿using IsIdentifiable.Failures;
+using System.Collections.Generic;
 
 namespace IsIdentifiable.Rules;
 

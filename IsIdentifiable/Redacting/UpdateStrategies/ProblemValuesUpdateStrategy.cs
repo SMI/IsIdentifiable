@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using FAnsi.Discovery;
+﻿using FAnsi.Discovery;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Rules;
+using System.Collections.Generic;
 
 namespace IsIdentifiable.Redacting.UpdateStrategies;
 
