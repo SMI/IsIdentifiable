@@ -1,4 +1,5 @@
 using IsIdentifiable.Reporting;
+using IsIdentifiable.Rules;
 using IsIdentifiable.Runners;
 using System;
 using System.Linq;
@@ -6,26 +7,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace IsIdentifiable.Redacting;
-
-/// <summary>
-/// Determines which bits of a failure get converted to corresponding symbols
-/// </summary>
-public enum SymbolsRuleFactoryMode
-{
-    /// <summary>
-    /// Generates rules that match characters [A-Z]/[a-z] (depending on capitalization of input string) and digits \d
-    /// </summary>
-    Full,
-    /// <summary>
-    /// Generates rules that match any digits using \d
-    /// </summary>
-    DigitsOnly,
-
-    /// <summary>
-    /// Generates rules that match any characters with [A-Z]/[a-z] (depending on capitalization of input string)
-    /// </summary>
-    CharactersOnly
-}
 
 /// <summary>
 /// Generates Regex patterns for matching <see cref="Failure"/> based on permutations of digits (\d) and/or characters([A-Z] or [a-z]).  See also <seealso cref="SymbolsRuleFactoryMode"/>.

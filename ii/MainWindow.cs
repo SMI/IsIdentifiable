@@ -3,6 +3,7 @@ using ii.Views.Manager;
 using IsIdentifiable.Options;
 using IsIdentifiable.Redacting;
 using IsIdentifiable.Reporting;
+using IsIdentifiable.Rules;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
