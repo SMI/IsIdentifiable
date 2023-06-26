@@ -1,4 +1,4 @@
-﻿using IsIdentifiable.Reporting;
+﻿using IsIdentifiable.Failures;
 using System.Text.RegularExpressions;
 
 namespace IsIdentifiable.Redacting;

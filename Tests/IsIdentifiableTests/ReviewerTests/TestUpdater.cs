@@ -2,7 +2,6 @@
 using IsIdentifiable.Failures;
 using IsIdentifiable.Redacting;
 using IsIdentifiable.Redacting.UpdateStrategies;
-using IsIdentifiable.Reporting;
 using Moq;
 using NUnit.Framework;
 using System.Data;

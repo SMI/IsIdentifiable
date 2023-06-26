@@ -1,5 +1,4 @@
 ﻿using IsIdentifiable.Failures;
-using IsIdentifiable.Reporting;
 using IsIdentifiable.Runners;
 using System.Linq;
 using System.Text;

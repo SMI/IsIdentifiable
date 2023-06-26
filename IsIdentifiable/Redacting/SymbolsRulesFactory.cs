@@ -1,4 +1,4 @@
-using IsIdentifiable.Reporting;
+using IsIdentifiable.Failures;
 using IsIdentifiable.Rules;
 using IsIdentifiable.Runners;
 using System;

@@ -1,8 +1,8 @@
-﻿using ii.Views;
+using ii.Views;
 using ii.Views.Manager;
+using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
 using IsIdentifiable.Redacting;
-using IsIdentifiable.Reporting;
 using IsIdentifiable.Rules;
 using System;
 using System.Collections.Generic;

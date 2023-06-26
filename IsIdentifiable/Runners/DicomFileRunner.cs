@@ -4,7 +4,6 @@ using FellowOakDicom.Imaging;
 using ImageMagick;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
-using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Reports;
 using NLog;
 using SixLabors.ImageSharp;

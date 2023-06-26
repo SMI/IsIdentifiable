@@ -1,5 +1,4 @@
 ﻿using IsIdentifiable.Failures;
-using IsIdentifiable.Reporting;
 using Terminal.Gui.Trees;
 
 namespace ii.Views;

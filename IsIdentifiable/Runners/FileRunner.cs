@@ -1,7 +1,6 @@
 using CsvHelper;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
-using IsIdentifiable.Reporting;
 using NLog;
 using System;
 using System.Collections.Generic;

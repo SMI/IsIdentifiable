@@ -1,4 +1,4 @@
-﻿using IsIdentifiable.Reporting;
+﻿using IsIdentifiable.Failures;
 
 namespace IsIdentifiable.Redacting;
 

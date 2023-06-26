@@ -1,4 +1,4 @@
-﻿using IsIdentifiable.Reporting;
+﻿using IsIdentifiable.Failures;
 using IsIdentifiable.Rules;
 using System.Collections.Generic;
 using Terminal.Gui.Trees;
