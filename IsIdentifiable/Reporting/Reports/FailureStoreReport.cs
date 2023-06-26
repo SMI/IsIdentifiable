@@ -1,13 +1,13 @@
-﻿using System;
+using CsvHelper;
+using IsIdentifiable.Failures;
+using IsIdentifiable.Options;
+using IsIdentifiable.Reporting.Destinations;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
-using CsvHelper;
-using IsIdentifiable.Failures;
-using IsIdentifiable.Options;
-using IsIdentifiable.Reporting.Destinations;
 
 namespace IsIdentifiable.Reporting.Reports;
 
@@ -72,7 +72,7 @@ public class FailureStoreReport : FailureReport
         Destinations.Add(destination);
         destination.WriteHeader((from dc in _dtAllFailures.Columns.Cast<DataColumn>() select dc.ColumnName).ToArray());
     }
-        
+
     /// <summary>
     /// Writes the <paramref name="failure"/> to all <see cref="Destinations"/>.  The full
     /// contents of the <see cref="Failure"/> are written such that it can be reloaded
@@ -115,9 +115,9 @@ public class FailureStoreReport : FailureReport
     /// </summary>
     /// <param name="oldFile">CSV file containing <see cref="Failure"/> instances serialized by this class</param>
     /// <returns></returns>
-    public IEnumerable<Failure> Deserialize(IFileInfo oldFile)
+    public static IEnumerable<Failure> Deserialize(IFileInfo oldFile)
     {
-        return Deserialize(oldFile,(s)=>{ },CancellationToken.None);
+        return Deserialize(oldFile, (s) => { }, CancellationToken.None);
     }
 
     /// <summary>
@@ -130,7 +130,7 @@ public class FailureStoreReport : FailureReport
     /// <param name="token">Cancellation token for aborting the file deserialication (and closing the file again)</param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public static IEnumerable<Failure> Deserialize(IFileInfo oldFile,Action<int> loadedRows, CancellationToken token)
+    public static IEnumerable<Failure> Deserialize(IFileInfo oldFile, Action<int> loadedRows, CancellationToken token)
     {
         var lineNumber = 0;
 
@@ -154,8 +154,8 @@ public class FailureStoreReport : FailureReport
 
             var parts = words.Select((t, i) => new FailurePart(
                 t,
-                Enum.TryParse<FailureClassification>(classes[i], true,out var classification)?classification:throw new Exception($"Invalid failure classification '{classes[i]}' on line {lineNumber}"),
-                int.TryParse(offsets[i],out var offset)?offset:throw new Exception($"Invalid offset '{offsets[i]}' on line {lineNumber}"))).ToList();
+                Enum.TryParse<FailureClassification>(classes[i], true, out var classification) ? classification : throw new Exception($"Invalid failure classification '{classes[i]}' on line {lineNumber}"),
+                int.TryParse(offsets[i], out var offset) ? offset : throw new Exception($"Invalid offset '{offsets[i]}' on line {lineNumber}"))).ToList();
             yield return new Failure(parts)
             {
                 Resource = r["Resource"],

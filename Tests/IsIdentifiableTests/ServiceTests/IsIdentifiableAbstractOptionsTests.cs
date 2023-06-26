@@ -1,7 +1,7 @@
-﻿using System;
-using FAnsi;
+﻿using FAnsi;
 using IsIdentifiable.Options;
 using NUnit.Framework;
+using System;
 
 namespace IsIdentifiable.Tests.ServiceTests;
 
@@ -10,7 +10,7 @@ class IsIdentifiableAbstractOptionsTests
     [Test]
     public void FillMissingWithValuesUsing_NoOptionsAnywhere()
     {
-        var opts = new IsIdentifiableDicomFileOptions();            
+        var opts = new IsIdentifiableDicomFileOptions();
         var globalOpts = new IsIdentifiableBaseOptions();
         opts.InheritValuesFrom(globalOpts);
     }
@@ -20,11 +20,11 @@ class IsIdentifiableAbstractOptionsTests
     {
         var propsCounted = 0;
 
-        foreach(var gProp in typeof(IsIdentifiableBaseOptions).GetProperties())
+        foreach (var gProp in typeof(IsIdentifiableBaseOptions).GetProperties())
         {
             var cliProp = typeof(IsIdentifiableDicomFileOptions).GetProperty(gProp.Name);
 
-            if(cliProp == null)
+            if (cliProp == null)
             {
                 continue;
             }
@@ -67,7 +67,7 @@ class IsIdentifiableAbstractOptionsTests
             var testVal1 = GetTestValue(cliProp);
             var testVal2 = GetTestValue2(cliProp);
 
-            if(testVal1 is bool)
+            if (testVal1 is bool)
             {
                 // boolean cli false is the default so missing and false are the same
                 // so instead lets make sure that false in yaml config doesn't override 
@@ -80,10 +80,10 @@ class IsIdentifiableAbstractOptionsTests
             gProp.SetValue(globalOpts, testVal1);
             // cli says a different value
             cliProp.SetValue(opts, testVal2);
-                
+
             // we should not have the yaml file entry
             Assert.AreNotEqual(testVal1, cliProp.GetValue(opts));
-                
+
             // we ask to fill in missing values using the yaml entries
             opts.InheritValuesFrom(globalOpts);
 
@@ -101,7 +101,7 @@ class IsIdentifiableAbstractOptionsTests
 
     private object GetTestValue(System.Reflection.PropertyInfo gProp)
     {
-        if(gProp.PropertyType == typeof(int) || Nullable.GetUnderlyingType(gProp.PropertyType) == typeof(int))
+        if (gProp.PropertyType == typeof(int) || Nullable.GetUnderlyingType(gProp.PropertyType) == typeof(int))
         {
             return 5123;
         }

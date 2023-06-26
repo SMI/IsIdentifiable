@@ -1,8 +1,8 @@
-﻿using System;
+﻿using IsIdentifiable.Failures;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using IsIdentifiable.Failures;
 
 // XXX using RegexOptions.Compiled may result in a large amount of static code
 // which is never freed during garbage collection, see
@@ -32,7 +32,7 @@ public class AllowlistRule : IsIdentifiableRule
         get => _ifPartPatternString;
         set
         {
-            _ifPartPatternString = value; 
+            _ifPartPatternString = value;
             RebuildPartRegex();
         }
     }
@@ -87,24 +87,24 @@ public class AllowlistRule : IsIdentifiableRule
         //   fieldName=ProtocolName fieldValue=324-58-2995/6 part.Word=324-58-2995 class=Location
         //Console.WriteLine("AllowlistRule.Apply fieldName="+ fieldName + " fieldValue=" + fieldValue + " part.Word=" + badPart.Word + " class="+badPart.Classification);
 
-        if(Action == RuleAction.Report)
+        if (Action == RuleAction.Report)
             throw new Exception("Illegal Allowlist rule setup. Action Report makes no sense.");
 
         // A column or field name is specified
-        if (!string.IsNullOrWhiteSpace(IfColumn) && !string.Equals(IfColumn,fieldName,StringComparison.InvariantCultureIgnoreCase))
+        if (!string.IsNullOrWhiteSpace(IfColumn) && !string.Equals(IfColumn, fieldName, StringComparison.InvariantCultureIgnoreCase))
             return RuleAction.None;
 
         // A failure classification specified (eg. a Location or a Person)
         if ((As != FailureClassification.None) && (As != badPart.Classification))
-            return(RuleAction.None);
+            return (RuleAction.None);
 
         // A pattern to match the specific part (substring) which previously failed
-        if (IfPartPatternRegex !=null && !IfPartPatternRegex.Matches(badPart.Word).Any())
-            return(RuleAction.None);
+        if (IfPartPatternRegex != null && !IfPartPatternRegex.Matches(badPart.Word).Any())
+            return (RuleAction.None);
 
         // A pattern to match the whole of the field value, not just the bit which failed
-        if (IfPatternRegex!=null && !IfPatternRegex.Matches(fieldValue).Any())
-            return(RuleAction.None);
+        if (IfPatternRegex != null && !IfPatternRegex.Matches(fieldValue).Any())
+            return (RuleAction.None);
 
         /*_logger.Debug("Allowlisting fieldName: "+ fieldName + " fieldValue: " + fieldValue + " part.Word: " + badPart.Word + " class: "+badPart.Classification
         + " due to rule: "

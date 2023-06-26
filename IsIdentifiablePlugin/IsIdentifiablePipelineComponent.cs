@@ -17,25 +17,25 @@ namespace IsIdentifiablePlugin;
 /// Pipeline component that validates data that is flowing through an RDMP
 /// pipeline for PII (personally identifiable information)
 /// </summary>
-public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , ICheckable, IPipelineOptionalRequirement<ExtractCommand>
+public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable>, ICheckable, IPipelineOptionalRequirement<ExtractCommand>
 {
     private CustomRunner? _runner;
     private string? _targetName;
 
-// RDMP will handle this, dont complain that it isn't marked nullable
+    // RDMP will handle this, dont complain that it isn't marked nullable
 #pragma warning disable CS8618
-    [DemandsInitialization("YAML file with the IsIdentifiable rules (regex, NLP, report formats etc)",Mandatory = true)]
+    [DemandsInitialization("YAML file with the IsIdentifiable rules (regex, NLP, report formats etc)", Mandatory = true)]
     public string YamlConfigFile { get; set; }
 #pragma warning restore CS8618
     public void Abort(IDataLoadEventListener listener)
     {
-        
+
     }
 
     public void Check(ICheckNotifier notifier)
     {
         LoadYamlConfigFile();
-        notifier.OnCheckPerformed(new CheckEventArgs($"Read YamlConfigFile successfully",CheckResult.Success));
+        notifier.OnCheckPerformed(new CheckEventArgs($"Read YamlConfigFile successfully", CheckResult.Success));
     }
 
     public void Dispose(IDataLoadEventListener listener, Exception pipelineFailureExceptionIfAny)
@@ -52,11 +52,11 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , I
 
     public DataTable ProcessPipelineData(DataTable toProcess, IDataLoadEventListener listener, GracefulCancellationToken cancellationToken)
     {
-        if(toProcess.Rows.Count > 0)
+        if (toProcess.Rows.Count > 0)
         {
             CreateRunner(_targetName ?? toProcess.TableName);
 
-            if(_runner == null)
+            if (_runner == null)
                 throw new Exception("CreateRunner was called but no _runner was created");
 
             _runner.Run(toProcess);
@@ -69,11 +69,11 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , I
     {
         if (_runner != null)
             return;
-        
-        var opts = LoadYamlConfigFile() 
+
+        var opts = LoadYamlConfigFile()
             ?? throw new Exception("No options were loaded from yaml ");
 
-        if(opts.IsIdentifiableOptions == null)
+        if (opts.IsIdentifiableOptions == null)
         {
             throw new Exception($"Yaml file did not contain IsIdentifiableOptions");
         }
@@ -82,7 +82,7 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , I
             opts.IsIdentifiableOptions.TargetName = targetName;
 
         _runner = new CustomRunner(opts.IsIdentifiableOptions, new FileSystem());
-        
+
     }
 
     private GlobalOptions LoadYamlConfigFile()
@@ -93,7 +93,7 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable> , I
 
         if (opts == null || opts.IsIdentifiableOptions == null)
             throw new Exception($"Yaml file {YamlConfigFile} did not contain IsIdentifiableOptions");
-        
+
         return opts;
     }
 }

@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using FellowOakDicom;
 using DicomTypeTranslation;
-using IsIdentifiable.Failures;
+using FellowOakDicom;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Reporting.Reports;
@@ -13,7 +7,12 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using NLog;
+using System;
+using System.Collections.Generic;
 using System.IO.Abstractions;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace IsIdentifiable.Runners;
 
@@ -49,7 +48,10 @@ public class MongoRunner : IsIdentifiableAbstractRunner
     private readonly CancellationTokenSource _tokenSource = new();
     private bool _stopping;
 
+    // TODO(rkm 2023-06-26) This really shouldn't be unused
+#pragma warning disable IDE0052 // Remove unread private members
     private readonly MongoDbFailureFactory _factory;
+#pragma warning restore IDE0052 // Remove unread private members
 
     /// <summary>
     /// Creates a new instance and prepares to fetch data from the MongoDb instance
@@ -73,7 +75,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
 
         var mongoClient = new MongoClient(opts.MongoConnectionString);
 
-        var db = TryGetDatabase(mongoClient,_opts.DatabaseName);
+        var db = TryGetDatabase(mongoClient, _opts.DatabaseName);
         _collection = TryGetCollection(db, _opts.CollectionName);
 
         if (!string.IsNullOrWhiteSpace(_opts.QueryFile))
@@ -136,9 +138,9 @@ public class MongoRunner : IsIdentifiableAbstractRunner
                 {
                     var documentId = document["_id"].AsObjectId;
 
-                    if(_opts.IsDicomFiles)
+                    if (_opts.IsDicomFiles)
                     {
-                        ProcessDocumentAsDicom(document,documentId,oLogLock,oListLock,ref failedToRebuildCount, ref batchCount, batchFailures);
+                        ProcessDocumentAsDicom(document, documentId, oLogLock, oListLock, ref failedToRebuildCount, ref batchCount, batchFailures);
                     }
                     else
                     {
@@ -197,11 +199,11 @@ public class MongoRunner : IsIdentifiableAbstractRunner
 
         Interlocked.Increment(ref batchCount);
     }
-    
+
     private void ProcessDocumentAsUnstructured(BsonDocument document, ObjectId documentId, object oListLock, ref int batchCount, List<Failure> batchFailures)
     {
         // Validate the dataset against our rules
-        var documentFailures = ProcessDocument(documentId,"", document);
+        var documentFailures = ProcessDocument(documentId, "", document);
 
         if (documentFailures.Any())
             lock (oListLock)
@@ -216,16 +218,16 @@ public class MongoRunner : IsIdentifiableAbstractRunner
 
         foreach (var element in document)
         {
-            failures.AddRange(ProcessBsonValue(documentId, tagTree, element.Name, element.Value,false));
+            failures.AddRange(ProcessBsonValue(documentId, tagTree, element.Name, element.Value, false));
         }
         return failures;
     }
 
-    private IList<Failure> ProcessBsonValue(ObjectId documentId,string tagTree, string name, BsonValue value, bool isArrayElement)
+    private IList<Failure> ProcessBsonValue(ObjectId documentId, string tagTree, string name, BsonValue value, bool isArrayElement)
     {
         var failures = new List<Failure>();
 
-        if(!isArrayElement)
+        if (!isArrayElement)
         {
             tagTree += name;
         }
@@ -234,10 +236,10 @@ public class MongoRunner : IsIdentifiableAbstractRunner
         {
             // sub document
             case BsonType.Document:
-                
+
                 failures.AddRange(
                     ProcessDocument(
-                        documentId, 
+                        documentId,
                         $"{tagTree}->",
                         (BsonDocument)value)
                     );
@@ -252,7 +254,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
                 {
                     // process each array element
                     failures.AddRange(
-                        ProcessBsonValue(documentId, $"{tagTree}[{i}]", name, entry,true)
+                        ProcessBsonValue(documentId, $"{tagTree}[{i}]", name, entry, true)
                         );
                     i++;
                 }
@@ -260,10 +262,10 @@ public class MongoRunner : IsIdentifiableAbstractRunner
             default:
 
                 failures.AddRange(
-                    ValidateBsonValue(documentId,tagTree , name, value)
+                    ValidateBsonValue(documentId, tagTree, name, value)
                     );
-                    break;
-            }
+                break;
+        }
 
         return failures;
     }
@@ -280,7 +282,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
         var parts = Validate(name, valueAsString).ToList();
 
         if (parts.Any())
-            yield return _factory.Create(documentId, fullTagPath, valueAsString, parts);
+            yield return MongoDbFailureFactory.Create(documentId, fullTagPath, valueAsString, parts);
     }
 
     /// <summary>
@@ -339,7 +341,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
             var fullTagPath = groupPrefix + tagTree + kw;
 
             //TODO OverlayRows...
-            if (!nodeCounts.TryAdd(fullTagPath,1))
+            if (!nodeCounts.TryAdd(fullTagPath, 1))
                 nodeCounts[fullTagPath]++;
 
             if (element.Count == 0)
@@ -354,7 +356,7 @@ public class MongoRunner : IsIdentifiableAbstractRunner
             failures.AddRange(ds.GetValues<string>(element.Tag)
                 .Select(s => new { s, parts = Validate(kw, s).ToList() })
                 .Where(t => t.parts.Any())
-                .Select(t => _factory.Create(documentId, fullTagPath, t.s, t.parts)));
+                .Select(t => MongoDbFailureFactory.Create(documentId, fullTagPath, t.s, t.parts)));
         }
 
         AddNodeCounts(nodeCounts);

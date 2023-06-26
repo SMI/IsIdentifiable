@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using FAnsi.Discovery;
+﻿using FAnsi.Discovery;
 using FAnsi.Discovery.QuerySyntax;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Rules;
+using System;
+using System.Collections.Generic;
 
 namespace IsIdentifiable.Redacting.UpdateStrategies;
 

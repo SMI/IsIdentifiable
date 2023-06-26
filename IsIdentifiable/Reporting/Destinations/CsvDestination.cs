@@ -1,11 +1,11 @@
-﻿using System;
+using CsvHelper;
+using CsvHelper.Configuration;
+using IsIdentifiable.Options;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO.Abstractions;
 using System.Linq;
-using CsvHelper;
-using CsvHelper.Configuration;
-using IsIdentifiable.Options;
 
 namespace IsIdentifiable.Reporting.Destinations;
 
@@ -113,7 +113,7 @@ public class CsvDestination : ReportDestination
 
             var stream = csvFile.OpenWrite();
             _streamwriter = new System.IO.StreamWriter(stream);
-            _csvWriter = new CsvWriter(_streamwriter,csvconf);
+            _csvWriter = new CsvWriter(_streamwriter, csvconf);
             WriteRow(headers);
         }
     }
@@ -136,6 +136,8 @@ public class CsvDestination : ReportDestination
     /// </summary>
     public override void Dispose()
     {
+        GC.SuppressFinalize(this);
+
         _csvWriter?.Dispose();
         _streamwriter?.Dispose();
     }

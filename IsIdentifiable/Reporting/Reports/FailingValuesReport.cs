@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO.Abstractions;
@@ -26,20 +26,17 @@ internal class FailingValuesReport : FailureReport
 
     protected override void CloseReportBase()
     {
-        using (var dt = new DataTable())
-        {
-            dt.Columns.Add("Field");
-            dt.Columns.Add("Value");
+        using var dt = new DataTable();
 
+        dt.Columns.Add("Field");
+        dt.Columns.Add("Value");
 
-            lock (_oFailuresLock)
-                foreach (var kvp in _failures)
+        lock (_oFailuresLock)
+            foreach (var kvp in _failures)
                 foreach (var v in kvp.Value)
                     dt.Rows.Add(kvp.Key, v);
 
-            foreach (var d in Destinations)
-                d.WriteItems(dt);
-        }
-            
+        foreach (var d in Destinations)
+            d.WriteItems(dt);
     }
 }

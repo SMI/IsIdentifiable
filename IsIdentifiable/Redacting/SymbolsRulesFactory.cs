@@ -1,9 +1,9 @@
-﻿using System;
+using IsIdentifiable.Reporting;
+using IsIdentifiable.Runners;
+using System;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using IsIdentifiable.Reporting;
-using IsIdentifiable.Runners;
 
 namespace IsIdentifiable.Redacting;
 
@@ -84,31 +84,5 @@ public class SymbolsRulesFactory : IRulePatternFactory
         // If there is a failure part that ends at the end of the input string then the pattern should have a terminator
         // to denote that we only care about problem values ending in this pattern (user can always override that decision)
         return maxPartEnding == failure.ProblemValue.Length ? $"{sb.ToString(0, sb.Length - 2)}$" : sb.ToString(0, sb.Length - 2);
-    }
-
-    /// <summary>
-    /// Returns a full symbols match of the entire input string (ProblemValue)
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="failure"></param>
-    /// <returns></returns>
-    private string FullStringSymbols(object sender, Failure failure)
-    {
-        var sb = new StringBuilder();
-
-        foreach (var cur in failure.ProblemValue)
-        {
-            if (char.IsDigit(cur))
-                sb.Append("\\d");
-            else
-            if (char.IsLetter(cur))
-                sb.Append(char.IsUpper(cur) ? "[A-Z]" : "[a-z]");
-            else
-            {
-                sb.Append(Regex.Escape(cur.ToString()));
-            }
-        }
-
-        return $"^{sb}$";
     }
 }

@@ -1,9 +1,9 @@
-﻿using System;
+using IsIdentifiable.Failures;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using IsIdentifiable.Failures;
 
 // XXX using RegexOptions.Compiled may result in a large amount of static code
 // which is never freed during garbage collection, see
@@ -34,7 +34,7 @@ public class IsIdentifiableRule : ICustomRule
     /// What you are trying to classify (if <see cref="Action"/> is <see cref="RuleAction.Report"/>)
     /// </summary>
     public FailureClassification As { get; set; }
-        
+
     /// <summary>
     /// Combination of <see cref="IfPattern"/> and <see cref="CaseSensitive"/>.  Use this to validate
     /// whether the rule should be applied.
@@ -91,14 +91,14 @@ public class IsIdentifiableRule : ICustomRule
         if (Action == RuleAction.None)
             return RuleAction.None;
 
-        if(IfColumn == null && IfPattern == null)
+        if (IfColumn == null && IfPattern == null)
             throw new Exception("Illegal rule setup.  You must specify either a column or a pattern (or both)");
 
-        if(Action == RuleAction.Report && As == FailureClassification.None)
+        if (Action == RuleAction.Report && As == FailureClassification.None)
             throw new Exception("Illegal rule setup.  You must specify 'As' when Action is Report");
 
         //if there is no column restriction or restriction applies to the current column
-        if (string.IsNullOrWhiteSpace(IfColumn) || string.Equals(IfColumn,fieldName,StringComparison.InvariantCultureIgnoreCase))
+        if (string.IsNullOrWhiteSpace(IfColumn) || string.Equals(IfColumn, fieldName, StringComparison.InvariantCultureIgnoreCase))
         {
             // only allocate this variable if there is an action to take
             badParts = new List<FailurePart>();
@@ -107,29 +107,26 @@ public class IsIdentifiableRule : ICustomRule
             if (IfPattern == null)
             {
                 //we are reporting everything in this column? ok fair enough (no pattern just column name)
-                if (Action == RuleAction.Report) 
-                    ((IList) badParts).Add(new FailurePart(fieldValue, As, 0));
+                if (Action == RuleAction.Report)
+                    ((IList)badParts).Add(new FailurePart(fieldValue, As, 0));
 
                 return Action;
             }
-                    
+
             // if the pattern matches the string we examined
             var matches = IfPatternRegex.Matches(fieldValue);
             if (matches.Any())
             {
                 //if we are reporting all failing regexes
-                if(Action == RuleAction.Report)
-                    foreach (Match match in matches)
-                        ((IList) badParts).Add(new FailurePart(match.Value, As, match.Index));
+                if (Action == RuleAction.Report)
+                    foreach (Match match in matches.Cast<Match>())
+                        ((IList)badParts).Add(new FailurePart(match.Value, As, match.Index));
 
                 return Action;
             }
-
-
         }
 
         //our rule does not apply to the current value
-
         return RuleAction.None;
     }
 
@@ -142,8 +139,8 @@ public class IsIdentifiableRule : ICustomRule
     public bool AreIdentical(IsIdentifiableRule other, bool requireIdenticalAction = true)
     {
         return
-            string.Equals(IfColumn, other.IfColumn,StringComparison.CurrentCultureIgnoreCase) &&
+            string.Equals(IfColumn, other.IfColumn, StringComparison.CurrentCultureIgnoreCase) &&
             (!requireIdenticalAction || Action == other.Action) &&
-            string.Equals(IfPattern, other.IfPattern,StringComparison.CurrentCultureIgnoreCase);
+            string.Equals(IfPattern, other.IfPattern, StringComparison.CurrentCultureIgnoreCase);
     }
 }

@@ -14,10 +14,10 @@ public class MatchProblemValuesPatternFactoryTests
             {
                 new FailurePart("F",FailureClassification.Person,0),
             })
-            {ProblemValue = "Frequent Problems"};
+        { ProblemValue = "Frequent Problems" };
 
         var factory = new MatchProblemValuesPatternFactory();
-        Assert.AreEqual("^(F)",factory.GetPattern(null,f));
+        Assert.AreEqual("^(F)", factory.GetPattern(null, f));
     }
 
     [Test]
@@ -28,10 +28,10 @@ public class MatchProblemValuesPatternFactoryTests
                 new FailurePart("Freq",FailureClassification.Person,0),
                 new FailurePart("Freq",FailureClassification.Organization,0),
             })
-            {ProblemValue = "Frequent Problems"};
+        { ProblemValue = "Frequent Problems" };
 
         var factory = new MatchProblemValuesPatternFactory();
-        Assert.AreEqual("^(Freq)",factory.GetPattern(null,f));
+        Assert.AreEqual("^(Freq)", factory.GetPattern(null, f));
     }
     [Test]
     public void OverlappingMatches_OffsetOverlaps()
@@ -41,12 +41,12 @@ public class MatchProblemValuesPatternFactoryTests
                 new FailurePart("req",FailureClassification.Person,1),
                 new FailurePart("q",FailureClassification.Organization,3),
             })
-            {ProblemValue = "Frequent Problems"};
+        { ProblemValue = "Frequent Problems" };
 
         var factory = new MatchProblemValuesPatternFactory();
-            
+
         //fallback onto full match because of overlapping problem words
-        Assert.AreEqual("(req)",factory.GetPattern(null,f));
+        Assert.AreEqual("(req)", factory.GetPattern(null, f));
     }
 
     [Test]
@@ -57,9 +57,9 @@ public class MatchProblemValuesPatternFactoryTests
                 new FailurePart("re",FailureClassification.Person,1),
                 new FailurePart("quent",FailureClassification.Organization,3),
             })
-            {ProblemValue = "Frequent Problems"};
+        { ProblemValue = "Frequent Problems" };
 
         var factory = new MatchProblemValuesPatternFactory();
-        Assert.AreEqual("(requent)",factory.GetPattern(null,f));
+        Assert.AreEqual("(requent)", factory.GetPattern(null, f));
     }
 }

@@ -220,7 +220,7 @@ public class IsIdentifiableBaseOptions : ITargetsFileOptions
         if (AllowlistDatabaseType == null && globalOpts.AllowlistDatabaseType.HasValue)
             AllowlistDatabaseType = globalOpts.AllowlistDatabaseType.Value;
 
-        if(TargetName == TargetNameDefault && globalOpts.TargetName != null && globalOpts.TargetName != TargetNameDefault)
+        if (TargetName == TargetNameDefault && globalOpts.TargetName != null && globalOpts.TargetName != TargetNameDefault)
             TargetName = globalOpts.TargetName;
 
         if (string.IsNullOrWhiteSpace(AllowlistTableName))
@@ -280,7 +280,7 @@ public class IsIdentifiableBaseOptions : ITargetsFileOptions
 
         if (TargetsFile == IsIdentifiableReviewerOptions.TargetsFileDefault && !string.IsNullOrWhiteSpace(globalOpts.TargetsFile))
             TargetsFile = globalOpts.TargetsFile;
-            
+
         // if global options specifies to only run on x records and we don't have an explicit declaration for that property
         if (Top <= 0 && globalOpts.Top > 0)
             Top = globalOpts.Top;

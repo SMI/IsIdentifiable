@@ -1,7 +1,7 @@
-﻿using System;
+﻿using IsIdentifiable.Rules;
+using System;
 using System.Collections;
 using System.Reflection;
-using IsIdentifiable.Rules;
 
 namespace ii.Views.Manager;
 

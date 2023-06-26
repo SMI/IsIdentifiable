@@ -102,11 +102,11 @@ public class IsIdentifiableReviewerOptions : ITargetsFileOptions
             TargetsFile = globalOpts.TargetsFile; // use the global config value
 
         if ((string.IsNullOrWhiteSpace(IgnoreList) || IgnoreList == IgnoreRuleGenerator.DefaultFileName) &&
-            !string.IsNullOrWhiteSpace(globalOpts.IgnoreList)) 
+            !string.IsNullOrWhiteSpace(globalOpts.IgnoreList))
             IgnoreList = globalOpts.IgnoreList;
 
         if ((string.IsNullOrWhiteSpace(Reportlist) || Reportlist == RowUpdater.DefaultFileName) &&
-            !string.IsNullOrWhiteSpace(globalOpts.Reportlist)) 
+            !string.IsNullOrWhiteSpace(globalOpts.Reportlist))
             Reportlist = globalOpts.Reportlist;
 
         if (Theme == null && !string.IsNullOrWhiteSpace(globalOpts.Theme))

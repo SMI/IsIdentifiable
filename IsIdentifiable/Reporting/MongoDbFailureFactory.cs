@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
 using IsIdentifiable.Failures;
 using MongoDB.Bson;
+using System.Collections.Generic;
 
 namespace IsIdentifiable.Reporting;
 
 internal class MongoDbFailureFactory
 {
-    public Failure Create(ObjectId documentId, string problemTag, string problemValue, IEnumerable<FailurePart> parts)
+    public static Failure Create(ObjectId documentId, string problemTag, string problemValue, IEnumerable<FailurePart> parts)
     {
         return new Failure(parts)
         {

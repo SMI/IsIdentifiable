@@ -1,6 +1,6 @@
-﻿using System.IO.Abstractions;
-using CommandLine;
+﻿using CommandLine;
 using IsIdentifiable.Options;
+using System.IO.Abstractions;
 
 namespace ii;
 
@@ -16,6 +16,6 @@ internal class IsIdentifiableFileGlobOptions : IsIdentifiableFileOptions
     public new IFileInfo File { get; set; }
 #pragma warning restore CS8618
 
-    [Option('g', HelpText = "Pattern to use for matching files when -f is a directory.  Supports specifying a glob e.g. /**/*.csv", Required = false,Default = "*.csv")]
+    [Option('g', HelpText = "Pattern to use for matching files when -f is a directory.  Supports specifying a glob e.g. /**/*.csv", Required = false, Default = "*.csv")]
     public string Glob { get; set; } = "*.csv";
 }

@@ -1,11 +1,11 @@
-﻿using System;
+using IsIdentifiable.Redacting;
+using IsIdentifiable.Rules;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using IsIdentifiable.Redacting;
-using IsIdentifiable.Rules;
 using Terminal.Gui;
 using Terminal.Gui.Trees;
 
@@ -63,14 +63,15 @@ class RulesView : View
 
     private void TreeView_SelectionChanged(object? sender, SelectionChangedEventArgs<ITreeNode> e)
     {
-        if(e.NewValue != null)
+        if (e.NewValue != null)
         {
             e.Tree.RefreshObject(e.NewValue);
         }
-            
+
         // when selecting a node 
 
-        if (e.NewValue is OutstandingFailureNode ofn){
+        if (e.NewValue is OutstandingFailureNode ofn)
+        {
 
             // if it is now covered by an existing rule! Like maybe they have 500 outstanding failures 
             // and on the first one they add a rule .* (ignore EVERYTHING) then we had better disappear the rest of the tree too
@@ -85,7 +86,7 @@ class RulesView : View
 
             var updateRule = Updater?.Rules.FirstOrDefault(r => r.Apply(ofn.Failure.ProblemField, ofn.Failure.ProblemValue, out _) != RuleAction.None);
 
-            if(updateRule != null)
+            if (updateRule != null)
             {
                 Remove(ofn);
                 return;
@@ -108,7 +109,7 @@ class RulesView : View
         _bulkIgnorePatternFactory = bulkIgnorePatternFactory;
 
         _lblInitialSummary.Text = $"There are {ignorer.Rules.Count} ignore rules and {updater.Rules.Count} update rules.  Current report contains {CurrentReport.Failures.Length:N0} Failures";
-            
+
     }
 
     private void TreeView_ObjectActivated(ObjectActivatedEventArgs<ITreeNode> obj)
@@ -154,11 +155,11 @@ class RulesView : View
     private void Delete(RuleUsageNode usage)
     {
         // tell ignorer to forget about this rule
-        if(usage.Rulebase.Delete(usage.Rule))
+        if (usage.Rulebase.Delete(usage.Rule))
             Remove(usage);
         else
             CouldNotDeleteRule();
-            
+
     }
 
     private void Delete(FailureGroupingNode fgn)
@@ -180,7 +181,7 @@ class RulesView : View
             var result = Ignorer.Add(rule);
 
             // did that rule already exist
-            if(!ReferenceEquals(result, rule))
+            if (!ReferenceEquals(result, rule))
             {
                 MessageBox.ErrorQuery("Rule already exists", $"There is already an ignore rule for this column", "Ok");
             }
@@ -192,41 +193,42 @@ class RulesView : View
     }
     private void Delete(CollidingRulesNode crn)
     {
-        if(Ignorer == null || Updater == null)
+        if (Ignorer == null || Updater == null)
             return;
 
-        var answer = MessageBox.Query("Delete Rules","Which colliding rule do you want to delete?","Ignore","Update","Both","Cancel");
+        var answer = MessageBox.Query("Delete Rules", "Which colliding rule do you want to delete?", "Ignore", "Update", "Both", "Cancel");
 
-        if(answer == 0 || answer == 2)
+        if (answer == 0 || answer == 2)
         {
             // tell ignorer to forget about this rule
-            if(Ignorer.Delete(crn.IgnoreRule))
+            if (Ignorer.Delete(crn.IgnoreRule))
                 Remove(crn);
             else
                 CouldNotDeleteRule();
         }
-                
-        if(answer == 1 || answer == 2)
+
+        if (answer == 1 || answer == 2)
         {
             // tell Updater to forget about this rule
-            if(!Updater.Delete(crn.UpdateRule))
+            if (!Updater.Delete(crn.UpdateRule))
                 CouldNotDeleteRule();
             else
-                //no point removing it from UI twice
-            if(answer != 2)
+            //no point removing it from UI twice
+            if (answer != 2)
                 Remove(crn);
         }
     }
 
-    private void CouldNotDeleteRule()
+    private static void CouldNotDeleteRule()
     {
-        MessageBox.ErrorQuery("Failed to Remove","Rule could not be found in rule base, perhaps yaml has non standard layout or embedded comments?","Ok");
+        MessageBox.ErrorQuery("Failed to Remove", "Rule could not be found in rule base, perhaps yaml has non standard layout or embedded comments?", "Ok");
     }
 
     private void Activate(OutstandingFailureNode ofn)
     {
         using var ignore = new Button("Ignore");
-        ignore.Clicked += ()=> {
+        ignore.Clicked += () =>
+        {
             try
             {
                 Ignore(ofn, false);
@@ -240,7 +242,8 @@ class RulesView : View
         };
 
         using var update = new Button("Update");
-        update.Clicked += ()=>{
+        update.Clicked += () =>
+        {
             try
             {
                 Update(ofn);
@@ -252,13 +255,14 @@ class RulesView : View
 
             Application.RequestStop();
         };
-            
+
         using var cancel = new Button("Cancel");
-        cancel.Clicked += ()=>{Application.RequestStop();};
+        cancel.Clicked += () => { Application.RequestStop(); };
 
-        using var dlg = new Dialog("Failure",MainWindow.DlgWidth,MainWindow.DlgHeight,ignore,update,cancel);
+        using var dlg = new Dialog("Failure", MainWindow.DlgWidth, MainWindow.DlgHeight, ignore, update, cancel);
 
-        var lbl = new FailureView(){
+        var lbl = new FailureView()
+        {
             X = 0,
             Y = 0,
             Width = Dim.Fill(),
@@ -273,7 +277,7 @@ class RulesView : View
 
     private void Update(OutstandingFailureNode ofn)
     {
-        if(Updater == null)
+        if (Updater == null)
             throw new Exception("Cannot update failure because Updater class has not been set");
 
         Updater.Add(ofn.Failure);
@@ -281,7 +285,7 @@ class RulesView : View
     }
     private void Ignore(OutstandingFailureNode ofn, bool isBulkIgnore)
     {
-        if(Ignorer == null)
+        if (Ignorer == null)
             throw new Exception("Cannot ignore because no Ignorer class has been set");
 
         if (isBulkIgnore)
@@ -300,7 +304,7 @@ class RulesView : View
                 return;
             }
         }
-                
+
         Remove(ofn);
     }
 
@@ -312,14 +316,14 @@ class RulesView : View
     {
         var siblings = _treeView.GetParent(obj)?.Children;
 
-        if(siblings == null)
+        if (siblings == null)
         {
             return;
         }
 
         var idxToRemove = siblings.IndexOf(obj);
-            
-        if(idxToRemove == -1)
+
+        if (idxToRemove == -1)
         {
             return;
         }
@@ -342,17 +346,17 @@ class RulesView : View
     {
         _treeView.ClearObjects();
 
-        if(Ignorer == null || Updater == null || CurrentReport == null)
+        if (Ignorer == null || Updater == null || CurrentReport == null)
         {
             return;
         }
-                
-            
+
+
         var colliding = new TreeNodeWithCount("Colliding Rules");
         var ignore = new TreeNodeWithCount("Ignore Rules Used");
         var update = new TreeNodeWithCount("Update Rules Used");
         var outstanding = new TreeNodeWithCount("Outstanding Failures");
-                        
+
         var allRules = Ignorer.Rules.Union(Updater.Rules).ToList();
 
         AddDuplicatesToTree(allRules);
@@ -361,15 +365,15 @@ class RulesView : View
         var cts = new CancellationTokenSource();
 
         using var btn = new Button("Cancel");
-        var cancelFunc = ()=>{cts.Cancel();};
-        var closeFunc = ()=>{Application.RequestStop();};
+        var cancelFunc = () => { cts.Cancel(); };
+        var closeFunc = () => { Application.RequestStop(); };
         btn.Clicked += cancelFunc;
 
-        using var dlg = new Dialog("Evaluating",MainWindow.DlgWidth,6,btn);
+        using var dlg = new Dialog("Evaluating", MainWindow.DlgWidth, 6, btn);
 
-        var stage = new Label("Evaluating Failures"){Width = Dim.Fill(), X = 0,Y = 0};
-        var progress = new ProgressBar(){Height= 2,Width = Dim.Fill(), X=0,Y = 1};
-        var textProgress = new Label("0/0"){TextAlignment = TextAlignment.Right ,Width = Dim.Fill(), X=0,Y = 2};
+        var stage = new Label("Evaluating Failures") { Width = Dim.Fill(), X = 0, Y = 0 };
+        var progress = new ProgressBar() { Height = 2, Width = Dim.Fill(), X = 0, Y = 1 };
+        var textProgress = new Label("0/0") { TextAlignment = TextAlignment.Right, Width = Dim.Fill(), X = 0, Y = 2 };
 
         dlg.Add(stage);
         dlg.Add(progress);
@@ -384,10 +388,12 @@ class RulesView : View
             return !done;
         });
 
-        Task.Run(()=>{
-            EvaluateRuleCoverageAsync(stage,progress,textProgress,colliding,ignore,update,outstanding, cts.Token);
-        },cts.Token).ContinueWith((t,s)=>{
-                
+        Task.Run(() =>
+        {
+            EvaluateRuleCoverageAsync(stage, progress, textProgress, colliding, ignore, update, outstanding, cts.Token);
+        }, cts.Token).ContinueWith((t, s) =>
+        {
+
             btn.Clicked -= cancelFunc;
             btn.Text = "Done";
             btn.Clicked += closeFunc;
@@ -396,24 +402,24 @@ class RulesView : View
 
             _treeView.RebuildTree();
             _treeView.AddObjects(new[] { colliding, ignore, update, outstanding });
-        },SynchronizationContext.Current);
-            
+        }, SynchronizationContext.Current);
+
         Application.Run(dlg);
     }
-        
-    private void EvaluateRuleCoverageAsync(Label stage,ProgressBar progress, Label textProgress,TreeNodeWithCount colliding,TreeNodeWithCount ignore,TreeNodeWithCount update,TreeNodeWithCount outstanding, CancellationToken token)
+
+    private void EvaluateRuleCoverageAsync(Label stage, ProgressBar progress, Label textProgress, TreeNodeWithCount colliding, TreeNodeWithCount ignore, TreeNodeWithCount update, TreeNodeWithCount outstanding, CancellationToken token)
     {
-        if(CurrentReport == null)
+        if (CurrentReport == null)
             return;
 
-        if(Ignorer == null)
+        if (Ignorer == null)
             throw new Exception("No Ignorer class set");
-        if(Updater == null)
+        if (Updater == null)
             throw new Exception("No Updater class set");
 
-        ConcurrentDictionary<IsIdentifiableRule,int> rulesUsed = new();
-        ConcurrentDictionary<string,OutstandingFailureNode> outstandingFailures = new();
-            
+        ConcurrentDictionary<IsIdentifiableRule, int> rulesUsed = new();
+        ConcurrentDictionary<string, OutstandingFailureNode> outstandingFailures = new();
+
         var done = 0;
         var max = CurrentReport.Failures.Length;
         var lockObj = new object();
@@ -431,7 +437,7 @@ class RulesView : View
                 var updateRule = Updater.Rules.FirstOrDefault(r => r.Apply(f.ProblemField, f.ProblemValue, out _) != RuleAction.None);
 
                 // record how often each reviewer rule was used with a failure
-                foreach (var r in new[] { ignoreRule, updateRule }.Where(r=>r is not null).Cast<IsIdentifiableRule>())
+                foreach (var r in new[] { ignoreRule, updateRule }.Where(r => r is not null).Cast<IsIdentifiableRule>())
                     lock (lockObj)
                     {
                         _ = rulesUsed.AddOrUpdate(r, 1, (k, v) => Interlocked.Increment(ref v));
@@ -457,7 +463,8 @@ class RulesView : View
                 {
                     lock (lockObj)
                     {
-                        outstandingFailures.AddOrUpdate(f.ProblemValue, new OutstandingFailureNode(f, 1), (k, v) => {
+                        outstandingFailures.AddOrUpdate(f.ProblemValue, new OutstandingFailureNode(f, 1), (k, v) =>
+                        {
                             Interlocked.Increment(ref v.NumberOfTimesReported);
                             return v;
                         });
@@ -468,57 +475,58 @@ class RulesView : View
         if (!result.IsCompleted)
             throw new OperationCanceledException();
 
-        SetProgress(progress,textProgress,done,max);
-            
-        var ignoreRulesUsed = rulesUsed.Where(r=>r.Key.Action == RuleAction.Ignore).ToList();
+        SetProgress(progress, textProgress, done, max);
+
+        var ignoreRulesUsed = rulesUsed.Where(r => r.Key.Action == RuleAction.Ignore).ToList();
         stage.Text = "Evaluating Ignore Rules Used";
         max = ignoreRulesUsed.Count;
         done = 0;
 
-        foreach(var used in ignoreRulesUsed.OrderByDescending(kvp => kvp.Value))
+        foreach (var used in ignoreRulesUsed.OrderByDescending(kvp => kvp.Value))
         {
             done++;
             token.ThrowIfCancellationRequested();
-            if(done % 1000 == 0)
-                SetProgress(progress,textProgress,done,max);
+            if (done % 1000 == 0)
+                SetProgress(progress, textProgress, done, max);
 
-            ignore.Children.Add(new RuleUsageNode(Ignorer,used.Key,used.Value));
+            ignore.Children.Add(new RuleUsageNode(Ignorer, used.Key, used.Value));
         }
-            
-        SetProgress(progress,textProgress,done,max);
-                
-            
+
+        SetProgress(progress, textProgress, done, max);
+
+
         stage.Text = "Evaluating Update Rules Used";
-        var updateRulesUsed = rulesUsed.Where(r=>r.Key.Action == RuleAction.Report).ToList();
+        var updateRulesUsed = rulesUsed.Where(r => r.Key.Action == RuleAction.Report).ToList();
         max = updateRulesUsed.Count;
         done = 0;
 
-        foreach(var used in updateRulesUsed.OrderByDescending(kvp=>kvp.Value)){
+        foreach (var used in updateRulesUsed.OrderByDescending(kvp => kvp.Value))
+        {
             done++;
 
             token.ThrowIfCancellationRequested();
-            if(done % 1000 == 0)
-                SetProgress(progress,textProgress,done,max);
+            if (done % 1000 == 0)
+                SetProgress(progress, textProgress, done, max);
 
-            update.Children.Add(new RuleUsageNode(Updater,used.Key,used.Value)); 
+            update.Children.Add(new RuleUsageNode(Updater, used.Key, used.Value));
         }
-            
-        SetProgress(progress,textProgress,done,max);
+
+        SetProgress(progress, textProgress, done, max);
 
         stage.Text = "Evaluating Outstanding Failures";
 
-        outstanding.Children = 
-            outstandingFailures.Select(f=>f.Value).GroupBy(f=>f.Failure.ProblemField)               
-                .Select(g=>new FailureGroupingNode(g.Key,g.ToArray()))
-                .OrderByDescending(v=>v.Failures.Sum(f=>f.NumberOfTimesReported))
+        outstanding.Children =
+            outstandingFailures.Select(f => f.Value).GroupBy(f => f.Failure.ProblemField)
+                .Select(g => new FailureGroupingNode(g.Key, g.ToArray()))
+                .OrderByDescending(v => v.Failures.Sum(f => f.NumberOfTimesReported))
                 .Cast<ITreeNode>()
                 .ToList();
     }
 
     private static void SetProgress(ProgressBar pb, View tp, int done, int max)
     {
-        if(max != 0)
-            pb.Fraction = done/(float)max;
+        if (max != 0)
+            pb.Fraction = done / (float)max;
         tp.Text = $"{done:N0}/{max:N0}";
     }
 

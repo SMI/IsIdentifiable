@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
 using IsIdentifiable.Rules;
 using IsIdentifiable.Runners;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 
 namespace IsIdentifiable.Tests;
 
@@ -39,58 +39,60 @@ public class IsIdentifiableRunnerTests
         runner.Run();
         Assert.IsEmpty(runner.ResultsOfValidate);
     }
-    
+
     [Test]
     public void TestCaching()
     {
         var runner = new TestRunner("hey there,0101010101 excited to see you", _fileSystem);
         runner.Run();
-        Assert.AreEqual(0,runner.ValidateCacheHits);
-        Assert.AreEqual(1,runner.ValidateCacheMisses);
+        Assert.AreEqual(0, runner.ValidateCacheHits);
+        Assert.AreEqual(1, runner.ValidateCacheMisses);
         runner.Run();
-        Assert.AreEqual(1,runner.ValidateCacheHits);
-        Assert.AreEqual(1,runner.ValidateCacheMisses);
+        Assert.AreEqual(1, runner.ValidateCacheHits);
+        Assert.AreEqual(1, runner.ValidateCacheMisses);
         runner.Run();
-        Assert.AreEqual(2,runner.ValidateCacheHits);
-        Assert.AreEqual(1,runner.ValidateCacheMisses);
+        Assert.AreEqual(2, runner.ValidateCacheHits);
+        Assert.AreEqual(1, runner.ValidateCacheMisses);
 
         runner.ValueToTest = "ffffff";
         runner.Run();
-        Assert.AreEqual(2,runner.ValidateCacheHits);
-        Assert.AreEqual(2,runner.ValidateCacheMisses);
+        Assert.AreEqual(2, runner.ValidateCacheHits);
+        Assert.AreEqual(2, runner.ValidateCacheMisses);
         runner.Run();
-        Assert.AreEqual(3,runner.ValidateCacheHits);
-        Assert.AreEqual(2,runner.ValidateCacheMisses);
+        Assert.AreEqual(3, runner.ValidateCacheHits);
+        Assert.AreEqual(2, runner.ValidateCacheMisses);
         runner.Run();
-        Assert.AreEqual(4,runner.ValidateCacheHits);
-        Assert.AreEqual(2,runner.ValidateCacheMisses);
+        Assert.AreEqual(4, runner.ValidateCacheHits);
+        Assert.AreEqual(2, runner.ValidateCacheMisses);
 
         runner.FieldToTest = "OtherField";
         runner.Run();
-        Assert.AreEqual(4,runner.ValidateCacheHits);
-        Assert.AreEqual(3,runner.ValidateCacheMisses);
+        Assert.AreEqual(4, runner.ValidateCacheHits);
+        Assert.AreEqual(3, runner.ValidateCacheMisses);
         runner.Run();
-        Assert.AreEqual(5,runner.ValidateCacheHits);
-        Assert.AreEqual(3,runner.ValidateCacheMisses);
+        Assert.AreEqual(5, runner.ValidateCacheHits);
+        Assert.AreEqual(3, runner.ValidateCacheMisses);
         runner.Run();
-        Assert.AreEqual(6,runner.ValidateCacheHits);
-        Assert.AreEqual(3,runner.ValidateCacheMisses);
+        Assert.AreEqual(6, runner.ValidateCacheHits);
+        Assert.AreEqual(3, runner.ValidateCacheMisses);
     }
     [Test]
     public void Test_NoCaching()
     {
-        var runner = new TestRunner("hey there,0101010101 excited to see you", _fileSystem);
-        runner.MaxValidationCacheSize = 0;
+        var runner = new TestRunner("hey there,0101010101 excited to see you", _fileSystem)
+        {
+            MaxValidationCacheSize = 0
+        };
 
         runner.Run();
-        Assert.AreEqual(0,runner.ValidateCacheHits);
-        Assert.AreEqual(1,runner.ValidateCacheMisses);
+        Assert.AreEqual(0, runner.ValidateCacheHits);
+        Assert.AreEqual(1, runner.ValidateCacheMisses);
         runner.Run();
-        Assert.AreEqual(0,runner.ValidateCacheHits);
-        Assert.AreEqual(2,runner.ValidateCacheMisses);
+        Assert.AreEqual(0, runner.ValidateCacheHits);
+        Assert.AreEqual(2, runner.ValidateCacheMisses);
         runner.Run();
-        Assert.AreEqual(0,runner.ValidateCacheHits);
-        Assert.AreEqual(3,runner.ValidateCacheMisses);
+        Assert.AreEqual(0, runner.ValidateCacheHits);
+        Assert.AreEqual(3, runner.ValidateCacheMisses);
         runner.Run();
     }
     [TestCase("DD3 7LB")]
@@ -116,7 +118,7 @@ public class IsIdentifiableRunnerTests
     {
 
         var runner = new TestRunner($"Patient lives at {code}", _fileSystem);
-            
+
         runner.LoadRules(
             @"
 BasicRules:
@@ -124,7 +126,7 @@ BasicRules:
     IfPattern: DD3");
 
         runner.Run();
-            
+
         Assert.IsEmpty(runner.ResultsOfValidate);
     }
 
@@ -156,7 +158,7 @@ BasicRules:
         //this would be nice
         Assert.AreEqual(expectedMatch, p.Word);
         Assert.AreEqual(FailureClassification.Postcode, p.Classification);
-        Assert.AreEqual(1,runner.CountOfFailureParts);
+        Assert.AreEqual(1, runner.CountOfFailureParts);
     }
 
     [TestCase("dd3000")]
@@ -178,7 +180,7 @@ BasicRules:
     [TestCase("Friday, 29th May 2015 5:50", "29th May", "May 2015", null)]
     [TestCase("Friday, May 29th 2015 5:50 AM", "May 29th", null, null)]
     [TestCase("Friday, 29-May-2015 05:50:06", "29-May", "May-2015", null)]
-    [TestCase("05/29/2015 05:50", "05/29/2015",null, null)]
+    [TestCase("05/29/2015 05:50", "05/29/2015", null, null)]
     [TestCase("05-29-2015 05:50 AM", "05-29-2015", null, null)]
     [TestCase("2015-05-29 5:50", "2015-05-29", null, null)]
     [TestCase("05/29/2015 5:50 AM", "05/29/2015", null, null)]
@@ -200,7 +202,7 @@ BasicRules:
     {
         var runner = new TestRunner($"Patient next appointment is {date}", _fileSystem);
         runner.Run();
-            
+
         Assert.AreEqual(expectedMatch1, runner.ResultsOfValidate[0].Word);
         Assert.AreEqual(FailureClassification.Date, runner.ResultsOfValidate[0].Classification);
 
@@ -239,7 +241,7 @@ BasicRules:
         Assert.AreEqual(1, runner.ResultsOfValidate.Count);
 
         var w1 = runner.ResultsOfValidate[0];
-            
+
         /* Names are now picked up by the Socket NER Daemon
         //FailurePart w2 = runner.ResultsOfValidate[1];
         //FailurePart w3 = runner.ResultsOfValidate[2];
@@ -262,19 +264,19 @@ BasicRules:
     {
         var runner = new TestRunner("FF", _fileSystem);
 
-        runner.CustomRules.Add( new IsIdentifiableRule()
+        runner.CustomRules.Add(new IsIdentifiableRule()
         {
-            IfPattern = "ff", 
+            IfPattern = "ff",
             Action = RuleAction.Ignore,
             CaseSensitive = caseSensitive
         });
 
-        runner.CustomRules.Add( new IsIdentifiableRule(){IfPattern = "\\w+", Action = RuleAction.Report, As = FailureClassification.Person});
-            
+        runner.CustomRules.Add(new IsIdentifiableRule() { IfPattern = "\\w+", Action = RuleAction.Report, As = FailureClassification.Person });
+
         runner.Run();
-            
-        if(caseSensitive)
-            Assert.AreEqual(1,runner.ResultsOfValidate.Count);
+
+        if (caseSensitive)
+            Assert.AreEqual(1, runner.ResultsOfValidate.Count);
         else
             Assert.IsEmpty(runner.ResultsOfValidate);
     }
@@ -292,20 +294,20 @@ BasicRules:
         if (ignoreFirst)
         {
             //ignore the report
-            runner.CustomRules.Add( new IsIdentifiableRule { IfPattern = "FF", Action = RuleAction.Ignore });
-            runner.CustomRules.Add( new IsIdentifiableRule(){IfPattern = "\\w+", Action = RuleAction.Report, As = FailureClassification.Person});
+            runner.CustomRules.Add(new IsIdentifiableRule { IfPattern = "FF", Action = RuleAction.Ignore });
+            runner.CustomRules.Add(new IsIdentifiableRule() { IfPattern = "\\w+", Action = RuleAction.Report, As = FailureClassification.Person });
         }
         else
         {
             //report then ignore
-            runner.CustomRules.Add( new IsIdentifiableRule(){IfPattern = "\\w+", Action = RuleAction.Report, As = FailureClassification.Person});
-            runner.CustomRules.Add( new IsIdentifiableRule { IfPattern = "FF", Action = RuleAction.Ignore });
+            runner.CustomRules.Add(new IsIdentifiableRule() { IfPattern = "\\w+", Action = RuleAction.Report, As = FailureClassification.Person });
+            runner.CustomRules.Add(new IsIdentifiableRule { IfPattern = "FF", Action = RuleAction.Ignore });
         }
 
         runner.SortRules();
 
         runner.Run();
-            
+
         Assert.IsEmpty(runner.ResultsOfValidate);
     }
 
@@ -331,21 +333,21 @@ BasicRules:
         var emptyDir = "empty";
         _fileSystem.Directory.CreateDirectory(emptyDir);
 
-        Assert.IsEmpty(_fileSystem.Directory.GetFiles(emptyDir, "*.yaml"),"Expected the empty dir not to have any rules yaml files", _fileSystem);
+        Assert.IsEmpty(_fileSystem.Directory.GetFiles(emptyDir, "*.yaml"), "Expected the empty dir not to have any rules yaml files", _fileSystem);
 
         var testOpts = new TestOpts
         {
             RulesDirectory = emptyDir
         };
 
-        var ex = Assert.Throws<Exception>(()=> new TestRunner("fff", testOpts, _fileSystem));
+        var ex = Assert.Throws<Exception>(() => new TestRunner("fff", testOpts, _fileSystem));
         StringAssert.Contains(" did not contain any rules files containing rules", ex.Message);
     }
     [Test]
     public void TestMissingRulesDir()
     {
         var missingDir = "hahaIdontexist";
-        
+
         var testOpts = new TestOpts
         {
             RulesDirectory = missingDir
@@ -363,7 +365,7 @@ BasicRules:
         var emptyishDir = "emptyish";
         _fileSystem.Directory.CreateDirectory(emptyishDir);
 
-        var rulePath = _fileSystem.Path.Combine(emptyishDir,"Somerules.yaml");
+        var rulePath = _fileSystem.Path.Combine(emptyishDir, "Somerules.yaml");
 
         //notice that this file is empty
         _fileSystem.File.WriteAllText(rulePath, yaml);
@@ -383,8 +385,8 @@ BasicRules:
 
     private class TestRunner : IsIdentifiableAbstractRunner
     {
-        public string FieldToTest {get;set; }
-        public string ValueToTest {get;set; }
+        public string FieldToTest { get; set; }
+        public string ValueToTest { get; set; }
 
         public readonly List<FailurePart> ResultsOfValidate = new();
 

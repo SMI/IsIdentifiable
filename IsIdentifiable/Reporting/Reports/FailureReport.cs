@@ -1,8 +1,8 @@
-﻿using System;
+﻿using IsIdentifiable.Options;
+using IsIdentifiable.Reporting.Destinations;
+using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
-using IsIdentifiable.Options;
-using IsIdentifiable.Reporting.Destinations;
 
 namespace IsIdentifiable.Reporting.Reports;
 

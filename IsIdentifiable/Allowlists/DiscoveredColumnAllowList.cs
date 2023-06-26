@@ -1,6 +1,6 @@
+using FAnsi.Discovery;
 using System;
 using System.Collections.Generic;
-using FAnsi.Discovery;
 
 namespace IsIdentifiable.AllowLists;
 
@@ -41,9 +41,9 @@ public class DiscoveredColumnAllowList : IAllowListSource
             $"Select DISTINCT {_column.GetFullyQualifiedName()} FROM {_discoveredTable.GetFullyQualifiedName()}", con);
         using var r = cmd.ExecuteReader();
 
-        while(r.Read())
+        while (r.Read())
         {
-            if(r[colName] is string o)
+            if (r[colName] is string o)
                 yield return o.Trim();
         }
     }

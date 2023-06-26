@@ -8,7 +8,7 @@ class ReviewerOptionsTests
     [Test]
     public void TestFillMissingWithValuesUsing_MissingValues()
     {
-        var global =  new IsIdentifiableReviewerOptions();
+        var global = new IsIdentifiableReviewerOptions();
         var local = new IsIdentifiableReviewerOptions();
 
         global.IgnoreList = "aa";

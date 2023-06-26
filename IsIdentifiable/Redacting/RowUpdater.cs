@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using System.Linq;
-using FAnsi.Discovery;
+﻿using FAnsi.Discovery;
 using IsIdentifiable.Redacting.UpdateStrategies;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Rules;
+using System;
+using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.Linq;
 
 namespace IsIdentifiable.Redacting;
 
@@ -23,7 +23,7 @@ public class RowUpdater : OutBase
     /// Default name for the true positive detection rules (for redacting with).  This file will be appended to as new rules are added.
     /// </summary>
     public const string DefaultFileName = "Reportlist.yaml";
-    
+
     /// <summary>
     /// Set to true to only output updates to Reportlist instead of trying to update the database.
     /// This is useful if you want to  run in manual mode to process everything then run unattended

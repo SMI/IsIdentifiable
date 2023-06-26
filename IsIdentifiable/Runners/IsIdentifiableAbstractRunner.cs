@@ -1,23 +1,23 @@
+using FAnsi;
+using FAnsi.Discovery;
+using IsIdentifiable.AllowLists;
+using IsIdentifiable.Failures;
+using IsIdentifiable.Options;
+using IsIdentifiable.Reporting;
+using IsIdentifiable.Reporting.Reports;
+using IsIdentifiable.Rules;
+using Microsoft.Extensions.Caching.Memory;
+using NLog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
-using FAnsi;
-using FAnsi.Discovery;
-using IsIdentifiable.Failures;
-using IsIdentifiable.Options;
-using IsIdentifiable.Reporting.Reports;
-using IsIdentifiable.Rules;
-using Microsoft.Extensions.Caching.Memory;
-using NLog;
-using YamlDotNet.Serialization;
-using IsIdentifiable.Reporting;
 using System.Threading;
-using System.IO.Abstractions;
-using IsIdentifiable.AllowLists;
+using YamlDotNet.Serialization;
 
 namespace IsIdentifiable.Runners;
 
@@ -186,9 +186,9 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
 
         if (opts.ValuesReport)
             Reports.Add(new FailingValuesReport(targetName, fileSystem));
-            
+
         if (opts.StoreReport)
-            Reports.Add(new FailureStoreReport(targetName, _opts.MaxCacheSize ?? IsIdentifiableBaseOptions.MaxCacheSizeDefault,FileSystem));
+            Reports.Add(new FailureStoreReport(targetName, _opts.MaxCacheSize ?? IsIdentifiableBaseOptions.MaxCacheSizeDefault, FileSystem));
 
         // add custom reports
         foreach (var report in customReports)
@@ -211,7 +211,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
             if (fi.Exists)
             {
                 LoadRules(FileSystem.File.ReadAllText(fi.FullName));
-            }   
+            }
             else
             {
                 // file specified did not exist... but that's ok if it's the default (Rules.yaml)
@@ -220,8 +220,8 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
                     throw new Exception($"Error reading {_opts.RulesFile}");
                 }
             }
-                
-                    
+
+
         }
 
         if (!string.IsNullOrWhiteSpace(opts.RulesDirectory))
@@ -233,14 +233,14 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
                 _logger.Info($"Loading rules from {fi.Name}");
                 var any = LoadRules(FileSystem.File.ReadAllText(fi.FullName));
 
-                if(!any)
+                if (!any)
                 {
                     _logger.Warn($"Rules file {fi.FullName} had no rules in it");
                 }
-                loadedAtLeastOne = loadedAtLeastOne || any; 
+                loadedAtLeastOne = loadedAtLeastOne || any;
             }
 
-            if(!loadedAtLeastOne)
+            if (!loadedAtLeastOne)
             {
                 throw new Exception($"RulesDirectory {opts.RulesDirectory} did not contain any rules files containing rules");
             }
@@ -258,13 +258,13 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         {
             throw new Exception("Error getting AllowList Source", e);
         }
-            
+
         if (source != null)
         {
             _logger.Info("Fetching Allowlist...");
             try
             {
-                _AllowList = new HashSet<string>(source.GetAllowList(),StringComparer.CurrentCultureIgnoreCase);
+                _AllowList = new HashSet<string>(source.GetAllowList(), StringComparer.CurrentCultureIgnoreCase);
             }
             catch (Exception e)
             {
@@ -296,7 +296,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
                 RuleAction.Ignore => 100,
                 //then consider the report explicit rules (by pattern)
                 RuleAction.Report => 0,
-                _ => throw new ArgumentOutOfRangeException(nameof(arg),$"Invalid action {irule.Action} for {nameof(IsIdentifiableRule)} {arg}")
+                _ => throw new ArgumentOutOfRangeException(nameof(arg), $"Invalid action {irule.Action} for {nameof(IsIdentifiableRule)} {arg}")
             },
             //socket rules sink to the bottom
             SocketRule => -5000,
@@ -307,7 +307,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
 
         //some odd custom rule type that is not a socket or basic rule, do them after the regular reports but before sockets
     }
-        
+
     /// <summary>
     /// Generates a deserializer suitable for deserialzing <see cref="RuleSet"/> for use with this class (see also <see cref="LoadRules(string)"/>)
     /// </summary>
@@ -341,14 +341,14 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         if (ruleSet == null)
             return false;
 
-        if(ruleSet.BasicRules != null)
+        if (ruleSet.BasicRules != null)
         {
             CustomRules.AddRange(ruleSet.BasicRules);
             result = result || ruleSet.BasicRules.Any();
         }
-            
 
-        if(ruleSet.SocketRules != null)
+
+        if (ruleSet.SocketRules != null)
         {
             CustomRules.AddRange(ruleSet.SocketRules);
             result = result || ruleSet.SocketRules.Any();
@@ -359,9 +359,9 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
             CustomRules.AddRange(ruleSet.ConsensusRules);
             result = result || ruleSet.ConsensusRules.Any();
         }
-            
 
-        if(ruleSet.AllowlistRules != null)
+
+        if (ruleSet.AllowlistRules != null)
         {
             CustomAllowListRules.AddRange(ruleSet.AllowlistRules);
             result = result || ruleSet.AllowlistRules.Any();
@@ -376,7 +376,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// </summary>
     /// <returns>0 for success</returns>
     public abstract int Run();
-        
+
     /// <summary>
     /// Returns each subsection of <paramref name="fieldValue"/> which violates validation rules (e.g. the CHI found).
     /// </summary>
@@ -386,29 +386,30 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     protected virtual IEnumerable<FailurePart> Validate(string fieldName, string fieldValue)
     {
         // make sure that we have a cache for this column name
-        var cache = Caches.GetOrAdd(fieldName,(v)=>new MemoryCache(new MemoryCacheOptions()
+        var cache = Caches.GetOrAdd(fieldName, (v) => new MemoryCache(new MemoryCacheOptions()
         {
             SizeLimit = MaxValidationCacheSize
         }));
-            
+
         //if we have the cached result use it
-        if(cache.TryGetValue(fieldValue ?? "NULL",out FailurePart[] result))
+        if (cache.TryGetValue(fieldValue ?? "NULL", out FailurePart[] result))
         {
             ValidateCacheHits++;
             CountOfFailureParts += result.Length;
             return result;
         }
-            
+
         ValidateCacheMisses++;
 
         //otherwise run ValidateImpl and cache the result
-        var freshResult = ValidateImpl(fieldName,fieldValue).ToArray();
+        var freshResult = ValidateImpl(fieldName, fieldValue).ToArray();
         CountOfFailureParts += freshResult.Length;
-        return cache.Set(fieldValue?? "NULL", freshResult, new MemoryCacheEntryOptions() {
-            Size=1
+        return cache.Set(fieldValue ?? "NULL", freshResult, new MemoryCacheEntryOptions()
+        {
+            Size = 1
         });
     }
-        
+
     /// <summary>
     /// Actual implementation of <see cref="Validate(string, string)"/> after a cache miss has occurred.  This method is only called when a cached answer is not found for the given <paramref name="fieldName"/> and <paramref name="fieldValue"/> pair
     /// </summary>
@@ -429,7 +430,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         //if there is a Allowlist and it says to ignore the (full string) value
         if (_AllowList?.Contains(fieldValue.Trim()) == true)
             yield break;
-                    
+
         //for each custom rule
         foreach (var rule in CustomRules)
         {
@@ -440,7 +441,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
                 //if rule is to skip the cell (i.e. don't run other classifiers)
                 case RuleAction.Ignore:
                     yield break;
-                    
+
                 //if the rule is to report it then report as a failure but also run other classifiers
                 case RuleAction.Report:
                     foreach (var p in parts)
@@ -459,25 +460,25 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
             yield return new FailurePart(m.Value, FailureClassification.PrivateIdentifier, m.Index);
 
         if (!_opts.IgnorePostcodes)
-            foreach (Match m in _postcodeRegex.Matches(fieldValue))
+            foreach (Match m in _postcodeRegex.Matches(fieldValue).Cast<Match>())
                 yield return new FailurePart(m.Value, FailureClassification.Postcode, m.Index);
 
         if (!_opts.IgnoreDatesInText)
         {
-            foreach (Match m in _dateYearFirst.Matches(fieldValue))
+            foreach (Match m in _dateYearFirst.Matches(fieldValue).Cast<Match>())
                 yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
 
-            foreach (Match m in _dateYearLast.Matches(fieldValue))
+            foreach (Match m in _dateYearLast.Matches(fieldValue).Cast<Match>())
                 yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
 
             // XXX this may cause a duplicate failure if one above yields
-            foreach (Match m in _dateYearMissing.Matches(fieldValue))
+            foreach (Match m in _dateYearMissing.Matches(fieldValue).Cast<Match>())
                 yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
 
-            foreach (Match m in _symbolThenMonth.Matches(fieldValue))
+            foreach (Match m in _symbolThenMonth.Matches(fieldValue).Cast<Match>())
                 yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
 
-            foreach (Match m in _monthThenSymbol.Matches(fieldValue))
+            foreach (Match m in _monthThenSymbol.Matches(fieldValue).Cast<Match>())
                 yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
 
         }
@@ -491,7 +492,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     {
         Reports.ForEach(r => r.Add(f));
     }
-    
+
 
     /// <summary>
     /// Tells all selected reports that the <paramref name="numberOfRowsDone"/> have been processed (this is a += operation 
@@ -500,7 +501,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// <param name="numberOfRowsDone">Number of rows done since the last call to this method</param>
     protected void DoneRows(int numberOfRowsDone)
     {
-        LogProgress(Interlocked.Add(ref _done, numberOfRowsDone),false);
+        LogProgress(Interlocked.Add(ref _done, numberOfRowsDone), false);
         Reports.ForEach(r => r.DoneRows(numberOfRowsDone));
     }
 
@@ -568,7 +569,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     {
         var server = new DiscoveredServer(databaseConnectionString, databaseType);
 
-        var db = server.GetCurrentDatabase()??throw new Exception("No current database");
+        var db = server.GetCurrentDatabase() ?? throw new Exception("No current database");
 
         return db;
     }
@@ -585,10 +586,10 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         if (LogProgressEvery == null && !force)
             return;
 
-        if(force || progress % LogProgressEvery.Value == 0)
+        if (force || progress % LogProgressEvery.Value == 0)
         {
             _logger.Log(LogProgressLevel, $"Done {progress} {LogProgressNoun}");
-        }        
+        }
     }
 
     /// <summary>
@@ -599,7 +600,7 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     public virtual void Dispose()
     {
         GC.SuppressFinalize(this);
-        foreach (var d in CustomRules.OfType<IDisposable>()) 
+        foreach (var d in CustomRules.OfType<IDisposable>())
             d.Dispose();
 
         _logger?.Info($"Total runtime for {GetType().Name}:{Lifetime.Elapsed}");

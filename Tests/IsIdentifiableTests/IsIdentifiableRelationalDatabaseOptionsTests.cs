@@ -52,14 +52,14 @@ namespace IsIdentifiable.Tests
 
             // valid Targets file
             Assert.AreEqual(0, opt.UpdateConnectionStringsToUseTargets(out targets, _fileSystem));
-            Assert.AreEqual(1,targets.Count);
+            Assert.AreEqual(1, targets.Count);
         }
 
-        [TestCase("fff",false)]
+        [TestCase("fff", false)]
         [TestCase("MyServer", true)]
         [TestCase("myserver", true)]
         [TestCase(null, false)]
-        public void TestUsingTargetNameForConstr(string constr,bool expectToUseTargets)
+        public void TestUsingTargetNameForConstr(string constr, bool expectToUseTargets)
         {
             var targetConstr = "Server=localhost;Username=root;Password=fff";
 
@@ -72,22 +72,22 @@ namespace IsIdentifiable.Tests
 
             var opt = new IsIdentifiableRelationalDatabaseOptions();
 
-            Test(opt,constr, targetConstr,expectToUseTargets, 
+            Test(opt, constr, targetConstr, expectToUseTargets,
                 (o) => o.DatabaseConnectionString, (o) => o.DatabaseType, (o, v) => o.DatabaseConnectionString = v);
-            
+
             opt = new IsIdentifiableRelationalDatabaseOptions();
 
-            Test(opt, constr, targetConstr, expectToUseTargets, 
+            Test(opt, constr, targetConstr, expectToUseTargets,
                 (o) => o.AllowlistConnectionString, (o) => o.AllowlistDatabaseType, (o, v) => o.AllowlistConnectionString = v);
 
             opt = new IsIdentifiableRelationalDatabaseOptions();
 
-            Test(opt, constr, targetConstr, expectToUseTargets, 
+            Test(opt, constr, targetConstr, expectToUseTargets,
                 (o) => o.DestinationConnectionString, (o) => o.DestinationDatabaseType, (o, v) => o.DestinationConnectionString = v);
         }
 
         private void Test(IsIdentifiableRelationalDatabaseOptions opt, string constr, string targetConstr, bool expectToUseTargets,
-            Func<IsIdentifiableRelationalDatabaseOptions,string> getter,
+            Func<IsIdentifiableRelationalDatabaseOptions, string> getter,
             Func<IsIdentifiableRelationalDatabaseOptions, DatabaseType?> getterDbType,
             Action<IsIdentifiableRelationalDatabaseOptions, string> setter)
         {
@@ -108,7 +108,7 @@ namespace IsIdentifiable.Tests
             else
             {
                 Assert.AreEqual(constr, getter(opt));
-                
+
                 // the default
                 Assert.IsTrue(getterDbType(opt) == DatabaseType.MicrosoftSQLServer || getterDbType(opt) == null);
             }

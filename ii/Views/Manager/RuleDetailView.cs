@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using IsIdentifiable.Rules;
+using System.Collections.Generic;
 using System.IO.Abstractions;
-using IsIdentifiable.Rules;
 using Terminal.Gui;
 
 namespace ii.Views.Manager;
@@ -12,7 +12,7 @@ class RuleDetailView : View
 
     public RuleDetailView()
     {
-        _lblType = new Label() { Text = "Type:", Height = 1, Width = Dim.Fill()};
+        _lblType = new Label() { Text = "Type:", Height = 1, Width = Dim.Fill() };
 
         base.Add(_lblType);
     }
@@ -62,7 +62,7 @@ class RuleDetailView : View
         _lblType.Text = $"Type:{type.Name}";
 
         var y = 1;
-        foreach(var prop in type.GetProperties())
+        foreach (var prop in type.GetProperties())
         {
             var val = prop.GetValue(rule);
             var lbl = new Label($"{prop.Name}:{val}")

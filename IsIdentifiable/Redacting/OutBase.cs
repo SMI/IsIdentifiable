@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using System.Linq;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Rules;
+using System;
+using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.Linq;
 using YamlDotNet.Serialization;
 
 namespace IsIdentifiable.Redacting;
@@ -129,7 +129,7 @@ public abstract class OutBase
     /// <param name="rule"></param>
     /// <param name="addCreatorComment"></param>
     /// <returns></returns>
-    private string Serialize(IsIdentifiableRule rule, bool addCreatorComment)
+    private static string Serialize(IsIdentifiableRule rule, bool addCreatorComment)
     {
         var serializer = new SerializerBuilder()
             .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
@@ -218,7 +218,7 @@ public abstract class OutBase
         FileSystem.File.WriteAllText(temp, newText);
 
         //then hot swap them
-        FileSystem.File.Copy(temp, RulesFile.FullName,true);
+        FileSystem.File.Copy(temp, RulesFile.FullName, true);
         FileSystem.File.Delete(temp);
 
         return true;

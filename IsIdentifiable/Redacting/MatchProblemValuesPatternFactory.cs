@@ -1,9 +1,9 @@
-﻿using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using IsIdentifiable.Failures;
+﻿using IsIdentifiable.Failures;
 using IsIdentifiable.Reporting;
 using IsIdentifiable.Runners;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace IsIdentifiable.Redacting;
 

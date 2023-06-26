@@ -1,15 +1,15 @@
+using CommandLine;
+using CommandLine.Text;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
-using CommandLine;
-using CommandLine.Text;
 
 namespace IsIdentifiable.Options;
 
 /// <summary>
 /// Options class for running IsIdentifiable on all dicom files in a given directory
 /// </summary>
-[Verb("dir",HelpText = "Run tool on one or more dicom files and evaluate tag contents")]
+[Verb("dir", HelpText = "Run tool on one or more dicom files and evaluate tag contents")]
 public class IsIdentifiableDicomFileOptions : IsIdentifiableBaseOptions
 {
     /// <summary>
@@ -22,7 +22,7 @@ public class IsIdentifiableDicomFileOptions : IsIdentifiableBaseOptions
     /// Optional. Search pattern for files, defaults to *.dcm)
     /// </summary>
     [Option(HelpText = "Optional. Search pattern for files, defaults to *.dcm)", Default = "*.dcm")]
-    public string Pattern{ get; set; }
+    public string Pattern { get; set; }
 
     /// <summary>
     /// Optional. True to check the files opened have a valid dicom preamble
@@ -92,7 +92,7 @@ public class IsIdentifiableDicomFileOptions : IsIdentifiableBaseOptions
     /// <returns></returns>
     public override string GetTargetName(IFileSystem fileSystem)
     {
-        return Directory == null ?"No Directory Specified": fileSystem.DirectoryInfo.New(Directory).Name;
+        return Directory == null ? "No Directory Specified" : fileSystem.DirectoryInfo.New(Directory).Name;
     }
 
     /// <summary>

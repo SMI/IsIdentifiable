@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Rules;
 using IsIdentifiable.Runners;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace IsIdentifiable.Tests;
 
@@ -21,9 +21,9 @@ class ConsensusRuleTests
             }
         };
 
-        var result = rule.Apply("ff","vv",out var badParts);
+        var result = rule.Apply("ff", "vv", out var badParts);
 
-        Assert.AreEqual(RuleAction.None,result);
+        Assert.AreEqual(RuleAction.None, result);
         Assert.IsEmpty(badParts);
     }
 
@@ -40,10 +40,10 @@ class ConsensusRuleTests
             }
         };
 
-        var result = rule.Apply("ff","vv",out var badParts);
+        var result = rule.Apply("ff", "vv", out var badParts);
 
-        Assert.AreEqual(RuleAction.Report,result);
-        Assert.AreEqual(offset,badParts.Single().Offset);
+        Assert.AreEqual(RuleAction.Report, result);
+        Assert.AreEqual(offset, badParts.Single().Offset);
     }
 
     [Test]
@@ -59,18 +59,18 @@ class ConsensusRuleTests
             }
         };
 
-        var result = rule.Apply("ff","abc is so cool",out var badParts);
+        var result = rule.Apply("ff", "abc is so cool", out var badParts);
 
-        Assert.AreEqual(RuleAction.Report,result);
-        var badPart=badParts.Single();
-        Assert.AreEqual(10,badPart.Offset);
-        Assert.AreEqual("ab",badPart.Word);
+        Assert.AreEqual(RuleAction.Report, result);
+        var badPart = badParts.Single();
+        Assert.AreEqual(10, badPart.Offset);
+        Assert.AreEqual("ab", badPart.Word);
     }
 
     [Test]
     public void TestDeserialization()
     {
-        var yaml = 
+        var yaml =
             @"ConsensusRules:
     - Rules:
       - !SocketRule
@@ -80,20 +80,20 @@ class ConsensusRuleTests
           Host: 127.0.123.123
           Port: 567";
 
-            
+
         var deserializer = IsIdentifiableAbstractRunner.GetDeserializer();
         var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
 
-        Assert.IsInstanceOf(typeof(ConsensusRule),ruleSet.ConsensusRules.Single());
-        Assert.IsInstanceOf(typeof(SocketRule),ruleSet.ConsensusRules.Single().Rules[0]);
-        Assert.AreEqual(1234,((SocketRule)ruleSet.ConsensusRules.Single().Rules[0]).Port);
-        Assert.AreEqual(567,((SocketRule)ruleSet.ConsensusRules.Single().Rules[1]).Port);
+        Assert.IsInstanceOf(typeof(ConsensusRule), ruleSet.ConsensusRules.Single());
+        Assert.IsInstanceOf(typeof(SocketRule), ruleSet.ConsensusRules.Single().Rules[0]);
+        Assert.AreEqual(1234, ((SocketRule)ruleSet.ConsensusRules.Single().Rules[0]).Port);
+        Assert.AreEqual(567, ((SocketRule)ruleSet.ConsensusRules.Single().Rules[1]).Port);
     }
 
-    class TestRule : ICustomRule
+    internal class TestRule : ICustomRule
     {
-        RuleAction _rule;
-        FailurePart[] _parts;
+        private readonly RuleAction _rule;
+        private readonly FailurePart[] _parts;
 
         public TestRule(RuleAction rule, params FailurePart[] parts)
         {

@@ -1,5 +1,5 @@
-﻿using System.IO.Abstractions;
-using CommandLine;
+﻿using CommandLine;
+using System.IO.Abstractions;
 
 namespace IsIdentifiable.Options;
 
@@ -20,7 +20,7 @@ public class IsIdentifiableFileOptions : IsIdentifiableBaseOptions
     /// Optional.  The culture of dates, numbers etc if different from system culture
     /// </summary>
     [Option('c', HelpText = "The culture of dates, numbers etc if different from system culture")]
-    public string Culture {get;set;}
+    public string Culture { get; set; }
 
     /// <summary>
     /// Returns the name of the <see cref="File"/> (for use in outputted report names)

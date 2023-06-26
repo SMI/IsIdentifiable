@@ -1,5 +1,5 @@
-﻿using System.Text.RegularExpressions;
-using IsIdentifiable.Reporting;
+﻿using IsIdentifiable.Reporting;
+using System.Text.RegularExpressions;
 
 namespace IsIdentifiable.Redacting;
 

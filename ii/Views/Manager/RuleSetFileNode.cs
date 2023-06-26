@@ -1,6 +1,6 @@
-﻿using System.IO.Abstractions;
-using IsIdentifiable.Rules;
+﻿using IsIdentifiable.Rules;
 using IsIdentifiable.Runners;
+using System.IO.Abstractions;
 using YamlDotNet.Serialization;
 
 namespace ii.Views.Manager;
@@ -27,7 +27,7 @@ internal class RuleSetFileNode
     /// <returns></returns>
     public RuleSet GetRuleSet()
     {
-        if(_ruleSet != null)
+        if (_ruleSet != null)
         {
             return _ruleSet;
         }
@@ -46,7 +46,7 @@ internal class RuleSetFileNode
         }
 
         toFile ??= File;
-            
+
         //populated rules file already existed
         var builder = new SerializerBuilder()
             .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)

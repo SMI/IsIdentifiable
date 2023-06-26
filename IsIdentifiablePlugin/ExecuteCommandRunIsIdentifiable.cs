@@ -1,4 +1,4 @@
-﻿using IsIdentifiable.Options;
+using IsIdentifiable.Options;
 using IsIdentifiable.Runners;
 using Rdmp.Core.CommandExecution;
 using Rdmp.Core.Curation.Data;
@@ -12,30 +12,31 @@ internal class ExecuteCommandRunIsIdentifiable : BasicCommandExecution
 {
     private readonly ICatalogue _catalogue;
     private readonly FileInfo? _configYaml;
-    private ITableInfo? _table;
+    private readonly ITableInfo? _table;
 
-    public ExecuteCommandRunIsIdentifiable(IBasicActivateItems activator, ICatalogue catalogue, FileInfo? configYaml ) : base(activator)
+    public ExecuteCommandRunIsIdentifiable(IBasicActivateItems activator, ICatalogue catalogue, FileInfo? configYaml) : base(activator)
     {
         this._catalogue = catalogue;
         this._configYaml = configYaml;
 
         var tables = catalogue.GetTableInfosIdeallyJustFromMainTables();
-        if(tables.Length != 1)
+        if (tables.Length != 1)
         {
             SetImpossible("Catalogue draws from multiple tables so cannot be evaluated");
         }
         else
         {
             this._table = tables[0];
-        }        
+        }
     }
+
     public override void Execute()
     {
         base.Execute();
 
         var file = _configYaml;
-        
-        if(_table == null)
+
+        if (_table == null)
             throw new System.Exception("No table picked to run on");
 
         file ??= BasicActivator.SelectFile("YAMLConfigFile", "YAML File", "*.yaml");
@@ -65,7 +66,7 @@ internal class ExecuteCommandRunIsIdentifiable : BasicCommandExecution
         var runner = new DatabaseRunner(dbOpts, new FileSystem());
         using var cts = new CancellationTokenSource();
 
-        BasicActivator.Wait("Evaluating Table", Task.Run(()=>
+        BasicActivator.Wait("Evaluating Table", Task.Run(() =>
         {
             runner.Run();
             runner.Dispose();

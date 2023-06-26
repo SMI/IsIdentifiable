@@ -17,7 +17,7 @@ internal class PixelDataReportTests
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
-    { 
+    {
         _pixelDataReportData = System.IO.File.ReadAllBytes(
             System.IO.Path.Combine(
                 TestContext.CurrentContext.TestDirectory,

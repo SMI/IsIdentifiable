@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Terminal.Gui;
 
 namespace ii.Views;
@@ -42,7 +42,6 @@ internal class SpinnerView : View
             _ => throw new ArgumentOutOfRangeException(nameof(_stage))
         };
 
-        AddRune(0,0,rune);
-
+        AddRune(0, 0, rune);
     }
 }

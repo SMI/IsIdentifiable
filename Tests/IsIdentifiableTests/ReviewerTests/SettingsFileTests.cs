@@ -1,15 +1,15 @@
-﻿using System;
-using ii;
+﻿using ii;
 using NUnit.Framework;
+using System;
 
 namespace IsIdentifiable.Tests.ReviewerTests
 {
-    public class SettingsFileTests 
+    public class SettingsFileTests
     {
         [Test]
         public void TestCutSettingsFileArgs_NoArgs()
         {
-            Assert.IsNull(Program.CutSettingsFileArgs(Array.Empty<string>(),out var result));
+            Assert.IsNull(Program.CutSettingsFileArgs(Array.Empty<string>(), out var result));
             Assert.IsEmpty(result);
         }
 
@@ -17,7 +17,7 @@ namespace IsIdentifiable.Tests.ReviewerTests
         [Test]
         public void TestCutSettingsFileArgs_NoYamlFile()
         {
-            Assert.IsNull(Program.CutSettingsFileArgs(new [] { "review" ,"somefish"}, out var result));
+            Assert.IsNull(Program.CutSettingsFileArgs(new[] { "review", "somefish" }, out var result));
             Assert.AreEqual(2, result.Length);
             Assert.AreEqual("review", result[0]);
             Assert.AreEqual("somefish", result[1]);
@@ -36,7 +36,7 @@ namespace IsIdentifiable.Tests.ReviewerTests
         [Test]
         public void TestCutSettingsFileArgs_YamlOnly()
         {
-            Assert.AreEqual("myfile.yaml",Program.CutSettingsFileArgs(new[] { "-y" ,"myfile.yaml"}, out var result));
+            Assert.AreEqual("myfile.yaml", Program.CutSettingsFileArgs(new[] { "-y", "myfile.yaml" }, out var result));
             Assert.IsEmpty(result);
         }
 
@@ -44,7 +44,7 @@ namespace IsIdentifiable.Tests.ReviewerTests
         [Test]
         public void TestCutSettingsFileArgs_YamlAfter()
         {
-            Assert.AreEqual("myfile.yaml", Program.CutSettingsFileArgs(new[] {"review", "db","someconstr" , "-y", "myfile.yaml" }, out var result));
+            Assert.AreEqual("myfile.yaml", Program.CutSettingsFileArgs(new[] { "review", "db", "someconstr", "-y", "myfile.yaml" }, out var result));
 
             Assert.AreEqual(3, result.Length);
             Assert.AreEqual("review", result[0]);
@@ -77,7 +77,7 @@ namespace IsIdentifiable.Tests.ReviewerTests
         [Test]
         public void TestDeserialize_SmiServices_DefaultYaml()
         {
-            var f = System.IO.Path.Combine(TestContext.CurrentContext.TestDirectory,"default.yaml");
+            var f = System.IO.Path.Combine(TestContext.CurrentContext.TestDirectory, "default.yaml");
             FileAssert.Exists(f);
 
             var opts = Program.Deserialize(f, new System.IO.Abstractions.FileSystem());

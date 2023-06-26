@@ -1,9 +1,9 @@
-﻿using System;
+using IsIdentifiable.Failures;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
-using IsIdentifiable.Failures;
 
 namespace IsIdentifiable.Rules;
 
@@ -24,7 +24,7 @@ namespace IsIdentifiable.Rules;
 /// Example:
 /// "Person\000\0Dave\0" (the word Dave in the input string at index 0 is considered identifiable and is a 'Person')
 /// </remarks>
-public class SocketRule : ICustomRule,IDisposable
+public class SocketRule : ICustomRule, IDisposable
 {
     /// <summary>
     /// The name of the server that is running the listening service e.g. localhost
@@ -35,7 +35,7 @@ public class SocketRule : ICustomRule,IDisposable
     /// The port of the server that is running the listening service
     /// </summary>
     public int Port { get; set; }
-        
+
     private TcpClient _tcp;
     private NetworkStream _stream;
     private System.IO.StreamWriter _write;
@@ -62,27 +62,27 @@ public class SocketRule : ICustomRule,IDisposable
         }
 
         // Translate the passed message into ASCII and store it as a Byte array.
-            
+
         _write.Write($"{fieldValue.Replace("\0", "")}\0");
         _write.Flush();
 
         var sb = new StringBuilder();
 
-        int last,c = ' ';
+        int last, c = ' ';
         do
         {
             //if last character was a \0 and the next one we read is a \0 that marks the end of the response
-            last=c;
-            c=_read.Read();
+            last = c;
+            c = _read.Read();
             if (last <= '\0' && c <= '\0')
                 break;
-            if (sb.Length>10000) throw new Exception($"Unexpected response {sb}");
+            if (sb.Length > 10000) throw new Exception($"Unexpected response {sb}");
             sb.Append((char)c);
         } while (true);
 
-            
+
         badParts = HandleResponse(sb.ToString()).ToArray();
-            
+
         return badParts.Any() ? RuleAction.Report : RuleAction.None;
     }
 
@@ -93,32 +93,32 @@ public class SocketRule : ICustomRule,IDisposable
     /// <param name="responseData"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public IEnumerable<FailurePart> HandleResponse(string responseData)
+    public static IEnumerable<FailurePart> HandleResponse(string responseData)
     {
         var parts = 3;
         if (string.Equals(responseData, "\0") || string.IsNullOrWhiteSpace(responseData))
             yield break;
 
-        if (responseData.Contains("\0\0")) 
+        if (responseData.Contains("\0\0"))
             throw new Exception("Invalid sequence detected: two null terminators in a row");
 
-        var result = responseData.Split("\0",StringSplitOptions.RemoveEmptyEntries);
-            
-        if(result.Length % parts != 0)
+        var result = responseData.Split("\0", StringSplitOptions.RemoveEmptyEntries);
+
+        if (result.Length % parts != 0)
             throw new Exception($"Expected tokens to arrive in multiples of {parts} (but got '{result.Length}').  Full message was '{responseData}' (expected <classification><offset> or <null terminator>)");
 
-        for (var i = 0; i < result.Length; i+=parts)
+        for (var i = 0; i < result.Length; i += parts)
         {
-            if (!Enum.TryParse(typeof(FailureClassification), result[i],true, out var c))
+            if (!Enum.TryParse(typeof(FailureClassification), result[i], true, out var c))
                 throw new Exception($"Could not parse TCP client classification '{result[i]}' (expected a member of Enum FailureClassification)");
             var classification = (FailureClassification)c;
 
-            if(!int.TryParse(result[i+1],out var offset))
-                throw new Exception($"Failed to parse offset from TCP client response.  Response was '{result[i+1]}' (expected int)");
+            if (!int.TryParse(result[i + 1], out var offset))
+                throw new Exception($"Failed to parse offset from TCP client response.  Response was '{result[i + 1]}' (expected int)");
 
-            var badWord = result[i+2];
+            var badWord = result[i + 2];
 
-            yield return new FailurePart(badWord,classification,offset);
+            yield return new FailurePart(badWord, classification, offset);
         }
     }
 
@@ -127,6 +127,8 @@ public class SocketRule : ICustomRule,IDisposable
     /// </summary>
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
+
         _stream?.Dispose();
         _tcp?.Dispose();
     }
