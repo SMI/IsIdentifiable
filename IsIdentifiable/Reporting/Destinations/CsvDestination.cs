@@ -35,7 +35,7 @@ public class CsvDestination : ReportDestination
     /// <param name="csvConfiguration"></param>
     /// <param name="fileSystem"></param>
     public CsvDestination(
-        IsIdentifiableBaseOptions options,
+        IsIdentifiableOptions options,
         string reportName,
         IFileSystem fileSystem,
         bool addTimestampToFilename = true,
@@ -63,7 +63,7 @@ public class CsvDestination : ReportDestination
     /// <param name="fileSystem"></param>
     /// <param name="csvConfiguration"></param>
     public CsvDestination(
-        IsIdentifiableBaseOptions options,
+        IsIdentifiableOptions options,
         IFileInfo file,
         IFileSystem fileSystem,
         CsvConfiguration csvConfiguration = null

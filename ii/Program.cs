@@ -242,7 +242,7 @@ public static class Program
             opts.InheritValuesFrom(GlobalOptions.IsIdentifiableReviewerOptions);
         }
     }
-    private static int Inherit(IsIdentifiableBaseOptions opts, IFileSystem fileSystem)
+    private static int Inherit(IsIdentifiableOptions opts, IFileSystem fileSystem)
     {
         if (GlobalOptions?.IsIdentifiableOptions != null)
         {

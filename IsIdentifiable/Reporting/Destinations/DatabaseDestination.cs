@@ -11,13 +11,13 @@ internal class DatabaseDestination : ReportDestination
     private readonly string _reportName;
     private readonly DiscoveredTable _tbl;
 
-    public DatabaseDestination(IsIdentifiableBaseOptions options, string reportName, IFileSystem fileSystem)
+    public DatabaseDestination(IsIdentifiableOptions options, string reportName, IFileSystem fileSystem)
         : base(options, fileSystem)
     {
 
         if (options.DestinationDatabaseType == null)
         {
-            throw new Exception($"{nameof(IsIdentifiableBaseOptions.DestinationDatabaseType)} must be specified to use this destination (it was null)");
+            throw new Exception($"{nameof(IsIdentifiableOptions.DestinationDatabaseType)} must be specified to use this destination (it was null)");
         }
 
         var targetDatabase = new DiscoveredServer(options.DestinationConnectionString, options.DestinationDatabaseType.Value).GetCurrentDatabase();

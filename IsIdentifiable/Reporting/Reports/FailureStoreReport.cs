@@ -55,7 +55,7 @@ public class FailureStoreReport : FailureReport
     /// locations for this report.  Also writes the report headers to the destinations.
     /// </summary>
     /// <param name="opts"></param>
-    public override void AddDestinations(IsIdentifiableBaseOptions opts)
+    public override void AddDestinations(IsIdentifiableOptions opts)
     {
         base.AddDestinations(opts);
         Destinations.ForEach(d => d.WriteHeader((from dc in _dtAllFailures.Columns.Cast<DataColumn>() select dc.ColumnName).ToArray()));

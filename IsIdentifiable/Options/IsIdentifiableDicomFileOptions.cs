@@ -10,7 +10,7 @@ namespace IsIdentifiable.Options;
 /// Options class for running IsIdentifiable on all dicom files in a given directory
 /// </summary>
 [Verb("dir", HelpText = "Run tool on one or more dicom files and evaluate tag contents")]
-public class IsIdentifiableDicomFileOptions : IsIdentifiableBaseOptions
+public class IsIdentifiableDicomFileOptions : IsIdentifiableOptions
 {
     /// <summary>
     /// Directory in which to recursively search for dicom files

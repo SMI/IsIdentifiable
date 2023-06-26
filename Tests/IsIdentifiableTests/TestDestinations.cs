@@ -128,7 +128,7 @@ internal class TestFailureReport : IFailureReport
     }
 
 
-    public void AddDestinations(IsIdentifiableBaseOptions options) { }
+    public void AddDestinations(IsIdentifiableOptions options) { }
 
     public void DoneRows(int numberDone) { }
 

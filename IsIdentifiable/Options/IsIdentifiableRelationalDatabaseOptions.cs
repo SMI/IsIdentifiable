@@ -14,7 +14,7 @@ namespace IsIdentifiable.Options;
 /// Options class for runnning IsIdentifiable on a table in a relational database
 /// </summary>
 [Verb("db", HelpText = "Run tool on data held in a relational database table")]
-public class IsIdentifiableRelationalDatabaseOptions : IsIdentifiableBaseOptions
+public class IsIdentifiableRelationalDatabaseOptions : IsIdentifiableOptions
 {
     /// <summary>
     /// Full connection string to the database storing the table to be evaluated

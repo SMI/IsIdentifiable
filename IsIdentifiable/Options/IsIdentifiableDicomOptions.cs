@@ -5,7 +5,7 @@ namespace IsIdentifiable.Options;
 /// <summary>
 /// Options for any verb that operates on dicom datasets (either from mongo, from file etc).
 /// </summary>
-public abstract class IsIdentifiableDicomOptions : IsIdentifiableBaseOptions
+public abstract class IsIdentifiableDicomOptions : IsIdentifiableOptions
 {
     /// <summary>
     /// Optional. Generate a tree storage report which represents failures according to their position in the DicomDataset.

@@ -4,7 +4,7 @@ namespace ii;
 
 public class GlobalOptions
 {
-    public IsIdentifiableBaseOptions? IsIdentifiableOptions { get; set; }
+    public IsIdentifiableOptions? IsIdentifiableOptions { get; set; }
 
     public IsIdentifiableReviewerOptions? IsIdentifiableReviewerOptions { get; set; }
 }

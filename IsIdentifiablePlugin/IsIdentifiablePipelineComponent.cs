@@ -100,9 +100,9 @@ public class IsIdentifiablePipelineComponent : IDataFlowComponent<DataTable>, IC
 
 class CustomRunner : IsIdentifiableAbstractRunner
 {
-    private readonly IsIdentifiableBaseOptions options;
+    private readonly IsIdentifiableOptions options;
 
-    public CustomRunner(IsIdentifiableBaseOptions options, IFileSystem fileSystem)
+    public CustomRunner(IsIdentifiableOptions options, IFileSystem fileSystem)
         : base(options, fileSystem)
     {
         this.options = options;

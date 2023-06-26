@@ -13,7 +13,7 @@ internal class ExampleUsage
     class CustomRunner : IsIdentifiableAbstractRunner
     {
         public CustomRunner(IFailureReport report, MockFileSystem fileSystem)
-            : base(new IsIdentifiableBaseOptions(), fileSystem, report)
+            : base(new IsIdentifiableOptions(), fileSystem, report)
         { }
 
         public override int Run()

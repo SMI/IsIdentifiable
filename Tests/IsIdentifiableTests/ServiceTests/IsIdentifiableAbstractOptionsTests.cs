@@ -11,7 +11,7 @@ class IsIdentifiableAbstractOptionsTests
     public void FillMissingWithValuesUsing_NoOptionsAnywhere()
     {
         var opts = new IsIdentifiableDicomFileOptions();
-        var globalOpts = new IsIdentifiableBaseOptions();
+        var globalOpts = new IsIdentifiableOptions();
         opts.InheritValuesFrom(globalOpts);
     }
 
@@ -20,7 +20,7 @@ class IsIdentifiableAbstractOptionsTests
     {
         var propsCounted = 0;
 
-        foreach (var gProp in typeof(IsIdentifiableBaseOptions).GetProperties())
+        foreach (var gProp in typeof(IsIdentifiableOptions).GetProperties())
         {
             var cliProp = typeof(IsIdentifiableDicomFileOptions).GetProperty(gProp.Name);
 
@@ -30,7 +30,7 @@ class IsIdentifiableAbstractOptionsTests
             }
 
             var opts = new IsIdentifiableDicomFileOptions();
-            var globalOpts = new IsIdentifiableBaseOptions();
+            var globalOpts = new IsIdentifiableOptions();
 
             var testVal = GetTestValue(cliProp);
             gProp.SetValue(globalOpts, testVal);
@@ -52,7 +52,7 @@ class IsIdentifiableAbstractOptionsTests
     {
         var propsCounted = 0;
 
-        foreach (var gProp in typeof(IsIdentifiableBaseOptions).GetProperties())
+        foreach (var gProp in typeof(IsIdentifiableOptions).GetProperties())
         {
             var cliProp = typeof(IsIdentifiableDicomFileOptions).GetProperty(gProp.Name);
 
@@ -62,7 +62,7 @@ class IsIdentifiableAbstractOptionsTests
             }
 
             var opts = new IsIdentifiableDicomFileOptions();
-            var globalOpts = new IsIdentifiableBaseOptions();
+            var globalOpts = new IsIdentifiableOptions();
 
             var testVal1 = GetTestValue(cliProp);
             var testVal2 = GetTestValue2(cliProp);

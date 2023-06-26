@@ -7,7 +7,7 @@ namespace IsIdentifiable.Options;
 /// Options class for when running IsIdentifiable on a text data file e.g. csv
 /// </summary>
 [Verb("file", HelpText = "Run tool on delimited textual data file e.g. csv")]
-public class IsIdentifiableFileOptions : IsIdentifiableBaseOptions
+public class IsIdentifiableFileOptions : IsIdentifiableOptions
 {
     /// <summary>
     /// Path to a file to be evaluated
