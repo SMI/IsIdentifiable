@@ -259,7 +259,7 @@ class RulesView : View
         using var cancel = new Button("Cancel");
         cancel.Clicked += () => { Application.RequestStop(); };
 
-        using var dlg = new Dialog("Failure", MainWindow.DlgWidth, MainWindow.DlgHeight, ignore, update, cancel);
+        using var dlg = new Dialog("Failure", Constants.DlgWidth, Constants.DlgHeight, ignore, update, cancel);
 
         var lbl = new FailureView()
         {
@@ -369,7 +369,7 @@ class RulesView : View
         var closeFunc = () => { Application.RequestStop(); };
         btn.Clicked += cancelFunc;
 
-        using var dlg = new Dialog("Evaluating", MainWindow.DlgWidth, 6, btn);
+        using var dlg = new Dialog("Evaluating", Constants.DlgWidth, 6, btn);
 
         var stage = new Label("Evaluating Failures") { Width = Dim.Fill(), X = 0, Y = 0 };
         var progress = new ProgressBar() { Height = 2, Width = Dim.Fill(), X = 0, Y = 1 };
