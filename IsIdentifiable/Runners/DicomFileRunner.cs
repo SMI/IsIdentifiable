@@ -231,7 +231,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                         break;
                     }
                 case DateTime time when _opts.NoDateFields && _zeroDate != time:
-                    AddToReports(DicomFileFailureFactory.Create(fi, dicomFile, time.ToString(), dicomItem.Tag.DictionaryEntry.Keyword, new[] { new FailurePart(time.ToString(), FailureClassification.Date, 0) }));
+                    AddToReports(FailureFrom(fi, dicomFile, time.ToString(), dicomItem.Tag.DictionaryEntry.Keyword, new[] { new FailurePart(time.ToString(), FailureClassification.Date, 0) }));
                     break;
             }
         }
@@ -251,7 +251,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         var parts = Validate(tagName, fieldValue).ToList();
 
         if (parts.Any())
-            AddToReports(DicomFileFailureFactory.Create(fi, dicomFile, fieldValue, tagName, parts));
+            AddToReports(FailureFrom(fi, dicomFile, fieldValue, tagName, parts));
     }
 
     void ValidateDicomPixelData(IFileInfo fi, DicomFile dicomFile, DicomDataset ds)
@@ -410,7 +410,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
             _logger.Debug($"Ignoring pixel data discovery in {fi.Name} of length {text.Length} because it is below the threshold {_ignoreTextLessThan}");
         else
         {
-            var f = DicomFileFailureFactory.Create(fi, dicomFile, text, problemField, new[] { new FailurePart(text, FailureClassification.PixelText) });
+            var f = FailureFrom(fi, dicomFile, text, problemField, new[] { new FailurePart(text, FailureClassification.PixelText) });
             AddToReports(f);
             _tesseractReport.FoundPixelData(fi, sopID, studyID, seriesID, modality, imageType, meanConfidence, text.Length, text, rotationIfAny, frame, overlay);
         }
@@ -488,5 +488,26 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     private static string GetTagOrUnknown(DicomDataset ds, DicomTag dt)
     {
         return ds.Contains(dt) ? ds.GetValue<string>(dt, 0) : null;
+    }
+
+    private static Failure FailureFrom(IFileInfo file, DicomFile dcm, string problemValue, string problemField, IEnumerable<FailurePart> parts)
+    {
+        string resourcePrimaryKey;
+        try
+        {
+            // Some DICOM files do not have SOPInstanceUID
+            resourcePrimaryKey = dcm.Dataset.GetSingleValue<string>(DicomTag.SOPInstanceUID);
+        }
+        catch (DicomDataException)
+        {
+            resourcePrimaryKey = "UnknownPrimaryKey";
+        }
+        return new Failure(parts)
+        {
+            Resource = file.FullName,
+            ResourcePrimaryKey = resourcePrimaryKey,
+            ProblemValue = problemValue,
+            ProblemField = problemField
+        };
     }
 }
