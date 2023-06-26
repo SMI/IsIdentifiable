@@ -1,7 +1,5 @@
 ﻿# IsIdentifiable
 
-Primary Author: [Thomas](https://github.com/tznind)
-
 ## Contents
 
 1.  [Overview](#overview)
@@ -224,8 +222,6 @@ IfPattern: MR Brian And Skull
 
 Note that there is no need to specify ^ and $ in IfPattern as other text before or after it will not change the meaning.
 
-## Class Diagram
-
-![Class Diagram](./IsIdentifiable.png)
+<!-- Links -->
 
 [ii]: ../ii/README.md
