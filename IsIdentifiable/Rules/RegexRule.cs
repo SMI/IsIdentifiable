@@ -1,3 +1,4 @@
+using Equ;
 using IsIdentifiable.Failures;
 using System;
 using System.Collections;
@@ -16,36 +17,27 @@ namespace IsIdentifiable.Rules;
 /// A simple Regex based rule that allows flexible white listing or blacklisting of values
 /// either in all columns or only a single column
 /// </summary>
-public class RegexRule : IAppliableRule
+public class RegexRule : MemberwiseEquatable<RegexRule>, IRegexRule
 {
-
-    /// <summary>
-    /// What to do if the rule is found to match the values being examined (e.g.
-    /// Allowlist the value or report the value as a validation failure)
-    /// </summary>
+    /// <inheritdoc/>
     public RuleAction Action { get; set; }
 
-    /// <summary>
-    /// The column/tag in which to apply the rule.  If empty then the rule applies to all columns
-    /// </summary>
+    /// <inheritdoc/>
     public string IfColumn { get; set; }
 
-    /// <summary>
-    /// What you are trying to classify (if <see cref="Action"/> is <see cref="RuleAction.Report"/>)
-    /// </summary>
+    /// <inheritdoc/>
     public FailureClassification As { get; set; }
 
     /// <summary>
     /// Combination of <see cref="IfPattern"/> and <see cref="CaseSensitive"/>.  Use this to validate
     /// whether the rule should be applied.
     /// </summary>
+    [MemberwiseEqualityIgnore] // NOTE(rkm 2023-05-03) Exclude so equality comparer is valid
     protected Regex IfPatternRegex;
     private string _ifPatternString;
     private bool _caseSensitive;
 
-    /// <summary>
-    /// The Regex pattern which should be used to match values with
-    /// </summary>
+    /// <inheritdoc/>
     public string IfPattern
     {
         get => _ifPatternString;
@@ -56,9 +48,7 @@ public class RegexRule : IAppliableRule
         }
     }
 
-    /// <summary>
-    /// Whether the IfPattern match is case sensitive (default is false)
-    /// </summary>
+    /// <inheritdoc/>
     public virtual bool CaseSensitive
     {
         get => _caseSensitive;
@@ -130,13 +120,8 @@ public class RegexRule : IAppliableRule
         return RuleAction.None;
     }
 
-    /// <summary>
-    /// Returns true if the current and <paramref name="other"/> rule match using the same pattern and col.
-    /// </summary>
-    /// <param name="other"></param>
-    /// <param name="requireIdenticalAction">True (default) if identical must also include the same <see cref="Action"/> for values matching the rule</param>
-    /// <returns></returns>
-    public bool AreIdentical(RegexRule other, bool requireIdenticalAction = true)
+    /// <inheritdoc/>
+    public bool AreIdentical(IRegexRule other, bool requireIdenticalAction = true)
     {
         return
             string.Equals(IfColumn, other.IfColumn, StringComparison.CurrentCultureIgnoreCase) &&
