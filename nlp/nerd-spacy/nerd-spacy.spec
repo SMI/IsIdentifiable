@@ -54,4 +54,3 @@ exe = EXE(
     upx = True,
     name = 'nerd-spacy'
 )
-

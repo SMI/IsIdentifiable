@@ -9,14 +9,13 @@ Python author: Andrew Brooks
 1. [Setup](#setup)
 1. [Running](#running)
 
-
 ## Background
 
 This standalone process is designed to classify text strings sent by the [IsIdentifiable](../Microservices.IsIdentifiable/README.md#socket-rules) application. It accepts TCP connections on localhost port 1881, returning classification results as expected by the IsIdentifiable microservice.
 
 There are two implementations, one in Java which uses the [Stanford CoreNLP](https://stanfordnlp.github.io/CoreNLP/) library and one in Python which uses the [SpaCy](https://spacy.io/) library.
 
-The [Stanford CoreNLP NER algorithm](https://stanfordnlp.github.io/CoreNLP/ner.html#description) recognizes named (PERSON, LOCATION, ORGANIZATION, MISC), numerical (MONEY, NUMBER, ORDINAL, PERCENT), and temporal (DATE, TIME, DURATION, SET) entities (12 classes). Adding the regexner annotator and using the supplied RegexNER pattern files adds support for the fine-grained and additional entity classes but the additional annotator is not currently used here. 
+The [Stanford CoreNLP NER algorithm](https://stanfordnlp.github.io/CoreNLP/ner.html#description) recognizes named (PERSON, LOCATION, ORGANIZATION, MISC), numerical (MONEY, NUMBER, ORDINAL, PERCENT), and temporal (DATE, TIME, DURATION, SET) entities (12 classes). Adding the regexner annotator and using the supplied RegexNER pattern files adds support for the fine-grained and additional entity classes but the additional annotator is not currently used here.
 
 The Python version recognises a different set of entities, and with different language models can recognise drugs, diseases, cells, etc. although these are not required for named entities. It tries to map its entity type names to match those returned by CoreNLP so that both can be used in a ConsensusRule in IsIdentifiable.
 

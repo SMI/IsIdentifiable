@@ -6,23 +6,24 @@
 ![Supports reading from MongoDb, Sql Server, MySql, PostgreSql, DICOM and CSV files](/sources.png)
 
 # IsIdentifiable
-A tool for detecting identifiable information in data sources.  Out of the box supports:
 
-- CSV
-- DICOM
-- Relational Database Tables (Sql Server, MySql, Postgres, Oracle)
-- MongoDb
+A tool for detecting identifiable information in data sources. Out of the box supports:
+
+-   CSV
+-   DICOM
+-   Relational Database Tables (Sql Server, MySql, Postgres, Oracle)
+-   MongoDb
 
 ![Demo Video](/isidentifiable.gif)
 
-Rules base is driven by regular expressions and plugin services (e.g. Natural Language Processing).  Also includes a reviewer/redactor tool for processing false positives and updating the rules base.
+Rules base is driven by regular expressions and plugin services (e.g. Natural Language Processing). Also includes a reviewer/redactor tool for processing false positives and updating the rules base.
 
-- [Detector Documentation](./IsIdentifiable/README.md)
-- [Reviewer Documentation](./Reviewer/README.md)
+-   [Detector Documentation](./IsIdentifiable/README.md)
+-   [Reviewer Documentation](./Reviewer/README.md)
 
 There is a [standalone command line tool called ii](./ii/README.md) for running directly or you can use the [nuget package](https://www.nuget.org/packages/IsIdentifiable/) in your own code to evaluate data.
 
-## Library Usage 
+## Library Usage
 
 To use the nuget package create a new project and add a reference to the package:
 
@@ -105,11 +106,11 @@ Bad Part 1:0101010101
 
 ## Building
 
-To build and run tests you must first download the [NLP english data file for Tesseract](https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata) to the `data\tessdata\` directory.  Or use the following script:
+To build and run tests you must first download the [NLP english data file for Tesseract](https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata) to the `data\tessdata\` directory. Or use the following script:
 
 ```
  cd .\data\tessdata\
- 
+
  # Windows
  ./download.ps1
 
@@ -118,8 +119,8 @@ To build and run tests you must first download the [NLP english data file for Te
 ```
 
 Then build and run (from the root of the repository)
+
 ```
 dotnet build
 dotnet test
 ```
-

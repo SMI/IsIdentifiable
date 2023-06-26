@@ -1,4 +1,4 @@
-﻿BasicRules: 
+﻿BasicRules:
   # Ignore any values in the column Modality
   - Action: Ignore
     IfColumn: Modality
@@ -13,6 +13,6 @@
     Action: Report
     As: PrivateIdentifier
 
-SocketRules:   
+SocketRules:
   - Host: 127.0.123.123
     Port: 8080
