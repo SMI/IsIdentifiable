@@ -16,7 +16,7 @@ using Terminal.Gui;
 
 namespace ii;
 
-class MainWindow : IRulePatternFactory, IDisposable
+internal class MainWindow : IRulePatternFactory, IDisposable
 {
     /// <summary>
     /// The report CSV file that is currently open
@@ -32,21 +32,6 @@ class MainWindow : IRulePatternFactory, IDisposable
     /// Updates the database to perform redactions (when not operating in Rules Only mode)
     /// </summary>
     public RowUpdater Updater { get; }
-
-    /// <summary>
-    /// Width of modal popup dialogues
-    /// </summary>
-    public static int DlgWidth = 78;
-
-    /// <summary>
-    /// Height of modal popup dialogues
-    /// </summary>
-    public static int DlgHeight = 18;
-
-    /// <summary>
-    /// Border boundary of modal popup dialogues
-    /// </summary>
-    public static int DlgBoundary = 2;
 
     private readonly FailureView _valuePane;
     private readonly Label _info;
@@ -251,7 +236,7 @@ G - creates a regex pattern that matches only the failing part(s)
     {
         if (History.Count == 0)
         {
-            ShowMessage("History Empty", "Cannot undo, history is empty");
+            Helpers.ShowMessage("History Empty", "Cannot undo, history is empty");
             return;
         }
 
@@ -304,7 +289,7 @@ G - creates a regex pattern that matches only the failing part(s)
         }
         catch (Exception e)
         {
-            ShowException("Failed to GoTo", e);
+            Helpers.ShowException("Failed to GoTo", e);
         }
 
     }
@@ -361,7 +346,7 @@ G - creates a regex pattern that matches only the failing part(s)
         }
         catch (Exception e)
         {
-            ShowException("Error moving to next record", e);
+            Helpers.ShowException("Error moving to next record", e);
         }
         finally
         {
@@ -433,7 +418,7 @@ G - creates a regex pattern that matches only the failing part(s)
         }
         catch (Exception e)
         {
-            ShowException("Failed to update database", e);
+            Helpers.ShowException("Failed to update database", e);
             return;
         }
 
@@ -458,7 +443,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
         if (ex != null)
         {
-            ShowException("Failed to Load", ex);
+            Helpers.ShowException("Failed to Load", ex);
         }
     }
 
@@ -474,7 +459,7 @@ G - creates a regex pattern that matches only the failing part(s)
         void closeFunc() { Application.RequestStop(); }
         btn.Clicked += cancelFunc;
 
-        using var dlg = new Dialog("Opening", MainWindow.DlgWidth, 5, btn);
+        using var dlg = new Dialog("Opening", Constants.DlgWidth, 5, btn);
         var rows = new Label($"Loaded: 0 rows")
         {
             Width = Dim.Fill()
@@ -524,110 +509,20 @@ G - creates a regex pattern that matches only the failing part(s)
         Application.Run(dlg);
     }
 
-    public static void ShowMessage(string title, string body)
-    {
-        RunDialog(title, body, out _, "Ok");
-    }
-
-    public static void ShowException(string msg, Exception e)
-    {
-        var e2 = e;
-        const string stackTraceOption = "Stack Trace";
-        StringBuilder sb = new();
-
-        while (e2 != null)
-        {
-            sb.AppendLine(e2.Message);
-            e2 = e2.InnerException;
-        }
-
-        if (GetChoice(msg, sb.ToString(), out string? chosen, "Ok", stackTraceOption) &&
-            string.Equals(chosen, stackTraceOption))
-            ShowMessage("Stack Trace", e.ToString());
-    }
-    public static bool GetChoice<T>(string title, string body, out T? chosen, params T[] options)
-    {
-        return RunDialog(title, body, out chosen, options);
-    }
-
-    public static bool RunDialog<T>(string title, string message, out T? chosen, params T[] options)
-    {
-        var result = default(T);
-        var optionChosen = false;
-
-        using var dlg = new Dialog(title, Math.Min(Console.WindowWidth, DlgWidth), DlgHeight);
-
-        var line = DlgHeight - (DlgBoundary) * 2 - options.Length;
-
-        if (!string.IsNullOrWhiteSpace(message))
-        {
-            var width = Math.Min(Console.WindowWidth, DlgWidth) - (DlgBoundary * 2);
-
-            var msg = Wrap(message, width - 1).TrimEnd();
-
-            var text = new Label(0, 0, msg)
-            {
-                Height = line - 1,
-                Width = width
-            };
-
-            //if it is too long a message
-            var newlines = msg.Count(c => c == '\n');
-            if (newlines > line - 1)
-            {
-                var view = new ScrollView(new Rect(0, 0, width, line - 1))
-                {
-                    ContentSize = new Size(width, newlines + 1),
-                    ContentOffset = new Point(0, 0),
-                    ShowVerticalScrollIndicator = true,
-                    ShowHorizontalScrollIndicator = false
-                };
-                view.Add(text);
-                dlg.Add(view);
-            }
-            else
-                dlg.Add(text);
-        }
-
-        foreach (var value in options)
-        {
-            var v1 = value;
-
-            var name = value?.ToString() ?? "";
-
-            var btn = new Button(0, line++, name);
-            btn.Clicked += () =>
-            {
-                result = v1;
-                dlg.Running = false;
-                optionChosen = true;
-            };
-
-            dlg.Add(btn);
-
-            if (options.Length == 1)
-                dlg.FocusFirst();
-        }
-
-        Application.Run(dlg);
-
-        chosen = result;
-        return optionChosen;
-    }
     private static bool GetText(string title, string message, string initialValue, out string chosen,
         Dictionary<string, string> buttons)
     {
         var optionChosen = false;
 
-        using var dlg = new Dialog(title, Math.Min(Console.WindowWidth, DlgWidth), DlgHeight);
+        using var dlg = new Dialog(title, Math.Min(Console.WindowWidth, Constants.DlgWidth), Constants.DlgHeight);
 
-        var line = DlgHeight - (DlgBoundary) * 2 - 2;
+        var line = Constants.DlgHeight - (Constants.DlgBoundary) * 2 - 2;
 
         if (!string.IsNullOrWhiteSpace(message))
         {
-            var width = Math.Min(Console.WindowWidth, DlgWidth) - (DlgBoundary * 2);
+            var width = Math.Min(Console.WindowWidth, Constants.DlgWidth) - (Constants.DlgBoundary * 2);
 
-            var msg = Wrap(message, width - 1).TrimEnd();
+            var msg = Helpers.Wrap(message, width - 1).TrimEnd();
 
             var text = new Label(0, 0, msg)
             {
@@ -653,7 +548,7 @@ G - creates a regex pattern that matches only the failing part(s)
                 dlg.Add(text);
         }
 
-        var txt = new TextField(0, line++, DlgWidth - 4, initialValue ?? "");
+        var txt = new TextField(0, line++, Constants.DlgWidth - 4, initialValue ?? "");
         dlg.Add(txt);
 
         var btn = new Button(0, line, "Ok")
@@ -717,13 +612,6 @@ G - creates a regex pattern that matches only the failing part(s)
         return optionChosen;
     }
 
-    public static string Wrap(string s, int width)
-    {
-        var r = new Regex(
-            $@"(?:((?>.{{1,{width}}}(?:(?<=[^\S\r\n])[^\S\r\n]?|(?=\r?\n)|$|[^\S\r\n]))|.{{1,16}})(?:\r?\n)?|(?:\r?\n|$))");
-        return r.Replace(s, "$1\n");
-    }
-
     public string GetPattern(object sender, Failure failure)
     {
         var defaultFactory = ReferenceEquals(sender, Updater) ? _origUpdaterRulesFactory : _origIgnorerRulesFactory;
@@ -741,8 +629,6 @@ G - creates a regex pattern that matches only the failing part(s)
             { @"\d\c", new SymbolsRulesFactory().GetPattern(sender, failure) }
         };
 
-
-
         if (GetText("Pattern", "Enter pattern to match failure", recommendedPattern, out var chosen, buttons))
         {
             Regex regex;
@@ -753,14 +639,14 @@ G - creates a regex pattern that matches only the failing part(s)
             }
             catch (Exception)
             {
-                ShowMessage("Invalid Regex", "Pattern was not a valid Regex");
+                Helpers.ShowMessage("Invalid Regex", "Pattern was not a valid Regex");
                 //try again!
                 return GetPattern(sender, failure);
             }
 
             if (!regex.IsMatch(failure.ProblemValue))
             {
-                GetChoice("Pattern Match Failure", "The provided pattern did not match the original ProblemValue.  Try a different pattern?", out var retry, new[] { "Yes", "No" });
+                Helpers.GetChoice("Pattern Match Failure", "The provided pattern did not match the original ProblemValue.  Try a different pattern?", out var retry, new[] { "Yes", "No" });
 
                 if (retry == "Yes")
                     return GetPattern(sender, failure);

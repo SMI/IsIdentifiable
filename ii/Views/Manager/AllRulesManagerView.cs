@@ -1,4 +1,4 @@
-﻿using IsIdentifiable.Options;
+using IsIdentifiable.Options;
 using IsIdentifiable.Redacting;
 using IsIdentifiable.Rules;
 using System;
@@ -110,7 +110,7 @@ class AllRulesManagerView : View, ITreeBuilder<object>
         }
         catch (Exception ex)
         {
-            MainWindow.ShowException("Failed to delete", ex);
+            Helpers.ShowException("Failed to delete", ex);
         }
     }
 
@@ -118,7 +118,7 @@ class AllRulesManagerView : View, ITreeBuilder<object>
     {
         if (obj.ActivatedObject is Exception ex)
         {
-            MainWindow.ShowException("Exception Details", ex);
+            Helpers.ShowException("Exception Details", ex);
         }
     }
 

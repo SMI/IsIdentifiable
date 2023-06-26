@@ -35,7 +35,7 @@ class FailureView : View
             if (toDisplay[i] == '\n')
                 originalNewlines.Add(i);
 
-        var lines = MainWindow.Wrap(toDisplay, bounds.Width).Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        var lines = Helpers.Wrap(toDisplay, bounds.Width).Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
         var characterOffset = 0;
         Attribute? oldColor = null;

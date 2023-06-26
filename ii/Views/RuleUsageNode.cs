@@ -1,4 +1,4 @@
-﻿using IsIdentifiable.Redacting;
+using IsIdentifiable.Redacting;
 using IsIdentifiable.Rules;
 using Terminal.Gui.Trees;
 
