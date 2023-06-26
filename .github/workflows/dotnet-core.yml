@@ -67,7 +67,7 @@ jobs:
           token: 42f74c8f-0e77-40db-8497-fa05f20837f6
       - name: Build Java NERD
         run: |
-          set -euo pipefail
+          set -exuo pipefail
           cd nlp/uk.ac.dundee.hic.nerd
           mkdir -p target/stanford-ner-2018-10-16
           curl -sL https://nlp.stanford.edu/software/stanford-ner-2018-10-16.zip | bsdtar -xf- -C target/stanford-ner-2018-10-16
