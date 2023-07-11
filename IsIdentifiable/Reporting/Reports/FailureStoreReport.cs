@@ -168,6 +168,6 @@ public class FailureStoreReport : FailureReport
                 loadedRows(lineNumber);
         }
 
-        loadedRows(lineNumber);
+        loadedRows(lineNumber - 1);
     }
 }
