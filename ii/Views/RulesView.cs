@@ -362,7 +362,7 @@ class RulesView : View
         var colliding = new TreeNodeWithCount("Colliding Rules");
         var ignore = new TreeNodeWithCount("Ignore Rules Used");
         var update = new TreeNodeWithCount("Update Rules Used");
-        var outstanding = new TreeNodeWithCount("Outstanding Failures");
+        var outstanding = new TreeNodeWithCount("Outstanding Failures", countSubChildren: true);
 
         var allRules = Ignorer.Rules.Union(Updater.Rules).ToList();
 
