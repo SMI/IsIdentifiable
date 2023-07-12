@@ -87,13 +87,21 @@ jobs:
           mv target/nerd-0.0.1-SNAPSHOT.jar ../../release/smi-nerd-$(fgrep AssemblyVersion ../../SharedAssemblyInfo.cs | cut -d'"' -f2).jar
       - name: Package ii binary
         run: |
+          tag="$(fgrep AssemblyVersion SharedAssemblyInfo.cs | cut -d'"' -f2)"
           cd ii
           dotnet publish --runtime win-x64 -c Release --self-contained true -o ../ii-win-x64
-          dotnet publish --runtime linux-x64 -c Release --self-contained true -o ../ii-$(fgrep AssemblyVersion ../SharedAssemblyInfo.cs|cut -d'"' -f2)-cli-linux-x64
+          dotnet publish --runtime linux-x64 -c Release --self-contained true -o ../ii-"$tag"-cli-linux-x64
           cd ../ii-win-x64
-          zip -q9r ../release/ii-$(fgrep AssemblyVersion ../SharedAssemblyInfo.cs|cut -d'"' -f2)-cli-win-x64.zip .
+          zip -q9r ../release/ii-"$tag"-cli-win-x64.zip .
           cd ..
-          tar -zcvf ./release/ii-$(fgrep AssemblyVersion SharedAssemblyInfo.cs|cut -d'"' -f2)-cli-linux-x64.tar.gz ii-$(fgrep AssemblyVersion SharedAssemblyInfo.cs|cut -d'"' -f2)-cli-linux-x64
+          tar -zcvf ./release/ii-"$tag"-cli-linux-x64.tar.gz ii-"$tag"-cli-linux-x64
+          git_tag="$(git rev-parse --short HEAD)"
+          cp ./release/ii-"$tag"-cli-linux-x64.tar.gz ./ii-"$git_tag"-cli-linux-x64.tar.gz
+      - name: Store created ii binary
+        uses: actions/upload-artifact@v3
+        with:
+          path: "*.tar.gz"
+          retention-days: 1
       - name: Test ii binary
         run: |
           set -e
