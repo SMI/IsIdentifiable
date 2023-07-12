@@ -283,15 +283,16 @@ G - creates a regex pattern that matches only the failing part(s)
             return;
         try
         {
-            CurrentReport.GoTo(page);
-            _info.Text = CurrentReport.DescribeProgress();
-            SetupToShow(CurrentReport.Current);
+            if (CurrentReport.GoTo(page))
+            {
+                _info.Text = CurrentReport.DescribeProgress();
+                SetupToShow(CurrentReport.Current);
+            }
         }
         catch (Exception e)
         {
             Helpers.ShowException("Failed to GoTo", e);
         }
-
     }
 
     private void SetupToShow(Failure? f)

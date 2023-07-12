@@ -77,9 +77,11 @@ public class ReportReader
     /// by the total number of <see cref="Failures"/>
     /// </summary>
     /// <param name="index"></param>
-    public void GoTo(int index)
+    public bool GoTo(int index)
     {
+        var original = _current;
         _current = Math.Min(Math.Max(0, index), Failures.Length);
+        return _current != original && (_current != Failures.Length);
     }
 
     /// <summary>
@@ -87,8 +89,5 @@ public class ReportReader
     /// the <see cref="CurrentIndex"/> is.
     /// </summary>
     /// <returns></returns>
-    public string DescribeProgress()
-    {
-        return $"{_current}/{Failures.Length}";
-    }
+    public string DescribeProgress() => $"{_current + 1}/{Failures.Length}";
 }
