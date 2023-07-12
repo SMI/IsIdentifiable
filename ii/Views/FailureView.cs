@@ -2,6 +2,7 @@ using IsIdentifiable.Failures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Terminal.Gui;
 using Attribute = Terminal.Gui.Attribute;
 
@@ -83,14 +84,14 @@ class FailureView : View
             Driver.SetAttribute(_attNormal);
             Move(0, h);
 
-            var classification =
-                $"C:{string.Join(",", CurrentFailure.Parts.Select(p => p.Classification).Distinct().ToArray())}";
-
-            var field = CurrentFailure.ProblemField;
-            classification = classification.PadRight(w - field.Length);
-
-            Driver.AddStr(classification + field);
+            var sb = new StringBuilder();
+            sb.Append($"ProblemField: {CurrentFailure.ProblemField}. ");
+            sb.Append($"Classifications: ");
+            foreach (var failurePart in CurrentFailure.Parts)
+                sb.Append($"'{failurePart.Word}' at {failurePart.Offset} => {failurePart.Classification}, ");
+            sb.Length -= 2;
+            sb.Append('.');
+            Driver.AddStr(sb.ToString().PadRight(w));
         }
-
     }
 }
