@@ -259,7 +259,14 @@ class RulesView : View
         using var cancel = new Button("Cancel");
         cancel.Clicked += () => { Application.RequestStop(); };
 
-        using var dlg = new Dialog("Failure", Constants.DlgWidth, Constants.DlgHeight, ignore, update, cancel);
+        using var dlg = new Dialog(
+            "Failure",
+            Math.Min(Constants.DlgWidth, Console.WindowWidth - (2 * Constants.DlgBoundary)),
+            Math.Min(Constants.DlgHeight, Console.WindowHeight - (2 * Constants.DlgBoundary)),
+            ignore,
+            update,
+            cancel
+        );
 
         var lbl = new FailureView()
         {

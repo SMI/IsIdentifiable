@@ -33,7 +33,7 @@ internal class MainWindow : IRulePatternFactory, IDisposable
     /// </summary>
     public RowUpdater Updater { get; }
 
-    private readonly FailureView _valuePane;
+    private readonly FailureView _failureView;
     private readonly Label _info;
     private readonly SpinnerView _spinner;
     private readonly TextField _gotoTextField;
@@ -107,20 +107,20 @@ G - creates a regex pattern that matches only the failing part(s)
             ColorScheme = _greyOnBlack
         };
 
-        _valuePane = new FailureView()
+        _failureView = new FailureView()
         {
             X = 0,
             Y = 1,
             Width = Dim.Fill(),
-            Height = 10,
+            Height = Dim.Fill(),
         };
 
         var frame = new FrameView("Options")
         {
             X = 0,
-            Y = 12,
+            Y = Console.WindowHeight * 2 / 3,
             Width = Dim.Fill(),
-            Height = Dim.Fill()
+            Height = Dim.Fill(),
         };
 
         var ignoreButton = new Button("Ignore")
@@ -192,7 +192,7 @@ G - creates a regex pattern that matches only the failing part(s)
         viewMain.Add(_spinner);
         _spinner.Visible = false;
 
-        viewMain.Add(_valuePane);
+        viewMain.Add(_failureView);
         viewMain.Add(frame);
 
         if (!string.IsNullOrWhiteSpace(opts.FailuresCsv))
@@ -296,7 +296,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
     private void SetupToShow(Failure? f)
     {
-        _valuePane.CurrentFailure = f;
+        _failureView.CurrentFailure = f;
 
         if (f != null)
         {
@@ -318,7 +318,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
     private void Next()
     {
-        if (_valuePane.CurrentFailure == null || CurrentReport == null)
+        if (_failureView.CurrentFailure == null || CurrentReport == null)
             return;
 
         _spinner.Visible = true;
@@ -372,7 +372,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
     private void Ignore()
     {
-        if (_valuePane.CurrentFailure == null || CurrentReport == null)
+        if (_failureView.CurrentFailure == null || CurrentReport == null)
             return;
 
         if (taskToLoadNext != null && !taskToLoadNext.IsCompleted)
@@ -383,7 +383,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
         try
         {
-            Ignorer.Add(_valuePane.CurrentFailure);
+            Ignorer.Add(_failureView.CurrentFailure);
             History.Push(new MainWindowHistory(CurrentReport.CurrentIndex, Ignorer));
         }
         catch (OperationCanceledException)
@@ -395,7 +395,7 @@ G - creates a regex pattern that matches only the failing part(s)
     }
     private void Update()
     {
-        if (_valuePane.CurrentFailure == null || CurrentReport == null)
+        if (_failureView.CurrentFailure == null || CurrentReport == null)
             return;
 
         if (taskToLoadNext != null && !taskToLoadNext.IsCompleted)
@@ -407,7 +407,7 @@ G - creates a regex pattern that matches only the failing part(s)
         try
         {
             // TODO(rkm 2021-04-09) Server always passed as null here, but Update seems to require it?
-            Updater.Update(null, _valuePane.CurrentFailure, null /*create one yourself*/);
+            Updater.Update(null, _failureView.CurrentFailure, null /*create one yourself*/);
 
             History.Push(new MainWindowHistory(CurrentReport.CurrentIndex, Updater));
         }
@@ -664,7 +664,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
     public void Dispose()
     {
-        _valuePane.Dispose();
+        _failureView.Dispose();
         _info.Dispose();
         _spinner.Dispose();
         _gotoTextField.Dispose();
