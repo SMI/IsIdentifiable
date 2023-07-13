@@ -1,4 +1,4 @@
-﻿using Equ;
+using Equ;
 
 namespace IsIdentifiable.Failures;
 
@@ -71,4 +71,7 @@ public class FailurePart : MemberwiseEquatable<FailurePart>
 
         return false;
     }
+
+    /// <inheritdoc/>
+    public override string ToString() => $"{nameof(FailurePart)}({Word},{Offset},{Classification})";
 }
