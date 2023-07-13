@@ -127,6 +127,12 @@ public static class Program
     {
         Inherit(opts);
 
+        if (!fileSystem.File.Exists(opts.FailuresCsv))
+        {
+            Console.Error.WriteLine($"Error: Could not find {opts.FailuresCsv}");
+            return 1;
+        }
+
         var reviewer = new ReviewerRunner(GlobalOptions?.IsIdentifiableOptions, opts, fileSystem);
         return reviewer.Run();
     }
