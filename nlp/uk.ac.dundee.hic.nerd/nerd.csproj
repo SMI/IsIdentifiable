@@ -2,15 +2,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <IsPackable>false</IsPackable>
-    <TargetFramework>net6.0</TargetFramework>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <IsPublishable>true</IsPublishable>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishSelfContained>true</PublishSelfContained>
-    <DebugType>embedded</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="IKVM" Version="8.2.1"/>
+    <PackageReference Include="IKVM" />
   </ItemGroup>
   <ItemGroup>
     <IkvmReference Include="target/nerd-0.0.1-SNAPSHOT.jar">
