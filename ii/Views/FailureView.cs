@@ -27,16 +27,16 @@ class FailureView : View
         var w = bounds.Width;
         var h = bounds.Height;
 
-        var toDisplay = CurrentFailure?.ProblemValue ?? " ";
+        var problemValue = CurrentFailure?.ProblemValue ?? " ";
 
         //if the original string validated 
         var originalNewlines = new HashSet<int>();
 
-        for (var i = 0; i < toDisplay.Length; i++)
-            if (toDisplay[i] == '\n')
+        for (var i = 0; i < problemValue.Length; i++)
+            if (problemValue[i] == '\n')
                 originalNewlines.Add(i);
 
-        var lines = Helpers.Wrap(toDisplay, bounds.Width).Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        var lines = Helpers.Wrap(problemValue, bounds.Width).Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
         var characterOffset = 0;
         Attribute? oldColor = null;
@@ -79,19 +79,19 @@ class FailureView : View
             }
         }
 
-        if (CurrentFailure != null)
-        {
-            Driver.SetAttribute(_attNormal);
-            Move(0, h);
+        if (CurrentFailure == null)
+            return;
 
-            var sb = new StringBuilder();
-            sb.Append($"ProblemField: {CurrentFailure.ProblemField}. ");
-            sb.Append($"Classifications: ");
-            foreach (var failurePart in CurrentFailure.Parts)
-                sb.Append($"'{failurePart.Word}' at {failurePart.Offset} => {failurePart.Classification}, ");
-            sb.Length -= 2;
-            sb.Append('.');
-            Driver.AddStr(sb.ToString().PadRight(w));
-        }
+        Driver.SetAttribute(_attNormal);
+        Move(0, h);
+
+        var sb = new StringBuilder();
+        sb.Append($"ProblemField: {CurrentFailure.ProblemField}. ");
+        sb.Append($"Classifications: ");
+        foreach (var failurePart in CurrentFailure.Parts)
+            sb.Append($"'{failurePart.Word}' at {failurePart.Offset} => {failurePart.Classification}, ");
+        sb.Length -= 2;
+        sb.Append('.');
+        Driver.AddStr(sb.ToString().PadRight(w));
     }
 }
