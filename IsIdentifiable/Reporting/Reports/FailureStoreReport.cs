@@ -178,13 +178,14 @@ public class FailureStoreReport : FailureReport
             parts = parts.Except(toRemove);
             /* TEMP */
 
-            yield return new Failure(parts)
-            {
-                Resource = r["Resource"],
-                ResourcePrimaryKey = r["ResourcePrimaryKey"],
-                ProblemField = problemField,
-                ProblemValue = r["ProblemValue"],
-            };
+            if (parts.Any())
+                yield return new Failure(parts)
+                {
+                    Resource = r["Resource"],
+                    ResourcePrimaryKey = r["ResourcePrimaryKey"],
+                    ProblemField = problemField,
+                    ProblemValue = r["ProblemValue"],
+                };
 
             if (lineNumber % 1000 == 0)
                 loadedRows(lineNumber);
