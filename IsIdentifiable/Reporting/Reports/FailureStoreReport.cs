@@ -2,6 +2,7 @@ using CsvHelper;
 using IsIdentifiable.Failures;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Destinations;
+using IsIdentifiable.Rules;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -130,7 +131,7 @@ public class FailureStoreReport : FailureReport
     /// <param name="token">Cancellation token for aborting the file deserialication (and closing the file again)</param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public static IEnumerable<Failure> Deserialize(IFileInfo oldFile, Action<int> loadedRows, CancellationToken token)
+    public static IEnumerable<Failure> Deserialize(IFileInfo oldFile, Action<int> loadedRows, CancellationToken token, IEnumerable<PartRegexRule_Temp>? partRules = null)
     {
         var lineNumber = 0;
 
@@ -142,25 +143,46 @@ public class FailureStoreReport : FailureReport
         else
             yield break;
         lineNumber++;
-        // "Resource", "ResourcePrimaryKey", "ProblemField", "ProblemValue", "PartWords", "PartClassifications", "PartOffsets" 
+
+        // "Resource", "ResourcePrimaryKey", "ProblemField", "ProblemValue", "PartWords", "PartClassifications", "PartOffsets"
+
+        partRules ??= new List<PartRegexRule_Temp>();
 
         while (r.Read())
         {
             token.ThrowIfCancellationRequested();
             lineNumber++;
+            var problemField = r["ProblemField"];
             var words = r["PartWords"].Split(Separator);
             var classes = r["PartClassifications"].Split(Separator);
             var offsets = r["PartOffsets"].Split(Separator);
 
-            var parts = words.Select((t, i) => new FailurePart(
-                t,
-                Enum.TryParse<FailureClassification>(classes[i], true, out var classification) ? classification : throw new Exception($"Invalid failure classification '{classes[i]}' on line {lineNumber}"),
-                int.TryParse(offsets[i], out var offset) ? offset : throw new Exception($"Invalid offset '{offsets[i]}' on line {lineNumber}"))).ToList();
+            var parts = words.Select(
+                (word, index) => new FailurePart(
+                    word,
+                    Enum.TryParse<FailureClassification>(classes[index], true, out var classification) ? classification : throw new Exception($"Invalid failure classification '{classes[index]}' on line {lineNumber}"),
+                    int.TryParse(offsets[index], out var offset) ? offset : throw new Exception($"Invalid offset '{offsets[index]}' on line {lineNumber}")
+                )
+            );
+
+            /* TEMP - Filter out any FailureParts covered by an PartRegexRule_Temp */
+            var toRemove = new List<FailurePart>();
+            foreach (var partRule in partRules)
+            {
+                if (!string.IsNullOrWhiteSpace(partRule.IfColumn) && !string.Equals(partRule.IfColumn, problemField, StringComparison.InvariantCultureIgnoreCase))
+                    continue;
+
+                foreach (var part in parts.Where(x => partRule.Covers(x)))
+                    toRemove.Add(part);
+            }
+            parts = parts.Except(toRemove);
+            /* TEMP */
+
             yield return new Failure(parts)
             {
                 Resource = r["Resource"],
                 ResourcePrimaryKey = r["ResourcePrimaryKey"],
-                ProblemField = r["ProblemField"],
+                ProblemField = problemField,
                 ProblemValue = r["ProblemValue"],
             };
 
