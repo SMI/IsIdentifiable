@@ -41,24 +41,58 @@ public class PartRegexRule_Temp : RegexRule
         }
     }
 
+    public string WordBefore { get; set; }
+
+    public string WordAfter { get; set; }
+
     // TODO(rkm 2023-07-25) Shouldn't be needed when IfPattern is readonly
     private void RebuildPartRegex()
     {
-        if (!_ifPartPatternString.StartsWith("^") || _ifPartPatternString.EndsWith("$"))
-        if (!_ifPartPatternString.StartsWith("^") || !_ifPartPatternString.EndsWith("$"))
-            throw new ArgumentException("IfPartPattern must be enclosed by ^ and $");
-        IfPartPatternRegex = _ifPartPatternString == null ? null : new Regex(_ifPartPatternString, (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
-    }
-
-    public bool Covers(FailurePart failurePart)
-    {
-        if (IfPartPattern == null)
+        if (_ifPartPatternString == null)
             throw new Exception("Illegal rule setup. You must specify IfPartPattern");
 
+        if (!_ifPartPatternString.StartsWith("^") || !_ifPartPatternString.EndsWith("$"))
+            throw new ArgumentException("IfPartPattern must be enclosed by ^ and $");
+
+        IfPartPatternRegex = new Regex(_ifPartPatternString, (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
+    }
+
+    public bool Covers(FailurePart failurePart, string problemValue)
+    {
         if (As != failurePart.Classification)
             return false;
 
-        var matches = IfPartPatternRegex.Matches(failurePart.Word);
-        return matches.Any();
+        bool matchesBefore = false;
+        if (!string.IsNullOrWhiteSpace(WordBefore))
+        {
+            var problemValueUpToOffset = problemValue[..(failurePart.Offset + failurePart.Word.Length)];
+            if (!problemValueUpToOffset.EndsWith(failurePart.Word))
+                throw new Exception("Invlaid data: actual word and word at offset did not match");
+
+            var wordBeforeRegex = new Regex($"\\b{WordBefore}\\s+{IfPartPattern.TrimStart('^')}", (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase));
+            matchesBefore = wordBeforeRegex.Matches(problemValueUpToOffset).Any();
+        }
+
+        bool matchesAfter = false;
+        if (!string.IsNullOrWhiteSpace(WordAfter))
+        {
+            var problemValueFromOffset = problemValue[failurePart.Offset..];
+            if (!problemValueFromOffset.StartsWith(failurePart.Word))
+                throw new Exception("Invlaid data: actual word and word at offset did not match");
+
+            var wordAfterRegex = new Regex($"{IfPartPattern.TrimEnd('$')}\\s+{WordAfter}\\b", (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase));
+            matchesAfter = wordAfterRegex.Matches(problemValueFromOffset).Any();
+        }
+
+        if (
+            matchesBefore && string.IsNullOrWhiteSpace(WordAfter) ||
+            matchesAfter && string.IsNullOrWhiteSpace(WordBefore) ||
+            (matchesBefore && matchesAfter)
+        )
+        {
+            return true;
+        }
+
+        return IfPartPatternRegex.Matches(failurePart.Word).Any();
     }
 }

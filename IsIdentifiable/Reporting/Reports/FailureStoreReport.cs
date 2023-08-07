@@ -153,6 +153,7 @@ public class FailureStoreReport : FailureReport
             token.ThrowIfCancellationRequested();
             lineNumber++;
             var problemField = r["ProblemField"];
+            var problemValue = r["ProblemValue"];
             var words = r["PartWords"].Split(Separator);
             var classes = r["PartClassifications"].Split(Separator);
             var offsets = r["PartOffsets"].Split(Separator);
@@ -172,7 +173,7 @@ public class FailureStoreReport : FailureReport
                 if (!string.IsNullOrWhiteSpace(partRule.IfColumn) && !string.Equals(partRule.IfColumn, problemField, StringComparison.InvariantCultureIgnoreCase))
                     continue;
 
-                foreach (var part in parts.Where(x => partRule.Covers(x)))
+                foreach (var part in parts.Where(x => partRule.Covers(x, problemValue)))
                     toRemove.Add(part);
             }
             parts = parts.Except(toRemove);
@@ -184,7 +185,7 @@ public class FailureStoreReport : FailureReport
                     Resource = r["Resource"],
                     ResourcePrimaryKey = r["ResourcePrimaryKey"],
                     ProblemField = problemField,
-                    ProblemValue = r["ProblemValue"],
+                    ProblemValue = problemValue,
                 };
 
             if (lineNumber % 1000 == 0)
