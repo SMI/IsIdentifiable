@@ -44,6 +44,9 @@ public class PartRegexRule_Temp : RegexRule
     // TODO(rkm 2023-07-25) Shouldn't be needed when IfPattern is readonly
     private void RebuildPartRegex()
     {
+        if (!_ifPartPatternString.StartsWith("^") || _ifPartPatternString.EndsWith("$"))
+        if (!_ifPartPatternString.StartsWith("^") || !_ifPartPatternString.EndsWith("$"))
+            throw new ArgumentException("IfPartPattern must be enclosed by ^ and $");
         IfPartPatternRegex = _ifPartPatternString == null ? null : new Regex(_ifPartPatternString, (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
     }
 
