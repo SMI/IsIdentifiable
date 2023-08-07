@@ -11,6 +11,7 @@ using Microsoft.Extensions.FileSystemGlobbing;
 using System;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Text.RegularExpressions;
 using YamlDotNet.Serialization;
 
 namespace ii;
@@ -130,6 +131,14 @@ public static class Program
         if (!fileSystem.File.Exists(opts.FailuresCsv))
         {
             Console.Error.WriteLine($"Error: Could not find {opts.FailuresCsv}");
+            return 1;
+        }
+
+        const string expectedHeader = "Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets";
+        var line = fileSystem.File.ReadLines(opts.FailuresCsv).FirstOrDefault();
+        if (line == null || Regex.Replace(line, @"\s+", "") != line)
+        {
+            Console.Error.WriteLine($"Error: Expected CSV Failure header {expectedHeader}");
             return 1;
         }
 
