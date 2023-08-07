@@ -173,8 +173,15 @@ public class FailureStoreReport : FailureReport
                 if (!string.IsNullOrWhiteSpace(partRule.IfColumn) && !string.Equals(partRule.IfColumn, problemField, StringComparison.InvariantCultureIgnoreCase))
                     continue;
 
-                foreach (var part in parts.Where(x => partRule.Covers(x, problemValue)))
-                    toRemove.Add(part);
+                foreach (var part in parts)
+                {
+                    var origOffset = part.Offset;
+                    if (partRule.Covers(part, problemValue))
+                    {
+                        part.Offset = origOffset;
+                        toRemove.Add(part);
+                    }
+                }
             }
             parts = parts.Except(toRemove);
             /* TEMP */
