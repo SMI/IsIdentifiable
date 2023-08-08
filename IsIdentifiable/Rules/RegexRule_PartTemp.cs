@@ -57,33 +57,10 @@ public class PartRegexRule_Temp : RegexRule
         IfPartPatternRegex = new Regex(_ifPartPatternString, (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
     }
 
-    private static void FixupOffset(FailurePart failurePart, string problemValue)
-    {
-        if (problemValue.Substring(failurePart.Offset, failurePart.Word.Length) == failurePart.Word)
-            return;
-
-        // Try looking ahead first, then back
-        var origOffset = failurePart.Offset;
-        try
-        {
-            while (problemValue.Substring(failurePart.Offset, failurePart.Word.Length) != failurePart.Word)
-                failurePart.Offset++;
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            failurePart.Offset = origOffset;
-            while (problemValue.Substring(failurePart.Offset, failurePart.Word.Length) != failurePart.Word)
-                failurePart.Offset--;
-        }
-    }
-
     public bool Covers(FailurePart failurePart, string problemValue)
     {
         if (As != failurePart.Classification)
             return false;
-
-        // Fixes any offsets that have been mangled by file endings etc.
-        FixupOffset(failurePart, problemValue);
 
         bool matchesBefore = false;
         if (!string.IsNullOrWhiteSpace(WordBefore))

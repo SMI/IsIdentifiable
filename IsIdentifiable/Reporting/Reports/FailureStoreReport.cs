@@ -153,7 +153,7 @@ public class FailureStoreReport : FailureReport
             token.ThrowIfCancellationRequested();
             lineNumber++;
             var problemField = r["ProblemField"];
-            var problemValue = r["ProblemValue"];
+            var problemValue = r["ProblemValue"] ?? throw new Exception("ProblemValue was null");
             var words = r["PartWords"].Split(Separator);
             var classes = r["PartClassifications"].Split(Separator);
             var offsets = r["PartOffsets"].Split(Separator);
@@ -166,6 +166,27 @@ public class FailureStoreReport : FailureReport
                 )
             );
 
+            // Fixes any offsets that have been mangled by file endings etc.
+            foreach (var part in parts)
+            {
+                if (problemValue.Substring(part.Offset, part.Word.Length) == part.Word)
+                    continue;
+
+                // Try looking ahead first, then back
+                var origOffset = part.Offset;
+                try
+                {
+                    while (problemValue.Substring(part.Offset, part.Word.Length) != part.Word)
+                        part.Offset++;
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    part.Offset = origOffset;
+                    while (problemValue.Substring(part.Offset, part.Word.Length) != part.Word)
+                        part.Offset--;
+                }
+            }
+
             /* TEMP - Filter out any FailureParts covered by an PartRegexRule_Temp */
             var toRemove = new List<FailurePart>();
             foreach (var partRule in partRules)
@@ -173,15 +194,8 @@ public class FailureStoreReport : FailureReport
                 if (!string.IsNullOrWhiteSpace(partRule.IfColumn) && !string.Equals(partRule.IfColumn, problemField, StringComparison.InvariantCultureIgnoreCase))
                     continue;
 
-                foreach (var part in parts)
-                {
-                    var origOffset = part.Offset;
-                    if (partRule.Covers(part, problemValue))
-                    {
-                        part.Offset = origOffset;
-                        toRemove.Add(part);
-                    }
-                }
+                foreach (var part in parts.Where(x => partRule.Covers(x, problemValue)))
+                    toRemove.Add(part);
             }
             parts = parts.Except(toRemove);
             /* TEMP */
