@@ -54,7 +54,7 @@ public class ReportReader
     /// <param name="loadedRows"></param>
     /// <param name="token"></param>
     /// <param name="fileSystem"></param>
-    public ReportReader(IFileInfo csvFile, Action<int> loadedRows, IFileSystem fileSystem, CancellationToken token, List<PartRegexRule_Temp>? partRules = null)
+    public ReportReader(IFileInfo csvFile, Action<int> loadedRows, IFileSystem fileSystem, CancellationToken token, List<PartPatternFilterRule>? partRules = null)
     {
         var report = new FailureStoreReport("", 0, fileSystem);
         Failures = FailureStoreReport.Deserialize(csvFile, loadedRows, token, partRules).ToArray();

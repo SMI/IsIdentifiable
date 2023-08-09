@@ -131,7 +131,7 @@ public class FailureStoreReport : FailureReport
     /// <param name="token">Cancellation token for aborting the file deserialication (and closing the file again)</param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public static IEnumerable<Failure> Deserialize(IFileInfo oldFile, Action<int> loadedRows, CancellationToken token, IEnumerable<PartRegexRule_Temp>? partRules = null)
+    public static IEnumerable<Failure> Deserialize(IFileInfo oldFile, Action<int> loadedRows, CancellationToken token, IEnumerable<PartPatternFilterRule>? partRules = null)
     {
         var lineNumber = 0;
 
@@ -146,7 +146,7 @@ public class FailureStoreReport : FailureReport
 
         // "Resource", "ResourcePrimaryKey", "ProblemField", "ProblemValue", "PartWords", "PartClassifications", "PartOffsets"
 
-        partRules ??= new List<PartRegexRule_Temp>();
+        partRules ??= new List<PartPatternFilterRule>();
 
         while (r.Read())
         {
@@ -187,7 +187,7 @@ public class FailureStoreReport : FailureReport
                 }
             }
 
-            /* TEMP - Filter out any FailureParts covered by an PartRegexRule_Temp */
+            /* TEMP - Filter out any FailureParts covered by an PartPatternFilterRule */
             var toRemove = new List<FailurePart>();
             foreach (var partRule in partRules)
             {

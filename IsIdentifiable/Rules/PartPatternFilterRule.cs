@@ -5,8 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace IsIdentifiable.Rules;
 
-[Obsolete("Temporary workaround -- do not use")]
-public class PartRegexRule_Temp : RegexRule
+public class PartPatternFilterRule : RegexRule
 {
     /// <summary>
     /// Combination of <see cref="IfPartPattern"/> and <see cref="CaseSensitive"/>.  Use this to validate

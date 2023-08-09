@@ -26,7 +26,7 @@ public abstract class OutBase
     /// <summary>
     /// Temp -- do not use.
     /// </summary>
-    public readonly List<PartRegexRule_Temp> PartRules_Temp;
+    public readonly List<PartPatternFilterRule> PartRules_Temp;
 
     /// <summary>
     /// Persistence of <see cref="RulesFile"/>
@@ -74,10 +74,10 @@ public abstract class OutBase
             {
                 //populated rules file already existed
                 var builder = new DeserializerBuilder();
-                builder.WithTagMapping("!IgnorePartRegexRule", typeof(PartRegexRule_Temp));
+                builder.WithTagMapping("!IgnorePartRegexRule", typeof(PartPatternFilterRule));
                 var allRules = builder.Build().Deserialize<List<RegexRule>>(existingRules) ?? new List<RegexRule>();
                 Rules = allRules.OfType<RegexRule>().ToList();
-                PartRules_Temp = allRules.OfType<PartRegexRule_Temp>().ToList();
+                PartRules_Temp = allRules.OfType<PartPatternFilterRule>().ToList();
             }
         }
     }
