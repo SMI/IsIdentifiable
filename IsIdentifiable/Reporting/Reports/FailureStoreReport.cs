@@ -166,24 +166,27 @@ public class FailureStoreReport : FailureReport
                 )
             );
 
-            // Fixes any offsets that have been mangled by file endings etc.
-            foreach (var part in parts)
+            if (problemField != "PixelData")
             {
-                if (problemValue.Substring(part.Offset, part.Word.Length) == part.Word)
-                    continue;
+                // Fixes any offsets that have been mangled by file endings etc.
+                foreach (var part in parts)
+                {
+                    if (problemValue.Substring(part.Offset, part.Word.Length) == part.Word)
+                        continue;
 
-                // Try looking ahead first, then back
-                var origOffset = part.Offset;
-                try
-                {
-                    while (problemValue.Substring(part.Offset, part.Word.Length) != part.Word)
-                        part.Offset++;
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    part.Offset = origOffset;
-                    while (problemValue.Substring(part.Offset, part.Word.Length) != part.Word)
-                        part.Offset--;
+                    // Try looking ahead first, then back
+                    var origOffset = part.Offset;
+                    try
+                    {
+                        while (problemValue.Substring(part.Offset, part.Word.Length) != part.Word)
+                            part.Offset++;
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        part.Offset = origOffset;
+                        while (problemValue.Substring(part.Offset, part.Word.Length) != part.Word)
+                            part.Offset--;
+                    }
                 }
             }
 
