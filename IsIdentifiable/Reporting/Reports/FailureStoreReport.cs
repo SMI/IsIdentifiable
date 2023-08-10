@@ -164,7 +164,7 @@ public class FailureStoreReport : FailureReport
                     Enum.TryParse<FailureClassification>(classes[index], true, out var classification) ? classification : throw new Exception($"Invalid failure classification '{classes[index]}' on line {lineNumber}"),
                     int.TryParse(offsets[index], out var offset) ? offset : throw new Exception($"Invalid offset '{offsets[index]}' on line {lineNumber}")
                 )
-            );
+            ).ToList();
 
             if (problemField != "PixelData")
             {
@@ -200,7 +200,7 @@ public class FailureStoreReport : FailureReport
                 foreach (var part in parts.Where(x => partRule.Covers(x, problemValue)))
                     toRemove.Add(part);
             }
-            parts = parts.Except(toRemove);
+            parts = parts.Except(toRemove).ToList();
             /* TEMP */
 
             if (parts.Any())
