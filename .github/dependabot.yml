@@ -3,21 +3,18 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: daily
+      interval: weekly
     reviewers:
-      - jas88
-      - rkm
+      - SMI/reviewers
   - package-ecosystem: nuget
     directory: "/"
     schedule:
-      interval: daily
+      interval: weekly
     reviewers:
-      - jas88
-      - rkm
+      - SMI/reviewers
   - package-ecosystem: maven
     directory: "/nlp/uk.ac.dundee.hic.nerd"
     schedule:
-      interval: daily
+      interval: weekly
     reviewers:
-      - jas88
-      - rkm
+      - SMI/reviewers
