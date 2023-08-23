@@ -4,11 +4,13 @@ using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Destinations;
 using IsIdentifiable.Rules;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace IsIdentifiable.Reporting.Reports;
 
@@ -133,89 +135,120 @@ public class FailureStoreReport : FailureReport
     /// <exception cref="Exception"></exception>
     public static IEnumerable<Failure> Deserialize(IFileInfo oldFile, Action<int> loadedRows, CancellationToken token, IEnumerable<PartPatternFilterRule>? partRules = null)
     {
-        var lineNumber = 0;
+        partRules ??= new List<PartPatternFilterRule>();
 
         using var stream = oldFile.OpenRead();
         using var sr = new System.IO.StreamReader(stream);
-        using var r = new CsvReader(sr, System.Globalization.CultureInfo.CurrentCulture);
-        if (r.Read())
-            r.ReadHeader();
+        using var reader = new CsvReader(sr, System.Globalization.CultureInfo.CurrentCulture);
+        if (reader.Read())
+            reader.ReadHeader();
         else
-            yield break;
-        lineNumber++;
+            return Enumerable.Empty<Failure>();
 
-        // "Resource", "ResourcePrimaryKey", "ProblemField", "ProblemValue", "PartWords", "PartClassifications", "PartOffsets"
-
-        partRules ??= new List<PartPatternFilterRule>();
-
-        while (r.Read())
-        {
-            token.ThrowIfCancellationRequested();
-            lineNumber++;
-            var problemField = r["ProblemField"];
-            var problemValue = r["ProblemValue"] ?? throw new Exception("ProblemValue was null");
-            var words = r["PartWords"].Split(Separator);
-            var classes = r["PartClassifications"].Split(Separator);
-            var offsets = r["PartOffsets"].Split(Separator);
-
-            var parts = words.Select(
-                (word, index) => new FailurePart(
-                    word,
-                    Enum.TryParse<FailureClassification>(classes[index], true, out var classification) ? classification : throw new Exception($"Invalid failure classification '{classes[index]}' on line {lineNumber}"),
-                    int.TryParse(offsets[index], out var offset) ? offset : throw new Exception($"Invalid offset '{offsets[index]}' on line {lineNumber}")
-                )
-            ).ToList();
-
-            if (problemField != "PixelData")
+        int totalProcessed = 0;
+        var localTokenSource = new CancellationTokenSource();
+        using var timerTask = Task.Run(
+            async () =>
             {
-                // Fixes any offsets that have been mangled by file endings etc.
-                foreach (var part in parts)
+                while (!token.IsCancellationRequested && !localTokenSource.Token.IsCancellationRequested)
                 {
-                    if (problemValue.Substring(part.Offset, part.Word.Length) == part.Word)
-                        continue;
+                    loadedRows(totalProcessed);
+                    await Task.Delay(TimeSpan.FromSeconds(0.1), token);
+                }
+            },
+            token
+        );
 
-                    // Try looking ahead first, then back
-                    var origOffset = part.Offset;
-                    try
+        var failures = new ConcurrentBag<Failure>();
+
+        Parallel.ForEach(
+            reader.GetRecords<FailureStoreReportRecord>(),
+            new ParallelOptions
+            {
+                CancellationToken = token,
+            },
+            (FailureStoreReportRecord row) =>
+            {
+                if (row.ProblemValue == null)
+                    throw new Exception("ProblemValue was null");
+
+                var words = row.PartWords.Split(Separator);
+                var classes = row.PartClassifications.Split(Separator);
+                var offsets = row.PartOffsets.Split(Separator);
+
+                var parts = words.Select(
+                    (word, index) => new FailurePart(
+                        word,
+                        Enum.TryParse<FailureClassification>(classes[index], true, out var classification) ? classification : throw new Exception($"Invalid failure classification '{classes[index]}'"),
+                        int.TryParse(offsets[index], out var offset) ? offset : throw new Exception($"Invalid offset '{row.PartOffsets}'")
+                    )
+                ).ToList();
+
+                if (row.ProblemField != "PixelData")
+                {
+                    // Fixes any offsets that have been mangled by file endings etc.
+                    foreach (var part in parts)
                     {
-                        while (problemValue.Substring(part.Offset, part.Word.Length) != part.Word)
-                            part.Offset++;
-                    }
-                    catch (ArgumentOutOfRangeException)
-                    {
-                        part.Offset = origOffset;
-                        while (problemValue.Substring(part.Offset, part.Word.Length) != part.Word)
-                            part.Offset--;
+                        if (row.ProblemValue.Substring(part.Offset, part.Word.Length) == part.Word)
+                            continue;
+
+                        // Try looking ahead first, then back
+                        var origOffset = part.Offset;
+                        try
+                        {
+                            while (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
+                                part.Offset++;
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+                            part.Offset = origOffset;
+                            while (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
+                                part.Offset--;
+                        }
                     }
                 }
-            }
 
-            /* TEMP - Filter out any FailureParts covered by an PartPatternFilterRule */
-            var toRemove = new List<FailurePart>();
-            foreach (var partRule in partRules)
-            {
-                if (!string.IsNullOrWhiteSpace(partRule.IfColumn) && !string.Equals(partRule.IfColumn, problemField, StringComparison.InvariantCultureIgnoreCase))
-                    continue;
-
-                foreach (var part in parts.Where(x => partRule.Covers(x, problemValue)))
-                    toRemove.Add(part);
-            }
-            parts = parts.Except(toRemove).ToList();
-            /* TEMP */
-
-            if (parts.Any())
-                yield return new Failure(parts)
+                /* TEMP - Filter out any FailureParts covered by an PartPatternFilterRule */
+                var toRemove = new List<FailurePart>();
+                foreach (var partRule in partRules)
                 {
-                    Resource = r["Resource"],
-                    ResourcePrimaryKey = r["ResourcePrimaryKey"],
-                    ProblemField = problemField,
-                    ProblemValue = problemValue,
-                };
+                    if (!string.IsNullOrWhiteSpace(partRule.IfColumn) && !string.Equals(partRule.IfColumn, row.ProblemField, StringComparison.InvariantCultureIgnoreCase))
+                        continue;
 
-            if (lineNumber % 1000 == 0)
-                loadedRows(lineNumber);
-        }
+                    foreach (var part in parts.Where(x => partRule.Covers(x, row.ProblemValue)))
+                        toRemove.Add(part);
+                }
+                parts = parts.Except(toRemove).ToList();
+                /* TEMP */
 
-        loadedRows(lineNumber - 1);
+                if (parts.Any())
+                    failures.Add(new Failure(parts)
+                    {
+                        Resource = row.Resource,
+                        ResourcePrimaryKey = row.ResourcePrimaryKey,
+                        ProblemField = row.ProblemField,
+                        ProblemValue = row.ProblemValue,
+                    });
+
+                Interlocked.Increment(ref totalProcessed);
+            }
+        );
+
+        localTokenSource.Cancel();
+        timerTask.Wait();
+        loadedRows(totalProcessed);
+
+        return failures;
+    }
+
+    internal class FailureStoreReportRecord
+    {
+        public string Resource { get; init; }
+        public string ResourcePrimaryKey { get; init; }
+        public string ProblemField { get; init; }
+        public string ProblemValue { get; init; }
+        public string PartWords { get; init; }
+        public string PartClassifications { get; init; }
+        public string PartOffsets { get; init; }
     }
 }
