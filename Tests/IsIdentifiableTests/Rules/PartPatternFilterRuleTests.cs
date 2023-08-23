@@ -91,4 +91,49 @@ internal class PartPatternFilterRuleTests
         Assert.False(coversValidFailurePart);
         Assert.True(coversFilteredFailurePart);
     }
+
+    [TestCase]
+    public void Hyphen_WordBefore()
+    {
+        // Arrange
+        var rule = new PartPatternFilterRule()
+        {
+            IfPartPattern = "^Hodgkin$",
+            WordBefore = "Non",
+            IfColumn = "TextValue",
+            As = FailureClassification.Person,
+            Action = RuleAction.Ignore,
+        };
+        var problemValue = $"Non-Hodgkin's lymphoma";
+        var failurePart = new FailurePart("Hodgkin", FailureClassification.Person, 4);
+
+        // Act
+        var ruleCoversFailurePart = rule.Covers(failurePart, problemValue);
+
+        // Assert
+        Assert.True(ruleCoversFailurePart);
+    }
+
+    [TestCase]
+    public void Hyphen_WordAfter()
+    {
+        // Arrange
+        var rule = new PartPatternFilterRule()
+        {
+            IfPartPattern = "^Gr(a|e)y$",
+            WordAfter = "white",
+            IfColumn = "TextValue",
+            As = FailureClassification.Person,
+            Action = RuleAction.Ignore,
+        };
+        var problemValue = $"Gray-white foo";
+        var failurePart = new FailurePart("Gray", FailureClassification.Person, 0);
+
+        // Act
+        var ruleCoversFailurePart = rule.Covers(failurePart, problemValue);
+
+        // Assert
+        Assert.True(ruleCoversFailurePart);
+    }
+
 }
