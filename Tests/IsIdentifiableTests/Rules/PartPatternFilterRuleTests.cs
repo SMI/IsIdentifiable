@@ -26,7 +26,7 @@ internal class PartPatternFilterRuleTests
     }
 
     [TestCaseSource(nameof(TestCaseSource_ForamenMonroParts))]
-    public void ForamenMonro(string valuePart)
+    public void Covers_ForamenMonro(string valuePart)
     {
         // Arrange
         var rule = new PartPatternFilterRule()
@@ -66,7 +66,7 @@ internal class PartPatternFilterRuleTests
     }
 
     [TestCaseSource(nameof(TestCaseSource_HodgkinLymphomaParts))]
-    public void HodgkinLymphoma(string valuePart)
+    public void Covers_HodgkinLymphoma(string valuePart)
     {
         // Arrange
         var rule = new PartPatternFilterRule()
@@ -92,8 +92,8 @@ internal class PartPatternFilterRuleTests
         Assert.True(coversFilteredFailurePart);
     }
 
-    [TestCase]
-    public void Hyphen_WordBefore()
+    [Test]
+    public void Covers_HyphenInWordBefore()
     {
         // Arrange
         var rule = new PartPatternFilterRule()
@@ -114,8 +114,8 @@ internal class PartPatternFilterRuleTests
         Assert.True(ruleCoversFailurePart);
     }
 
-    [TestCase]
-    public void Hyphen_WordAfter()
+    [Test]
+    public void Covers_HyphenInWordAfter()
     {
         // Arrange
         var rule = new PartPatternFilterRule()
@@ -137,7 +137,7 @@ internal class PartPatternFilterRuleTests
     }
 
     [Test]
-    public void AnyClass()
+    public void Covers_AnyFailureClassification()
     {
         // Arrange
         var rule = new PartPatternFilterRule()
