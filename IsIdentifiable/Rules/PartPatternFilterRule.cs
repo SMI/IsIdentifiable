@@ -65,7 +65,7 @@ public class PartPatternFilterRule : RegexRule
         if (!string.IsNullOrWhiteSpace(WordBefore))
         {
             var problemValueUpToOffset = problemValue[..(failurePart.Offset + failurePart.Word.Length)];
-            var wordBeforeRegex = new Regex($"\\b{WordBefore}(\\s|-)+{IfPartPattern.TrimStart('^')}", (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase));
+            var wordBeforeRegex = new Regex(@$"\b{WordBefore}(\s|-)+{IfPartPattern.TrimStart('^')}", (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase));
             matchesBefore = wordBeforeRegex.Matches(problemValueUpToOffset).Any();
         }
 
@@ -73,7 +73,7 @@ public class PartPatternFilterRule : RegexRule
         if (!string.IsNullOrWhiteSpace(WordAfter))
         {
             var problemValueFromOffset = problemValue[failurePart.Offset..];
-            var wordAfterRegex = new Regex($"{IfPartPattern.TrimEnd('$')}(\\s|-)+{WordAfter}\\b", (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase));
+            var wordAfterRegex = new Regex(@$"{IfPartPattern.TrimEnd('$')}(\s|-)+{WordAfter}\b", (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase));
             matchesAfter = wordAfterRegex.Matches(problemValueFromOffset).Any();
         }
 
