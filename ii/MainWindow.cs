@@ -196,7 +196,12 @@ G - creates a regex pattern that matches only the failing part(s)
         viewMain.Add(frame);
 
         if (!string.IsNullOrWhiteSpace(opts.FailuresCsv))
-            OpenReport(opts.FailuresCsv, (e) => throw e);
+        {
+            Exception? exc = null;
+            OpenReport(opts.FailuresCsv, (e) => exc = e);
+            if(exc != null)
+                Helpers.ShowException("Failed to Load", exc);
+        }
 
         var tabView = new TabView()
         {
@@ -475,6 +480,9 @@ G - creates a regex pattern that matches only the failing part(s)
             return !done;
         });
 
+        _currentReportLabel.Text = $"Report:{_fileSystem.Path.GetFileName(path)}";
+        _currentReportLabel.SetNeedsDisplay();
+
         Task.Run(() =>
         {
             try
@@ -490,6 +498,7 @@ G - creates a regex pattern that matches only the failing part(s)
             {
                 exceptionHandler(e);
                 rows.Text = "Error";
+                _currentReportLabel.Text = "Report: <Not loaded>";
             }
 
         }
@@ -503,9 +512,6 @@ G - creates a regex pattern that matches only the failing part(s)
 
             cts.Dispose();
         });
-
-        _currentReportLabel.Text = $"Report:{_fileSystem.Path.GetFileName(path)}";
-        _currentReportLabel.SetNeedsDisplay();
 
         Application.Run(dlg);
     }
