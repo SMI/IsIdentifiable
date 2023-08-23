@@ -9,7 +9,7 @@ namespace IsIdentifiable.Tests.Rules;
 
 internal class PartPatternFilterRuleTests
 {
-    private static IEnumerable<string> GetForamenMonroParts()
+    private static IEnumerable<string> TestCaseSource_ForamenMonroParts()
     {
         var parts = new List<string>();
         foreach (var prefix in new[] { "foramen", "foramina" })
@@ -25,7 +25,7 @@ internal class PartPatternFilterRuleTests
         return parts;
     }
 
-    [TestCaseSource(nameof(GetForamenMonroParts))]
+    [TestCaseSource(nameof(TestCaseSource_ForamenMonroParts))]
     public void ForamenMonro(string valuePart)
     {
         // Arrange
@@ -52,7 +52,7 @@ internal class PartPatternFilterRuleTests
         Assert.True(coversFilteredFailurePart);
     }
 
-    private static IEnumerable<string> GetHodgkinLymphomaParts()
+    private static IEnumerable<string> TestCaseSource_HodgkinLymphomaParts()
     {
         var parts = new List<string>();
         foreach (var name in new[] { "hodgkin", "hodgkins", "hodgkin's" })
@@ -65,7 +65,7 @@ internal class PartPatternFilterRuleTests
         return parts;
     }
 
-    [TestCaseSource(nameof(GetHodgkinLymphomaParts))]
+    [TestCaseSource(nameof(TestCaseSource_HodgkinLymphomaParts))]
     public void HodgkinLymphoma(string valuePart)
     {
         // Arrange
