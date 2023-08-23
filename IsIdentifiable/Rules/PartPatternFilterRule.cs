@@ -58,7 +58,7 @@ public class PartPatternFilterRule : RegexRule
 
     public bool Covers(FailurePart failurePart, string problemValue)
     {
-        if (As != failurePart.Classification)
+        if (As != FailureClassification.None && As != failurePart.Classification)
             return false;
 
         bool matchesBefore = false;

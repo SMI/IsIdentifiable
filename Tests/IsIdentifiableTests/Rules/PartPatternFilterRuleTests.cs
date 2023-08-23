@@ -136,4 +136,23 @@ internal class PartPatternFilterRuleTests
         Assert.True(ruleCoversFailurePart);
     }
 
+    [Test]
+    public void AnyClass()
+    {
+        // Arrange
+        var rule = new PartPatternFilterRule()
+        {
+            IfPartPattern = "^Test$",
+            IfColumn = "TextValue",
+            Action = RuleAction.Ignore,
+        };
+        var problemValue = $"Test";
+        var failurePart = new FailurePart("Test", FailureClassification.Person, 0);
+
+        // Act
+        var ruleCoversFailurePart = rule.Covers(failurePart, problemValue);
+
+        // Assert
+        Assert.True(ruleCoversFailurePart);
+    }
 }
