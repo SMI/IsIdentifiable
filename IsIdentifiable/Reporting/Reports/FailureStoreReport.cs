@@ -10,6 +10,7 @@ using System.Data;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -208,14 +209,14 @@ public class FailureStoreReport : FailureReport
                             catch (ArgumentOutOfRangeException)
                             { }
 
-                            // Test if the ProblemValue has had a space inserted after a unicode point
-                            var idx = row.ProblemValue.IndexOf(" ");
-                            if (idx > -1 && row.ProblemValue.Substring(part.Offset, part.Word.Length + 1).Remove(idx - 1, 1) == part.Word)
+                            // Test if the ProblemValue has hidden unicode symbols
+                            var withoutInvisible = Regex.Replace(row.ProblemValue, @"\p{C}+", string.Empty);
+                            if (withoutInvisible.Substring(part.Offset, part.Word.Length) == part.Word)
                             {
-                                part.Word = part.Word.Insert(idx - 1, " ");
+                                part.Word = row.ProblemValue.Substring(part.Offset, part.Word.Length + 1);
 
                                 if (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
-                                    throw new Exception($"Could not fix additional whitespace in Failure\n{row}");
+                                    throw new Exception($"Could not fix hidden unicode characters in Failure:\n===\n{row}\n===");
 
                                 continue;
                             }
