@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -193,6 +194,13 @@ public class FailureStoreReport : FailureReport
                         {
                             if (row.ProblemValue.Substring(part.Offset, part.Word.Length) == part.Word)
                                 continue;
+
+                            var encodedPartWord = WebUtility.HtmlEncode(part.Word);
+                            if (row.ProblemValue.Substring(part.Offset, encodedPartWord.Length) == encodedPartWord)
+                            {
+                                part.Word = encodedPartWord;
+                                continue;
+                            }
 
                             try
                             {
