@@ -204,8 +204,15 @@ public class FailureStoreReport : FailureReport
                             catch (ArgumentOutOfRangeException)
                             {
                                 part.Offset = origOffset;
-                                while (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
-                                    part.Offset--;
+                                try
+                                {
+                                    while (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
+                                        part.Offset--;
+                                }
+                                catch (ArgumentOutOfRangeException e)
+                                {
+                                    throw new Exception($"Could not fixup Offset value in Failure:\n{row}", e);
+                                }
                             }
                         }
                     }
@@ -256,5 +263,7 @@ public class FailureStoreReport : FailureReport
         public string PartWords { get; init; }
         public string PartClassifications { get; init; }
         public string PartOffsets { get; init; }
+
+        public override string ToString() => $"Failure({Resource}|{ResourcePrimaryKey}|{ProblemField}|{ProblemValue}|{PartWords}|{PartClassifications}|{PartOffsets})";
     }
 }
