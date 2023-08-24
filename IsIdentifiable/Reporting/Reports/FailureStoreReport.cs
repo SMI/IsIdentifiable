@@ -195,13 +195,32 @@ public class FailureStoreReport : FailureReport
                             if (row.ProblemValue.Substring(part.Offset, part.Word.Length) == part.Word)
                                 continue;
 
+                            // Test if the ProblemValue has been HTML escaped
                             var encodedPartWord = WebUtility.HtmlEncode(part.Word);
-                            if (row.ProblemValue.Substring(part.Offset, encodedPartWord.Length) == encodedPartWord)
+                            try
                             {
-                                part.Word = encodedPartWord;
+                                if (row.ProblemValue.Substring(part.Offset, encodedPartWord.Length) == encodedPartWord)
+                                {
+                                    part.Word = encodedPartWord;
+                                    continue;
+                                }
+                            }
+                            catch (ArgumentOutOfRangeException)
+                            { }
+
+                            // Test if the ProblemValue has had a space inserted after a unicode point
+                            var idx = row.ProblemValue.IndexOf(" ");
+                            if (idx > -1 && row.ProblemValue.Substring(part.Offset, part.Word.Length + 1).Remove(idx - 1, 1) == part.Word)
+                            {
+                                part.Word = part.Word.Insert(idx - 1, " ");
+
+                                if (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
+                                    throw new Exception($"Could not fix additional whitespace in Failure\n{row}");
+
                                 continue;
                             }
 
+                            // Finally, try shifting the offset around to find the word
                             try
                             {
                                 FixupOffsets(row, part);
