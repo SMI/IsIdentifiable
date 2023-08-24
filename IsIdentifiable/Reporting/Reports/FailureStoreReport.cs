@@ -194,25 +194,13 @@ public class FailureStoreReport : FailureReport
                             if (row.ProblemValue.Substring(part.Offset, part.Word.Length) == part.Word)
                                 continue;
 
-                            // Try looking ahead first, then back
-                            var origOffset = part.Offset;
                             try
                             {
-                                while (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
-                                    part.Offset++;
+                                FixupOffsets(row, part);
                             }
-                            catch (ArgumentOutOfRangeException)
+                            catch (ArgumentOutOfRangeException e)
                             {
-                                part.Offset = origOffset;
-                                try
-                                {
-                                    while (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
-                                        part.Offset--;
-                                }
-                                catch (ArgumentOutOfRangeException e)
-                                {
-                                    throw new Exception($"Could not fixup Offset value in Failure:\n{row}", e);
-                                }
+                                throw new Exception($"Could not fixup Offset value in Failure:\n{row}", e);
                             }
                         }
                     }
@@ -252,6 +240,23 @@ public class FailureStoreReport : FailureReport
         loadedRows(totalProcessed);
 
         return failures;
+    }
+
+    private static void FixupOffsets(FailureStoreReportRecord row, FailurePart part)
+    {
+        // Try looking ahead first, then back
+        var origOffset = part.Offset;
+        try
+        {
+            while (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
+                part.Offset++;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            part.Offset = origOffset;
+            while (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
+                part.Offset--;
+        }
     }
 
     internal class FailureStoreReportRecord
