@@ -161,81 +161,87 @@ public class FailureStoreReport : FailureReport
 
         var failures = new ConcurrentBag<Failure>();
 
-        Parallel.ForEach(
-            reader.GetRecords<FailureStoreReportRecord>(),
-            new ParallelOptions
-            {
-                CancellationToken = token,
-            },
-            (FailureStoreReportRecord row) =>
-            {
-                if (row.ProblemValue == null)
-                    throw new Exception("ProblemValue was null");
-
-                var words = row.PartWords.Split(Separator);
-                var classes = row.PartClassifications.Split(Separator);
-                var offsets = row.PartOffsets.Split(Separator);
-
-                var parts = words.Select(
-                    (word, index) => new FailurePart(
-                        word,
-                        Enum.TryParse<FailureClassification>(classes[index], true, out var classification) ? classification : throw new Exception($"Invalid failure classification '{classes[index]}'"),
-                        int.TryParse(offsets[index], out var offset) ? offset : throw new Exception($"Invalid offset '{row.PartOffsets}'")
-                    )
-                ).ToList();
-
-                if (row.ProblemField != "PixelData")
+        try
+        {
+            Parallel.ForEach(
+                reader.GetRecords<FailureStoreReportRecord>(),
+                new ParallelOptions
                 {
-                    // Fixes any offsets that have been mangled by file endings etc.
-                    foreach (var part in parts)
-                    {
-                        if (row.ProblemValue.Substring(part.Offset, part.Word.Length) == part.Word)
-                            continue;
+                    CancellationToken = token,
+                },
+                (FailureStoreReportRecord row) =>
+                {
+                    if (row.ProblemValue == null)
+                        throw new Exception("ProblemValue was null");
 
-                        // Try looking ahead first, then back
-                        var origOffset = part.Offset;
-                        try
+                    var words = row.PartWords.Split(Separator);
+                    var classes = row.PartClassifications.Split(Separator);
+                    var offsets = row.PartOffsets.Split(Separator);
+
+                    var parts = words.Select(
+                        (word, index) => new FailurePart(
+                            word,
+                            Enum.TryParse<FailureClassification>(classes[index], true, out var classification) ? classification : throw new Exception($"Invalid failure classification '{classes[index]}'"),
+                            int.TryParse(offsets[index], out var offset) ? offset : throw new Exception($"Invalid offset '{row.PartOffsets}'")
+                        )
+                    ).ToList();
+
+                    if (row.ProblemField != "PixelData")
+                    {
+                        // Fixes any offsets that have been mangled by file endings etc.
+                        foreach (var part in parts)
                         {
-                            while (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
-                                part.Offset++;
-                        }
-                        catch (ArgumentOutOfRangeException)
-                        {
-                            part.Offset = origOffset;
-                            while (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
-                                part.Offset--;
+                            if (row.ProblemValue.Substring(part.Offset, part.Word.Length) == part.Word)
+                                continue;
+
+                            // Try looking ahead first, then back
+                            var origOffset = part.Offset;
+                            try
+                            {
+                                while (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
+                                    part.Offset++;
+                            }
+                            catch (ArgumentOutOfRangeException)
+                            {
+                                part.Offset = origOffset;
+                                while (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
+                                    part.Offset--;
+                            }
                         }
                     }
-                }
 
-                /* TEMP - Filter out any FailureParts covered by an PartPatternFilterRule */
-                var toRemove = new List<FailurePart>();
-                foreach (var partRule in partRules)
-                {
-                    if (!string.IsNullOrWhiteSpace(partRule.IfColumn) && !string.Equals(partRule.IfColumn, row.ProblemField, StringComparison.InvariantCultureIgnoreCase))
-                        continue;
-
-                    foreach (var part in parts.Where(x => partRule.Covers(x, row.ProblemValue)))
-                        toRemove.Add(part);
-                }
-                parts = parts.Except(toRemove).ToList();
-                /* TEMP */
-
-                if (parts.Any())
-                    failures.Add(new Failure(parts)
+                    /* TEMP - Filter out any FailureParts covered by an PartPatternFilterRule */
+                    var toRemove = new List<FailurePart>();
+                    foreach (var partRule in partRules)
                     {
-                        Resource = row.Resource,
-                        ResourcePrimaryKey = row.ResourcePrimaryKey,
-                        ProblemField = row.ProblemField,
-                        ProblemValue = row.ProblemValue,
-                    });
+                        if (!string.IsNullOrWhiteSpace(partRule.IfColumn) && !string.Equals(partRule.IfColumn, row.ProblemField, StringComparison.InvariantCultureIgnoreCase))
+                            continue;
 
-                Interlocked.Increment(ref totalProcessed);
-            }
-        );
+                        foreach (var part in parts.Where(x => partRule.Covers(x, row.ProblemValue)))
+                            toRemove.Add(part);
+                    }
+                    parts = parts.Except(toRemove).ToList();
+                    /* TEMP */
 
-        localTokenSource.Cancel();
-        timerTask.Wait();
+                    if (parts.Any())
+                        failures.Add(new Failure(parts)
+                        {
+                            Resource = row.Resource,
+                            ResourcePrimaryKey = row.ResourcePrimaryKey,
+                            ProblemField = row.ProblemField,
+                            ProblemValue = row.ProblemValue,
+                        });
+
+                    Interlocked.Increment(ref totalProcessed);
+                }
+            );
+        }
+        finally
+        {
+            localTokenSource.Cancel();
+            timerTask.Wait();
+        }
+
         loadedRows(totalProcessed);
 
         return failures;
