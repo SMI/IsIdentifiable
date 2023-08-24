@@ -44,6 +44,9 @@ public class PartPatternFilterRule : RegexRule
 
     public string WordAfter { get; set; }
 
+    private Regex? _wordBeforeRegex;
+    private Regex? _wordAfterRegex;
+
     // TODO(rkm 2023-07-25) Shouldn't be needed when IfPattern is readonly
     private void RebuildPartRegex()
     {
@@ -65,16 +68,16 @@ public class PartPatternFilterRule : RegexRule
         if (!string.IsNullOrWhiteSpace(WordBefore))
         {
             var problemValueUpToOffset = problemValue[..(failurePart.Offset + failurePart.Word.Length)];
-            var wordBeforeRegex = new Regex(@$"\b{WordBefore}(\s|-)+{IfPartPattern.TrimStart('^')}", (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase));
-            matchesBefore = wordBeforeRegex.Matches(problemValueUpToOffset).Any();
+            _wordBeforeRegex ??= new Regex(@$"\b{WordBefore}(\s|-)+{IfPartPattern.TrimStart('^')}", (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
+            matchesBefore = _wordBeforeRegex.Matches(problemValueUpToOffset).Any();
         }
 
         bool matchesAfter = false;
         if (!string.IsNullOrWhiteSpace(WordAfter))
         {
             var problemValueFromOffset = problemValue[failurePart.Offset..];
-            var wordAfterRegex = new Regex(@$"{IfPartPattern.TrimEnd('$')}(\s|-)+{WordAfter}\b", (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase));
-            matchesAfter = wordAfterRegex.Matches(problemValueFromOffset).Any();
+            _wordAfterRegex ??= new Regex(@$"{IfPartPattern.TrimEnd('$')}(\s|-)+{WordAfter}\b", (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
+            matchesAfter = _wordAfterRegex.Matches(problemValueFromOffset).Any();
         }
 
         if (
