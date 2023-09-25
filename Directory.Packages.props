@@ -18,7 +18,7 @@
     <PackageVersion Include="Magick.NET-Q16-AnyCPU" Version="13.2.0" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
     <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="7.0.0" />
-    <PackageVersion Include="NLog" Version="5.2.3" />
+    <PackageVersion Include="NLog" Version="5.2.4" />
     <PackageVersion Include="SecurityCodeScan.VS2019" Version="5.6.7"/>
     <PackageVersion Include="System.IO.Abstractions" Version="19.2.69" />
     <PackageVersion Include="System.IO.FileSystem" Version="4.3.0" />
