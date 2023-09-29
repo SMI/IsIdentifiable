@@ -2,6 +2,7 @@
     <PropertyGroup>
         <AssemblyTitle>ii.Tests</AssemblyTitle>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <TargetFramework>net7.0</TargetFramework>
         <OutputType>Library</OutputType>
     </PropertyGroup>
     <ItemGroup>
