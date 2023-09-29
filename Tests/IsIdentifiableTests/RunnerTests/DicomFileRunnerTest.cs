@@ -1,4 +1,4 @@
-﻿using IsIdentifiable.Options;
+using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Runners;
 using NUnit.Framework;
@@ -17,6 +17,7 @@ public class DicomFileRunnerTest
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
+        TesseractLinuxLoaderFix.Patch();
         var testRulesDir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "data", "IsIdentifiableRules"));
         testRulesDir.Create();
 
