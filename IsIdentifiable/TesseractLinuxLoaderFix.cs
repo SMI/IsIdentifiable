@@ -14,7 +14,7 @@ namespace IsIdentifiable;
 /// this to LibraryLoader - but that's locked down as 'internal', so
 /// we have to jump through some reflection hoops to get there.
 /// </summary>
-internal sealed class TesseractLinuxLoaderFix
+public sealed class TesseractLinuxLoaderFix
 {
     private static readonly Dictionary<string, IntPtr>? LoadedAssemblies;
 
