@@ -15,7 +15,7 @@
     <PackageVersion Include="HIC.RDMP.Plugin" Version="8.0.7" />
     <PackageVersion Include="IKVM" Version="8.6.4"/>
     <PackageVersion Include="Lib.Harmony" Version="2.2.2" />
-    <PackageVersion Include="Magick.NET-Q16-AnyCPU" Version="13.2.0" />
+    <PackageVersion Include="Magick.NET-Q16-AnyCPU" Version="13.3.0" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
     <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="7.0.0" />
     <PackageVersion Include="NLog" Version="5.2.4" />
