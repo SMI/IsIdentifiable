@@ -108,7 +108,7 @@ class RulesView : View
         Updater = updater;
         _bulkIgnorePatternFactory = bulkIgnorePatternFactory;
 
-        _lblInitialSummary.Text = $"There are {ignorer.Rules.Count - ignorer.PartRules_Temp.Count} ignore rules and {updater.Rules.Count} update rules.  Current report contains {CurrentReport.Failures.Length:N0} Failures";
+        _lblInitialSummary.Text = $"There are {ignorer.Rules.Count - ignorer.PartRules_Temp.Count} ignore rules, {ignorer.PartRules_Temp.Count} PartPatternFilterRules, and {updater.Rules.Count} update rules. Current report contains {CurrentReport.Failures.Length:N0} Failures";
 
     }
 
