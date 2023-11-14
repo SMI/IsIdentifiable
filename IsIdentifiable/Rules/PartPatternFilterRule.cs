@@ -112,5 +112,5 @@ public class PartPatternFilterRule : RegexRule
         return IfPartPatternRegex.Matches(failurePart.Word).Any();
     }
 
-    public override string ToString() => $"Pat:'{_ifPartPatternString}' WB:'{WordBefore}' WA:'{WordAfter}' x{_usedCount:N0}";
+    public override string ToString() => $"Pat:'{_ifPartPatternString}' WB:'{WordBefore}' WA:'{WordAfter}' Col:'{IfColumn}' As:'{As}' x{_usedCount:N0}";
 }
