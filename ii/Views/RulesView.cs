@@ -361,6 +361,14 @@ class RulesView : View
 
         var colliding = new TreeNodeWithCount("Colliding Rules");
         var ignore = new TreeNodeWithCount("Ignore Rules Used");
+
+        var partRulesused = new TreeNodeWithCount("IfPartPattern Rules Used") { OverrideCount = 0 };
+        foreach (var rule in Ignorer.PartRules_Temp.OrderByDescending(x => x.UsedCount))
+        {
+            partRulesused.OverrideCount += rule.UsedCount;
+            partRulesused.Children.Add(new TreeNode(rule.ToString()));
+        }
+
         var update = new TreeNodeWithCount("Update Rules Used");
         var outstanding = new TreeNodeWithCount("Outstanding Failures", countSubChildren: true);
 
@@ -408,7 +416,7 @@ class RulesView : View
             cts.Dispose();
 
             _treeView.RebuildTree();
-            _treeView.AddObjects(new[] { colliding, ignore, update, outstanding });
+            _treeView.AddObjects(new[] { colliding, ignore, partRulesused, update, outstanding });
         }, SynchronizationContext.Current);
 
         Application.Run(dlg);

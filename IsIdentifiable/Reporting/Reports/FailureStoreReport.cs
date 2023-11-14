@@ -241,7 +241,10 @@ public class FailureStoreReport : FailureReport
                             continue;
 
                         foreach (var part in parts.Where(x => partRule.Covers(x, row.ProblemValue)))
+                        {
                             toRemove.Add(part);
+                            partRule.IncrementUsed();
+                        }
                     }
                     parts = parts.Except(toRemove).ToList();
                     /* TEMP */

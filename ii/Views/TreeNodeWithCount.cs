@@ -9,6 +9,8 @@ internal class TreeNodeWithCount : TreeNode
 
     private readonly bool _countSubChildren;
 
+    public int OverrideCount { get; set; } = -1;
+
     public TreeNodeWithCount(string heading, bool countSubChildren = false)
     {
         Heading = heading;
@@ -18,7 +20,9 @@ internal class TreeNodeWithCount : TreeNode
     public override string ToString()
     {
         var count = 0;
-        if (_countSubChildren)
+        if (OverrideCount != -1)
+            count = OverrideCount;
+        else if (_countSubChildren)
             count = Children.Sum(x => x.Children.Count);
         else
             count = Children.Count;

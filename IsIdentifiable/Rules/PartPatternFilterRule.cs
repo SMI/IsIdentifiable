@@ -47,6 +47,22 @@ public class PartPatternFilterRule : RegexRule
     private Regex? _wordBeforeRegex;
     private Regex? _wordAfterRegex;
 
+    private int _usedCount = 0;
+    private object _usedCountLock = new();
+
+    public int UsedCount
+    {
+        get => _usedCount;
+    }
+
+    public void IncrementUsed()
+    {
+        lock (_usedCountLock)
+        {
+            ++_usedCount;
+        }
+    }
+
     // TODO(rkm 2023-07-25) Shouldn't be needed when IfPattern is readonly
     private void RebuildPartRegex()
     {
@@ -95,4 +111,6 @@ public class PartPatternFilterRule : RegexRule
 
         return IfPartPatternRegex.Matches(failurePart.Word).Any();
     }
+
+    public override string ToString() => $"Pat:'{_ifPartPatternString}' WB:'{WordBefore}' WA:'{WordAfter}' x{_usedCount:N0}";
 }
