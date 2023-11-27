@@ -16,7 +16,7 @@
     <PackageVersion Include="IKVM" Version="8.7.1"/>
     <PackageVersion Include="Lib.Harmony" Version="2.2.2" />
     <PackageVersion Include="Magick.NET-Q16-AnyCPU" Version="13.4.0" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="8.0.0" />
     <PackageVersion Include="NLog" Version="5.2.6" />
     <PackageVersion Include="SecurityCodeScan.VS2019" Version="5.6.7"/>
