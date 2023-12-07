@@ -241,19 +241,12 @@ public class FailureStoreReport : FailureReport
             // Fixes any offsets that have been mangled by file endings etc.
             foreach (var part in parts)
             {
-                string wordAtOffset;
                 try
                 {
-                    wordAtOffset = row.ProblemValue.Substring(part.Offset, part.Word.Length);
+                    if (row.ProblemValue.Substring(part.Offset, part.Word.Length) == part.Word)
+                        continue;
                 }
-                catch (ArgumentOutOfRangeException e)
-                {
-                    var msg = $"Tried to find '{part.Word}' starting at index {part.Offset}";
-                    throw new ArgumentOutOfRangeException(msg, e);
-                }
-
-                if (wordAtOffset == part.Word)
-                    continue;
+                catch (ArgumentOutOfRangeException) { }
 
                 // Test if the ProblemValue has been HTML escaped
                 var encodedPartWord = WebUtility.HtmlEncode(part.Word);
