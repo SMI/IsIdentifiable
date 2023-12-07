@@ -133,9 +133,11 @@ public class FailureStoreReport : FailureReport
     /// <param name="loadedRows">Action to call periodically as records are read from the file (for
     /// when the file is very big and you want to show progress etc)</param>
     /// <param name="token">Cancellation token for aborting the file deserialication (and closing the file again)</param>
+    /// <param name="partRules"></param>
+    /// <param name="runParallel"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public static IEnumerable<Failure> Deserialize(IFileInfo oldFile, Action<int> loadedRows, CancellationToken token, IEnumerable<PartPatternFilterRule>? partRules = null)
+    public static IEnumerable<Failure> Deserialize(IFileInfo oldFile, Action<int> loadedRows, CancellationToken token, IEnumerable<PartPatternFilterRule>? partRules = null, bool runParallel = true)
     {
         partRules ??= new List<PartPatternFilterRule>();
 
@@ -149,7 +151,11 @@ public class FailureStoreReport : FailureReport
 
         int totalProcessed = 0;
         var localTokenSource = new CancellationTokenSource();
-        using var timerTask = Task.Run(
+        var failures = new ConcurrentBag<Failure>();
+
+        if (runParallel)
+        {
+            using var timerTask = Task.Run(
             async () =>
             {
                 while (!token.IsCancellationRequested && !localTokenSource.Token.IsCancellationRequested)
@@ -159,118 +165,138 @@ public class FailureStoreReport : FailureReport
                 }
             },
             token
-        );
-
-        var failures = new ConcurrentBag<Failure>();
-
-        try
-        {
-            Parallel.ForEach(
-                reader.GetRecords<FailureStoreReportRecord>(),
-                new ParallelOptions
-                {
-                    CancellationToken = token,
-                },
-                (FailureStoreReportRecord row) =>
-                {
-                    if (row.ProblemValue == null)
-                        throw new Exception("ProblemValue was null");
-
-                    var words = row.PartWords.Split(Separator);
-                    var classes = row.PartClassifications.Split(Separator);
-                    var offsets = row.PartOffsets.Split(Separator);
-
-                    var parts = words.Select(
-                        (word, index) => new FailurePart(
-                            word,
-                            Enum.TryParse<FailureClassification>(classes[index], true, out var classification) ? classification : throw new Exception($"Invalid failure classification '{classes[index]}'"),
-                            int.TryParse(offsets[index], out var offset) ? offset : throw new Exception($"Invalid offset '{row.PartOffsets}'")
-                        )
-                    ).ToList();
-
-                    if (row.ProblemField != "PixelData")
-                    {
-                        // Fixes any offsets that have been mangled by file endings etc.
-                        foreach (var part in parts)
-                        {
-                            if (row.ProblemValue.Substring(part.Offset, part.Word.Length) == part.Word)
-                                continue;
-
-                            // Test if the ProblemValue has been HTML escaped
-                            var encodedPartWord = WebUtility.HtmlEncode(part.Word);
-                            try
-                            {
-                                if (row.ProblemValue.Substring(part.Offset, encodedPartWord.Length) == encodedPartWord)
-                                {
-                                    part.Word = encodedPartWord;
-                                    continue;
-                                }
-                            }
-                            catch (ArgumentOutOfRangeException)
-                            { }
-
-                            // Test if the ProblemValue has hidden unicode symbols
-                            var withoutInvisible = Regex.Replace(row.ProblemValue, @"\p{C}+", string.Empty);
-                            if (withoutInvisible.Substring(part.Offset, part.Word.Length) == part.Word)
-                            {
-                                part.Word = row.ProblemValue.Substring(part.Offset, part.Word.Length + 1);
-
-                                if (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
-                                    throw new Exception($"Could not fix hidden unicode characters in Failure:\n===\n{row}\n===");
-
-                                continue;
-                            }
-
-                            // Finally, try shifting the offset around to find the word
-                            try
-                            {
-                                FixupOffsets(row, part);
-                            }
-                            catch (ArgumentOutOfRangeException e)
-                            {
-                                throw new Exception($"Could not fixup Offset value in Failure:\n{row}", e);
-                            }
-                        }
-                    }
-
-                    /* TEMP - Filter out any FailureParts covered by an PartPatternFilterRule */
-                    var toRemove = new List<FailurePart>();
-                    foreach (var partRule in partRules)
-                    {
-                        if (!string.IsNullOrWhiteSpace(partRule.IfColumn) && !string.Equals(partRule.IfColumn, row.ProblemField, StringComparison.InvariantCultureIgnoreCase))
-                            continue;
-
-                        foreach (var part in parts.Where(x => partRule.Covers(x, row.ProblemValue)))
-                        {
-                            toRemove.Add(part);
-                            partRule.IncrementUsed();
-                        }
-                    }
-                    parts = parts.Except(toRemove).ToList();
-                    /* TEMP */
-
-                    if (parts.Any())
-                        failures.Add(new Failure(parts)
-                        {
-                            Resource = row.Resource,
-                            ResourcePrimaryKey = row.ResourcePrimaryKey,
-                            ProblemField = row.ProblemField,
-                            ProblemValue = row.ProblemValue,
-                        });
-
-                    Interlocked.Increment(ref totalProcessed);
-                }
             );
+
+            try
+            {
+                Parallel.ForEach(
+                   reader.GetRecords<FailureStoreReportRecord>(),
+                   new ParallelOptions
+                   {
+                       CancellationToken = token,
+                   },
+                   (FailureStoreReportRecord row) => Process(row, partRules, failures, ref totalProcessed)
+                );
+            }
+            finally
+            {
+                localTokenSource.Cancel();
+                timerTask.Wait();
+            }
         }
-        finally
+        else
         {
-            localTokenSource.Cancel();
-            timerTask.Wait();
+            var problems = 0;
+            foreach (var row in reader.GetRecords<FailureStoreReportRecord>())
+            {
+                try
+                {
+                    Process(row, partRules, failures, ref totalProcessed);
+                }
+                catch (Exception e)
+                {
+                    Console.Error.WriteLine($"{row}:\n{e.Message}\n");
+                    problems++;
+                }
+            }
+
+            if (problems > 0)
+                Console.Error.WriteLine($"Problem with {problems}/{totalProcessed} records");
         }
 
         loadedRows(totalProcessed);
 
         return failures;
+    }
+
+    private static void Process(FailureStoreReportRecord row, IEnumerable<PartPatternFilterRule>? partRules, ConcurrentBag<Failure> failures, ref int totalProcessed)
+    {
+        if (row.ProblemValue == null)
+            throw new Exception("ProblemValue was null");
+
+        var words = row.PartWords.Split(Separator);
+        var classes = row.PartClassifications.Split(Separator);
+        var offsets = row.PartOffsets.Split(Separator);
+
+        var parts = words.Select(
+            (word, index) => new FailurePart(
+                word,
+                Enum.TryParse<FailureClassification>(classes[index], true, out var classification) ? classification : throw new Exception($"Invalid failure classification '{classes[index]}'"),
+                int.TryParse(offsets[index], out var offset) ? offset : throw new Exception($"Invalid offset '{row.PartOffsets}'")
+            )
+        ).ToList();
+
+        if (row.ProblemField != "PixelData")
+        {
+            // Fixes any offsets that have been mangled by file endings etc.
+            foreach (var part in parts)
+            {
+                if (row.ProblemValue.Substring(part.Offset, part.Word.Length) == part.Word)
+                    continue;
+
+                // Test if the ProblemValue has been HTML escaped
+                var encodedPartWord = WebUtility.HtmlEncode(part.Word);
+                try
+                {
+                    if (row.ProblemValue.Substring(part.Offset, encodedPartWord.Length) == encodedPartWord)
+                    {
+                        part.Word = encodedPartWord;
+                        continue;
+                    }
+                }
+                catch (ArgumentOutOfRangeException)
+                { }
+
+                // Test if the ProblemValue has hidden unicode symbols
+                var withoutInvisible = Regex.Replace(row.ProblemValue, @"\p{C}+", string.Empty);
+                if (withoutInvisible.Substring(part.Offset, part.Word.Length) == part.Word)
+                {
+                    part.Word = row.ProblemValue.Substring(part.Offset, part.Word.Length + 1);
+
+                    if (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
+                        throw new Exception($"Could not fix hidden unicode characters in Failure:\n===\n{row}\n===");
+
+                    continue;
+                }
+
+                // Finally, try shifting the offset around to find the word
+                try
+                {
+                    FixupOffsets(row, part);
+                }
+                catch (ArgumentOutOfRangeException e)
+                {
+                    throw new Exception($"Could not fixup Offset value in Failure:\n{row}", e);
+                }
+            }
+        }
+
+        /* TEMP - Filter out any FailureParts covered by an PartPatternFilterRule */
+        var toRemove = new List<FailurePart>();
+        foreach (var partRule in partRules)
+        {
+            if (!string.IsNullOrWhiteSpace(partRule.IfColumn) && !string.Equals(partRule.IfColumn, row.ProblemField, StringComparison.InvariantCultureIgnoreCase))
+                continue;
+
+            foreach (var part in parts.Where(x => partRule.Covers(x, row.ProblemValue)))
+            {
+                toRemove.Add(part);
+                partRule.IncrementUsed();
+            }
+        }
+        parts = parts.Except(toRemove).ToList();
+        /* TEMP */
+
+        if (parts.Any())
+            failures.Add(new Failure(parts)
+            {
+                Resource = row.Resource,
+                ResourcePrimaryKey = row.ResourcePrimaryKey,
+                ProblemField = row.ProblemField,
+                ProblemValue = row.ProblemValue,
+            });
+
+        Interlocked.Increment(ref totalProcessed);
     }
 
     private static void FixupOffsets(FailureStoreReportRecord row, FailurePart part)
