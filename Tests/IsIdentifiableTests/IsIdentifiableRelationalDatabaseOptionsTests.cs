@@ -21,28 +21,40 @@ namespace IsIdentifiable.Tests
         {
             var opt = new IsIdentifiableRelationalDatabaseOptions();
 
-            // no file no problem
-            Assert.AreEqual(0, opt.UpdateConnectionStringsToUseTargets(out var targets, _fileSystem));
-            Assert.IsEmpty(targets);
+            Assert.Multiple(() =>
+            {
+                // no file no problem
+                Assert.That(opt.UpdateConnectionStringsToUseTargets(out var targets, _fileSystem), Is.EqualTo(0));
+                Assert.That(targets, Is.Empty);
+            });
 
             var ff = "fff.yaml";
             opt.TargetsFile = ff;
 
-            // error code because file does not exist
-            Assert.AreEqual(1, opt.UpdateConnectionStringsToUseTargets(out targets, _fileSystem));
-            Assert.IsEmpty(targets);
+            Assert.Multiple(() =>
+            {
+                // error code because file does not exist
+                Assert.That(opt.UpdateConnectionStringsToUseTargets(out var targets, _fileSystem), Is.EqualTo(1));
+                Assert.That(targets, Is.Empty);
+            });
 
             _fileSystem.File.WriteAllText(ff, @$"");
 
-            // file exists but is empty
-            Assert.AreEqual(2, opt.UpdateConnectionStringsToUseTargets(out targets, _fileSystem));
-            Assert.IsEmpty(targets);
+            Assert.Multiple(() =>
+            {
+                // file exists but is empty
+                Assert.That(opt.UpdateConnectionStringsToUseTargets(out var targets, _fileSystem), Is.EqualTo(2));
+                Assert.That(targets, Is.Empty);
+            });
 
             _fileSystem.File.WriteAllText(ff, @$"Ahoy ye pirates");
 
-            // file exists and has random garbage in it
-            Assert.AreEqual(4, opt.UpdateConnectionStringsToUseTargets(out targets, _fileSystem));
-            Assert.IsEmpty(targets);
+            Assert.Multiple(() =>
+            {
+                // file exists and has random garbage in it
+                Assert.That(opt.UpdateConnectionStringsToUseTargets(out var targets, _fileSystem), Is.EqualTo(4));
+                Assert.That(targets, Is.Empty);
+            });
 
             _fileSystem.File.WriteAllText(
                 ff,
@@ -50,9 +62,12 @@ namespace IsIdentifiable.Tests
   ConnectionString: yarg
   DatabaseType: MySql");
 
-            // valid Targets file
-            Assert.AreEqual(0, opt.UpdateConnectionStringsToUseTargets(out targets, _fileSystem));
-            Assert.AreEqual(1, targets.Count);
+            Assert.Multiple(() =>
+            {
+                // valid Targets file
+                Assert.That(opt.UpdateConnectionStringsToUseTargets(out var targets, _fileSystem), Is.EqualTo(0));
+                Assert.That(targets, Has.Count.EqualTo(1));
+            });
         }
 
         [TestCase("fff", false)]
@@ -93,24 +108,33 @@ namespace IsIdentifiable.Tests
         {
             // there is 1 target
             opt.UpdateConnectionStringsToUseTargets(out var targets, _fileSystem);
-            Assert.AreEqual(1, targets.Count);
+            Assert.Multiple(() =>
+            {
+                Assert.That(targets, Has.Count.EqualTo(1));
 
-            Assert.IsNull(getter(opt));
+                Assert.That(getter(opt), Is.Null);
+            });
 
             setter(opt, constr);
             opt.UpdateConnectionStringsToUseTargets(out _, _fileSystem);
 
             if (expectToUseTargets)
             {
-                Assert.AreEqual(targetConstr, getter(opt));
-                Assert.AreEqual(DatabaseType.MySql, getterDbType(opt));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(getter(opt), Is.EqualTo(targetConstr));
+                    Assert.That(getterDbType(opt), Is.EqualTo(DatabaseType.MySql));
+                });
             }
             else
             {
-                Assert.AreEqual(constr, getter(opt));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(getter(opt), Is.EqualTo(constr));
 
-                // the default
-                Assert.IsTrue(getterDbType(opt) == DatabaseType.MicrosoftSQLServer || getterDbType(opt) == null);
+                    // the default
+                    Assert.That(getterDbType(opt) == DatabaseType.MicrosoftSQLServer || getterDbType(opt) == null, Is.True);
+                });
             }
         }
     }

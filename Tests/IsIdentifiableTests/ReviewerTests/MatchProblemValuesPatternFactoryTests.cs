@@ -16,7 +16,7 @@ public class MatchProblemValuesPatternFactoryTests
         { ProblemValue = "Frequent Problems" };
 
         var factory = new MatchProblemValuesPatternFactory();
-        Assert.AreEqual("^(F)", factory.GetPattern(null, f));
+        Assert.That(factory.GetPattern(null, f), Is.EqualTo("^(F)"));
     }
 
     [Test]
@@ -30,7 +30,7 @@ public class MatchProblemValuesPatternFactoryTests
         { ProblemValue = "Frequent Problems" };
 
         var factory = new MatchProblemValuesPatternFactory();
-        Assert.AreEqual("^(Freq)", factory.GetPattern(null, f));
+        Assert.That(factory.GetPattern(null, f), Is.EqualTo("^(Freq)"));
     }
     [Test]
     public void OverlappingMatches_OffsetOverlaps()
@@ -45,7 +45,7 @@ public class MatchProblemValuesPatternFactoryTests
         var factory = new MatchProblemValuesPatternFactory();
 
         //fallback onto full match because of overlapping problem words
-        Assert.AreEqual("(req)", factory.GetPattern(null, f));
+        Assert.That(factory.GetPattern(null, f), Is.EqualTo("(req)"));
     }
 
     [Test]
@@ -59,6 +59,6 @@ public class MatchProblemValuesPatternFactoryTests
         { ProblemValue = "Frequent Problems" };
 
         var factory = new MatchProblemValuesPatternFactory();
-        Assert.AreEqual("(requent)", factory.GetPattern(null, f));
+        Assert.That(factory.GetPattern(null, f), Is.EqualTo("(requent)"));
     }
 }

@@ -35,7 +35,7 @@ class FileRunnerTests
 
         var reporter = new Mock<IFailureReport>(MockBehavior.Strict);
 
-        reporter.Setup(f => f.Add(It.IsAny<Failure>())).Callback<Failure>(f => Assert.AreEqual("0102821172", f.ProblemValue));
+        reporter.Setup(f => f.Add(It.IsAny<Failure>())).Callback<Failure>(f => Assert.That(f.ProblemValue, Is.EqualTo("0102821172")));
         reporter.Setup(f => f.DoneRows(1));
         reporter.Setup(f => f.CloseReport());
 
@@ -69,7 +69,7 @@ class FileRunnerTests
 
         var done = 0;
 
-        reporter.Setup(f => f.Add(It.IsAny<Failure>())).Callback<Failure>(f => Assert.AreEqual("0102821172", f.ProblemValue));
+        reporter.Setup(f => f.Add(It.IsAny<Failure>())).Callback<Failure>(f => Assert.That(f.ProblemValue, Is.EqualTo("0102821172")));
         reporter.Setup(f => f.DoneRows(1)).Callback(() => done++);
         reporter.Setup(f => f.CloseReport());
 
@@ -80,6 +80,6 @@ class FileRunnerTests
 
         reporter.Verify();
 
-        Assert.AreEqual(22, done);
+        Assert.That(done, Is.EqualTo(22));
     }
 }

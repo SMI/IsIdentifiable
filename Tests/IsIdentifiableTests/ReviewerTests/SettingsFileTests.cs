@@ -1,4 +1,4 @@
-﻿using ii;
+using ii;
 using NUnit.Framework;
 using System;
 
@@ -9,69 +9,90 @@ namespace IsIdentifiable.Tests.ReviewerTests
         [Test]
         public void TestCutSettingsFileArgs_NoArgs()
         {
-            Assert.IsNull(Program.CutSettingsFileArgs(Array.Empty<string>(), out var result));
-            Assert.IsEmpty(result);
+            Assert.Multiple(() =>
+            {
+                Assert.That(Program.CutSettingsFileArgs(Array.Empty<string>(), out var result), Is.Null);
+                Assert.That(result, Is.Empty);
+            });
         }
 
 
         [Test]
         public void TestCutSettingsFileArgs_NoYamlFile()
         {
-            Assert.IsNull(Program.CutSettingsFileArgs(new[] { "review", "somefish" }, out var result));
-            Assert.AreEqual(2, result.Length);
-            Assert.AreEqual("review", result[0]);
-            Assert.AreEqual("somefish", result[1]);
+            Assert.Multiple(static () =>
+            {
+                Assert.That(Program.CutSettingsFileArgs(new[] { "review", "somefish" }, out var result), Is.Null);
+                Assert.That(result, Has.Length.EqualTo(2));
+                Assert.That(result[0], Is.EqualTo("review"));
+                Assert.That(result[1], Is.EqualTo("somefish"));
+            });
         }
 
 
         [Test]
         public void TestCutSettingsFileArgs_DashYOnly()
         {
-            // missing argument, let CommandLineParser sort them out
-            Assert.IsNull(Program.CutSettingsFileArgs(new[] { "-y" }, out var result));
-            Assert.AreEqual(1, result.Length);
-            Assert.AreEqual("-y", result[0]);
+            Assert.Multiple(static () =>
+            {
+                // missing argument, let CommandLineParser sort them out
+                Assert.That(Program.CutSettingsFileArgs(new[] { "-y" }, out var result), Is.Null);
+                Assert.That(result, Has.Length.EqualTo(1));
+                Assert.That(result[0], Is.EqualTo("-y"));
+            });
         }
 
         [Test]
         public void TestCutSettingsFileArgs_YamlOnly()
         {
-            Assert.AreEqual("myfile.yaml", Program.CutSettingsFileArgs(new[] { "-y", "myfile.yaml" }, out var result));
-            Assert.IsEmpty(result);
+            Assert.Multiple(static () =>
+            {
+                Assert.That(Program.CutSettingsFileArgs(new[] { "-y", "myfile.yaml" }, out var result), Is.EqualTo("myfile.yaml"));
+                Assert.That(result, Is.Empty);
+            });
         }
 
 
         [Test]
         public void TestCutSettingsFileArgs_YamlAfter()
         {
-            Assert.AreEqual("myfile.yaml", Program.CutSettingsFileArgs(new[] { "review", "db", "someconstr", "-y", "myfile.yaml" }, out var result));
+            Assert.Multiple(static () =>
+            {
+                Assert.That(Program.CutSettingsFileArgs(new[] { "review", "db", "someconstr", "-y", "myfile.yaml" }, out var result), Is.EqualTo("myfile.yaml"));
 
-            Assert.AreEqual(3, result.Length);
-            Assert.AreEqual("review", result[0]);
-            Assert.AreEqual("db", result[1]);
-            Assert.AreEqual("someconstr", result[2]);
+                Assert.That(result, Has.Length.EqualTo(3));
+                Assert.That(result[0], Is.EqualTo("review"));
+                Assert.That(result[1], Is.EqualTo("db"));
+                Assert.That(result[2], Is.EqualTo("someconstr"));
+            });
         }
 
         [Test]
         public void TestCutSettingsFileArgs_YamlBefore()
         {
-            Assert.AreEqual("myfile.yaml", Program.CutSettingsFileArgs(new[] { "-y", "myfile.yaml", "review", "db", "someconstr" }, out var result));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Program.CutSettingsFileArgs(new[] { "-y", "myfile.yaml", "review", "db", "someconstr" }, out var result), Is.EqualTo("myfile.yaml"));
 
-            Assert.AreEqual(3, result.Length);
-            Assert.AreEqual("review", result[0]);
-            Assert.AreEqual("db", result[1]);
-            Assert.AreEqual("someconstr", result[2]);
+                Assert.That(result, Has.Length.EqualTo(3));
+                Assert.That(result[0], Is.EqualTo("review"));
+                Assert.That(result[1], Is.EqualTo("db"));
+                Assert.That(result[2], Is.EqualTo("someconstr"));
+            });
         }
 
         [Test]
         public void TestCutSettingsFileArgs_YamlInMiddle()
         {
-            Assert.AreEqual("myfile.yaml", Program.CutSettingsFileArgs(new[] { "review", "-y", "myfile.yaml", "db", "someconstr" }, out var result));
+            Assert.Multiple(static () =>
+            {
+                Assert.That(Program.CutSettingsFileArgs(new[] { "review", "-y", "myfile.yaml", "db", "someconstr" }, out var result), Is.EqualTo("myfile.yaml"));
 
-            Assert.AreEqual(3, result.Length);
-            Assert.AreEqual("review", result[0]);
-            Assert.AreEqual("db", result[1]);
-            Assert.AreEqual("someconstr", result[2]);
+                Assert.That(result, Has.Length.EqualTo(3));
+                Assert.That(result[0], Is.EqualTo("review"));
+                Assert.That(result[1], Is.EqualTo("db"));
+                Assert.That(result[2], Is.EqualTo("someconstr"));
+            });
         }
 
         [Test]
@@ -81,8 +102,11 @@ namespace IsIdentifiable.Tests.ReviewerTests
             FileAssert.Exists(f);
 
             var opts = Program.Deserialize(f, new System.IO.Abstractions.FileSystem());
-            Assert.IsNotNull(opts.IsIdentifiableReviewerOptions);
-            Assert.IsNotNull(opts.IsIdentifiableOptions);
+            Assert.Multiple(() =>
+            {
+                Assert.That(opts.IsIdentifiableReviewerOptions, Is.Not.Null);
+                Assert.That(opts.IsIdentifiableOptions, Is.Not.Null);
+            });
         }
     }
 }

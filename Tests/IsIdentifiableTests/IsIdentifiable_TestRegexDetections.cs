@@ -28,8 +28,11 @@ public class IsIdentifiableRunnerTests
 
         var p = runner.ResultsOfValidate.Single();
 
-        Assert.AreEqual("0101010101", p.Word);
-        Assert.AreEqual(10, p.Offset);
+        Assert.Multiple(() =>
+        {
+            Assert.That(p.Word, Is.EqualTo("0101010101"));
+            Assert.That(p.Offset, Is.EqualTo(10));
+        });
     }
 
     [Test]
@@ -37,7 +40,7 @@ public class IsIdentifiableRunnerTests
     {
         var runner = new TestRunner("2902810123 would be a CHI if 1981 had been a leap year", _fileSystem);
         runner.Run();
-        Assert.IsEmpty(runner.ResultsOfValidate);
+        Assert.That(runner.ResultsOfValidate, Is.Empty);
     }
 
     [Test]
@@ -45,36 +48,63 @@ public class IsIdentifiableRunnerTests
     {
         var runner = new TestRunner("hey there,0101010101 excited to see you", _fileSystem);
         runner.Run();
-        Assert.AreEqual(0, runner.ValidateCacheHits);
-        Assert.AreEqual(1, runner.ValidateCacheMisses);
+        Assert.Multiple(() =>
+        {
+            Assert.That(runner.ValidateCacheHits, Is.EqualTo(0));
+            Assert.That(runner.ValidateCacheMisses, Is.EqualTo(1));
+        });
         runner.Run();
-        Assert.AreEqual(1, runner.ValidateCacheHits);
-        Assert.AreEqual(1, runner.ValidateCacheMisses);
+        Assert.Multiple(() =>
+        {
+            Assert.That(runner.ValidateCacheHits, Is.EqualTo(1));
+            Assert.That(runner.ValidateCacheMisses, Is.EqualTo(1));
+        });
         runner.Run();
-        Assert.AreEqual(2, runner.ValidateCacheHits);
-        Assert.AreEqual(1, runner.ValidateCacheMisses);
+        Assert.Multiple(() =>
+        {
+            Assert.That(runner.ValidateCacheHits, Is.EqualTo(2));
+            Assert.That(runner.ValidateCacheMisses, Is.EqualTo(1));
+        });
 
         runner.ValueToTest = "ffffff";
         runner.Run();
-        Assert.AreEqual(2, runner.ValidateCacheHits);
-        Assert.AreEqual(2, runner.ValidateCacheMisses);
+        Assert.Multiple(() =>
+        {
+            Assert.That(runner.ValidateCacheHits, Is.EqualTo(2));
+            Assert.That(runner.ValidateCacheMisses, Is.EqualTo(2));
+        });
         runner.Run();
-        Assert.AreEqual(3, runner.ValidateCacheHits);
-        Assert.AreEqual(2, runner.ValidateCacheMisses);
+        Assert.Multiple(() =>
+        {
+            Assert.That(runner.ValidateCacheHits, Is.EqualTo(3));
+            Assert.That(runner.ValidateCacheMisses, Is.EqualTo(2));
+        });
         runner.Run();
-        Assert.AreEqual(4, runner.ValidateCacheHits);
-        Assert.AreEqual(2, runner.ValidateCacheMisses);
+        Assert.Multiple(() =>
+        {
+            Assert.That(runner.ValidateCacheHits, Is.EqualTo(4));
+            Assert.That(runner.ValidateCacheMisses, Is.EqualTo(2));
+        });
 
         runner.FieldToTest = "OtherField";
         runner.Run();
-        Assert.AreEqual(4, runner.ValidateCacheHits);
-        Assert.AreEqual(3, runner.ValidateCacheMisses);
+        Assert.Multiple(() =>
+        {
+            Assert.That(runner.ValidateCacheHits, Is.EqualTo(4));
+            Assert.That(runner.ValidateCacheMisses, Is.EqualTo(3));
+        });
         runner.Run();
-        Assert.AreEqual(5, runner.ValidateCacheHits);
-        Assert.AreEqual(3, runner.ValidateCacheMisses);
+        Assert.Multiple(() =>
+        {
+            Assert.That(runner.ValidateCacheHits, Is.EqualTo(5));
+            Assert.That(runner.ValidateCacheMisses, Is.EqualTo(3));
+        });
         runner.Run();
-        Assert.AreEqual(6, runner.ValidateCacheHits);
-        Assert.AreEqual(3, runner.ValidateCacheMisses);
+        Assert.Multiple(() =>
+        {
+            Assert.That(runner.ValidateCacheHits, Is.EqualTo(6));
+            Assert.That(runner.ValidateCacheMisses, Is.EqualTo(3));
+        });
     }
     [Test]
     public void Test_NoCaching()
@@ -85,14 +115,23 @@ public class IsIdentifiableRunnerTests
         };
 
         runner.Run();
-        Assert.AreEqual(0, runner.ValidateCacheHits);
-        Assert.AreEqual(1, runner.ValidateCacheMisses);
+        Assert.Multiple(() =>
+        {
+            Assert.That(runner.ValidateCacheHits, Is.EqualTo(0));
+            Assert.That(runner.ValidateCacheMisses, Is.EqualTo(1));
+        });
         runner.Run();
-        Assert.AreEqual(0, runner.ValidateCacheHits);
-        Assert.AreEqual(2, runner.ValidateCacheMisses);
+        Assert.Multiple(() =>
+        {
+            Assert.That(runner.ValidateCacheHits, Is.EqualTo(0));
+            Assert.That(runner.ValidateCacheMisses, Is.EqualTo(2));
+        });
         runner.Run();
-        Assert.AreEqual(0, runner.ValidateCacheHits);
-        Assert.AreEqual(3, runner.ValidateCacheMisses);
+        Assert.Multiple(() =>
+        {
+            Assert.That(runner.ValidateCacheHits, Is.EqualTo(0));
+            Assert.That(runner.ValidateCacheMisses, Is.EqualTo(3));
+        });
         runner.Run();
     }
     [TestCase("DD3 7LB")]
@@ -105,10 +144,13 @@ public class IsIdentifiableRunnerTests
 
         var p = runner.ResultsOfValidate.Single();
 
-        //this would be nice
-        Assert.AreEqual(code, p.Word);
-        Assert.AreEqual(17, p.Offset);
-        Assert.AreEqual(FailureClassification.Postcode, p.Classification);
+        Assert.Multiple(() =>
+        {
+            //this would be nice
+            Assert.That(p.Word, Is.EqualTo(code));
+            Assert.That(p.Offset, Is.EqualTo(17));
+            Assert.That(p.Classification, Is.EqualTo(FailureClassification.Postcode));
+        });
     }
 
     [TestCase("DD3 7LB")]
@@ -127,7 +169,7 @@ BasicRules:
 
         runner.Run();
 
-        Assert.IsEmpty(runner.ResultsOfValidate);
+        Assert.That(runner.ResultsOfValidate, Is.Empty);
     }
 
     [TestCase("DD3 7LB")]
@@ -140,7 +182,7 @@ BasicRules:
         runner.Run();
 
         //there won't be any failure results reported
-        Assert.IsEmpty(runner.ResultsOfValidate);
+        Assert.That(runner.ResultsOfValidate, Is.Empty);
     }
 
 
@@ -155,10 +197,13 @@ BasicRules:
 
         var p = runner.ResultsOfValidate.Single();
 
-        //this would be nice
-        Assert.AreEqual(expectedMatch, p.Word);
-        Assert.AreEqual(FailureClassification.Postcode, p.Classification);
-        Assert.AreEqual(1, runner.CountOfFailureParts);
+        Assert.Multiple(() =>
+        {
+            //this would be nice
+            Assert.That(p.Word, Is.EqualTo(expectedMatch));
+            Assert.That(p.Classification, Is.EqualTo(FailureClassification.Postcode));
+            Assert.That(runner.CountOfFailureParts, Is.EqualTo(1));
+        });
     }
 
     [TestCase("dd3000")]
@@ -170,7 +215,7 @@ BasicRules:
         var runner = new TestRunner($"Patient lives at {code}", _fileSystem);
         runner.Run();
 
-        Assert.IsEmpty(runner.ResultsOfValidate);
+        Assert.That(runner.ResultsOfValidate, Is.Empty);
     }
 
 
@@ -203,18 +248,27 @@ BasicRules:
         var runner = new TestRunner($"Patient next appointment is {date}", _fileSystem);
         runner.Run();
 
-        Assert.AreEqual(expectedMatch1, runner.ResultsOfValidate[0].Word);
-        Assert.AreEqual(FailureClassification.Date, runner.ResultsOfValidate[0].Classification);
+        Assert.Multiple(() =>
+        {
+            Assert.That(runner.ResultsOfValidate[0].Word, Is.EqualTo(expectedMatch1));
+            Assert.That(runner.ResultsOfValidate[0].Classification, Is.EqualTo(FailureClassification.Date));
+        });
 
         if (expectedMatch2 != null)
         {
-            Assert.AreEqual(expectedMatch2, runner.ResultsOfValidate[1].Word);
-            Assert.AreEqual(FailureClassification.Date, runner.ResultsOfValidate[1].Classification);
+            Assert.Multiple(() =>
+            {
+                Assert.That(runner.ResultsOfValidate[1].Word, Is.EqualTo(expectedMatch2));
+                Assert.That(runner.ResultsOfValidate[1].Classification, Is.EqualTo(FailureClassification.Date));
+            });
         }
         if (expectedMatch3 != null)
         {
-            Assert.AreEqual(expectedMatch3, runner.ResultsOfValidate[2].Word);
-            Assert.AreEqual(FailureClassification.Date, runner.ResultsOfValidate[2].Classification);
+            Assert.Multiple(() =>
+            {
+                Assert.That(runner.ResultsOfValidate[2].Word, Is.EqualTo(expectedMatch3));
+                Assert.That(runner.ResultsOfValidate[2].Classification, Is.EqualTo(FailureClassification.Date));
+            });
         }
     }
 
@@ -229,7 +283,7 @@ BasicRules:
         var runner = new TestRunner(input, _fileSystem);
         runner.Run();
 
-        Assert.IsEmpty(runner.ResultsOfValidate);
+        Assert.That(runner.ResultsOfValidate, Is.Empty);
     }
 
     [Test]
@@ -238,24 +292,27 @@ BasicRules:
         var runner = new TestRunner("David Smith should be referred to with chi 0101010101", _fileSystem);
 
         runner.Run();
-        Assert.AreEqual(1, runner.ResultsOfValidate.Count);
+        Assert.That(runner.ResultsOfValidate, Has.Count.EqualTo(1));
 
         var w1 = runner.ResultsOfValidate[0];
 
-        /* Names are now picked up by the Socket NER Daemon
-        //FailurePart w2 = runner.ResultsOfValidate[1];
-        //FailurePart w3 = runner.ResultsOfValidate[2];
+        Assert.Multiple(() =>
+        {
+            /* Names are now picked up by the Socket NER Daemon
+   //FailurePart w2 = runner.ResultsOfValidate[1];
+   //FailurePart w3 = runner.ResultsOfValidate[2];
 
-        
-        Assert.AreEqual("David", w1.Word);
-        Assert.AreEqual(0, w1.Offset);
 
-        Assert.AreEqual("Smith", w2.Word);
-        Assert.AreEqual(6, w2.Offset);
-        */
+   Assert.AreEqual("David", w1.Word);
+   Assert.AreEqual(0, w1.Offset);
 
-        Assert.AreEqual("0101010101", w1.Word);
-        Assert.AreEqual(43, w1.Offset);
+   Assert.AreEqual("Smith", w2.Word);
+   Assert.AreEqual(6, w2.Offset);
+   */
+
+            Assert.That(w1.Word, Is.EqualTo("0101010101"));
+            Assert.That(w1.Offset, Is.EqualTo(43));
+        });
     }
 
     [TestCase(true)]
@@ -276,9 +333,9 @@ BasicRules:
         runner.Run();
 
         if (caseSensitive)
-            Assert.AreEqual(1, runner.ResultsOfValidate.Count);
+            Assert.That(runner.ResultsOfValidate, Has.Count.EqualTo(1));
         else
-            Assert.IsEmpty(runner.ResultsOfValidate);
+            Assert.That(runner.ResultsOfValidate, Is.Empty);
     }
 
     /// <summary>
@@ -308,7 +365,7 @@ BasicRules:
 
         runner.Run();
 
-        Assert.IsEmpty(runner.ResultsOfValidate);
+        Assert.That(runner.ResultsOfValidate, Is.Empty);
     }
 
     [Test]
@@ -324,7 +381,7 @@ BasicRules:
         var runner = new TestRunner(exampleSop, testOpts, _fileSystem, sopKey);
 
         runner.Run();
-        Assert.AreEqual(0, runner.ResultsOfValidate.Count);
+        Assert.That(runner.ResultsOfValidate, Is.Empty);
     }
 
     [Test]
@@ -333,7 +390,7 @@ BasicRules:
         var emptyDir = "empty";
         _fileSystem.Directory.CreateDirectory(emptyDir);
 
-        Assert.IsEmpty(_fileSystem.Directory.GetFiles(emptyDir, "*.yaml"), "Expected the empty dir not to have any rules yaml files", _fileSystem);
+        Assert.That(_fileSystem.Directory.GetFiles(emptyDir, "*.yaml"), Is.Empty, $"Expected the empty dir not to have any rules yaml files");
 
         var testOpts = new TestOpts
         {
@@ -341,7 +398,7 @@ BasicRules:
         };
 
         var ex = Assert.Throws<Exception>(() => new TestRunner("fff", testOpts, _fileSystem));
-        StringAssert.Contains(" did not contain any rules files containing rules", ex.Message);
+        Assert.That(ex.Message, Does.Contain(" did not contain any rules files containing rules"));
     }
     [Test]
     public void TestMissingRulesDir()
@@ -354,8 +411,8 @@ BasicRules:
         };
 
         var ex = Assert.Throws<System.IO.DirectoryNotFoundException>(() => new TestRunner("fff", testOpts, _fileSystem));
-        StringAssert.Contains("Could not find a part of the path", ex.Message);
-        StringAssert.Contains("hahaIdontexist", ex.Message);
+        Assert.That(ex.Message, Does.Contain("Could not find a part of the path"));
+        Assert.That(ex.Message, Does.Contain("hahaIdontexist"));
     }
 
     [TestCase("#this is an empty yaml file with no rules")]
@@ -370,7 +427,7 @@ BasicRules:
         //notice that this file is empty
         _fileSystem.File.WriteAllText(rulePath, yaml);
 
-        Assert.IsNotEmpty(_fileSystem.Directory.GetFiles(emptyishDir, "*.yaml"));
+        Assert.That(_fileSystem.Directory.GetFiles(emptyishDir, "*.yaml"), Is.Not.Empty);
 
         var testOpts = new TestOpts
         {
@@ -378,7 +435,7 @@ BasicRules:
         };
 
         var ex = Assert.Throws<Exception>(() => new TestRunner("fff", testOpts, _fileSystem));
-        StringAssert.Contains(" did not contain any rules files containing rules", ex.Message);
+        Assert.That(ex.Message, Does.Contain(" did not contain any rules files containing rules"));
     }
 
 

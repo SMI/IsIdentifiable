@@ -50,27 +50,31 @@ class StoreReportTests
 
         var created = dir.GetFiles("*HappyOzz*.csv").SingleOrDefault();
 
-        Assert.IsNotNull(created);
+        Assert.That(created, Is.Not.Null);
 
         var failures2 = FailureStoreReport.Deserialize(created).ToArray();
 
-        //read failure ok
-        Assert.AreEqual(1, failures2.Length);
-        Assert.AreEqual(failure.ProblemValue, failures2[0].ProblemValue);
-        Assert.AreEqual(failure.ProblemField, failures2[0].ProblemField);
-        Assert.AreEqual(failure.ResourcePrimaryKey, failures2[0].ResourcePrimaryKey);
-        Assert.AreEqual(failure.Resource, failures2[0].Resource);
+        Assert.Multiple(() =>
+        {
+            //read failure ok
+            Assert.That(failures2, Has.Length.EqualTo(1));
 
-        //read parts ok
-        Assert.AreEqual(2, failures2[0].Parts.Count);
+            Assert.That(failures2[0].ProblemValue, Is.EqualTo(failure.ProblemValue));
+            Assert.That(failures2[0].ProblemField, Is.EqualTo(failure.ProblemField));
+            Assert.That(failures2[0].ResourcePrimaryKey, Is.EqualTo(failure.ResourcePrimaryKey));
+            Assert.That(failures2[0].Resource, Is.EqualTo(failure.Resource));
 
-        Assert.AreEqual(failure.Parts[0].Classification, failures2[0].Parts[0].Classification);
-        Assert.AreEqual(failure.Parts[0].Offset, failures2[0].Parts[0].Offset);
-        Assert.AreEqual(failure.Parts[0].Word, failures2[0].Parts[0].Word);
+            //read parts ok
+            Assert.That(failures2[0].Parts, Has.Count.EqualTo(2));
 
-        Assert.AreEqual(failure.Parts[1].Classification, failures2[0].Parts[1].Classification);
-        Assert.AreEqual(failure.Parts[1].Offset, failures2[0].Parts[1].Offset);
-        Assert.AreEqual(failure.Parts[1].Word, failures2[0].Parts[1].Word);
+            Assert.That(failures2[0].Parts[0].Classification, Is.EqualTo(failure.Parts[0].Classification));
+            Assert.That(failures2[0].Parts[0].Offset, Is.EqualTo(failure.Parts[0].Offset));
+            Assert.That(failures2[0].Parts[0].Word, Is.EqualTo(failure.Parts[0].Word));
+
+            Assert.That(failures2[0].Parts[1].Classification, Is.EqualTo(failure.Parts[1].Classification));
+            Assert.That(failures2[0].Parts[1].Offset, Is.EqualTo(failure.Parts[1].Offset));
+            Assert.That(failures2[0].Parts[1].Word, Is.EqualTo(failure.Parts[1].Word));
+        });
 
     }
 
@@ -82,12 +86,15 @@ class StoreReportTests
 
         var part = new FailurePart("fff", FailureClassification.Organization, origin.IndexOf("fff"));
 
-        Assert.IsFalse(part.Includes(0));
-        Assert.IsFalse(part.Includes(9));
-        Assert.IsTrue(part.Includes(10));
-        Assert.IsTrue(part.Includes(11));
-        Assert.IsTrue(part.Includes(12));
-        Assert.IsFalse(part.Includes(13));
+        Assert.Multiple(() =>
+        {
+            Assert.That(part.Includes(0), Is.False);
+            Assert.That(part.Includes(9), Is.False);
+            Assert.That(part.Includes(10), Is.True);
+            Assert.That(part.Includes(11), Is.True);
+            Assert.That(part.Includes(12), Is.True);
+            Assert.That(part.Includes(13), Is.False);
+        });
     }
 
     [Test]
@@ -97,12 +104,15 @@ class StoreReportTests
 
         var part = new FailurePart("f", FailureClassification.Organization, origin.IndexOf("f"));
 
-        Assert.IsFalse(part.Includes(0));
-        Assert.IsFalse(part.Includes(9));
-        Assert.IsTrue(part.Includes(10));
-        Assert.IsFalse(part.Includes(11));
-        Assert.IsFalse(part.Includes(12));
-        Assert.IsFalse(part.Includes(13));
+        Assert.Multiple(() =>
+        {
+            Assert.That(part.Includes(0), Is.False);
+            Assert.That(part.Includes(9), Is.False);
+            Assert.That(part.Includes(10), Is.True);
+            Assert.That(part.Includes(11), Is.False);
+            Assert.That(part.Includes(12), Is.False);
+            Assert.That(part.Includes(13), Is.False);
+        });
     }
 
 
@@ -139,9 +149,12 @@ class StoreReportTests
             ResourcePrimaryKey = "1.2.3"
         };
 
-        Assert.IsTrue(f1.HaveSameProblem(f2));
-        Assert.IsFalse(f1.HaveSameProblem(f3));
-        Assert.IsFalse(f1.HaveSameProblem(f4));
+        Assert.Multiple(() =>
+        {
+            Assert.That(f1.HaveSameProblem(f2), Is.True);
+            Assert.That(f1.HaveSameProblem(f3), Is.False);
+            Assert.That(f1.HaveSameProblem(f4), Is.False);
+        });
     }
 
 }

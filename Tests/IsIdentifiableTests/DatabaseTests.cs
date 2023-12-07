@@ -36,7 +36,7 @@ public class DatabaseTests
             ImplementationManager.Load<OracleImplementation>();
             ImplementationManager.Load<PostgreSqlImplementation>();
 
-            Assert.IsTrue(System.IO.File.Exists(TestFilename), "Could not find {0}", TestFilename);
+            Assert.That(System.IO.File.Exists(TestFilename), Is.True, $"Could not find {TestFilename}");
 
             var doc = XDocument.Load(TestFilename);
 
@@ -154,13 +154,16 @@ public class DatabaseTests
 
     protected void AssertAreEqual(DataTable dt1, DataTable dt2)
     {
-        Assert.AreEqual(dt1.Columns.Count, dt2.Columns.Count, "DataTables had a column count mismatch");
-        Assert.AreEqual(dt1.Rows.Count, dt2.Rows.Count, "DataTables had a row count mismatch");
+        Assert.Multiple(() =>
+        {
+            Assert.That(dt2.Columns, Has.Count.EqualTo(dt1.Columns.Count), "DataTables had a column count mismatch");
+            Assert.That(dt2.Rows, Has.Count.EqualTo(dt1.Rows.Count), "DataTables had a row count mismatch");
+        });
 
         foreach (DataRow row1 in dt1.Rows)
         {
             var match = dt2.Rows.Cast<DataRow>().Any(row2 => dt1.Columns.Cast<DataColumn>().All(column => AreBasicallyEquals(row1[column.ColumnName], row2[column.ColumnName])));
-            Assert.IsTrue(match, "Couldn't find match for row:{0}", string.Join(",", row1.ItemArray));
+            Assert.That(match, Is.True, $"Couldn't find match for row:{string.Join(",", row1.ItemArray)}");
         }
 
     }
