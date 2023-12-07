@@ -210,8 +210,7 @@ public class FailureStoreReport : FailureReport
                 }
             }
 
-            if (problems > 0)
-                Console.Error.WriteLine($"Problem with {problems}/{totalProcessed} records");
+            Console.WriteLine($"Problem with {problems}/{totalProcessed} records");
         }
 
         loadedRows(totalProcessed);
