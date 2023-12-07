@@ -249,17 +249,14 @@ public class FailureStoreReport : FailureReport
                 catch (ArgumentOutOfRangeException) { }
 
                 // Test if the ProblemValue has been HTML escaped
-                var encodedPartWord = WebUtility.HtmlEncode(part.Word);
-                try
+                if (!row.ProblemValue.Contains(part.Word))
                 {
-                    if (row.ProblemValue.Substring(part.Offset, encodedPartWord.Length) == encodedPartWord)
-                    {
-                        part.Word = encodedPartWord;
-                        continue;
-                    }
+                    var encodedPartWord = WebUtility.HtmlEncode(part.Word);
+                    if (!row.ProblemValue.Contains(encodedPartWord))
+                        throw new ArgumentOutOfRangeException($"Neither '{part.Word}' or its HtmlEncoded equivalent were found in the ProblemValue");
+
+                    part.Word = encodedPartWord;
                 }
-                catch (ArgumentOutOfRangeException)
-                { }
 
                 // Test if the ProblemValue has hidden unicode symbols
                 var withoutInvisible = Regex.Replace(row.ProblemValue, @"\p{C}+", string.Empty);
@@ -322,6 +319,7 @@ public class FailureStoreReport : FailureReport
     {
         // Try looking ahead first, then back
         var origOffset = part.Offset;
+
         try
         {
             while (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
