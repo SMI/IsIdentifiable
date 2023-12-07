@@ -285,7 +285,7 @@ public class FailureStoreReport : FailureReport
                 }
                 catch (ArgumentOutOfRangeException e)
                 {
-                    throw new Exception($"Could not fixup Offset value in Failure:\n{row}", e);
+                    throw new Exception($"Could not fixup Offset of {part} in:\n{row}", e);
                 }
             }
         }
