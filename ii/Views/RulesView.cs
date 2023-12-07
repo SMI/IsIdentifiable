@@ -17,6 +17,8 @@ class RulesView : View
     public IgnoreRuleGenerator? Ignorer { get; private set; }
     public RowUpdater? Updater { get; private set; }
 
+    public List<string>? OutstandingFiles { get; private set; }
+
     private readonly TreeView _treeView;
 
     /// <summary>
@@ -536,6 +538,8 @@ class RulesView : View
                 .OrderByDescending(v => v.Failures.Sum(f => f.NumberOfTimesReported))
                 .Cast<ITreeNode>()
                 .ToList();
+
+        OutstandingFiles = outstandingFailures.Select(x => x.Value.Failure.Resource).Distinct().ToList();
     }
 
     private static void SetProgress(ProgressBar pb, View tp, int done, int max)

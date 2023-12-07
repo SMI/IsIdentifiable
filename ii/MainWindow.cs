@@ -6,6 +6,7 @@ using IsIdentifiable.Redacting;
 using IsIdentifiable.Rules;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
@@ -86,7 +87,8 @@ G - creates a regex pattern that matches only the failing part(s)
         Menu = new MenuBar(new MenuBarItem[] {
             new("_File (F9)", new MenuItem [] {
                 new("_Open Report",null, OpenReport),
-                new("_Quit", null, static () => Application.RequestStop())
+                new("_Export 'Outstanding Failures'", null, ExportOutstandingFailures),
+                new("_Quit", null, static () => Application.RequestStop()),
             }),
             new("_Options", new MenuItem [] {
                 miCustomPatterns = new MenuItem("_Custom Patterns",null,ToggleCustomPatterns){CheckType = MenuItemCheckStyle.Checked,Checked = false}
@@ -429,6 +431,24 @@ G - creates a regex pattern that matches only the failing part(s)
         }
 
         BeginNext();
+    }
+
+    private void ExportOutstandingFailures()
+    {
+        if (rulesView.OutstandingFiles == null)
+        {
+            Helpers.ShowMessage("Error", "You must evaluate the rules on a report first.");
+            return;
+        }
+
+        var now = DateTime.UtcNow.ToString("s").Replace(':', '-');
+        var fileName = $"OutstandingFiles-{now}.csv";
+        using var sw = new StreamWriter(fileName);
+
+        foreach (var file in rulesView.OutstandingFiles)
+            sw.WriteLine(file);
+
+        Helpers.ShowMessage("Complete", $"Wrote {rulesView.OutstandingFiles.Count} unique item(s) to {fileName}");
     }
 
     private void OpenReport()
