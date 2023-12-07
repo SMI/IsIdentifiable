@@ -198,7 +198,7 @@ BasicRules:
     //[TestCase("05:50:06", "05:50:06", null, null)]
     [TestCase("2015 May", "2015 May", null, null)]
     //[TestCase("AB 13:10", "13:10", null, null)]
-    public void IsIdentifiable_TestDates(string date, string expectedMatch1, string expectedMatch2, string expectedMatch3)
+    public void IsIdentifiable_TestDates(string date, string expectedMatch1, string? expectedMatch2, string? expectedMatch3)
     {
         var runner = new TestRunner($"Patient next appointment is {date}", _fileSystem);
         runner.Run();

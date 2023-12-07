@@ -1,4 +1,4 @@
-﻿using FAnsi;
+using FAnsi;
 using IsIdentifiable.Options;
 using NUnit.Framework;
 using System;
@@ -59,7 +59,7 @@ namespace IsIdentifiable.Tests
         [TestCase("MyServer", true)]
         [TestCase("myserver", true)]
         [TestCase(null, false)]
-        public void TestUsingTargetNameForConstr(string constr, bool expectToUseTargets)
+        public void TestUsingTargetNameForConstr(string? constr, bool expectToUseTargets)
         {
             var targetConstr = "Server=localhost;Username=root;Password=fff";
 
