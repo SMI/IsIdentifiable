@@ -170,7 +170,7 @@ public static class Program
         }
 
         var report = new FailureStoreReport("", 0, fileSystem);
-        var failures = FailureStoreReport.Deserialize(fileSystem.FileInfo.New(opts.FailuresCsv), (_) => { }, new CancellationTokenSource().Token, partRules: null, runParallel: false).ToArray();
+        var failures = FailureStoreReport.Deserialize(fileSystem.FileInfo.New(opts.FailuresCsv), (_) => { }, new CancellationTokenSource().Token, partRules: null, runParallel: false, opts.StopAtFirstError).ToArray();
 
         return 0;
     }

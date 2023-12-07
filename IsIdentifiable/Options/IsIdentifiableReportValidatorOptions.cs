@@ -31,6 +31,12 @@ public class IsIdentifiableReportValidatorOptions
     [Option("theme", HelpText = "Sets the user interface to use a specific color palette yaml file")]
     public string Theme { get; set; }
 
+    /// <summary>
+    /// Stop after the first error encountered
+    /// </summary>
+    [Option("stop-at-first-error", Required = false, Default = false, HelpText = "Stop after the first error encountered")]
+    public bool StopAtFirstError { get; set; }
+
 
     /// <summary>
     /// Populates values in this instance where no value yet exists and there is a value in <paramref name="globalOpts"/>

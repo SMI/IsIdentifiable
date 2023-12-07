@@ -135,9 +135,10 @@ public class FailureStoreReport : FailureReport
     /// <param name="token">Cancellation token for aborting the file deserialication (and closing the file again)</param>
     /// <param name="partRules"></param>
     /// <param name="runParallel"></param>
+    /// <param name="stopAtFirstError"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public static IEnumerable<Failure> Deserialize(IFileInfo oldFile, Action<int> loadedRows, CancellationToken token, IEnumerable<PartPatternFilterRule>? partRules = null, bool runParallel = true)
+    public static IEnumerable<Failure> Deserialize(IFileInfo oldFile, Action<int> loadedRows, CancellationToken token, IEnumerable<PartPatternFilterRule>? partRules = null, bool runParallel = true, bool stopAtFirstError = false)
     {
         partRules ??= new List<PartPatternFilterRule>();
 
@@ -195,8 +196,17 @@ public class FailureStoreReport : FailureReport
                 }
                 catch (Exception e)
                 {
-                    Console.Error.WriteLine($"{row}:\n{e.Message}\n");
-                    problems++;
+                    if (stopAtFirstError)
+                    {
+                        Console.Error.WriteLine($"{row}:");
+                        Console.Error.WriteLine(e);
+                        throw;
+                    }
+                    else
+                    {
+                        Console.Error.WriteLine($"{row}:\n{e.Message}\n");
+                        problems++;
+                    }
                 }
             }
 
@@ -231,7 +241,18 @@ public class FailureStoreReport : FailureReport
             // Fixes any offsets that have been mangled by file endings etc.
             foreach (var part in parts)
             {
-                if (row.ProblemValue.Substring(part.Offset, part.Word.Length) == part.Word)
+                string wordAtOffset;
+                try
+                {
+                    wordAtOffset = row.ProblemValue.Substring(part.Offset, part.Word.Length);
+                }
+                catch (ArgumentOutOfRangeException e)
+                {
+                    var msg = $"Tried to find '{part.Word}' starting at index {part.Offset}";
+                    throw new ArgumentOutOfRangeException(msg, e);
+                }
+
+                if (wordAtOffset == part.Word)
                     continue;
 
                 // Test if the ProblemValue has been HTML escaped
