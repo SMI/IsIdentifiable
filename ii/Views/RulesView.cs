@@ -363,7 +363,7 @@ class RulesView : View
         var ignore = new TreeNodeWithCount("Ignore Rules Used");
 
         var partRulesused = new TreeNodeWithCount("IfPartPattern Rules Used") { OverrideCount = 0 };
-        foreach (var rule in Ignorer.PartRules_Temp.OrderByDescending(x => x.UsedCount))
+        foreach (var rule in Ignorer.PartRules_Temp.Where(x => x.UsedCount > 0).OrderByDescending(x => x.UsedCount))
         {
             partRulesused.OverrideCount += rule.UsedCount;
             partRulesused.Children.Add(new TreeNode(rule.ToString()));
