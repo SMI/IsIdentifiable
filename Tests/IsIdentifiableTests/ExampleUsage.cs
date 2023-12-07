@@ -59,9 +59,12 @@ internal class ExampleUsage
         // fetch and analyise data
         runner.Run();
 
-        Assert.AreEqual(1, dest.Failures.Count);
-        Assert.AreEqual(2, dest.Failures[0].Parts.Count);
-        Assert.AreEqual("2Mar", dest.Failures[0].Parts[0].Word);
-        Assert.AreEqual("0101010101", dest.Failures[0].Parts[1].Word);
+        Assert.That(dest.Failures, Has.Count.EqualTo(1));
+        Assert.That(dest.Failures[0].Parts, Has.Count.EqualTo(2));
+        Assert.Multiple(() =>
+        {
+            Assert.That(dest.Failures[0].Parts[0].Word, Is.EqualTo("2Mar"));
+            Assert.That(dest.Failures[0].Parts[1].Word, Is.EqualTo("0101010101"));
+        });
     }
 }

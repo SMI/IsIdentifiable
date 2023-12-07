@@ -22,7 +22,7 @@ namespace IsIdentifiable.Tests.RunnerTests
             _fileSystem = new MockFileSystem();
         }
 
-        public static MongoClientSettings GetMongoClientSettings()
+        private static MongoClientSettings GetMongoClientSettings()
         {
             var deserializer = new DeserializerBuilder()
                 .IgnoreUnmatchedProperties()
@@ -178,10 +178,10 @@ namespace IsIdentifiable.Tests.RunnerTests
                 doc
             }.Select(d => new InsertOneModel<BsonDocument>(d)));
 
-            Assert.IsTrue(res.IsAcknowledged);
+            Assert.That(res.IsAcknowledged, Is.True);
 
             var read = collection.WithReadConcern(ReadConcern.Available);
-            Assert.AreEqual(1, read.CountDocuments((d) => true), "There should be exactly 1 document in the collection");
+            Assert.That(read.CountDocuments((d) => true), Is.EqualTo(1), "There should be exactly 1 document in the collection");
 
             var settings = GetMongoClientSettings();
 
@@ -204,13 +204,19 @@ namespace IsIdentifiable.Tests.RunnerTests
             var toMem = new ToMemoryFailureReport();
             runner.Reports.Add(toMem);
 
-            Assert.AreEqual(0, runner.Run(), "MongoDb runner returned a non zero exit code. Indicating failure");
-            Assert.AreEqual(1, runner.CountOfFailureParts, "IsIdentifiable did not find exactly 1 failing value, this test only caters for single matches");
+            Assert.Multiple(() =>
+            {
+                Assert.That(runner.Run(), Is.EqualTo(0), "MongoDb runner returned a non zero exit code. Indicating failure");
+                Assert.That(runner.CountOfFailureParts, Is.EqualTo(1), "IsIdentifiable did not find exactly 1 failing value, this test only caters for single matches");
+            });
 
 
             var f = toMem.Failures.Single();
-            Assert.AreEqual(expectedFullPath, f.ProblemField);
-            Assert.AreEqual(expectedFailingValue, f.ProblemValue);
+            Assert.Multiple(() =>
+            {
+                Assert.That(f.ProblemField, Is.EqualTo(expectedFullPath));
+                Assert.That(f.ProblemValue, Is.EqualTo(expectedFailingValue));
+            });
         }
     }
 }

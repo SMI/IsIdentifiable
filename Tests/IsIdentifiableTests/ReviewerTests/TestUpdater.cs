@@ -63,12 +63,12 @@ class TestUpdater : DatabaseTests
         };
 
         //it should be novel i.e. require user decision
-        Assert.IsTrue(updater.OnLoad(db.Server, failure, out _));
+        Assert.That(updater.OnLoad(db.Server, failure, out _), Is.True);
 
         updater.Update(db.Server, failure, null);
 
         var result = tbl.GetDataTable();
-        Assert.AreEqual("We aren't in SMI_REDACTED anymore SMI_REDACTED", result.Rows[0]["Narrative"]);
+        Assert.That(result.Rows[0]["Narrative"], Is.EqualTo("We aren't in SMI_REDACTED anymore SMI_REDACTED"));
 
         TestHelpers.Contains(
             @"- Action: Report
@@ -78,7 +78,7 @@ class TestUpdater : DatabaseTests
 ", _fileSystem.File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
 
         //it should be updated automatically and not require user decision
-        Assert.IsFalse(updater.OnLoad(db.Server, failure, out _));
+        Assert.That(updater.OnLoad(db.Server, failure, out _), Is.False);
 
     }
 
@@ -136,19 +136,19 @@ class TestUpdater : DatabaseTests
         updater.UpdateStrategy = new RegexUpdateStrategy();
 
         //it should be novel i.e. require user decision
-        Assert.IsTrue(updater.OnLoad(db.Server, failure, out _));
+        Assert.That(updater.OnLoad(db.Server, failure, out _), Is.True);
 
         updater.Update(db.Server, failure, null);//<- null here will trigger the rule pattern factory to prompt 'user' for pattern which is "(Toto)$"
 
         var result = tbl.GetDataTable();
 
         if (provideCaptureGroup)
-            Assert.AreEqual("We aren't in Kansas anymore SMI_REDACTED", result.Rows[0]["Narrative"], "Expected update to only affect the capture group ToTo");
+            Assert.That(result.Rows[0]["Narrative"], Is.EqualTo("We aren't in Kansas anymore SMI_REDACTED"), "Expected update to only affect the capture group ToTo");
         else
-            Assert.AreEqual("We aren't in SMI_REDACTED anymore SMI_REDACTED", result.Rows[0]["Narrative"], "Because regex had no capture group we expected the update strategy to fallback on Failure Part matching");
+            Assert.That(result.Rows[0]["Narrative"], Is.EqualTo("We aren't in SMI_REDACTED anymore SMI_REDACTED"), "Because regex had no capture group we expected the update strategy to fallback on Failure Part matching");
 
         //it should be updated automatically and not require user decision
-        Assert.IsFalse(updater.OnLoad(db.Server, failure, out _));
+        Assert.That(updater.OnLoad(db.Server, failure, out _), Is.False);
 
     }
 }

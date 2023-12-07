@@ -1,4 +1,4 @@
-﻿using IsIdentifiable.Options;
+using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Runners;
 using NUnit.Framework;
@@ -67,7 +67,7 @@ public class DicomFileRunnerTest
         var runner = new DicomFileRunner(opts, fileSystem);
 
         var fileInfo = fileSystem.FileInfo.New(fileName);
-        Assert.True(fileInfo.Exists);
+        Assert.That(fileInfo.Exists, Is.True);
 
         var toMemory = new ToMemoryFailureReport();
         runner.Reports.Add(toMemory);
@@ -75,7 +75,7 @@ public class DicomFileRunnerTest
         runner.ValidateDicomFile(fileInfo);
 
         var failures = toMemory.Failures.ToList();
-        Assert.AreEqual(ignoreShortText ? 1 : 3, failures.Count);
+        Assert.That(failures, Has.Count.EqualTo(ignoreShortText ? 1 : 3));
     }
 
     #endregion

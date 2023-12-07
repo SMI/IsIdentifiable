@@ -12,7 +12,7 @@ class SocketRuleTests
     public void TestSocket_NegativeResponse()
     {
         var bad = SocketRule.HandleResponse("\0");
-        Assert.IsEmpty(bad);
+        Assert.That(bad, Is.Empty);
     }
 
     [Test]
@@ -20,9 +20,12 @@ class SocketRuleTests
     {
         var bad = SocketRule.HandleResponse("Person\010\0Dave\0").Single();
 
-        Assert.AreEqual(FailureClassification.Person, bad.Classification);
-        Assert.AreEqual(10, bad.Offset);
-        Assert.AreEqual("Dave", bad.Word);
+        Assert.Multiple(() =>
+        {
+            Assert.That(bad.Classification, Is.EqualTo(FailureClassification.Person));
+            Assert.That(bad.Offset, Is.EqualTo(10));
+            Assert.That(bad.Word, Is.EqualTo("Dave"));
+        });
     }
 
     [Test]
@@ -30,27 +33,30 @@ class SocketRuleTests
     {
         var bad = SocketRule.HandleResponse("Person\010\0Dave\0ORGANIZATION\00\0The University of Dundee\0").ToArray();
 
-        Assert.AreEqual(2, bad.Length);
+        Assert.That(bad, Has.Length.EqualTo(2));
 
-        Assert.AreEqual(FailureClassification.Person, bad[0].Classification);
-        Assert.AreEqual(10, bad[0].Offset);
-        Assert.AreEqual("Dave", bad[0].Word);
+        Assert.Multiple(() =>
+        {
+            Assert.That(bad[0].Classification, Is.EqualTo(FailureClassification.Person));
+            Assert.That(bad[0].Offset, Is.EqualTo(10));
+            Assert.That(bad[0].Word, Is.EqualTo("Dave"));
 
-        Assert.AreEqual(FailureClassification.Organization, bad[1].Classification);
-        Assert.AreEqual(0, bad[1].Offset);
-        Assert.AreEqual("The University of Dundee", bad[1].Word);
+            Assert.That(bad[1].Classification, Is.EqualTo(FailureClassification.Organization));
+            Assert.That(bad[1].Offset, Is.EqualTo(0));
+            Assert.That(bad[1].Word, Is.EqualTo("The University of Dundee"));
+        });
     }
 
     [Test]
     public void TestSocket_InvalidResponses()
     {
         var ex = Assert.Throws<Exception>(() => SocketRule.HandleResponse("Cadbury\010\0Cream Egg\0").ToArray());
-        StringAssert.Contains("'Cadbury' (expected a member of Enum FailureClassification)", ex?.Message);
+        Assert.That(ex?.Message, Does.Contain("'Cadbury' (expected a member of Enum FailureClassification)"));
 
         ex = Assert.Throws<Exception>(() => SocketRule.HandleResponse("Person\0fish\0Cream Egg\0").ToArray());
-        StringAssert.Contains("Response was 'fish' (expected int)", ex?.Message);
+        Assert.That(ex?.Message, Does.Contain("Response was 'fish' (expected int)"));
 
         ex = Assert.Throws<Exception>(() => SocketRule.HandleResponse("Person\0").ToArray());
-        StringAssert.Contains("Expected tokens to arrive in multiples of 3 (but got '1')", ex?.Message);
+        Assert.That(ex?.Message, Does.Contain("Expected tokens to arrive in multiples of 3 (but got '1')"));
     }
 }

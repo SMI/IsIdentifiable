@@ -108,7 +108,7 @@ cell1 with some new lines and tabs	cell2
 
         var fileCreatedContents = _fileSystem.File.ReadAllText(_fileSystem.Path.Combine(OUT_DIR, "test.csv"));
 
-        Assert.True(fileCreatedContents.StartsWith("foo|bar"));
+        Assert.That(fileCreatedContents, Does.StartWith("foo|bar"));
     }
 }
 

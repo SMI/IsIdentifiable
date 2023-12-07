@@ -37,7 +37,7 @@ internal class PixelDataReportTests
     public void TestReportReader_PixelReport()
     {
         var reader = new ReportReader(_fileSystem.FileInfo.New(_pixelDataReportPath), (s) => { }, _fileSystem, CancellationToken.None);
-        Assert.IsNotEmpty(reader.Failures);
+        Assert.That(reader.Failures, Is.Not.Empty);
     }
 
 
@@ -57,7 +57,7 @@ internal class PixelDataReportTests
     {
         var f = GetPixelFailure(out var ocrOutput);
         var g = new IgnoreRuleGenerator(_fileSystem);
-        Assert.AreEqual($"^{Regex.Escape(ocrOutput)}$", g.RulesFactory.GetPattern(this, f), "When the user ignores OCR data the ignore pattern should exactly match the full text discovered");
+        Assert.That(g.RulesFactory.GetPattern(this, f), Is.EqualTo($"^{Regex.Escape(ocrOutput)}$"), "When the user ignores OCR data the ignore pattern should exactly match the full text discovered");
     }
 
     [Test]
@@ -65,7 +65,7 @@ internal class PixelDataReportTests
     {
         var f = GetPixelFailure(out var ocrOutput);
         var g = new RowUpdater(_fileSystem);
-        Assert.AreEqual($"^{Regex.Escape(ocrOutput)}$", g.RulesFactory.GetPattern(this, f), "When the user markes problematic the OCR data the pattern should exactly match the full text discovered");
+        Assert.That(g.RulesFactory.GetPattern(this, f), Is.EqualTo($"^{Regex.Escape(ocrOutput)}$"), "When the user markes problematic the OCR data the pattern should exactly match the full text discovered");
     }
 
     [TestCase(typeof(SymbolsRulesFactory))]
@@ -75,7 +75,7 @@ internal class PixelDataReportTests
     {
         var f = GetPixelFailure(out var ocrOutput);
         var factory = (IRulePatternFactory)Activator.CreateInstance(factoryType);
-        Assert.AreEqual($"^{Regex.Escape(ocrOutput)}$", factory.GetPattern(this, f), "All pattern generators should just return the full string for OCR data");
+        Assert.That(factory.GetPattern(this, f), Is.EqualTo($"^{Regex.Escape(ocrOutput)}$"), "All pattern generators should just return the full string for OCR data");
     }
 
 

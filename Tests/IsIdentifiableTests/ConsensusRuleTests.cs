@@ -23,8 +23,11 @@ class ConsensusRuleTests
 
         var result = rule.Apply("ff", "vv", out var badParts);
 
-        Assert.AreEqual(RuleAction.None, result);
-        Assert.IsEmpty(badParts);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.EqualTo(RuleAction.None));
+            Assert.That(badParts, Is.Empty);
+        });
     }
 
     [TestCase(-1)]
@@ -42,8 +45,11 @@ class ConsensusRuleTests
 
         var result = rule.Apply("ff", "vv", out var badParts);
 
-        Assert.AreEqual(RuleAction.Report, result);
-        Assert.AreEqual(offset, badParts.Single().Offset);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.EqualTo(RuleAction.Report));
+            Assert.That(badParts.Single().Offset, Is.EqualTo(offset));
+        });
     }
 
     [Test]
@@ -61,10 +67,13 @@ class ConsensusRuleTests
 
         var result = rule.Apply("ff", "abc is so cool", out var badParts);
 
-        Assert.AreEqual(RuleAction.Report, result);
+        Assert.That(result, Is.EqualTo(RuleAction.Report));
         var badPart = badParts.Single();
-        Assert.AreEqual(10, badPart.Offset);
-        Assert.AreEqual("ab", badPart.Word);
+        Assert.Multiple(() =>
+        {
+            Assert.That(badPart.Offset, Is.EqualTo(10));
+            Assert.That(badPart.Word, Is.EqualTo("ab"));
+        });
     }
 
     [Test]
@@ -84,10 +93,13 @@ class ConsensusRuleTests
         var deserializer = IsIdentifiableAbstractRunner.GetDeserializer();
         var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
 
-        Assert.IsInstanceOf(typeof(ConsensusRule), ruleSet.ConsensusRules.Single());
-        Assert.IsInstanceOf(typeof(SocketRule), ruleSet.ConsensusRules.Single().Rules[0]);
-        Assert.AreEqual(1234, ((SocketRule)ruleSet.ConsensusRules.Single().Rules[0]).Port);
-        Assert.AreEqual(567, ((SocketRule)ruleSet.ConsensusRules.Single().Rules[1]).Port);
+        Assert.That(ruleSet.ConsensusRules.Single(), Is.InstanceOf(typeof(ConsensusRule)));
+        Assert.Multiple(() =>
+        {
+            Assert.That(ruleSet.ConsensusRules.Single().Rules[0], Is.InstanceOf(typeof(SocketRule)));
+            Assert.That(((SocketRule)ruleSet.ConsensusRules.Single().Rules[0]).Port, Is.EqualTo(1234));
+            Assert.That(((SocketRule)ruleSet.ConsensusRules.Single().Rules[1]).Port, Is.EqualTo(567));
+        });
     }
 
     internal class TestRule : IAppliableRule

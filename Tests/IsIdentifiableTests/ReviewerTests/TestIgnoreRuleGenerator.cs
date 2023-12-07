@@ -36,7 +36,7 @@ class TestIgnoreRuleGenerator
         var ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
 
         //it should be novel i.e. require user decision
-        Assert.IsTrue(ignorer.OnLoad(failure, out _));
+        Assert.That(ignorer.OnLoad(failure, out _), Is.True);
 
         //we tell it to ignore this value
         ignorer.Add(failure);
@@ -48,7 +48,7 @@ class TestIgnoreRuleGenerator
 ", _fileSystem.File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
 
         //it should be no longer be novel
-        Assert.IsFalse(ignorer.OnLoad(failure, out _));
+        Assert.That(ignorer.OnLoad(failure, out _), Is.False);
 
     }
 
@@ -117,7 +117,7 @@ class TestIgnoreRuleGenerator
 
         ignorer.Rules.Clear();
         ignorer.Save();
-        Assert.IsTrue(string.IsNullOrWhiteSpace(_fileSystem.File.ReadAllText(newRules.FullName)));
+        Assert.That(string.IsNullOrWhiteSpace(_fileSystem.File.ReadAllText(newRules.FullName)), Is.True);
 
 
     }
@@ -148,7 +148,7 @@ class TestIgnoreRuleGenerator
         var ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
 
         //it should be novel i.e. require user decision
-        Assert.IsTrue(ignorer.OnLoad(failure, out _));
+        Assert.That(ignorer.OnLoad(failure, out _), Is.True);
 
         //we tell it to ignore this value
         ignorer.Add(failure);
@@ -159,22 +159,28 @@ class TestIgnoreRuleGenerator
   IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$
 ", _fileSystem.File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
 
-        //it should be no longer be novel
-        Assert.IsFalse(ignorer.OnLoad(failure, out _));
+        Assert.Multiple(() =>
+        {
+            //it should be no longer be novel
+            Assert.That(ignorer.OnLoad(failure, out _), Is.False);
 
-        //Undo
-        Assert.AreEqual(1, ignorer.History.Count);
-        Assert.AreEqual(2, ignorer.Rules.Count);
+            //Undo
+            Assert.That(ignorer.History, Has.Count.EqualTo(1));
+            Assert.That(ignorer.Rules, Has.Count.EqualTo(2));
+        });
         ignorer.Undo();
 
-        Assert.AreEqual(0, ignorer.History.Count);
-        Assert.AreEqual(1, ignorer.Rules.Count);
+        Assert.Multiple(() =>
+        {
+            Assert.That(ignorer.History, Is.Empty);
+            Assert.That(ignorer.Rules, Has.Count.EqualTo(1));
 
-        //only the original one should be there
-        Assert.AreEqual(@"- Action: Ignore
+            //only the original one should be there
+            Assert.That(_fileSystem.File.ReadAllText(newRules.FullName), Is.EqualTo(@"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^Joker Wuz Ere$
-", _fileSystem.File.ReadAllText(newRules.FullName));
+"));
+        });
 
         //repeated undo calls do nothing
         ignorer.Undo();
@@ -209,7 +215,7 @@ class TestIgnoreRuleGenerator
         var ignorer = new IgnoreRuleGenerator(_fileSystem, newRules);
 
         //it should be novel i.e. require user decision
-        Assert.IsTrue(ignorer.OnLoad(failure, out _));
+        Assert.That(ignorer.OnLoad(failure, out _), Is.True);
 
         //we tell it to ignore this value
         ignorer.Add(failure);
@@ -220,30 +226,36 @@ class TestIgnoreRuleGenerator
   IfPattern: ^We\ aren't\ in\ Kansas\ anymore\ Toto$
 ", _fileSystem.File.ReadAllText(newRules.FullName)); //btw slash space is a 'literal space' so legit
 
-        //it should be no longer be novel
-        Assert.IsFalse(ignorer.OnLoad(failure, out _));
+        Assert.Multiple(() =>
+        {
+            //it should be no longer be novel
+            Assert.That(ignorer.OnLoad(failure, out _), Is.False);
 
-        //Remove the last one
-        Assert.AreEqual(2, ignorer.Rules.Count);
+            //Remove the last one
+            Assert.That(ignorer.Rules, Has.Count.EqualTo(2));
+        });
         var result = ignorer.Delete(ignorer.Rules[1]);
 
-        Assert.IsTrue(result);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.True);
 
-        //deleted from memory
-        Assert.AreEqual(1, ignorer.Rules.Count);
+            //deleted from memory
+            Assert.That(ignorer.Rules, Has.Count.EqualTo(1));
+        });
 
 
         var newRulebaseYaml = _fileSystem.File.ReadAllText(newRules.FullName);
 
         //only the original one should be there
-        StringAssert.Contains(@"- Action: Ignore
+        Assert.That(newRulebaseYaml, Does.Contain(@"- Action: Ignore
   IfColumn: Narrative
   IfPattern: ^Joker Wuz Ere$
-", newRulebaseYaml);
+"));
 
-        StringAssert.Contains("# Rule deleted by ", newRulebaseYaml);
+        Assert.That(newRulebaseYaml, Does.Contain("# Rule deleted by "));
 
-        StringAssert.DoesNotContain("Kansas", newRulebaseYaml);
+        Assert.That(newRulebaseYaml, Does.Not.Contain("Kansas"));
 
         //repeated undo calls do nothing
         ignorer.Undo();

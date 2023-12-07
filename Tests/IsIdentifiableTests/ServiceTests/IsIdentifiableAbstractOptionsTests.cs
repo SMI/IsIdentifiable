@@ -1,4 +1,4 @@
-﻿using FAnsi;
+using FAnsi;
 using IsIdentifiable.Options;
 using NUnit.Framework;
 using System;
@@ -35,15 +35,15 @@ class IsIdentifiableAbstractOptionsTests
             var testVal = GetTestValue(cliProp);
             gProp.SetValue(globalOpts, testVal);
 
-            Assert.AreNotEqual(testVal, cliProp.GetValue(opts));
+            Assert.That(cliProp.GetValue(opts), Is.Not.EqualTo(testVal));
             opts.InheritValuesFrom(globalOpts);
-            Assert.AreEqual(testVal, cliProp.GetValue(opts));
+            Assert.That(cliProp.GetValue(opts), Is.EqualTo(testVal));
 
             propsCounted++;
         }
 
         // we did test some properties right!
-        Assert.Greater(propsCounted, 0);
+        Assert.That(propsCounted, Is.GreaterThan(0));
 
     }
 
@@ -82,20 +82,20 @@ class IsIdentifiableAbstractOptionsTests
             cliProp.SetValue(opts, testVal2);
 
             // we should not have the yaml file entry
-            Assert.AreNotEqual(testVal1, cliProp.GetValue(opts));
+            Assert.That(cliProp.GetValue(opts), Is.Not.EqualTo(testVal1));
 
             // we ask to fill in missing values using the yaml entries
             opts.InheritValuesFrom(globalOpts);
 
             // but we had an entry on CLI already so that should take precedence
-            Assert.AreNotEqual(testVal1, cliProp.GetValue(opts));
-            Assert.AreEqual(testVal2, cliProp.GetValue(opts));
+            Assert.That(cliProp.GetValue(opts), Is.Not.EqualTo(testVal1));
+            Assert.That(cliProp.GetValue(opts), Is.EqualTo(testVal2));
 
             propsCounted++;
         }
 
         // we did test some properties right!
-        Assert.Greater(propsCounted, 0);
+        Assert.That(propsCounted, Is.GreaterThan(0));
 
     }
 
