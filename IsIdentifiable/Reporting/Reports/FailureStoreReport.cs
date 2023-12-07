@@ -248,32 +248,30 @@ public class FailureStoreReport : FailureReport
                 }
                 catch (ArgumentOutOfRangeException) { }
 
-                // Test if the ProblemValue has been HTML escaped
                 if (!row.ProblemValue.Contains(part.Word))
                 {
+                    bool fixableOffset = false;
+
+                    // Test if the ProblemValue has been HTML escaped
                     var encodedPartWord = WebUtility.HtmlEncode(part.Word);
-                    if (!row.ProblemValue.Contains(encodedPartWord))
-                        throw new ArgumentOutOfRangeException($"Neither '{part.Word}' or its HtmlEncoded equivalent were found in the ProblemValue");
 
-                    part.Word = encodedPartWord;
-                }
+                    // Test if the ProblemValue has hidden unicode symbols
+                    var withoutInvisible = Regex.Replace(row.ProblemValue, @"\p{C}+", string.Empty);
 
-                // Test if the ProblemValue has hidden unicode symbols
-                var withoutInvisible = Regex.Replace(row.ProblemValue, @"\p{C}+", string.Empty);
-                try
-                {
-                    if (withoutInvisible.Substring(part.Offset, part.Word.Length) == part.Word)
+                    if (row.ProblemValue.Contains(encodedPartWord))
                     {
-                        part.Word = row.ProblemValue.Substring(part.Offset, part.Word.Length + 1);
-
-                        if (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
-                            throw new Exception($"Could not fix hidden unicode characters in Failure:\n===\n{row}\n===");
-
-                        continue;
+                        part.Word = encodedPartWord;
+                        fixableOffset = true;
                     }
+                    else if (withoutInvisible.Contains(part.Word))
+                    {
+                        row.ProblemValue = withoutInvisible;
+                        fixableOffset = true;
+                    }
+
+                    if (!fixableOffset)
+                        throw new ArgumentOutOfRangeException($"Could not find any variation of '{part.Word}' in the ProblemValue");
                 }
-                catch (ArgumentOutOfRangeException)
-                { }
 
                 // Finally, try shifting the offset around to find the word
                 try
@@ -342,7 +340,10 @@ public class FailureStoreReport : FailureReport
         public string Resource { get; init; }
         public string ResourcePrimaryKey { get; init; }
         public string ProblemField { get; init; }
-        public string ProblemValue { get; init; }
+
+        // NOTE(rkm 2023-12-07) Allow modification to deal with certain edge cases
+        public string ProblemValue { get; set; }
+
         public string PartWords { get; init; }
         public string PartClassifications { get; init; }
         public string PartOffsets { get; init; }
