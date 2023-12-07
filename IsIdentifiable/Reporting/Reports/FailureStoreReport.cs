@@ -270,15 +270,20 @@ public class FailureStoreReport : FailureReport
 
                 // Test if the ProblemValue has hidden unicode symbols
                 var withoutInvisible = Regex.Replace(row.ProblemValue, @"\p{C}+", string.Empty);
-                if (withoutInvisible.Substring(part.Offset, part.Word.Length) == part.Word)
+                try
                 {
-                    part.Word = row.ProblemValue.Substring(part.Offset, part.Word.Length + 1);
+                    if (withoutInvisible.Substring(part.Offset, part.Word.Length) == part.Word)
+                    {
+                        part.Word = row.ProblemValue.Substring(part.Offset, part.Word.Length + 1);
 
-                    if (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
-                        throw new Exception($"Could not fix hidden unicode characters in Failure:\n===\n{row}\n===");
+                        if (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
+                            throw new Exception($"Could not fix hidden unicode characters in Failure:\n===\n{row}\n===");
 
-                    continue;
+                        continue;
+                    }
                 }
+                catch (ArgumentOutOfRangeException)
+                { }
 
                 // Finally, try shifting the offset around to find the word
                 try
