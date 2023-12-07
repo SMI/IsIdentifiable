@@ -330,6 +330,10 @@ public class FailureStoreReport : FailureReport
         catch (ArgumentOutOfRangeException)
         {
             part.Offset = origOffset;
+
+            if (part.Offset + part.Word.Length >= row.ProblemValue.Length)
+                part.Offset = row.ProblemValue.Length - part.Word.Length;
+
             while (row.ProblemValue.Substring(part.Offset, part.Word.Length) != part.Word)
                 part.Offset--;
         }
