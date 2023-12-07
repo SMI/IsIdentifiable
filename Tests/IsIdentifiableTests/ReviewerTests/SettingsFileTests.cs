@@ -1,6 +1,7 @@
 using ii;
 using NUnit.Framework;
 using System;
+using NUnit.Framework.Legacy;
 
 namespace IsIdentifiable.Tests.ReviewerTests
 {
