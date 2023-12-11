@@ -31,6 +31,6 @@
     <PackageVersion Include="Moq" Version="4.20.69" />
     <PackageVersion Include="NUnit" Version="4.0.1" />
     <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
-    <PackageVersion Include="System.IO.Abstractions.TestingHelpers" Version="19.2.87" />
+    <PackageVersion Include="System.IO.Abstractions.TestingHelpers" Version="20.0.4" />
   </ItemGroup>
 </Project>
