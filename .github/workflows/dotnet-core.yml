@@ -120,7 +120,7 @@ jobs:
         if: contains(github.ref,'refs/tags/')
         run: dotnet nuget push IsIdentifiable.*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_KEY }} --skip-duplicate
       - name: Store created nupkg files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: release/IsIdentifiablePlugin.*.nupkg
           retention-days: 1
