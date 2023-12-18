@@ -34,13 +34,13 @@ jobs:
           java-version: 11
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
           queries: +security-and-quality
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
+        uses: github/codeql-action/autobuild@v3
         if: ${{ matrix.language == 'python' || matrix.language == 'csharp' }}
 
       - name: Build java
@@ -52,6 +52,6 @@ jobs:
           mvn -f nlp/uk.ac.dundee.hic.nerd/pom.xml package
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{ matrix.language }}"
