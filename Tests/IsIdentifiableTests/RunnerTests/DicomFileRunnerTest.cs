@@ -1,3 +1,4 @@
+using FellowOakDicom;
 using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Runners;
@@ -25,7 +26,6 @@ public class DicomFileRunnerTest
         var dest = Path.Combine(_tessDir.FullName, "eng.traineddata");
         if (!File.Exists(dest))
             File.Copy(Path.Combine(DataDirectory, "tessdata", "eng.traineddata"), dest);
-
     }
 
     [OneTimeTearDown]
@@ -111,6 +111,47 @@ public class DicomFileRunnerTest
         {
             Assert.That(runner.FilesValidated, Is.EqualTo(1));
             Assert.That(runner.PixelFilesValidated, Is.EqualTo(skipSafePixelValidation ? 0 : 1));
+        });
+    }
+
+    [Test]
+    public void SkipPixelSR()
+    {
+        // Arrange
+
+        var opts = new IsIdentifiableDicomFileOptions
+        {
+            ColumnReport = true,
+            TessDirectory = _tessDir.FullName,
+            SkipSafePixelValidation = false,
+        };
+
+        var fileName = Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(DicomFileRunnerTest), "SR.dcm");
+        var ds = new DicomDataset()
+        {
+            {DicomTag.Modality, "SR" },
+            {DicomTag.SOPClassUID, DicomUID.BasicTextSRStorage },
+            {DicomTag.SOPInstanceUID, "1" },
+        };
+        var df = new DicomFile(ds);
+        df.Save(fileName);
+
+        var fileSystem = new System.IO.Abstractions.FileSystem();
+        var fileInfo = fileSystem.FileInfo.New(fileName);
+        Assert.That(fileInfo.Exists, Is.True);
+
+        var runner = new DicomFileRunner(opts, fileSystem);
+
+        // Act
+
+        runner.ValidateDicomFile(fileInfo);
+
+        // Assert
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(runner.FilesValidated, Is.EqualTo(1));
+            Assert.That(runner.PixelFilesValidated, Is.EqualTo(0));
         });
     }
 
