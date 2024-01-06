@@ -78,5 +78,41 @@ public class DicomFileRunnerTest
         Assert.That(failures, Has.Count.EqualTo(ignoreShortText ? 1 : 3));
     }
 
+    [TestCase(true)]
+    [TestCase(false)]
+    public void SkipPixelSafeTags(bool skipSafePixelValidation)
+    {
+        // Arrange
+
+        var opts = new IsIdentifiableDicomFileOptions
+        {
+            ColumnReport = true,
+            TessDirectory = _tessDir.FullName,
+            SkipSafePixelValidation = skipSafePixelValidation,
+        };
+
+        var fileSystem = new System.IO.Abstractions.FileSystem();
+
+        var fileName = Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(DicomFileRunnerTest), "f1.dcm");
+        TestData.Create(fileSystem.FileInfo.New(fileName), TestData.IMG_013);
+
+        var runner = new DicomFileRunner(opts, fileSystem);
+
+        var fileInfo = fileSystem.FileInfo.New(fileName);
+        Assert.That(fileInfo.Exists, Is.True);
+
+        // Act
+
+        runner.ValidateDicomFile(fileInfo);
+
+        // Assert
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(runner.FilesValidated, Is.EqualTo(1));
+            Assert.That(runner.PixelFilesValidated, Is.EqualTo(skipSafePixelValidation ? 0 : 1));
+        });
+    }
+
     #endregion
 }

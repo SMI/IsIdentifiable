@@ -61,6 +61,13 @@ public class IsIdentifiableDicomFileOptions : IsIdentifiableOptions
     public uint IgnoreTextLessThan { get; set; } = 0;
 
     /// <summary>
+    /// Optional. If true, skip pixel data validation for "safe" combinations of Modality and ImageType e.g., 'ORIGINAL/PRIMARY' CT and MR
+    /// </summary>
+    [Option(HelpText = "Optional. If true, skip pixel data validation for \"safe\" combinations of Modality and ImageType e.g., 'ORIGINAL/PRIMARY' CT and MR")]
+    public bool SkipSafePixelValidation { get; set; } = false;
+
+
+    /// <summary>
     /// Usage examples for running IsIdentifiable on dicom files
     /// </summary>
     [Usage]
