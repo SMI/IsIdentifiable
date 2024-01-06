@@ -537,4 +537,12 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
             ProblemField = problemField
         };
     }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        var pixelPercent = 100.0 * PixelFilesValidated / FilesValidated;
+        _logger?.Info($"Files validated: {FilesValidated}. With pixel data: {PixelFilesValidated} ({pixelPercent:0.00}%)");
+    }
 }
