@@ -46,7 +46,7 @@ internal class PixelTextFailureReport : FailureReport
     }
 
     //TODO Replace argument list with object
-    public void FoundPixelData(IFileInfo fi, string sopID, string studyID, string seriesID, string modality, string[] imageType, float meanConfidence, int textLength, string pixelText, int rotation, int frame, int overlay)
+    public void FoundPixelData(IFileInfo fi, string sopID, string studyID, string seriesID, string modality, string?[] imageType, float meanConfidence, int textLength, string pixelText, int rotation, int frame, int overlay)
     {
         var dr = _dt.Rows.Add();
 
