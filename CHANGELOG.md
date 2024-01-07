@@ -2,7 +2,30 @@
 
 # [Unreleased]
 
-...
+# [0.2.0] - 2024-01-07
+
+## Added
+
+-   Add pre-commit and editorconfig from SmiServices
+
+## Changed
+
+-   Support skipping safe pixel data
+-   Switch to embedded debug symbols
+-   Tidy csprojs and switch to central package versions
+-   Enable Nullable
+-   Rename IsIdentifiableBaseOptions to match variable name and SmiServices
+-   Change default failure highlight to red
+-   Remove old class diagram and update docs
+-   Move Failure into correct namespace
+-   Rename IsIdentifiableRule -> RegexRule for clarity
+-   Rename ICustomRule -> IAppliableRule for clarity
+-   Rename ex-nuspec test, refine, add missing packages
+
+## Removed
+
+-   Remove versions from PACKAGES.md
+-   Remove old LGTM config
 
 # [0.1.0] - 2023-04-12
 
@@ -113,7 +136,8 @@
 
 Initial version
 
-[Unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.1.0..main
+[Unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.2.0..main
+[0.2.0]: https://github.com/SMI/IsIdentifiable/compare/v0.1.0..v0.2.0
 [0.1.0]: https://github.com/SMI/IsIdentifiable/compare/v0.0.9..v0.1.0
 [0.0.9]: https://github.com/SMI/IsIdentifiable/compare/v0.0.8..v0.0.9
 [0.0.8]: https://github.com/SMI/IsIdentifiable/compare/v0.0.7..v0.0.8
