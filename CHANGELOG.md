@@ -2,6 +2,12 @@
 
 # [Unreleased]
 
+# [0.2.1] - 2024-01-08
+
+## Changed
+
+- Check pixel data is valid when PII scan is skipped
+
 # [0.2.0] - 2024-01-07
 
 ## Added
@@ -136,7 +142,8 @@
 
 Initial version
 
-[Unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.2.0..main
+[Unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.2.1..main
+[0.2.1]: https://github.com/SMI/IsIdentifiable/compare/v0.2.0..v0.2.1
 [0.2.0]: https://github.com/SMI/IsIdentifiable/compare/v0.1.0..v0.2.0
 [0.1.0]: https://github.com/SMI/IsIdentifiable/compare/v0.0.9..v0.1.0
 [0.0.9]: https://github.com/SMI/IsIdentifiable/compare/v0.0.8..v0.0.9
