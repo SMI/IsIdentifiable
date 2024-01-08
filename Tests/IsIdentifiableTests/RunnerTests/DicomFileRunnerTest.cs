@@ -23,7 +23,7 @@ internal class DicomFileRunnerTest
         var testRulesDir = new DirectoryInfo(Path.Combine(TestContext.CurrentContext.TestDirectory, "data", "IsIdentifiableRules"));
         testRulesDir.Create();
 
-        _tessDir = new DirectoryInfo(Path.Combine(testRulesDir.Parent.FullName, "tessdata"));
+        _tessDir = new DirectoryInfo(Path.Combine(testRulesDir.Parent!.FullName, "tessdata"));
         _tessDir.Create();
         var dest = Path.Combine(_tessDir.FullName, "eng.traineddata");
         if (!File.Exists(dest))
@@ -157,8 +157,9 @@ internal class DicomFileRunnerTest
         });
     }
 
-    [Test]
-    public void MissingPixelDataWhenValidationSkippedShouldThrow()
+    [TestCase("CT")]
+    [TestCase("SR")]
+    public void MissingPixelDataWhenValidationSkippedShouldThrow(string modality)
     {
         // Arrange
 
@@ -169,9 +170,15 @@ internal class DicomFileRunnerTest
         };
 
         var fileName = Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(DicomFileRunnerTest), "nopixels.dcm");
+        DicomUID sopClassUid = modality switch
+        {
+            "CT" => DicomUID.CTImageStorage,
+            "SR" => DicomUID.BasicTextSRStorage,
+            _ => throw new Exception($"No case for {modality}"),
+        };
         var ds = new DicomDataset()
         {
-            { DicomTag.SOPClassUID, DicomUID.CTImageStorage },
+            { DicomTag.SOPClassUID, sopClassUid },
             { DicomTag.SOPInstanceUID, "1" },
         };
         var df = new DicomFile(ds);
@@ -189,8 +196,30 @@ internal class DicomFileRunnerTest
 
         // Assert
 
-        var exc = Assert.Throws<ApplicationException>(() => call());
-        Assert.That(exc.Message, Is.EqualTo("Could not create DicomImage for file with SOPClassUID 'CT Image Storage [1.2.840.10008.5.1.4.1.1.2]'"));
+        switch (modality)
+        {
+            case "CT":
+                var exc = Assert.Throws<ApplicationException>(() => call());
+                Assert.Multiple(() =>
+                {
+                    Assert.That(exc!.Message, Is.EqualTo("Could not create DicomImage for file with SOPClassUID 'CT Image Storage [1.2.840.10008.5.1.4.1.1.2]'"));
+                    Assert.That(runner.FilesValidated, Is.EqualTo(0));
+                    Assert.That(runner.PixelFilesValidated, Is.EqualTo(0));
+                });
+                break;
+
+            case "SR":
+                Assert.DoesNotThrow(() => call());
+                Assert.Multiple(() =>
+                {
+                    Assert.That(runner.FilesValidated, Is.EqualTo(1));
+                    Assert.That(runner.PixelFilesValidated, Is.EqualTo(0));
+                });
+                break;
+
+            default:
+                throw new Exception($"No case for {modality}");
+        }
     }
 
     #endregion
