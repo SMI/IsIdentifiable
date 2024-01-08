@@ -3,12 +3,14 @@ using IsIdentifiable.Options;
 using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Runners;
 using NUnit.Framework;
+using System;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 
 namespace IsIdentifiable.Tests.RunnerTests;
 
-public class DicomFileRunnerTest
+internal class DicomFileRunnerTest
 {
     #region Fixture Methods
 
@@ -59,7 +61,7 @@ public class DicomFileRunnerTest
             IgnoreTextLessThan = ignoreShortText ? 170 : 0U
         };
 
-        var fileSystem = new System.IO.Abstractions.FileSystem();
+        var fileSystem = new FileSystem();
 
         var fileName = Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(DicomFileRunnerTest), "f1.dcm");
         TestData.Create(fileSystem.FileInfo.New(fileName), TestData.BURNED_IN_TEXT_IMG);
@@ -91,7 +93,7 @@ public class DicomFileRunnerTest
             SkipSafePixelValidation = skipSafePixelValidation,
         };
 
-        var fileSystem = new System.IO.Abstractions.FileSystem();
+        var fileSystem = new FileSystem();
 
         var fileName = Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(DicomFileRunnerTest), "f1.dcm");
         TestData.Create(fileSystem.FileInfo.New(fileName), TestData.IMG_013);
@@ -136,7 +138,7 @@ public class DicomFileRunnerTest
         var df = new DicomFile(ds);
         df.Save(fileName);
 
-        var fileSystem = new System.IO.Abstractions.FileSystem();
+        var fileSystem = new FileSystem();
         var fileInfo = fileSystem.FileInfo.New(fileName);
         Assert.That(fileInfo.Exists, Is.True);
 
@@ -153,6 +155,42 @@ public class DicomFileRunnerTest
             Assert.That(runner.FilesValidated, Is.EqualTo(1));
             Assert.That(runner.PixelFilesValidated, Is.EqualTo(0));
         });
+    }
+
+    [Test]
+    public void MissingPixelDataWhenValidationSkippedShouldThrow()
+    {
+        // Arrange
+
+        var opts = new IsIdentifiableDicomFileOptions
+        {
+            ColumnReport = true,
+            SkipSafePixelValidation = true,
+        };
+
+        var fileName = Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(DicomFileRunnerTest), "nopixels.dcm");
+        var ds = new DicomDataset()
+        {
+            { DicomTag.SOPClassUID, DicomUID.CTImageStorage },
+            { DicomTag.SOPInstanceUID, "1" },
+        };
+        var df = new DicomFile(ds);
+        df.Save(fileName);
+
+        var fileSystem = new FileSystem();
+        var fileInfo = fileSystem.FileInfo.New(fileName);
+        Assert.That(fileInfo.Exists, Is.True);
+
+        var runner = new DicomFileRunner(opts, fileSystem);
+
+        // Act
+
+        var call = () => runner.ValidateDicomFile(fileInfo);
+
+        // Assert
+
+        var exc = Assert.Throws<ApplicationException>(() => call());
+        Assert.That(exc.Message, Is.EqualTo("Could not create DicomImage for file with SOPClassUID 'CT Image Storage [1.2.840.10008.5.1.4.1.1.2]'"));
     }
 
     #endregion

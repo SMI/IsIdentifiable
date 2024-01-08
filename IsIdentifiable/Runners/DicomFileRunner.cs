@@ -202,6 +202,25 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
             ValidateDicomPixelData(fi, dicomFile, ds, modality, imageTypeArr);
             PixelFilesValidated += 1;
         }
+        else
+        {
+            // Check the pixel data is valid when we don't scan it for PII
+
+            var sopClassUidArr = ds.GetDicomItem<DicomUniqueIdentifier>(DicomTag.SOPClassUID).Get<DicomUID[]>();
+            var sopClassUid = sopClassUidArr.Single(); // SOPClassUID has Value Multiplicity = 1 and is required
+
+            if (sopClassUid.IsImageStorage)
+            {
+                try
+                {
+                    _ = new DicomImage(fi.FullName);
+                }
+                catch (DicomImagingException e)
+                {
+                    throw new ApplicationException($"Could not create DicomImage for file with SOPClassUID '{sopClassUid}'", e);
+                }
+            }
+        }
 
         foreach (var dicomItem in ds)
             ValidateDicomItem(fi, dicomFile, ds, dicomItem);
