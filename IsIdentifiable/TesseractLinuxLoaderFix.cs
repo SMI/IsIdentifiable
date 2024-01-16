@@ -14,7 +14,7 @@ namespace IsIdentifiable;
 /// this to LibraryLoader - but that's locked down as 'internal', so
 /// we have to jump through some reflection hoops to get there.
 /// </summary>
-public class TesseractLinuxLoaderFix
+public partial class TesseractLinuxLoaderFix
 {
     private static Dictionary<string, IntPtr> loadedAssemblies;
 
@@ -36,6 +36,7 @@ public class TesseractLinuxLoaderFix
 
     // NOTE(rkm 2023-06-26) Parameter name required for Harmony LibraryLoader
 #pragma warning disable IDE0060 // Remove unused parameter
+    // ReSharper disable once InconsistentNaming
     private static bool LoadLibraryPatch(string fileName, string platformName, ref IntPtr __result)
 #pragma warning restore IDE0060 // Remove unused parameter
     {
@@ -46,7 +47,7 @@ public class TesseractLinuxLoaderFix
         }
         catch (EntryPointNotFoundException)
         {
-            __result = DLLoadLibrary(fullPath, 2);
+            __result = DlLoadLibrary(fullPath, 2);
         }
 
         if (__result == IntPtr.Zero)
@@ -90,27 +91,33 @@ public class TesseractLinuxLoaderFix
     }
 
 
-    [DllImport("dl", EntryPoint = "dlopen")]
-    private static extern IntPtr DLLoadLibrary(string fileName, int flags);
+    [LibraryImport("dl", EntryPoint = "dlopen", StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(System.Runtime.InteropServices.Marshalling.AnsiStringMarshaller))]
+    private static partial IntPtr DlLoadLibrary(string fileName, int flags);
 
-    [DllImport("dl", EntryPoint = "dlclose", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    private static extern int DLFreeLibrary(IntPtr handle);
+    [LibraryImport("dl", EntryPoint = "dlclose")]
+    [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
+    private static partial int DlFreeLibrary(IntPtr handle);
 
-    [DllImport("dl", EntryPoint = "dlsym", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    private static extern IntPtr DLGetProcAddress(IntPtr handle, string symbol);
+    [LibraryImport("dl", EntryPoint = "dlsym", StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(System.Runtime.InteropServices.Marshalling.AnsiStringMarshaller))]
+    [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
+    private static partial IntPtr DlGetProcAddress(IntPtr handle, string symbol);
 
-    [DllImport("dl", EntryPoint = "dlerror", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    private static extern IntPtr DLGetLastError();
+    [LibraryImport("dl", EntryPoint = "dlerror")]
+    [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
+    private static partial IntPtr DlGetLastError();
 
-    [DllImport("c", EntryPoint = "dlopen")]
-    private static extern IntPtr UnixLoadLibrary(string fileName, int flags);
+    [LibraryImport("c", EntryPoint = "dlopen", StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(System.Runtime.InteropServices.Marshalling.AnsiStringMarshaller))]
+    private static partial IntPtr UnixLoadLibrary(string fileName, int flags);
 
-    [DllImport("c", EntryPoint = "dlclose", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    private static extern int UnixFreeLibrary(IntPtr handle);
+    [LibraryImport("c", EntryPoint = "dlclose")]
+    [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
+    private static partial int UnixFreeLibrary(IntPtr handle);
 
-    [DllImport("c", EntryPoint = "dlsym", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    private static extern IntPtr UnixGetProcAddress(IntPtr handle, string symbol);
+    [LibraryImport("c", EntryPoint = "dlsym", StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(System.Runtime.InteropServices.Marshalling.AnsiStringMarshaller))]
+    [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
+    private static partial IntPtr UnixGetProcAddress(IntPtr handle, string symbol);
 
-    [DllImport("c", EntryPoint = "dlerror", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    private static extern IntPtr UnixGetLastError();
+    [LibraryImport("c", EntryPoint = "dlerror")]
+    [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
+    private static partial IntPtr UnixGetLastError();
 }

@@ -71,7 +71,7 @@ public class CsvDestination : ReportDestination
         : base(options, fileSystem)
     {
         ReportPath = file.FullName;
-        _csvConfiguration = csvConfiguration; ;
+        _csvConfiguration = csvConfiguration;
     }
 
     /// <summary>
