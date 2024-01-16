@@ -64,7 +64,7 @@ public partial class TesseractLinuxLoaderFix
         }
         catch (EntryPointNotFoundException)
         {
-            __result = DLGetProcAddress(dllHandle, name);
+            __result = DlGetProcAddress(dllHandle, name);
         }
         if (__result == IntPtr.Zero)
             Console.Error.WriteLine($"WARN:Failed looking for function '{name}' in module at address {dllHandle}");
@@ -74,14 +74,16 @@ public partial class TesseractLinuxLoaderFix
     private static bool FreeLibraryPatch(string fileName, ref bool __result)
     {
         if (loadedAssemblies.Remove(fileName, out var handle))
+        {
             try
             {
                 __result = UnixFreeLibrary(handle) != 0;
             }
             catch (EntryPointNotFoundException)
             {
-                __result = DLFreeLibrary(handle) != 0;
+                __result = DlFreeLibrary(handle) != 0;
             }
+        }
         else
         {
             __result = false;
