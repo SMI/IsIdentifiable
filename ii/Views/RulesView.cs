@@ -365,8 +365,8 @@ class RulesView : View
         var cts = new CancellationTokenSource();
 
         using var btn = new Button("Cancel");
-        var cancelFunc = () => { cts.Cancel(); };
-        var closeFunc = () => { Application.RequestStop(); };
+        void cancelFunc() { cts.Cancel(); }
+        void closeFunc() { Application.RequestStop(); }
         btn.Clicked += cancelFunc;
 
         using var dlg = new Dialog("Evaluating", Constants.DlgWidth, 6, btn);

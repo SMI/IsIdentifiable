@@ -1,3 +1,4 @@
+using System;
 using IsIdentifiable.Options;
 using System.Data;
 using System.IO.Abstractions;
@@ -51,7 +52,10 @@ public abstract class ReportDestination : IReportDestination
     /// <summary>
     /// Override to perform any tidyup on the destination e.g. close file handles / end transactions
     /// </summary>
-    public virtual void Dispose() { }
+    public virtual void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
 
     /// <summary>
     /// Returns <paramref name="o"/> with whitespace stripped (if it is a string and <see cref="IsIdentifiableOptions.DestinationNoWhitespace"/>

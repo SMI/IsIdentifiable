@@ -18,10 +18,13 @@ class ReviewerOptionsTests
 
         local.InheritValuesFrom(global);
 
-        Assert.AreEqual("aa", local.IgnoreList);
-        Assert.AreEqual("bb", local.Reportlist);
-        Assert.AreEqual("cc", local.TargetsFile);
-        Assert.AreEqual("dd", local.Theme);
+        Assert.Multiple(() =>
+        {
+            Assert.That(local.IgnoreList, Is.EqualTo("aa"));
+            Assert.That(local.Reportlist, Is.EqualTo("bb"));
+            Assert.That(local.TargetsFile, Is.EqualTo("cc"));
+            Assert.That(local.Theme, Is.EqualTo("dd"));
+        });
     }
     [Test]
     public void TestFillMissingWithValuesUsing_DoNotOverride()
@@ -42,9 +45,12 @@ class ReviewerOptionsTests
 
         local.InheritValuesFrom(global);
 
-        Assert.AreEqual("11", local.IgnoreList);
-        Assert.AreEqual("22", local.Reportlist);
-        Assert.AreEqual("33", local.TargetsFile);
-        Assert.AreEqual("44", local.Theme);
+        Assert.Multiple(() =>
+        {
+            Assert.That(local.IgnoreList, Is.EqualTo("11"));
+            Assert.That(local.Reportlist, Is.EqualTo("22"));
+            Assert.That(local.TargetsFile, Is.EqualTo("33"));
+            Assert.That(local.Theme, Is.EqualTo("44"));
+        });
     }
 }

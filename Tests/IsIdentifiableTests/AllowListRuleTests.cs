@@ -1,4 +1,4 @@
-﻿using IsIdentifiable.Failures;
+using IsIdentifiable.Failures;
 using IsIdentifiable.Rules;
 using NUnit.Framework;
 
@@ -16,15 +16,18 @@ class AllowlistRuleTests
             IfPattern = "fff"
         };
 
-        Assert.IsFalse(rule.CaseSensitive);
+        Assert.Multiple(() =>
+        {
+            Assert.That(rule.CaseSensitive, Is.False);
 
-        Assert.AreEqual(
-            RuleAction.Ignore, rule.ApplyAllowlistRule("aba", "FFF Troll", new FailurePart("Troll", FailureClassification.Location, 0)));
+            Assert.That(
+    rule.ApplyAllowlistRule("aba", "FFF Troll", new FailurePart("Troll", FailureClassification.Location, 0)), Is.EqualTo(RuleAction.Ignore));
+        });
 
         rule.CaseSensitive = true;
 
-        Assert.AreEqual(
-            RuleAction.None, rule.ApplyAllowlistRule("aba", "FFF Troll", new FailurePart("Troll", FailureClassification.Location, 0)));
+        Assert.That(
+rule.ApplyAllowlistRule("aba", "FFF Troll", new FailurePart("Troll", FailureClassification.Location, 0)), Is.EqualTo(RuleAction.None));
     }
 
     [Test]
@@ -36,15 +39,18 @@ class AllowlistRuleTests
             IfPartPattern = "^troll$"
         };
 
-        Assert.IsFalse(rule.CaseSensitive);
+        Assert.Multiple(() =>
+        {
+            Assert.That(rule.CaseSensitive, Is.False);
 
-        Assert.AreEqual(
-            RuleAction.Ignore, rule.ApplyAllowlistRule("aba", "FFF Troll", new FailurePart("Troll", FailureClassification.Location, 0)));
+            Assert.That(
+    rule.ApplyAllowlistRule("aba", "FFF Troll", new FailurePart("Troll", FailureClassification.Location, 0)), Is.EqualTo(RuleAction.Ignore));
+        });
 
         rule.CaseSensitive = true;
 
-        Assert.AreEqual(
-            RuleAction.None, rule.ApplyAllowlistRule("aba", "FFF Troll", new FailurePart("Troll", FailureClassification.Location, 0)));
+        Assert.That(
+rule.ApplyAllowlistRule("aba", "FFF Troll", new FailurePart("Troll", FailureClassification.Location, 0)), Is.EqualTo(RuleAction.None));
     }
 
     [Test]
@@ -57,14 +63,16 @@ class AllowlistRuleTests
             As = FailureClassification.Person
         };
 
+        Assert.Multiple(() =>
+        {
+            Assert.That(
+    rule.ApplyAllowlistRule("aba", "FFF Troll",
+                    new FailurePart("Troll", FailureClassification.Location, 0)), Is.EqualTo(RuleAction.None), "Rule should not apply when FailureClassification is Location");
 
-        Assert.AreEqual(
-            RuleAction.None, rule.ApplyAllowlistRule("aba", "FFF Troll",
-                new FailurePart("Troll", FailureClassification.Location, 0)), "Rule should not apply when FailureClassification is Location");
-
-        Assert.AreEqual(
-            RuleAction.Ignore, rule.ApplyAllowlistRule("aba", "FFF Troll",
-                new FailurePart("Troll", FailureClassification.Person, 0)), "Rule SHOULD apply when FailureClassification matches As");
+            Assert.That(
+    rule.ApplyAllowlistRule("aba", "FFF Troll",
+                    new FailurePart("Troll", FailureClassification.Person, 0)), Is.EqualTo(RuleAction.Ignore), "Rule SHOULD apply when FailureClassification matches As");
+        });
 
     }
 
@@ -77,17 +85,20 @@ class AllowlistRuleTests
             IfPattern = "^MR Brian And Skull$"
         };
 
-        Assert.AreEqual(
-            RuleAction.Ignore, rule.ApplyAllowlistRule("aba", "MR Brian And Skull",
-                new FailurePart("Brian", FailureClassification.Person, 0)), "Rule matches on both patterns");
+        Assert.Multiple(() =>
+        {
+            Assert.That(
+        rule.ApplyAllowlistRule("aba", "MR Brian And Skull",
+                        new FailurePart("Brian", FailureClassification.Person, 0)), Is.EqualTo(RuleAction.Ignore), "Rule matches on both patterns");
 
-        Assert.AreEqual(
-            RuleAction.None, rule.ApplyAllowlistRule("aba", "MR Brian And Skull",
-                new FailurePart("Skull", FailureClassification.Person, 0)), "Rule does not match on both whole string AND part so should not be ignored");
+            Assert.That(
+    rule.ApplyAllowlistRule("aba", "MR Brian And Skull",
+                    new FailurePart("Skull", FailureClassification.Person, 0)), Is.EqualTo(RuleAction.None), "Rule does not match on both whole string AND part so should not be ignored");
 
-        Assert.AreEqual(
-            RuleAction.None, rule.ApplyAllowlistRule("aba", "MR Brian And Skull Dr Fisher",
-                new FailurePart("Brian", FailureClassification.Person, 0)), "Rule does not match on both whole string AND part so should not be ignored");
+            Assert.That(
+    rule.ApplyAllowlistRule("aba", "MR Brian And Skull Dr Fisher",
+                    new FailurePart("Brian", FailureClassification.Person, 0)), Is.EqualTo(RuleAction.None), "Rule does not match on both whole string AND part so should not be ignored");
+        });
     }
 
 

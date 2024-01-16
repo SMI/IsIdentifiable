@@ -24,7 +24,7 @@ public class SymbolsRulesFactoryTests
             ProblemValue = input
         };
 
-        Assert.AreEqual(expectedOutput, f.GetPattern(this, failure));
+        Assert.That(f.GetPattern(this, failure), Is.EqualTo(expectedOutput));
     }
 
 
@@ -43,7 +43,7 @@ public class SymbolsRulesFactoryTests
             ProblemValue = input
         };
 
-        Assert.AreEqual(expectedOutput, f.GetPattern(this, failure));
+        Assert.That(f.GetPattern(this, failure), Is.EqualTo(expectedOutput));
     }
 
     [TestCase("There's a candy coloured clown they call the Sandman", "clown they", "they call", @"([a-z][a-z][a-z][a-z][a-z]\ [a-z][a-z][a-z][a-z]\ [a-z][a-z][a-z][a-z])")]
@@ -61,14 +61,14 @@ public class SymbolsRulesFactoryTests
             ProblemValue = input
         };
 
-        Assert.AreEqual(expectedOutput, f.GetPattern(this, failure));
+        Assert.That(f.GetPattern(this, failure), Is.EqualTo(expectedOutput));
     }
     [Test]
     public void TestNoParts()
     {
         var f = new SymbolsRulesFactory();
         var ex = Assert.Throws<ArgumentException>(() => f.GetPattern(this, new Failure(Array.Empty<FailurePart>()) { ProblemValue = "fdslkfl;asdf" }));
-        Assert.AreEqual("Failure had no Parts", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Failure had no Parts"));
 
     }
 }

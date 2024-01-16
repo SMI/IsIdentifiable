@@ -34,7 +34,7 @@ public class UnattendedTests
     public void NoFileToProcess_Throws()
     {
         var ex = Assert.Throws<Exception>(() => new UnattendedReviewer(new IsIdentifiableReviewerOptions(), null, new IgnoreRuleGenerator(_fileSystem), new RowUpdater(_fileSystem), _fileSystem));
-        Assert.AreEqual("Unattended requires a file of errors to process", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Unattended requires a file of errors to process"));
     }
 
     [Test]
@@ -44,7 +44,7 @@ public class UnattendedTests
         {
             FailuresCsv = "troll.csv"
         }, null, new IgnoreRuleGenerator(_fileSystem), new RowUpdater(_fileSystem), _fileSystem));
-        StringAssert.Contains("Could not find Failures file", ex.Message);
+        Assert.That(ex.Message, Does.Contain("Could not find Failures file"));
     }
 
     [Test]
@@ -57,7 +57,7 @@ public class UnattendedTests
         {
             FailuresCsv = fi
         }, null, new IgnoreRuleGenerator(_fileSystem), new RowUpdater(_fileSystem), _fileSystem));
-        StringAssert.Contains("A single Target must be supplied for database updates", ex.Message);
+        Assert.That(ex.Message, Does.Contain("A single Target must be supplied for database updates"));
     }
 
     [Test]
@@ -70,7 +70,7 @@ public class UnattendedTests
         {
             FailuresCsv = fi
         }, new Target(), new IgnoreRuleGenerator(_fileSystem), new RowUpdater(_fileSystem), _fileSystem));
-        StringAssert.Contains("An output path must be specified ", ex.Message);
+        Assert.That(ex.Message, Does.Contain("An output path must be specified "));
     }
 
 
@@ -88,10 +88,13 @@ public class UnattendedTests
             UnattendedOutputPath = fiOut
         }, new Target(), new IgnoreRuleGenerator(_fileSystem), new RowUpdater(_fileSystem), _fileSystem);
 
-        Assert.AreEqual(0, reviewer.Run());
+        Assert.Multiple(() =>
+        {
+            Assert.That(reviewer.Run(), Is.EqualTo(0));
 
-        //just the headers
-        StringAssert.AreEqualIgnoringCase("Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets", _fileSystem.File.ReadAllText(fiOut).TrimEnd());
+            //just the headers
+            Assert.That(_fileSystem.File.ReadAllText(fiOut).TrimEnd(), Is.EqualTo("Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets").IgnoreCase);
+        });
     }
 
     [Test]
@@ -117,15 +120,18 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
             _fileSystem
         );
 
-        Assert.AreEqual(0, reviewer.Run());
+        Assert.That(reviewer.Run(), Is.EqualTo(0));
 
         //all that we put in is unprocessed so should come out the same
         TestHelpers.AreEqualIgnoringCaseAndLineEndings(inputFile, _fileSystem.File.ReadAllText(fiOut).TrimEnd());
 
-        Assert.AreEqual(1, reviewer.Total);
-        Assert.AreEqual(0, reviewer.Ignores);
-        Assert.AreEqual(1, reviewer.Unresolved);
-        Assert.AreEqual(0, reviewer.Updates);
+        Assert.Multiple(() =>
+        {
+            Assert.That(reviewer.Total, Is.EqualTo(1));
+            Assert.That(reviewer.Ignores, Is.EqualTo(0));
+            Assert.That(reviewer.Unresolved, Is.EqualTo(1));
+            Assert.That(reviewer.Updates, Is.EqualTo(0));
+        });
     }
 
     [TestCase(true)]
@@ -156,15 +162,18 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
             OnlyRules = rulesOnly
         }, new Target(), new IgnoreRuleGenerator(fileSystem: _fileSystem), new RowUpdater(fileSystem: _fileSystem), _fileSystem);
 
-        Assert.AreEqual(0, reviewer.Run());
+        Assert.Multiple(() =>
+        {
+            Assert.That(reviewer.Run(), Is.EqualTo(0));
 
-        //headers only since Allowlist eats the rest
-        StringAssert.AreEqualIgnoringCase(@"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets", _fileSystem.File.ReadAllText(fiOut).TrimEnd());
+            //headers only since Allowlist eats the rest
+            Assert.That(_fileSystem.File.ReadAllText(fiOut).TrimEnd(), Is.EqualTo(@"Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets").IgnoreCase);
 
-        Assert.AreEqual(1, reviewer.Total);
-        Assert.AreEqual(1, reviewer.Ignores);
-        Assert.AreEqual(0, reviewer.Unresolved);
-        Assert.AreEqual(0, reviewer.Updates);
+            Assert.That(reviewer.Total, Is.EqualTo(1));
+            Assert.That(reviewer.Ignores, Is.EqualTo(1));
+            Assert.That(reviewer.Unresolved, Is.EqualTo(0));
+            Assert.That(reviewer.Updates, Is.EqualTo(0));
+        });
     }
 
     [TestCase(true)]
@@ -198,7 +207,7 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
             OnlyRules = true //prevents it going to the database
         }, new Target(), new IgnoreRuleGenerator(fileSystem: _fileSystem), new RowUpdater(fileSystem: _fileSystem), _fileSystem);
 
-        Assert.AreEqual(0, reviewer.Run());
+        Assert.That(reviewer.Run(), Is.EqualTo(0));
 
         //it matches the UPDATE rule but since OnlyRules is true it didn't actually update the database! so the record should definitely be in the output
 
@@ -219,10 +228,12 @@ FunBooks.HappyOzz,1.2.3,Narrative,We aren't in Kansas anymore Toto,Kansas###Toto
 
         }
 
-
-        Assert.AreEqual(1, reviewer.Total);
-        Assert.AreEqual(0, reviewer.Ignores);
-        Assert.AreEqual(ruleCoversThis ? 0 : 1, reviewer.Unresolved);
-        Assert.AreEqual(ruleCoversThis ? 1 : 0, reviewer.Updates);
+        Assert.Multiple(() =>
+        {
+            Assert.That(reviewer.Total, Is.EqualTo(1));
+            Assert.That(reviewer.Ignores, Is.EqualTo(0));
+            Assert.That(reviewer.Unresolved, Is.EqualTo(ruleCoversThis ? 0 : 1));
+            Assert.That(reviewer.Updates, Is.EqualTo(ruleCoversThis ? 1 : 0));
+        });
     }
 }

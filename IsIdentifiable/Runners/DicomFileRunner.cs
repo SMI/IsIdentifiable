@@ -56,6 +56,17 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     public bool ThrowOnError { get; set; } = true;
 
     /// <summary>
+    /// Total number of files validated
+    /// </summary>
+    public int FilesValidated { get; private set; } = 0;
+
+    /// <summary>
+    /// Total number of files with pixel data validated
+    /// </summary>
+    public int PixelFilesValidated { get; private set; } = 0;
+
+
+    /// <summary>
     /// Creates a new instance based on the <paramref name="opts"/>.  Options include what
     /// reports to write out, wether to perform OCR etc.
     /// </summary>
@@ -182,15 +193,56 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         }
 
         var dicomFile = DicomFile.Open(fi.FullName);
-        var dataSet = dicomFile.Dataset;
+        var ds = dicomFile.Dataset;
+        var modality = GetTagOrUnknown(ds, DicomTag.Modality);
+        var imageTypeArr = GetImageType(ds);
 
-        if (_tesseractEngine != null)
-            ValidateDicomPixelData(fi, dicomFile, dataSet);
+        if (_tesseractEngine != null && ShouldValidatePixelData(modality, imageTypeArr))
+        {
+            ValidateDicomPixelData(fi, dicomFile, ds, modality, imageTypeArr);
+            PixelFilesValidated += 1;
+        }
+        else
+        {
+            // Check the pixel data is valid when we don't scan it for PII
 
-        foreach (var dicomItem in dataSet)
-            ValidateDicomItem(fi, dicomFile, dataSet, dicomItem);
+            var sopClassUidArr = ds.GetDicomItem<DicomUniqueIdentifier>(DicomTag.SOPClassUID).Get<DicomUID[]>();
+            var sopClassUid = sopClassUidArr.Single(); // SOPClassUID has Value Multiplicity = 1 and is required
 
+            if (sopClassUid.IsImageStorage)
+            {
+                try
+                {
+                    _ = new DicomImage(fi.FullName);
+                }
+                catch (DicomImagingException e)
+                {
+                    throw new ApplicationException($"Could not create DicomImage for file with SOPClassUID '{sopClassUid}'", e);
+                }
+            }
+        }
+
+        foreach (var dicomItem in ds)
+            ValidateDicomItem(fi, dicomFile, ds, dicomItem);
+
+        FilesValidated += 1;
         DoneRows(1);
+    }
+
+    private bool ShouldValidatePixelData(string? modality, string?[] imageTypeArr)
+    {
+        if (modality == "SR")
+            return false;
+
+        if (
+            _opts.SkipSafePixelValidation &&
+            (modality == "CT" || modality == "MR") &&
+            imageTypeArr[0] == "ORIGINAL" &&
+            imageTypeArr[1] == "PRIMARY"
+        )
+            return false;
+
+        return true;
     }
 
     private void ValidateDicomItem(IFileInfo fi, DicomFile dicomFile, DicomDataset dataset, DicomItem dicomItem)
@@ -253,16 +305,11 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
             AddToReports(FailureFrom(fi, dicomFile, fieldValue, tagName, parts));
     }
 
-    void ValidateDicomPixelData(IFileInfo fi, DicomFile dicomFile, DicomDataset ds)
+    void ValidateDicomPixelData(IFileInfo fi, DicomFile dicomFile, DicomDataset ds, string? modality, string?[] imageTypeArr)
     {
-        var modality = GetTagOrUnknown(ds, DicomTag.Modality);
-        var imageType = GetImageType(ds);
         var studyID = GetTagOrUnknown(ds, DicomTag.StudyInstanceUID);
         var seriesID = GetTagOrUnknown(ds, DicomTag.SeriesInstanceUID);
         var sopID = GetTagOrUnknown(ds, DicomTag.SOPInstanceUID);
-
-        // Don't go looking for images in structured reports
-        if (modality == "SR") return;
 
         _logger.Info($"Processing '{fi.FullName}'");
         try
@@ -271,7 +318,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
             var numFrames = dicomImageObj.NumberOfFrames;
             for (var frameNum = 0; frameNum < numFrames; frameNum++)
             {
-                _logger.Info($" Frame {frameNum} in '{fi.FullName}'");
+                _logger.Info($"Frame {frameNum} in '{fi.FullName}'");
                 dicomImageObj.OverlayColor = 0xffffff; // white, as default magenta not good for tesseract
                 var dicomImage = dicomImageObj.RenderImage(frameNum).AsSharpImage();
                 using var memStreamOut = new System.IO.MemoryStream();
@@ -281,16 +328,16 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                     dicomImage.SaveAsBmp(ms);
                     ms.Position = 0;
                     mi.Read(ms);
-                    ProcessBitmapMemStream(ms.ToArray(), fi, dicomFile, sopID, studyID, seriesID, modality, imageType, 0, frameNum);
+                    ProcessBitmapMemStream(ms.ToArray(), fi, dicomFile, sopID, studyID, seriesID, modality, imageTypeArr, 0, frameNum);
                 }
 
                 // Threshold the image to monochrome using a window size of 25 square
                 // The size 25 was determined empirically based on real images (could be larger, less effective if smaller)
                 mi.AdaptiveThreshold(25, 25);
-                ProcessBitmapMemStream(mi, false, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, 0, frameNum);
+                ProcessBitmapMemStream(mi, false, fi, dicomFile, sopID, studyID, seriesID, modality, imageTypeArr, 0, frameNum);
                 // Tesseract only works with black text on white background so run again negated
                 mi.Negate();
-                ProcessBitmapMemStream(mi, false, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, 0, frameNum);
+                ProcessBitmapMemStream(mi, false, fi, dicomFile, sopID, studyID, seriesID, modality, imageTypeArr, 0, frameNum);
 
                 // Need to threshold and possibly negate the image for best results
                 // Magick.NET won't read from Bitmap directly in .net core so go via MemoryStream
@@ -305,7 +352,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                     using var ms = new System.IO.MemoryStream();
                     dicomImage.Mutate(x => x.Rotate(RotateMode.Rotate90));
                     dicomImage.SaveAsBmp(ms);
-                    ProcessBitmapMemStream(ms.ToArray(), fi, dicomFile, sopID, studyID, seriesID, modality, imageType,
+                    ProcessBitmapMemStream(ms.ToArray(), fi, dicomFile, sopID, studyID, seriesID, modality, imageTypeArr,
                         (i + 1) * 90, frameNum);
                 }
             }
@@ -364,7 +411,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
                     //magick_image.Write($"{fi.FullName}.ov{group-0x6000}.frame{ovframenum}.png", MagickFormat.Png);
                     // Tesseract only works with black text on white background so run again negated
                     magick_image.Negate();
-                    ProcessBitmapMemStream(magick_image, true, fi, dicomFile, sopID, studyID, seriesID, modality, imageType, 0, group, ovframenum);
+                    ProcessBitmapMemStream(magick_image, true, fi, dicomFile, sopID, studyID, seriesID, modality, imageTypeArr, 0, group, ovframenum);
                 }
 
             }
@@ -386,7 +433,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     }
 
     private void ProcessBitmapMemStream(byte[] bytes, IFileInfo fi, DicomFile dicomFile, string sopID,
-        string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0,
+        string studyID, string seriesID, string modality, string?[] imageType, int rotationIfAny = 0,
         int frame = -1, int overlay = -1)
     {
         float meanConfidence;
@@ -430,7 +477,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     /// <param name="rotationIfAny"></param>
     /// <param name="frame"></param>
     /// <param name="overlay"></param>
-    private void ProcessBitmapMemStream(MagickImage mi, bool forcePgm, IFileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string[] imageType, int rotationIfAny = 0, int frame = -1, int overlay = -1)
+    private void ProcessBitmapMemStream(MagickImage mi, bool forcePgm, IFileInfo fi, DicomFile dicomFile, string sopID, string studyID, string seriesID, string modality, string?[] imageType, int rotationIfAny = 0, int frame = -1, int overlay = -1)
     {
         byte[] bytes;
         using (System.IO.MemoryStream ms = new())
@@ -450,9 +497,9 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     /// </summary>
     /// <param name="ds"></param>
     /// <returns></returns>
-    static string[] GetImageType(DicomDataset ds)
+    static string?[] GetImageType(DicomDataset ds)
     {
-        var result = new string[3];
+        var result = new string?[3];
 
         if (ds.Contains(DicomTag.ImageType))
         {
@@ -484,7 +531,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     /// <param name="ds"></param>
     /// <param name="dt"></param>
     /// <returns></returns>
-    private static string GetTagOrUnknown(DicomDataset ds, DicomTag dt)
+    private static string? GetTagOrUnknown(DicomDataset ds, DicomTag dt)
     {
         return ds.Contains(dt) ? ds.GetValue<string>(dt, 0) : null;
     }
@@ -508,5 +555,13 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
             ProblemValue = problemValue,
             ProblemField = problemField
         };
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        var pixelPercent = 100.0 * PixelFilesValidated / FilesValidated;
+        _logger?.Info($"Files validated: {FilesValidated}. With pixel data: {PixelFilesValidated} ({pixelPercent:0.00}%)");
     }
 }
