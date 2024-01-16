@@ -14,33 +14,33 @@ namespace IsIdentifiable;
 /// this to LibraryLoader - but that's locked down as 'internal', so
 /// we have to jump through some reflection hoops to get there.
 /// </summary>
-public partial class TesseractLinuxLoaderFix
+public sealed partial class TesseractLinuxLoaderFix
 {
-    private static Dictionary<string, IntPtr> loadedAssemblies;
+    private static Dictionary<string, IntPtr>? _loadedAssemblies;
 
     /// <summary>
     /// Install the patch, if running on Linux (NOP on other platforms)
     /// </summary>
     public static void Patch()
     {
-        if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             return; // Only apply patch on Linux
+
         var harmony = new Harmony("uk.ac.dundee.hic.tesseract");
         var ll = typeof(LibraryLoader);
         var self = typeof(TesseractLinuxLoaderFix);
-        loadedAssemblies = ll.GetField("loadedAssemblies", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(LibraryLoader.Instance) as Dictionary<string, IntPtr>;
+        _loadedAssemblies = ll.GetField("loadedAssemblies", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(LibraryLoader.Instance) as Dictionary<string, IntPtr>;
         harmony.Patch(ll.GetMethod("LoadLibrary"), prefix: new HarmonyMethod(self.GetMethod(nameof(LoadLibraryPatch), BindingFlags.NonPublic | BindingFlags.Static)));
         harmony.Patch(ll.GetMethod("GetProcAddress"), prefix: new HarmonyMethod(self.GetMethod(nameof(GetProcAddressPatch), BindingFlags.NonPublic | BindingFlags.Static)));
         harmony.Patch(ll.GetMethod("FreeLibrary"), prefix: new HarmonyMethod(self.GetMethod(nameof(FreeLibraryPatch), BindingFlags.NonPublic | BindingFlags.Static)));
     }
 
     // NOTE(rkm 2023-06-26) Parameter name required for Harmony LibraryLoader
-#pragma warning disable IDE0060 // Remove unused parameter
     // ReSharper disable once InconsistentNaming
     private static bool LoadLibraryPatch(string fileName, string platformName, ref IntPtr __result)
-#pragma warning restore IDE0060 // Remove unused parameter
     {
         var fullPath = $"{AppDomain.CurrentDomain.BaseDirectory}/runtimes/linux-x64/native/lib{fileName}.so";
+        Console.WriteLine($"Attempting to load {fullPath}{(File.Exists(fullPath) ? " (present)" : " (MISSING)")}");
         try
         {
             __result = UnixLoadLibrary(fullPath, 2);
@@ -52,10 +52,12 @@ public partial class TesseractLinuxLoaderFix
 
         if (__result == IntPtr.Zero)
             throw new DllNotFoundException($"Failed to load '{fullPath}' - {(File.Exists(fullPath) ? "exists but could not load" : "file missing")}");
-        loadedAssemblies.Add(fileName, __result);
+
+        _loadedAssemblies?.Add(fileName, __result);
         return false;
     }
 
+    // ReSharper disable once InconsistentNaming
     private static bool GetProcAddressPatch(IntPtr dllHandle, string name, ref IntPtr __result)
     {
         try
@@ -66,14 +68,16 @@ public partial class TesseractLinuxLoaderFix
         {
             __result = DlGetProcAddress(dllHandle, name);
         }
+
         if (__result == IntPtr.Zero)
             Console.Error.WriteLine($"WARN:Failed looking for function '{name}' in module at address {dllHandle}");
         return false;
     }
 
+    // ReSharper disable once InconsistentNaming - Harmony API requirement
     private static bool FreeLibraryPatch(string fileName, ref bool __result)
     {
-        if (loadedAssemblies.Remove(fileName, out var handle))
+        if (_loadedAssemblies?.Remove(fileName, out var handle) == true)
         {
             try
             {
@@ -89,6 +93,7 @@ public partial class TesseractLinuxLoaderFix
             __result = false;
             Console.Error.WriteLine($"WARNING:Ignoring attempt to unload unknown library {fileName}");
         }
+
         return false;
     }
 
