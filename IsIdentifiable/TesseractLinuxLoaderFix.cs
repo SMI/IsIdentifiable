@@ -23,6 +23,7 @@ public sealed partial class TesseractLinuxLoaderFix
     /// </summary>
     public static void Patch()
     {
+        Console.Error.WriteLine($"DicomFileRunner init on {RuntimeInformation.RuntimeIdentifier}");
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             return; // Only apply patch on Linux
 
