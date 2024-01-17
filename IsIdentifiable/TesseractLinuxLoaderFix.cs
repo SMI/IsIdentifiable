@@ -26,6 +26,8 @@ public sealed partial class TesseractLinuxLoaderFix
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             return; // Only apply patch on Linux
 
+        LibraryLoader.Instance.CustomSearchPath = $"{AppDomain.CurrentDomain.BaseDirectory}/runtimes/linux-x64/native";
+
         var harmony = new Harmony("uk.ac.dundee.hic.tesseract");
         var ll = typeof(LibraryLoader);
         var self = typeof(TesseractLinuxLoaderFix);
