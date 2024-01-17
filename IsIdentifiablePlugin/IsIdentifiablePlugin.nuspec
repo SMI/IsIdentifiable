@@ -7,10 +7,10 @@
         <description>RDMP Plugin that runs the IsIdentifiable tool</description>
         <dependencies>
             <!-- Make sure this matches your running RDMP major/minor versions-->
-            <dependency id="HIC.RDMP.Plugin" version="7.0" />
+            <dependency id="HIC.RDMP.Plugin" version="8.1.2" />
         </dependencies>
     </metadata>
     <files>
-    <file src="bin\Debug\net6.0\publish\*" target="lib\main" />	
+    <file src="bin\Release\net7.0\publish\*" target="lib\main" />	
     </files>
 </package>

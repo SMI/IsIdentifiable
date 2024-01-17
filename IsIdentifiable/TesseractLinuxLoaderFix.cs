@@ -33,6 +33,7 @@ public sealed partial class TesseractLinuxLoaderFix
             return; // Only apply patch on Linux
 
         LibraryLoader.Instance.CustomSearchPath = $"{AppDomain.CurrentDomain.BaseDirectory}/runtimes";
+        return;
 
         var harmony = new Harmony("uk.ac.dundee.hic.tesseract");
         var ll = typeof(LibraryLoader);
