@@ -28,7 +28,6 @@
     <PackageReference Include="fo-dicom.Imaging.ImageSharp" />
     <PackageReference Include="HIC.DicomTypeTranslation" />
     <PackageReference Include="HIC.FAnsiSql" />
-    <PackageReference Include="Lib.Harmony" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
     <PackageReference Include="NLog" />
