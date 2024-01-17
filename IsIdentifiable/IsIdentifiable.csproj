@@ -6,7 +6,6 @@
     <description>Library for spotting identifiable data in flat files, dicom files and relational databases (Sql Server, MySql, Oracle).</description>
     <PackageTags>Identifiable,Detection,Validation,NLP,OCR,Natural Language Processing,Optical Character Recognition</PackageTags>    
     <IsPackable>true</IsPackable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>    
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Rules.template.yaml" />
