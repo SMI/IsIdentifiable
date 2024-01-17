@@ -23,7 +23,7 @@ public sealed partial class TesseractLinuxLoaderFix
     /// </summary>
     public static void Patch()
     {
-        Console.Error.WriteLine($"DicomFileRunner init on {RuntimeInformation.RuntimeIdentifier}, {(RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? " linux" : " non-linux")}");
+        Console.Error.WriteLine($"DicomFileRunner init on {RuntimeInformation.RuntimeIdentifier}, {(RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? " linux" : " non-linux")}, {File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}/runtimes/linux-x64/native/libtonica-1.80.0.so")}");
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             return; // Only apply patch on Linux
 

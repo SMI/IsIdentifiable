@@ -51,7 +51,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
 
 
     /// <summary>
-    /// Determines system behaviour when invalid files are encountered 
+    /// Determines system behaviour when invalid files are encountered
     /// </summary>
     public bool ThrowOnError { get; set; } = true;
 
