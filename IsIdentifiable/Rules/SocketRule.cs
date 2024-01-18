@@ -68,15 +68,17 @@ public class SocketRule : IAppliableRule, IDisposable
 
         var sb = new StringBuilder();
 
-        int last, c = ' ';
+        int c = ' ';
         do
         {
             //if last character was a \0 and the next one we read is a \0 that marks the end of the response
-            last = c;
+            var last = c;
             c = _read.Read();
             if (last <= '\0' && c <= '\0')
                 break;
+
             if (sb.Length > 10000) throw new Exception($"Unexpected response {sb}");
+
             sb.Append((char)c);
         } while (true);
 

@@ -27,9 +27,7 @@ internal class ColumnFailureReport : FailureReport
     {
         lock (_oFailureCountLock)
         {
-            if (!_failureCounts.ContainsKey(failure.ProblemField))
-                _failureCounts.Add(failure.ProblemField, 0);
-
+            _failureCounts.TryAdd(failure.ProblemField, 0);
             _failureCounts[failure.ProblemField]++;
         }
     }

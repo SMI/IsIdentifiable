@@ -172,8 +172,8 @@ G - creates a regex pattern that matches only the failing part(s)
 
         frame.Add(new Label(0, 4, "Default Patterns"));
 
-        _ignoreRuleLabel = new Label() { X = 0, Y = 5, Text = "Ignore:", Width = 30, Height = 1 }; ;
-        _updateRuleLabel = new Label() { X = 0, Y = 6, Text = "Update:", Width = 30, Height = 1 }; ;
+        _ignoreRuleLabel = new Label() { X = 0, Y = 5, Text = "Ignore:", Width = 30, Height = 1 };
+        _updateRuleLabel = new Label() { X = 0, Y = 6, Text = "Update:", Width = 30, Height = 1 };
         _currentReportLabel = new Label() { X = 0, Y = 8, Text = "Report:", Width = 30, Height = 1 };
 
         frame.Add(_ignoreRuleLabel);
@@ -456,7 +456,6 @@ G - creates a regex pattern that matches only the failing part(s)
 
         using var btn = new Button("Cancel");
         void cancelFunc() { cts.Cancel(); }
-        void closeFunc() { Application.RequestStop(); }
         btn.Clicked += cancelFunc;
 
         using var dlg = new Dialog("Opening", Constants.DlgWidth, 5, btn);
@@ -497,7 +496,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
             btn.Clicked -= cancelFunc;
             btn.Text = "Done";
-            btn.Clicked += closeFunc;
+            btn.Clicked += CloseFunc;
             done = true;
 
             cts.Dispose();
@@ -507,6 +506,9 @@ G - creates a regex pattern that matches only the failing part(s)
         _currentReportLabel.SetNeedsDisplay();
 
         Application.Run(dlg);
+        return;
+
+        static void CloseFunc() { Application.RequestStop(); }
     }
 
     private static bool GetText(string title, string message, string initialValue, out string chosen,

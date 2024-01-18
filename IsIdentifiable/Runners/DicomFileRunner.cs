@@ -51,7 +51,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
 
 
     /// <summary>
-    /// Determines system behaviour when invalid files are encountered 
+    /// Determines system behaviour when invalid files are encountered
     /// </summary>
     public bool ThrowOnError { get; set; } = true;
 
@@ -65,6 +65,10 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
     /// </summary>
     public int PixelFilesValidated { get; private set; } = 0;
 
+    static DicomFileRunner()
+    {
+        TesseractLinuxLoaderFix.Patch();
+    }
 
     /// <summary>
     /// Creates a new instance based on the <paramref name="opts"/>.  Options include what
@@ -110,7 +114,6 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
             if (!languageFile.Exists)
                 throw new System.IO.FileNotFoundException($"Could not find tesseract models file ('{languageFile.FullName}')", languageFile.FullName);
 
-            TesseractLinuxLoaderFix.Patch();
             _tesseractEngine = new TesseractEngine(dir.FullName, "eng", EngineMode.Default)
             {
                 DefaultPageSegMode = PageSegMode.Auto

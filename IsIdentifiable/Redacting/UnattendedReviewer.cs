@@ -103,14 +103,13 @@ public class UnattendedReviewer
 
         using (var storeReportDestination = new CsvDestination(new IsIdentifiableDicomFileOptions(), _outputFile, _fileSystem))
         {
-            RegexRule updateRule;
-
             storeReport.AddDestination(storeReportDestination);
 
             while (_reportReader.Next())
             {
                 bool noUpdate;
 
+                RegexRule updateRule;
                 try
                 {
                     noUpdate = _updater.OnLoad(server, _reportReader.Current, out updateRule);

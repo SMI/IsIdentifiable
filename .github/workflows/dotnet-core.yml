@@ -112,7 +112,7 @@ jobs:
       - name: Package RDMP Plugin
         run: |
           cd IsIdentifiablePlugin
-          dotnet publish --self-contained false
+          dotnet publish --self-contained false -c Release
           nuget pack ./IsIdentifiablePlugin.nuspec -Properties Configuration=Debug -IncludeReferencedProjects -Symbols -Version $(grep AssemblyInformationalVersion ../SharedAssemblyInfo.cs | cut -d'"' -f2)
           mv ./IsIdentifiablePlugin.*.nupkg ../release/
           cd ..

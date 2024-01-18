@@ -12,9 +12,10 @@
   </ItemGroup>  
   <ItemGroup>
     <NativeLibs Include="$(MSBuildThisFileDirectory)runtimes\**\*.so" />
-    <Content Include="@(NativeLibs)">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <None Include="@(NativeLibs)">
+        <Link>runtimes\%(RecursiveDir)%(FileName)%(Extension)</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="Rules.template.yaml" Pack="true" PackageCopyToOutput="true">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -26,7 +27,6 @@
     <PackageReference Include="fo-dicom.Imaging.ImageSharp" />
     <PackageReference Include="HIC.DicomTypeTranslation" />
     <PackageReference Include="HIC.FAnsiSql" />
-    <PackageReference Include="Lib.Harmony" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
     <PackageReference Include="NLog" />
