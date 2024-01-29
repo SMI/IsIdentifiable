@@ -60,7 +60,7 @@ jobs:
       - name: Test
         run: dotnet test --blame -l:"console;verbosity=normal" --no-restore --nologo -p:CollectCoverage=true -p:CoverletOutput="$(pwd)/coverage/" -p:CoverletOutputFormat="cobertura"
       - name: upload coverage
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@v3.1.5
         with:
           files: ./coverage/coverage.cobertura.xml
           fail_ci_if_error: true
