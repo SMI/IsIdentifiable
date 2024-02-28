@@ -200,7 +200,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         var modality = GetTagOrUnknown(ds, DicomTag.Modality);
         var imageTypeArr = GetImageType(ds);
 
-        if (_tesseractEngine != null && ShouldValidatePixelData(modality, imageTypeArr))
+        if (_tesseractEngine != null && ShouldValidatePixelData(ds, modality, imageTypeArr))
         {
             ValidateDicomPixelData(fi, dicomFile, ds, modality, imageTypeArr);
             PixelFilesValidated += 1;
@@ -232,9 +232,9 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
         DoneRows(1);
     }
 
-    private bool ShouldValidatePixelData(string? modality, string?[] imageTypeArr)
+    private bool ShouldValidatePixelData(DicomDataset ds, string? modality, string?[] imageTypeArr)
     {
-        if (modality == "SR")
+        if(!ds.Contains(DicomTag.PixelData))
             return false;
 
         if (
