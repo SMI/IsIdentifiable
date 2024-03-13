@@ -2,9 +2,11 @@
 
 # [Unreleased]
 
+- Upgrade to net8
+
 # [0.3.0] - 2024-01-19
 
--   Upgrade to net8 and C# 11 (#394)
+-   Upgrade to net7 and C# 11 (#394)
 -   Update TesseractLinuxLoaderFix.cs
 -   Fix up borked RDMP plugin building
 -   Remove Harmony library
