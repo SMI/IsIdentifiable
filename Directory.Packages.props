@@ -24,7 +24,7 @@
     <PackageVersion Include="System.IO.Abstractions" Version="20.0.28" />
     <PackageVersion Include="System.IO.FileSystem" Version="4.3.0" />
     <PackageVersion Include="Terminal.Gui" Version="1.15.1" />
-    <PackageVersion Include="Tesseract" Version="5.2.0" />
+    <PackageVersion Include="Tesseract" Version="4.1.1" />
     <PackageVersion Include="YamlDotNet" Version="15.1.2" />
     <!-- Test Packages -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
