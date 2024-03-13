@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Disable disk flushing on CI and add libarchive-tools
-        run: sudo apt-get install -y libeatmydata1 libarchive-tools
+        run: sudo apt-get install -y libeatmydata1 libarchive-tools 
       - uses: actions/checkout@v4
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
@@ -37,6 +37,11 @@ jobs:
           distribution: "adopt"
           java-version: "11"
           cache: "maven"
+      - name : attempt-fix
+        run: |
+          sudo apt-get install -y libleptonica-dev libtesseract-dev
+          ln -s /usr/lib/x86_64-linux-gnu/liblept.so.5 libleptonica-1.80.0.so
+          ln -s /usr/lib/x86_64-linux-gnu/libtesseract.so.4.0.1 libtesseract41.so
       - name: Start MySQL
         run: |
           mv Tests/IsIdentifiableTests/TestDatabases-github.xml Tests/IsIdentifiableTests/TestDatabases.xml
