@@ -11,6 +11,6 @@
         </dependencies>
     </metadata>
     <files>
-    <file src="bin\Release\net7.0\publish\*" target="lib\main" />	
+    <file src="bin\Release\net8.0\publish\*" target="lib\main" />	
     </files>
 </package>
