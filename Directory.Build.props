@@ -14,7 +14,7 @@
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/SMI/IsIdentifiable</PackageProjectUrl>
     <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
 </Project>
