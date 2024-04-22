@@ -323,7 +323,7 @@ public class DicomFileRunner : IsIdentifiableAbstractRunner
             {
                 _logger.Info($"Frame {frameNum} in '{fi.FullName}'");
                 dicomImageObj.OverlayColor = 0xffffff; // white, as default magenta not good for tesseract
-                var dicomImage = dicomImageObj.RenderImage(frameNum).AsSharpImage();
+                using var dicomImage = dicomImageObj.RenderImage(frameNum).AsSharpImage();
                 using var memStreamOut = new System.IO.MemoryStream();
                 using var mi = new MagickImage();
                 using (var ms = new System.IO.MemoryStream())
