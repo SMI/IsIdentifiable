@@ -30,6 +30,7 @@
     <PackageReference Include="Magick.NET-Q16-AnyCPU" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
     <PackageReference Include="NLog" />
+    <PackageReference Include="SixLabors.ImageSharp" />
     <PackageReference Include="System.IO.Abstractions" />
     <PackageReference Include="System.IO.FileSystem" />
     <PackageReference Include="Tesseract" />
