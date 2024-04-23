@@ -7,6 +7,7 @@
         <PackageTags>Identifiable,Detection,Validation,NLP,OCR,Natural Language Processing,Optical Character Recognition</PackageTags>
         <IsPackable>true</IsPackable>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <ItemGroup>
         <None Remove="Rules.template.yaml" />
@@ -30,6 +31,7 @@
         <PackageReference Include="HIC.FAnsiSql" />
         <PackageReference Include="Magick.NET-Q16-AnyCPU" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+        <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" />
         <PackageReference Include="NLog" />
         <PackageReference Include="SixLabors.ImageSharp" />
         <PackageReference Include="System.IO.Abstractions" />

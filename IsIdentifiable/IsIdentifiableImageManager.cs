@@ -1,0 +1,86 @@
+using FellowOakDicom.Imaging.Render;
+using FellowOakDicom.Imaging;
+using FellowOakDicom.IO;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp;
+using System;
+using System.Collections.Generic;
+
+namespace IsIdentifiable;
+
+/// <inheritdoc cref="IImageManager" />
+public sealed class IsIdentifiableImageManager : ImageBase<Image<Bgra32>>, IImageManager
+{
+    /// <inheritdoc />
+    public IImage CreateImage(int _width, int _height) => new IsIdentifiableImageManager(_width, _height);
+
+    /// <inheritdoc />
+    public IsIdentifiableImageManager() : this(0, 0)
+    {
+    }
+
+    /// <inheritdoc />
+    public IsIdentifiableImageManager(int width, int height) : this(width, height,
+        new PinnedIntArray(width * height), null)
+    {
+    }
+
+    private IsIdentifiableImageManager(int width, int height, PinnedIntArray pixels, Image<Bgra32>? image) : base(
+        width, height, new PinnedIntArray(pixels.Data), image?.Clone()!)
+    {
+    }
+
+    /// <inheritdoc />
+    protected override void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        if (disposed)
+            return;
+
+        image?.Dispose();
+        base.Dispose();
+    }
+
+    public override unsafe void Render(int components, bool flipX, bool flipY, int rotation)
+    {
+        Span<byte> data = new(pixels.Pointer.ToPointer(), pixels.ByteSize);
+        image = Image.LoadPixelData<Bgra32>(data, width, height);
+
+        if (flipX && flipY)
+            // flipping both horizontally and vertically is equal to rotating 180 degrees
+            rotation += 180;
+
+        var flipMode = flipX switch
+        {
+            true when flipY => FlipMode.None,
+            true => FlipMode.Horizontal,
+            _ => flipY ? FlipMode.Vertical : FlipMode.None
+        };
+
+        var rotationMode = (rotation % 360) switch
+        {
+            90 => RotateMode.Rotate90,
+            180 => RotateMode.Rotate180,
+            270 => RotateMode.Rotate270,
+            _ => RotateMode.None
+        };
+
+        if (flipMode != FlipMode.None || rotationMode != RotateMode.None)
+            image.Mutate(x => x.RotateFlip(rotationMode, flipMode));
+    }
+
+    /// <inheritdoc />
+    public override void DrawGraphics(IEnumerable<IGraphic> graphics)
+    {
+        foreach (var graphic in graphics)
+        {
+            var layer = (graphic.RenderImage(null) as ImageSharpImage).image;
+            image.Mutate(ctx => ctx
+                .DrawImage(layer, new Point(graphic.ScaledOffsetX, graphic.ScaledOffsetY), 1));
+        }
+    }
+
+    /// <inheritdoc />
+    public override IImage Clone() => new IsIdentifiableImageManager(width, height, new PinnedIntArray(pixels.Data), image?.Clone());
+}
