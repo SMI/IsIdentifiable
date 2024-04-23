@@ -6,7 +6,6 @@
         <description>Library for spotting identifiable data in flat files, dicom files and relational databases (Sql Server, MySql, Oracle).</description>
         <PackageTags>Identifiable,Detection,Validation,NLP,OCR,Natural Language Processing,Optical Character Recognition</PackageTags>
         <IsPackable>true</IsPackable>
-        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <ItemGroup>
@@ -36,7 +35,6 @@
         <PackageReference Include="SixLabors.ImageSharp" />
         <PackageReference Include="System.IO.Abstractions" />
         <PackageReference Include="System.IO.FileSystem" />
-        <PackageReference Include="System.Memory" />
         <PackageReference Include="Tesseract" />
     </ItemGroup>
 </Project>
