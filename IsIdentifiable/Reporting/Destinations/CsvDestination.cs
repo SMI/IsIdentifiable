@@ -39,7 +39,7 @@ public class CsvDestination : ReportDestination
         string reportName,
         IFileSystem fileSystem,
         bool addTimestampToFilename = true,
-        CsvConfiguration csvConfiguration = null
+        CsvConfiguration? csvConfiguration = null
     )
         : base(options, fileSystem)
     {
@@ -66,7 +66,7 @@ public class CsvDestination : ReportDestination
         IsIdentifiableOptions options,
         IFileInfo file,
         IFileSystem fileSystem,
-        CsvConfiguration csvConfiguration = null
+        CsvConfiguration? csvConfiguration = null
     )
         : base(options, fileSystem)
     {
