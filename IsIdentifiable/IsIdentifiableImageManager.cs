@@ -32,14 +32,13 @@ public sealed class IsIdentifiableImageManager : ImageBase<Image<Bgra32>>, IImag
     }
 
     /// <inheritdoc />
-    protected override void Dispose()
+    protected override void Dispose(bool disposing)
     {
-        GC.SuppressFinalize(this);
         if (disposed)
             return;
 
         image?.Dispose();
-        base.Dispose();
+        base.Dispose(disposing);
     }
 
     public override unsafe void Render(int components, bool flipX, bool flipY, int rotation)
@@ -75,12 +74,20 @@ public sealed class IsIdentifiableImageManager : ImageBase<Image<Bgra32>>, IImag
     {
         foreach (var graphic in graphics)
         {
-            var layer = (graphic.RenderImage(null) as ImageSharpImage).image;
+            var layer = (graphic.RenderImage(null) as IsIdentifiableImageManager)?.image;
             image.Mutate(ctx => ctx
-                .DrawImage(layer, new Point(graphic.ScaledOffsetX, graphic.ScaledOffsetY), 1));
+                .DrawImage(layer ?? throw new InvalidOperationException("Mixed image types in fo-dicom Image?!"),
+                    new Point(graphic.ScaledOffsetX, graphic.ScaledOffsetY), 1));
         }
     }
 
     /// <inheritdoc />
     public override IImage Clone() => new IsIdentifiableImageManager(width, height, new PinnedIntArray(pixels.Data), image?.Clone());
+
+    /// <summary>
+    /// Expose the internal raw SharpImage object for direct manipulation.
+    /// Do NOT dispose of it directly, as it will be disposed of by the ImageManager.
+    /// </summary>
+    /// <returns></returns>
+    public Image<Bgra32> GetSharpImage() => image;
 }

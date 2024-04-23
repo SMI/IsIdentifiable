@@ -326,7 +326,7 @@ public partial class DicomFileRunner : IsIdentifiableAbstractRunner
             {
                 _logger.Info($"Frame {frameNum} in '{fi.FullName}'");
                 dicomImageObj.OverlayColor = 0xffffff; // white, as default magenta not good for tesseract
-                using var dicomImage = dicomImageObj.RenderImage(frameNum).AsSharpImage();
+                var dicomImage = (dicomImageObj.RenderImage(frameNum) as IsIdentifiableImageManager).GetSharpImage();
                 using MemoryStream memStreamOut = new RecyclableMemoryStream(RecyclableMemoryStreamManager);
                 using var mi = new MagickImage();
                 using (MemoryStream ms = new RecyclableMemoryStream(RecyclableMemoryStreamManager))
@@ -574,12 +574,4 @@ public partial class DicomFileRunner : IsIdentifiableAbstractRunner
 
     [GeneratedRegex(@"\t|\n|\r", RegexOptions.CultureInvariant)]
     private static partial Regex SpaceStripRegEx();
-
-    public static class ImageExtensions
-    {
-        public static Image<Rgba32> AsSharpImage(this IImage image)
-        {
-        }
-    }
-
 }
