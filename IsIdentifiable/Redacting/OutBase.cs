@@ -81,7 +81,7 @@ public abstract class OutBase
     /// <param name="action"></param>
     /// <param name="overrideRuleFactory">Overrides the current <see cref="RulesFactory"/> and uses this instead</param>
     /// <returns>The new / existing rule that covers failure</returns>
-    protected RegexRule Add(Failure f, RuleAction action, IRulePatternFactory overrideRuleFactory = null)
+    protected RegexRule Add(Failure f, RuleAction action, IRulePatternFactory? overrideRuleFactory = null)
     {
         var factory = overrideRuleFactory ?? RulesFactory;
 
@@ -175,7 +175,7 @@ public abstract class OutBase
     /// Serializes the current <see cref="Rules"/> to the provided file
     /// </summary>
     /// <param name="toFile"></param>
-    public void Save(IFileInfo toFile = null)
+    public void Save(IFileInfo? toFile = null)
     {
         toFile ??= RulesFile;
 

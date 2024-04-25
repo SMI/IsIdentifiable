@@ -21,7 +21,7 @@ public class IgnoreRuleGenerator : OutBase
     /// <summary>
     /// Creates a new instance which stores rules in the <paramref name="rulesFile"/> (which will also have existing rules loaded from)
     /// </summary>
-    public IgnoreRuleGenerator(IFileSystem fileSystem, IFileInfo rulesFile = null)
+    public IgnoreRuleGenerator(IFileSystem fileSystem, IFileInfo? rulesFile = null)
         : base(rulesFile, fileSystem, DefaultFileName)
     { }
 

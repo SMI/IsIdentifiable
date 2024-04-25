@@ -1,37 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <AssemblyName>IsIdentifiable</AssemblyName>
-    <OutputType>Library</OutputType>
-    <description>Library for spotting identifiable data in flat files, dicom files and relational databases (Sql Server, MySql, Oracle).</description>
-    <PackageTags>Identifiable,Detection,Validation,NLP,OCR,Natural Language Processing,Optical Character Recognition</PackageTags>    
-    <IsPackable>true</IsPackable>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Rules.template.yaml" />
-  </ItemGroup>  
-  <ItemGroup>
-    <NativeLibs Include="$(MSBuildThisFileDirectory)runtimes\**\*.so" />
-    <None Include="@(NativeLibs)">
-        <Link>runtimes\%(RecursiveDir)%(FileName)%(Extension)</Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <Content Include="Rules.template.yaml" Pack="true" PackageCopyToOutput="true">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="CommandLineParser" />
-    <PackageReference Include="CsvHelper" />
-    <PackageReference Include="Equ" />
-    <PackageReference Include="fo-dicom.Imaging.ImageSharp" />
-    <PackageReference Include="HIC.DicomTypeTranslation" />
-    <PackageReference Include="HIC.FAnsiSql" />
-    <PackageReference Include="Magick.NET-Q16-AnyCPU" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
-    <PackageReference Include="NLog" />
-    <PackageReference Include="System.IO.Abstractions" />
-    <PackageReference Include="System.IO.FileSystem" />
-    <PackageReference Include="Tesseract" />
-  </ItemGroup>
+    <PropertyGroup>
+        <AssemblyName>IsIdentifiable</AssemblyName>
+        <OutputType>Library</OutputType>
+        <description>Library for spotting identifiable data in flat files, dicom files and relational databases (Sql Server, MySql, Oracle).</description>
+        <PackageTags>Identifiable,Detection,Validation,NLP,OCR,Natural Language Processing,Optical Character Recognition</PackageTags>
+        <IsPackable>true</IsPackable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Remove="Rules.template.yaml" />
+    </ItemGroup>
+    <ItemGroup>
+        <NativeLibs Include="$(MSBuildThisFileDirectory)runtimes\**\*.so" />
+        <None Include="@(NativeLibs)">
+            <Link>runtimes\%(RecursiveDir)%(FileName)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <Content Include="Rules.template.yaml" Pack="true" PackageCopyToOutput="true">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="CommandLineParser" />
+        <PackageReference Include="CsvHelper" />
+        <PackageReference Include="Equ" />
+        <PackageReference Include="fo-dicom.Imaging.ImageSharp" />
+        <PackageReference Include="HIC.DicomTypeTranslation" />
+        <PackageReference Include="HIC.FAnsiSql" />
+        <PackageReference Include="Magick.NET-Q16-AnyCPU" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+        <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" />
+        <PackageReference Include="NLog" />
+        <PackageReference Include="SixLabors.ImageSharp" />
+        <PackageReference Include="System.IO.Abstractions" />
+        <PackageReference Include="System.IO.FileSystem" />
+        <PackageReference Include="Tesseract" />
+    </ItemGroup>
 </Project>
