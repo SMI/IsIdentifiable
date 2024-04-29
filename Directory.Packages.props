@@ -19,7 +19,7 @@
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="8.0.0" />
     <PackageVersion Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.0" />
-    <PackageVersion Include="NLog" Version="5.2.8" />
+    <PackageVersion Include="NLog" Version="5.3.1" />
     <PackageVersion Include="NUnit.Analyzers" Version="4.1.0" />
     <PackageVersion Include="SecurityCodeScan.VS2019" Version="5.6.7" />
     <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.4" />
