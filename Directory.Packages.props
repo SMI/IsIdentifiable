@@ -27,7 +27,7 @@
     <PackageVersion Include="System.IO.FileSystem" Version="4.3.0" />
     <PackageVersion Include="Terminal.Gui" Version="1.16.0" />
     <PackageVersion Include="Tesseract" Version="4.1.1" />
-    <PackageVersion Include="YamlDotNet" Version="15.1.2" />
+    <PackageVersion Include="YamlDotNet" Version="15.1.4" />
     <!-- Test Packages -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <PackageVersion Include="Moq" Version="4.20.70" />
