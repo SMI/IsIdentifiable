@@ -12,7 +12,7 @@
     <PackageVersion Include="fo-dicom.Imaging.ImageSharp" Version="5.1.2" />
     <PackageVersion Include="HIC.DicomTypeTranslation" Version="4.1.0" />
     <PackageVersion Include="HIC.FAnsiSql" Version="3.2.3" />
-    <PackageVersion Include="HIC.RDMP.Plugin" Version="8.1.5" />
+    <PackageVersion Include="HIC.RDMP.Plugin" Version="8.1.6" />
     <PackageVersion Include="IKVM" Version="8.7.1" />
     <PackageVersion Include="Lib.Harmony" Version="2.2.2" />
     <PackageVersion Include="Magick.NET-Q16-AnyCPU" Version="13.8.0" />
