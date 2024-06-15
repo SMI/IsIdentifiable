@@ -64,12 +64,12 @@ Primary Author: [Thomas](https://github.com/tznind)
 
 ## Contents
 
-1.  [Overview](#1-overview)
-2.  [Setup / Installation](#2-setup--installation)
-3.  [Usage](#3-usage)
-    1. [Reviewing the output of IsIdentifiable]
-    2. [Redacting the database]
-    3. [Managing the rulebase]
+1. [Overview](#1-overview)
+1. [Setup / Installation](#2-setup--installation)
+1. [Usage](#3-usage)
+   1. [Reviewing the output of IsIdentifiable]
+   1. [Redacting the database]
+   1. [Managing the rulebase]
 
 ## 1. Overview
 
@@ -81,9 +81,9 @@ _The review process of potentially PII_
 
 There are 3 activities that can be undertaken using the reviewer:
 
--   [Reviewing the output of IsIdentifiable]
--   [Redacting the database]
--   [Managing the rulebase]
+- [Reviewing the output of IsIdentifiable]
+- [Redacting the database]
+- [Managing the rulebase]
 
 ## 2. Setup / Installation
 
@@ -127,12 +127,12 @@ The menu `Options | Custom Patterns` menu, when ticked, will provide the opportu
 
 The Custom Patterns window provides several options to edit the pattern:
 
--   `x` - clears currently typed pattern
--   `F` - creates a regex pattern that matches the full input value
--   `G` - creates a regex pattern that matches only the failing part(s)
--   `\d` - replaces all digits with regex wildcards
--   `\c` - replaces all characters with regex wildcards
--   `\d\c` - replaces all digits and characters with regex wildcards
+- `x` - clears currently typed pattern
+- `F` - creates a regex pattern that matches the full input value
+- `G` - creates a regex pattern that matches only the failing part(s)
+- `\d` - replaces all digits with regex wildcards
+- `\c` - replaces all characters with regex wildcards
+- `\d\c` - replaces all digits and characters with regex wildcards
 
 ### Redacting the database
 
@@ -150,11 +150,11 @@ _Example targets file_
 
 The following flags should be combined to successfully redact the database:
 
-| Flag | Example                 | Purpose                                                                                                                                                                                                                                                                                   |
-| ---- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| -f   | -f ./ExampleReport.csv  | Indicates which [IsIdentifiable] output report to redact. You must have completed the [review process] for this report                                                                                                                                                                    |
-| -u   | -u ./misses.csv         | Indicates that you want to update the database. The file value must be included and is where reports that are not covered by rules generated in the [review process] are output. If you have completed the [review process] correctly this file should be empty after execution completes |
-| -t   | -t z:\temp\targets.yaml | Path to a file containing the connection string (and DMBS type) of the relational database server that has the table requiring redaction                                                                                                                                                  |
+| Flag | Example                   | Purpose                                                                                                                                                                                                                                                                                   |
+| ---- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| -f   | -f ./ExampleReport.csv    | Indicates which [IsIdentifiable] output report to redact. You must have completed the [review process] for this report                                                                                                                                                                    |
+| -u   | -u ./misses.csv           | Indicates that you want to update the database. The file value must be included and is where reports that are not covered by rules generated in the [review process] are output. If you have completed the [review process] correctly this file should be empty after execution completes |
+| -t   | -t z:\\temp\\targets.yaml | Path to a file containing the connection string (and DMBS type) of the relational database server that has the table requiring redaction                                                                                                                                                  |
 
 ```bash
 ii.exe review -f ./ExampleReport.csv -u ./misses.csv -t z:\temp\targets.yaml
@@ -176,10 +176,10 @@ _Rules Manager View_
 | `<Delete>` | Removes a rule from the rulesbase                            |
 | `<Enter>`  | Opens menu (if any) for interacting with rule(s) highlighted |
 
-[IsIdentifiable]: ../IsIdentifiable/README.md
-[PII]: https://en.wikipedia.org/wiki/Personal_data
-[SmiRunner]: ../Applications.SmiRunner/
-[Managing the rulebase]: #managing-the-rulebase
+[isidentifiable]: ../IsIdentifiable/README.md
+[managing the rulebase]: #managing-the-rulebase
+[pii]: https://en.wikipedia.org/wiki/Personal_data
+[redacting the database]: #redacting-the-database
 [review process]: #reviewing-the-output-of-IsIdentifiable
-[Reviewing the output of IsIdentifiable]: #reviewing-the-output-of-isidentifiable
-[Redacting the database]: #redacting-the-database
+[reviewing the output of isidentifiable]: #reviewing-the-output-of-isidentifiable
+[smirunner]: ../Applications.SmiRunner/

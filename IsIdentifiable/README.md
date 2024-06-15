@@ -2,20 +2,20 @@
 
 ## Contents
 
-1.  [Overview](#overview)
-1.  [Setup](#setup)
-1.  [Optional Downloads](#optional-downloads)
-1.  [NLP](#nlp)
-    1. [SpaCy Classifier](#spacy-classifier)
-    2. [Stanford Classifier](#stanford-classifier)
-1.  [Invocation](#invocation)
-1.  [Examples](#examples)
-1.  [Rules](#rules)
-    1. [Basic Rules](#basic-rules)
-    2. [Socket Rules](#socket-rules)
-    3. [Consensus Rules](#consensus-rules)
-    4. [Allow List Rules](#allow-list-rules)
-1.  [Class Diagram](#class-diagram)
+1. [Overview](#overview)
+1. [Setup](#setup)
+1. [Optional Downloads](#optional-downloads)
+1. [NLP](#nlp)
+   1. [SpaCy Classifier](#spacy-classifier)
+   1. [Stanford Classifier](#stanford-classifier)
+1. [Invocation](#invocation)
+1. [Examples](#examples)
+1. [Rules](#rules)
+   1. [Basic Rules](#basic-rules)
+   1. [Socket Rules](#socket-rules)
+   1. [Consensus Rules](#consensus-rules)
+   1. [Allow List Rules](#allow-list-rules)
+1. [Class Diagram](#class-diagram)
 
 ## Overview
 
@@ -101,8 +101,8 @@ This classifier listens on port `1881`
 
 IsIdentifiable can be run from the [ii] command line tool:
 
--   To process a DICOM file or a directory of DICOM files
--   To process a every row of every column in a database table
+- To process a DICOM file or a directory of DICOM files
+- To process a every row of every column in a database table
 
 You can also link your code to the [nuget package](https://www.nuget.org/packages/IsIdentifiable/). For example to add a new input type or operate as a service that evaluates data on demand.
 
