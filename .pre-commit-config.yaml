@@ -32,7 +32,6 @@ repos:
         exclude: |
           (?x)^(
             .pre-commit-config.yaml|
-            meta/pre-commit-config-base.yaml|
           )$
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.0.0-alpha.6
