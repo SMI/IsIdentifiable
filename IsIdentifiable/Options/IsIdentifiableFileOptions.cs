@@ -12,7 +12,6 @@ public class IsIdentifiableFileOptions : IsIdentifiableOptions
     /// <summary>
     /// Path to a file to be evaluated
     /// </summary>
-
     [Option('f', HelpText = "Path to a file to be evaluated", Required = true)]
     public string FilePath { get; set; }
 
