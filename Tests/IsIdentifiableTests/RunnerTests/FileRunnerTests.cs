@@ -31,7 +31,7 @@ class FileRunnerTests
             s.Close();
         }
 
-        var runner = new FileRunner(new IsIdentifiableFileOptions() { File = fi, StoreReport = true }, _fileSystem);
+        var runner = new FileRunner(new IsIdentifiableFileOptions() { FilePath = fi.FullName, StoreReport = true }, _fileSystem);
 
         var reporter = new Mock<IFailureReport>(MockBehavior.Strict);
 
@@ -63,7 +63,7 @@ class FileRunnerTests
             s.Close();
         }
 
-        var runner = new FileRunner(new IsIdentifiableFileOptions() { File = fi, StoreReport = true, Top = 22 }, _fileSystem);
+        var runner = new FileRunner(new IsIdentifiableFileOptions() { FilePath = fi.FullName, StoreReport = true, Top = 22 }, _fileSystem);
 
         var reporter = new Mock<IFailureReport>(MockBehavior.Strict);
 

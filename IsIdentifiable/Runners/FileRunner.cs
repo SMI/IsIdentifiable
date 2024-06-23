@@ -39,7 +39,7 @@ public class FileRunner : IsIdentifiableAbstractRunner
     /// <exception cref="Exception"></exception>
     public override int Run()
     {
-        using var stream = _opts.File.OpenRead();
+        using var stream = FileSystem.File.OpenRead(_opts.FilePath);
         using var fs = new System.IO.StreamReader(stream);
         var culture = string.IsNullOrWhiteSpace(_opts.Culture) ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(_opts.Culture);
 
@@ -80,7 +80,7 @@ public class FileRunner : IsIdentifiableAbstractRunner
             if (parts.Any())
                 yield return new Failure(parts)
                 {
-                    Resource = _opts.File.FullName,
+                    Resource = FileSystem.FileInfo.New(_opts.FilePath).FullName,
                     ResourcePrimaryKey = "Unknown",
                     ProblemValue = r[h],
                     ProblemField = h
