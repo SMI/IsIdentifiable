@@ -16,6 +16,11 @@ public sealed class IsIdentifiableImageManager : ImageBase<Image<Bgra32>>, IImag
     public IImage CreateImage(int width, int height) => new IsIdentifiableImageManager(width, height);
 
     /// <inheritdoc />
+    public IsIdentifiableImageManager() : this(0, 0)
+    {
+    }
+
+    /// <inheritdoc />
     public IsIdentifiableImageManager(int width, int height) : this(width, height,
         new PinnedIntArray(width * height), null)
     {
