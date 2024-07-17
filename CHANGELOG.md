@@ -2,11 +2,19 @@
 
 # [Unreleased]
 
-- Upgrade to net8
+# [0.4.0] - 2024-07-17
+
+- Fix calling ii with file paths (#510)
+- Fixes for Ubuntu 22.04 & upgrade CI (#509)
+- Replace prettier with mdformat (#504)
+- Add ImageSharp explicitly due to odd fo-dicom referencing (#477)
+- Upgrade to .NET8 (#461)
+- Ensure pixel data is valid when validation is skipped (#430)
+- support skipping validation of safe pixel data (#429)
 
 # [0.3.0] - 2024-01-19
 
-- Upgrade to net7 and C# 11 (#394)
+- Upgrade to .NET7 and C# 11 (#394)
 - Update TesseractLinuxLoaderFix.cs
 - Fix up borked RDMP plugin building
 - Remove Harmony library
@@ -164,4 +172,5 @@ Initial version
 [0.2.0]: https://github.com/SMI/IsIdentifiable/compare/v0.1.0..v0.2.0
 [0.2.1]: https://github.com/SMI/IsIdentifiable/compare/v0.2.0..v0.2.1
 [0.3.0]: https://github.com/SMI/IsIdentifiable/compare/v0.2.1..v0.3.0
-[unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.3.0..main
+[0.4.0]: https://github.com/SMI/IsIdentifiable/compare/v0.3.0..v0.4.0
+[unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.4.0..main
