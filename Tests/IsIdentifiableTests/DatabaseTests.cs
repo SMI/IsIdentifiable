@@ -63,6 +63,14 @@ public class DatabaseTests
                 var constr = element?.Element("ConnectionString")?.Value;
 
                 TestConnectionStrings.Add(databaseType, constr);
+                // Make sure our scratch db exists for PostgreSQL
+                if (databaseType == DatabaseType.PostgreSql)
+                {
+                    var server = GetTestServer(DatabaseType.PostgreSql);
+                    if (server.DiscoverDatabases()
+                        .All(db => db.GetWrappedName()?.Contains(_testScratchDatabase) != true))
+                        server.CreateDatabase(_testScratchDatabase);
+                }
             }
         }
         catch (Exception exception)
