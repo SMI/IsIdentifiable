@@ -1,6 +1,6 @@
-using InteropDotNet;
 using System;
 using System.Runtime.InteropServices;
+using Tesseract;
 
 namespace IsIdentifiable;
 
@@ -16,6 +16,6 @@ public static class TesseractLinuxLoaderFix
     {
         // Only apply patch on Linux
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            LibraryLoader.Instance.CustomSearchPath = $"{AppDomain.CurrentDomain.BaseDirectory}/runtimes";
+            TesseractEnviornment.CustomSearchPath = $"{AppDomain.CurrentDomain.BaseDirectory}/runtimes";
     }
 }
