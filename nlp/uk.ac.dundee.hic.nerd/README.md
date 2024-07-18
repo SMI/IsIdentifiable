@@ -21,7 +21,7 @@ The Python version recognises a different set of entities, and with different la
 
 ## Setup
 
-No setup is required for the Java version, just run the jar file as documented below. The "<&- &" will cause it to disconnect from the terminal once initialised and run as a daemon. (For development use, you can also skip that and terminate it with ctrl-C on the console when finished.)
+No setup is required for the Java version, just run the jar file as documented below. The "\<&- &" will cause it to disconnect from the terminal once initialised and run as a daemon. (For development use, you can also skip that and terminate it with ctrl-C on the console when finished.)
 
 The Python program now requires a YAML configuration file to determine the log file location. It also requires that the SpaCy and optionally the SciSpaCy packages have been installed, if not globally then into a virtual environment. The same environment must also have the required SpaCy language model installed. Note that SpaCy version 2 (eg. 2.2.1) and SciSpacy version 0.2.4 must be used (as of Feb 2021) because SpaCy v3 uses a new architecture and SciSpaCy has not caught up yet (at least, not for NER).
 

@@ -7,6 +7,6 @@ using System.Reflection;
 [assembly: AssemblyCulture("")]
 
 // These should be overwritten by release builds
-[assembly: AssemblyVersion("0.3.0")]
-[assembly: AssemblyFileVersion("0.3.0")]
-[assembly: AssemblyInformationalVersion("0.3.0")] // This one can have the extra build info after it
+[assembly: AssemblyVersion("0.4.0")]
+[assembly: AssemblyFileVersion("0.4.0")]
+[assembly: AssemblyInformationalVersion("0.4.0")] // This one can have the extra build info after it

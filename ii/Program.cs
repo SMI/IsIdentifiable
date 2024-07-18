@@ -9,6 +9,7 @@ using IsIdentifiable.Options;
 using IsIdentifiable.Runners;
 using Microsoft.Extensions.FileSystemGlobbing;
 using System;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using YamlDotNet.Serialization;
@@ -173,17 +174,12 @@ public static class Program
         if (result != 0)
             return result;
 
-        if (opts.File == null)
-        {
+        if (opts.FilePath == null)
             throw new Exception("You must specify a File or Directory indicate which files to work on");
-        }
 
         // if user has specified the full path of a file to -f
-        if (fileSystem.File.Exists(opts.File.FullName))
+        if (fileSystem.File.Exists(opts.FilePath))
         {
-            // Run on the file
-            opts.File = fileSystem.FileInfo.New(opts.File.FullName);
-
             using var runner = new FileRunner(opts, fileSystem)
             {
                 LogProgressEvery = 1000
@@ -193,16 +189,16 @@ public static class Program
         }
 
         // user has specified a directory as -f
-        if (fileSystem.Directory.Exists(opts.File.FullName))
+        if (fileSystem.Directory.Exists(opts.FilePath))
         {
             Matcher matcher = new();
             matcher.AddInclude(opts.Glob);
             result = 0;
 
-            foreach (var match in matcher.GetResultsInFullPath(opts.File.FullName))
+            foreach (var match in matcher.GetResultsInFullPath(opts.FilePath))
             {
                 // set file to operate on to the current file
-                opts.File = fileSystem.FileInfo.New(match);
+                opts.FilePath = match;
 
                 using var runner = new FileRunner(opts, fileSystem)
                 {
@@ -222,7 +218,7 @@ public static class Program
         }
         else
         {
-            throw new System.IO.DirectoryNotFoundException($"Could not find a file or directory called '{opts.File}'");
+            throw new System.IO.DirectoryNotFoundException($"Could not find a file or directory called '{opts.FilePath}'");
         }
     }
     private static int Run(IsIdentifiableMongoOptions opts, IFileSystem fileSystem)

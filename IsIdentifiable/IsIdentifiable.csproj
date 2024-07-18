@@ -35,6 +35,6 @@
         <PackageReference Include="SixLabors.ImageSharp" />
         <PackageReference Include="System.IO.Abstractions" />
         <PackageReference Include="System.IO.FileSystem" />
-        <PackageReference Include="Tesseract" />
+        <PackageReference Include="HIC.Tesseract" />
     </ItemGroup>
 </Project>
