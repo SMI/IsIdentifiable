@@ -14,8 +14,7 @@
     <PackageVersion Include="HIC.FAnsiSql" Version="3.2.6" />
     <PackageVersion Include="HIC.RDMP.Plugin" Version="8.2.0" />
     <PackageVersion Include="HIC.Tesseract" Version="4.1.1" />
-    <PackageVersion Include="IKVM" Version="8.7.1" />
-    <PackageVersion Include="Lib.Harmony" Version="2.2.2" />
+    <PackageVersion Include="IKVM" Version="8.9.1" />
     <PackageVersion Include="Magick.NET-Q16-AnyCPU" Version="13.10.0" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="8.0.0" />
