@@ -25,7 +25,7 @@ namespace IsIdentifiable.Runners;
 /// Subclass to add support for new data sources.  Current sources include reading from
 /// CSV files, Dicom files and database tables.
 /// </summary>
-public abstract class IsIdentifiableAbstractRunner : IDisposable
+public abstract partial class IsIdentifiableAbstractRunner : IDisposable
 {
     private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
@@ -45,26 +45,25 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
 
     // DDMMYY + 4 digits 
     // \b bounded i.e. not more than 10 digits
-    private readonly Regex _chiRegex = new(@"\b[0-3][0-9][0-1][0-9][0-9]{6}\b");
-    readonly Regex _postcodeRegex = new(@"\b((GIR 0AA)|((([A-Z-[QVX]][0-9][0-9]?)|(([A-Z-[QVX]][A-Z-[IJZ]][0-9][0-9]?)|(([A-Z-[QVX]][0-9][A-HJKSTUW])|([A-Z-[QVX]][A-Z-[IJZ]][0-9][ABEHMNPRVWXY]))))\s?[0-9][A-Z-[CIKMOV]]{2}))\b", RegexOptions.IgnoreCase);
+    private readonly Regex _chiRegex = ChiRegex();
+    readonly Regex _postcodeRegex = PostcodeRegex();
 
     /// <summary>
     /// Matches a 'symbol' (digit followed by an optional th, rd or separator) then a month name (e.g. Jan or January)
     /// </summary>
-    readonly Regex _symbolThenMonth = new(@"\d+((th)|(rd)|(st)|[\-/\\])?\s?((Jan(uary)?)|(Feb(ruary)?)|(Mar(ch)?)|(Apr(il)?)|(May)|(June?)|(July?)|(Aug(ust)?)|(Sep(tember)?)|(Oct(ober)?)|(Nov(ember)?)|(Dec(ember)?))", RegexOptions.IgnoreCase);
+    readonly Regex _symbolThenMonth = SymbolMonthRegex();
 
     /// <summary>
     /// Matches a month name (e.g. Jan or January) followed by a 'symbol' (digit followed by an optional th, rd or separator) then a
     /// </summary>
-    readonly Regex _monthThenSymbol = new(@"((Jan(uary)?)|(Feb(ruary)?)|(Mar(ch)?)|(Apr(il)?)|(May)|(June?)|(July?)|(Aug(ust)?)|(Sep(tember)?)|(Oct(ober)?)|(Nov(ember)?)|(Dec(ember)?))[\s\-/\\]?\d+((th)|(rd)|(st))?", RegexOptions.IgnoreCase);
+    readonly Regex _monthThenSymbol = MonthSymbolRegex();
 
     /// <summary>
     /// Matches digits followed by a separator (: - \ etc) followed by more digits with optional AM / PM / GMT at the end
     /// However this looks more like a time than a date and I would argue that times are not PII?
     /// It's also not restrictive enough so matches too many non-PII numerics.
     /// </summary>
-    readonly Regex _date = new(
-        @"\b\d+([:\-/\\]\d+)+\s?((AM)|(PM)|(GMT))?\b", RegexOptions.IgnoreCase);
+    readonly Regex _date = DateRegex();
 
     // The following regex were adapted from:
     // https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch04s04.html
@@ -73,21 +72,15 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
     /// <summary>
     /// Matches year last, i.e d/m/y or m/d/y
     /// </summary>
-    readonly Regex _dateYearLast = new(
-        @"\b(?:(1[0-2]|0?[1-9])[ ]?[/-][ ]?(3[01]|[12][0-9]|0?[1-9])|(3[01]|[12][0-9]|0?[1-9])[ ]?[/-][ ]?(1[0-2]|0?[1-9]))[ ]?[/-][ ]?(?:[0-9]{2})?[0-9]{2}(\b|T)" // year last
-    );
+    readonly Regex _dateYearLast = DateYearLastRegex();
     /// <summary>
     /// Matches year first, i.e y/m/d or y/d/m
     /// </summary>
-    readonly Regex _dateYearFirst = new(
-        @"\b(?:[0-9]{2})?[0-9]{2}[ ]?[/-][ ]?(?:(1[0-2]|0?[1-9])[ ]?[/-][ ]?(3[01]|[12][0-9]|0?[1-9])|(3[01]|[12][0-9]|0?[1-9])[ ]?[/-][ ]?(1[0-2]|0?[1-9]))(\b|T)" // year first
-    );
+    readonly Regex _dateYearFirst = DateYearFirstRegex();
     /// <summary>
     /// Matches year missing, i.e d/m or m/d
     /// </summary>
-    readonly Regex _dateYearMissing = new(
-        @"\b(?:(1[0-2]|0?[1-9])[ ]?[/-][ ]?(3[01]|[12][0-9]|0?[1-9])|(3[01]|[12][0-9]|0?[1-9])[ ]?[/-][ ]?(1[0-2]|0?[1-9]))(\b|T)" // year missing
-    );
+    readonly Regex _dateYearMissing = DateYearMissingRegex();
 
 
     /// <summary>
@@ -606,4 +599,28 @@ public abstract class IsIdentifiableAbstractRunner : IDisposable
         _logger?.Info($"ValidateCacheHits:{ValidateCacheHits} Total ValidateCacheMisses:{ValidateCacheMisses}");
         _logger?.Info($"Total FailurePart identified: {CountOfFailureParts}");
     }
+
+    [GeneratedRegex(@"\b[0-3][0-9][0-1][0-9][0-9]{6}\b", RegexOptions.CultureInvariant)]
+    private static partial Regex ChiRegex();
+
+    [GeneratedRegex(@"\b((GIR 0AA)|((([A-Z-[QVX]][0-9][0-9]?)|(([A-Z-[QVX]][A-Z-[IJZ]][0-9][0-9]?)|(([A-Z-[QVX]][0-9][A-HJKSTUW])|([A-Z-[QVX]][A-Z-[IJZ]][0-9][ABEHMNPRVWXY]))))\s?[0-9][A-Z-[CIKMOV]]{2}))\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex PostcodeRegex();
+
+    [GeneratedRegex(@"\d+((th)|(rd)|(st)|[\-/\\])?\s?((Jan(uary)?)|(Feb(ruary)?)|(Mar(ch)?)|(Apr(il)?)|(May)|(June?)|(July?)|(Aug(ust)?)|(Sep(tember)?)|(Oct(ober)?)|(Nov(ember)?)|(Dec(ember)?))", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex SymbolMonthRegex();
+
+    [GeneratedRegex(@"\b\d+([:\-/\\]\d+)+\s?((AM)|(PM)|(GMT))?\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex DateRegex();
+
+    [GeneratedRegex(@"((Jan(uary)?)|(Feb(ruary)?)|(Mar(ch)?)|(Apr(il)?)|(May)|(June?)|(July?)|(Aug(ust)?)|(Sep(tember)?)|(Oct(ober)?)|(Nov(ember)?)|(Dec(ember)?))[\s\-/\\]?\d+((th)|(rd)|(st))?", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex MonthSymbolRegex();
+
+    [GeneratedRegex(@"\b(?:(1[0-2]|0?[1-9])[ ]?[/-][ ]?(3[01]|[12][0-9]|0?[1-9])|(3[01]|[12][0-9]|0?[1-9])[ ]?[/-][ ]?(1[0-2]|0?[1-9]))[ ]?[/-][ ]?(?:[0-9]{2})?[0-9]{2}(\b|T)", RegexOptions.CultureInvariant)]
+    private static partial Regex DateYearLastRegex();
+
+    [GeneratedRegex(@"\b(?:[0-9]{2})?[0-9]{2}[ ]?[/-][ ]?(?:(1[0-2]|0?[1-9])[ ]?[/-][ ]?(3[01]|[12][0-9]|0?[1-9])|(3[01]|[12][0-9]|0?[1-9])[ ]?[/-][ ]?(1[0-2]|0?[1-9]))(\b|T)", RegexOptions.CultureInvariant)]
+    private static partial Regex DateYearFirstRegex();
+
+    [GeneratedRegex(@"\b(?:(1[0-2]|0?[1-9])[ ]?[/-][ ]?(3[01]|[12][0-9]|0?[1-9])|(3[01]|[12][0-9]|0?[1-9])[ ]?[/-][ ]?(1[0-2]|0?[1-9]))(\b|T)", RegexOptions.CultureInvariant)]
+    private static partial Regex DateYearMissingRegex();
 }
