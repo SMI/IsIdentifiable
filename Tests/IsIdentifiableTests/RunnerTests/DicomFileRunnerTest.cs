@@ -192,14 +192,12 @@ internal class DicomFileRunnerTest
 
         // Act
 
-        var call = () => runner.ValidateDicomFile(fileInfo);
-
         // Assert
 
         switch (modality)
         {
             case "CT":
-                var exc = Assert.Throws<ApplicationException>(() => call());
+                var exc = Assert.Throws<ApplicationException>(ValidateCallback);
                 Assert.Multiple(() =>
                 {
                     Assert.That(exc!.Message, Is.EqualTo("Could not create DicomImage for file with SOPClassUID 'CT Image Storage [1.2.840.10008.5.1.4.1.1.2]'"));
@@ -209,7 +207,7 @@ internal class DicomFileRunnerTest
                 break;
 
             case "SR":
-                Assert.DoesNotThrow(() => call());
+                Assert.DoesNotThrow(ValidateCallback);
                 Assert.Multiple(() =>
                 {
                     Assert.That(runner.FilesValidated, Is.EqualTo(1));
@@ -219,6 +217,13 @@ internal class DicomFileRunnerTest
 
             default:
                 throw new Exception($"No case for {modality}");
+        }
+
+        return;
+
+        void ValidateCallback()
+        {
+            runner.ValidateDicomFile(fileInfo);
         }
     }
 

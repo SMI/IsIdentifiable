@@ -11,7 +11,7 @@ namespace IsIdentifiable.Reporting.Destinations;
 /// in a derrived class allows persistence of IsIdentifiable reports (e.g. to a
 /// CSV file or database table).
 /// </summary>
-public abstract class ReportDestination : IReportDestination
+public abstract partial class ReportDestination : IReportDestination
 {
     /// <summary>
     /// The options used to run IsIdentifiable
@@ -23,7 +23,7 @@ public abstract class ReportDestination : IReportDestination
     /// </summary>
     protected readonly IFileSystem FileSystem;
 
-    private readonly Regex _multiSpaceRegex = new(" {2,}");
+    private readonly Regex _multiSpaceRegex = MultispaceRegex();
 
     /// <summary>
     /// Initializes the report destination and sets <see cref="Options"/>
@@ -70,4 +70,7 @@ public abstract class ReportDestination : IReportDestination
 
         return o;
     }
+
+    [GeneratedRegex(" {2,}", RegexOptions.CultureInvariant)]
+    private static partial Regex MultispaceRegex();
 }
