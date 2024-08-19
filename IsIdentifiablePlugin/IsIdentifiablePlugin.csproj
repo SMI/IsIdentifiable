@@ -8,7 +8,6 @@
     <PackageReference Include="CsvHelper" />
     <PackageReference Include="HIC.RDMP.Plugin" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" />
-    <PackageReference Include="NLog" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IsIdentifiable\IsIdentifiable.csproj" />
