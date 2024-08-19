@@ -6,7 +6,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="HIC.RDMP.Plugin" />
-    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IsIdentifiable\IsIdentifiable.csproj" />
