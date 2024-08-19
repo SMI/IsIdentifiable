@@ -5,6 +5,7 @@
     <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="CsvHelper" />
     <PackageReference Include="HIC.RDMP.Plugin" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" />
   </ItemGroup>
