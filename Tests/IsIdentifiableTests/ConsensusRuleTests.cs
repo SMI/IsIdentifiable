@@ -113,9 +113,9 @@ class ConsensusRuleTests
             _rule = rule;
         }
 
-        public RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
+        public RuleAction Apply(string fieldName, string fieldValue, out List<FailurePart> badParts)
         {
-            badParts = _parts;
+            badParts = _parts.ToList();
 
             return _rule;
         }

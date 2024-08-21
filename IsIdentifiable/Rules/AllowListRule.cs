@@ -1,4 +1,4 @@
-﻿using IsIdentifiable.Failures;
+using IsIdentifiable.Failures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,7 +68,7 @@ public class AllowlistRule : RegexRule
     /// A fake method due to inheriting IAppliableRule; never called.
     /// </summary>
     /// <exception cref="NotSupportedException"></exception>
-    public override RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
+    public override RuleAction Apply(string fieldName, string fieldValue, out List<FailurePart>? failureParts)
     {
         throw new NotSupportedException("This method should not be used for AllowlistRule, use ApplyAllowlistRule instead");
     }
