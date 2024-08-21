@@ -21,7 +21,7 @@ public sealed record Failure
     /// <summary>
     /// Description of the item being evaluated (e.g. table name, file name etc)
     /// </summary>
-    public string? Resource { get; init; }
+    public string Resource { get; init; }
 
     /// <summary>
     /// How to narrow down within the <see cref="Resource"/> the exact location of the <see cref="ProblemValue"/>.  Leave blank for
