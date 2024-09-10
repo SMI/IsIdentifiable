@@ -407,8 +407,8 @@ public partial class DicomFileRunner : IsIdentifiableAbstractRunner
                     MagickReadSettings msett = new()
                     {
                         ColorType = ColorType.Grayscale,
-                        Width = overlay.Columns,
-                        Height = overlay.Rows,
+                        Width = (uint?)overlay.Columns,
+                        Height = (uint?)overlay.Rows,
                         Depth = 8,
                         Format = MagickFormat.Gray
                     };
