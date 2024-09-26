@@ -1,7 +1,5 @@
-using Equ;
 using IsIdentifiable.Failures;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -17,13 +15,13 @@ namespace IsIdentifiable.Rules;
 /// A simple Regex based rule that allows flexible white listing or blacklisting of values
 /// either in all columns or only a single column
 /// </summary>
-public class RegexRule : MemberwiseEquatable<RegexRule>, IRegexRule
+public class RegexRule : IEquatable<RegexRule>, IRegexRule
 {
     /// <inheritdoc/>
     public RuleAction Action { get; set; }
 
     /// <inheritdoc/>
-    public string IfColumn { get; set; }
+    public string? IfColumn { get; set; }
 
     /// <inheritdoc/>
     public FailureClassification As { get; set; }
@@ -32,13 +30,14 @@ public class RegexRule : MemberwiseEquatable<RegexRule>, IRegexRule
     /// Combination of <see cref="IfPattern"/> and <see cref="CaseSensitive"/>.  Use this to validate
     /// whether the rule should be applied.
     /// </summary>
-    [MemberwiseEqualityIgnore] // NOTE(rkm 2023-05-03) Exclude so equality comparer is valid
-    protected Regex IfPatternRegex;
-    private string _ifPatternString;
+    // NOTE(rkm 2023-05-03) Exclude so equality comparer is valid
+    protected Regex? IfPatternRegex;
+
+    private string? _ifPatternString;
     private bool _caseSensitive;
 
     /// <inheritdoc/>
-    public string IfPattern
+    public string? IfPattern
     {
         get => _ifPatternString;
         set
@@ -74,7 +73,7 @@ public class RegexRule : MemberwiseEquatable<RegexRule>, IRegexRule
     /// <param name="badParts">The bits of the <paramref name="fieldValue"/> (if any) that resulted in the return value</param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public virtual RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
+    public virtual RuleAction Apply(string fieldName, string fieldValue, out List<FailurePart>? badParts)
     {
         badParts = null;
 
@@ -98,19 +97,19 @@ public class RegexRule : MemberwiseEquatable<RegexRule>, IRegexRule
             {
                 //we are reporting everything in this column? ok fair enough (no pattern just column name)
                 if (Action == RuleAction.Report)
-                    ((IList)badParts).Add(new FailurePart(fieldValue, As, 0));
+                    badParts.Add(new FailurePart(fieldValue, As, 0));
 
                 return Action;
             }
 
             // if the pattern matches the string we examined
-            var matches = IfPatternRegex.Matches(fieldValue);
-            if (matches.Any())
+            var matches = IfPatternRegex?.Matches(fieldValue);
+            if (matches?.Any() == true)
             {
                 //if we are reporting all failing regexes
                 if (Action == RuleAction.Report)
-                    foreach (Match match in matches.Cast<Match>())
-                        ((IList)badParts).Add(new FailurePart(match.Value, As, match.Index));
+                    foreach (var match in matches.Cast<Match>())
+                        badParts.Add(new FailurePart(match.Value, As, match.Index));
 
                 return Action;
             }
@@ -124,8 +123,44 @@ public class RegexRule : MemberwiseEquatable<RegexRule>, IRegexRule
     public bool AreIdentical(IRegexRule other, bool requireIdenticalAction = true)
     {
         return
-            string.Equals(IfColumn, other.IfColumn, StringComparison.CurrentCultureIgnoreCase) &&
             (!requireIdenticalAction || Action == other.Action) &&
+            string.Equals(IfColumn, other.IfColumn, StringComparison.CurrentCultureIgnoreCase) &&
             string.Equals(IfPattern, other.IfPattern, StringComparison.CurrentCultureIgnoreCase);
     }
+
+    /// <inheritdoc />
+    public bool Equals(RegexRule? other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return _ifPatternString == other._ifPatternString && _caseSensitive == other._caseSensitive && Action == other.Action && IfColumn == other.IfColumn && As == other.As;
+    }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != this.GetType()) return false;
+        return Equals((RegexRule)obj);
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode() => HashCode.Combine(_ifPatternString, _caseSensitive, (int)Action, IfColumn, (int)As);
+
+    /// <summary>
+    /// Test for equality using Equals method
+    /// </summary>
+    /// <param name="left"></param>
+    /// <param name="right"></param>
+    /// <returns></returns>
+    public static bool operator ==(RegexRule? left, RegexRule? right) => Equals(left, right);
+
+    /// <summary>
+    /// Test for inequality using Equals method, negated
+    /// </summary>
+    /// <param name="left"></param>
+    /// <param name="right"></param>
+    /// <returns></returns>
+    public static bool operator !=(RegexRule? left, RegexRule? right) => !Equals(left, right);
 }
