@@ -16,7 +16,7 @@
     <PackageVersion Include="HIC.Tesseract" Version="4.1.1" />
     <PackageVersion Include="IKVM" Version="8.10.0" />
     <PackageVersion Include="Magick.NET-Q16-AnyCPU" Version="14.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="8.0.0" />
     <PackageVersion Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
     <PackageVersion Include="NLog" Version="5.3.4" />
