@@ -37,7 +37,7 @@ public class SocketRule : IAppliableRule, IDisposable
     public int Port { get; set; }
 
     private TcpClient _tcp;
-    private NetworkStream _stream;
+    private NetworkStream? _stream;
     private System.IO.StreamWriter _write;
     private System.IO.StreamReader _read;
 
@@ -51,7 +51,7 @@ public class SocketRule : IAppliableRule, IDisposable
     /// are identifiable according to the remote classification service</param>
     /// <returns>Whether the full <paramref name="fieldValue"/> passed validation or should be reported</returns>
     /// <exception cref="Exception"></exception>
-    public RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
+    public RuleAction Apply(string fieldName, string fieldValue, out List<FailurePart> badParts)
     {
         if (_stream == null)
         {
@@ -83,7 +83,7 @@ public class SocketRule : IAppliableRule, IDisposable
         } while (true);
 
 
-        badParts = HandleResponse(sb.ToString()).ToArray();
+        badParts = HandleResponse(sb.ToString()).ToList();
 
         return badParts.Any() ? RuleAction.Report : RuleAction.None;
     }

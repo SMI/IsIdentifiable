@@ -22,7 +22,7 @@ public class ConsensusRule : IAppliableRule
     /// <param name="fieldValue"></param>
     /// <param name="badParts"></param>
     /// <returns></returns>
-    public RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
+    public RuleAction Apply(string fieldName, string fieldValue, out List<FailurePart> badParts)
     {
         RuleAction? firstRuleOperation = null;
         var parts = new List<FailurePart>();
@@ -43,7 +43,7 @@ public class ConsensusRule : IAppliableRule
                 // There is not consensus on whether the value should be classified as bad
                 if (newOperation != firstRuleOperation)
                 {
-                    badParts = Array.Empty<FailurePart>();
+                    badParts = new List<FailurePart>();
                     return RuleAction.None;
                 }
 
@@ -55,7 +55,7 @@ public class ConsensusRule : IAppliableRule
 
                     //do not report anything
 
-                    badParts = Array.Empty<FailurePart>();
+                    badParts = new List<FailurePart>();
                     return RuleAction.None;
                 }
             }
@@ -63,7 +63,7 @@ public class ConsensusRule : IAppliableRule
             //if anyone wants no action taken at any point stop consulting others.  Either they will agree in which case we have wasted time or they disagree so we say there is no consensus
             if (firstRuleOperation == RuleAction.None)
             {
-                badParts = Array.Empty<FailurePart>();
+                badParts = new List<FailurePart>();
                 return RuleAction.None;
             }
         }
