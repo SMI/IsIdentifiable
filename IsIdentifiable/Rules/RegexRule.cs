@@ -33,12 +33,13 @@ public class RegexRule : MemberwiseEquatable<RegexRule>, IRegexRule
     /// whether the rule should be applied.
     /// </summary>
     [MemberwiseEqualityIgnore] // NOTE(rkm 2023-05-03) Exclude so equality comparer is valid
-    protected Regex IfPatternRegex;
-    private string _ifPatternString;
+    protected Regex? IfPatternRegex;
+
+    private string? _ifPatternString;
     private bool _caseSensitive;
 
     /// <inheritdoc/>
-    public string IfPattern
+    public string? IfPattern
     {
         get => _ifPatternString;
         set
@@ -61,7 +62,10 @@ public class RegexRule : MemberwiseEquatable<RegexRule>, IRegexRule
 
     private void RebuildRegex()
     {
-        IfPatternRegex = _ifPatternString == null ? null : new Regex(_ifPatternString, (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
+        IfPatternRegex = _ifPatternString == null
+            ? null
+            : new Regex(_ifPatternString,
+                (CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase) | RegexOptions.Compiled);
     }
 
     /// <summary>
@@ -74,7 +78,7 @@ public class RegexRule : MemberwiseEquatable<RegexRule>, IRegexRule
     /// <param name="badParts">The bits of the <paramref name="fieldValue"/> (if any) that resulted in the return value</param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public virtual RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
+    public virtual RuleAction Apply(string fieldName, string fieldValue, out List<FailurePart>? badParts)
     {
         badParts = null;
 
@@ -87,33 +91,33 @@ public class RegexRule : MemberwiseEquatable<RegexRule>, IRegexRule
         if (Action == RuleAction.Report && As == FailureClassification.None)
             throw new Exception("Illegal rule setup.  You must specify 'As' when Action is Report");
 
-        //if there is no column restriction or restriction applies to the current column
-        if (string.IsNullOrWhiteSpace(IfColumn) || string.Equals(IfColumn, fieldName, StringComparison.InvariantCultureIgnoreCase))
+        //if there is a column restriction or restriction excludes the current column, bail out now
+        if (!string.IsNullOrWhiteSpace(IfColumn) &&
+            !string.Equals(IfColumn, fieldName, StringComparison.InvariantCultureIgnoreCase)) return RuleAction.None;
+
+        // only allocate this variable if there is an action to take
+        badParts = new List<FailurePart>();
+
+        //if there is no pattern
+        if (IfPattern == null)
         {
-            // only allocate this variable if there is an action to take
-            badParts = new List<FailurePart>();
+            //we are reporting everything in this column? ok fair enough (no pattern just column name)
+            if (Action == RuleAction.Report)
+                badParts.Add(new FailurePart(fieldValue, As, 0));
 
-            //if there is no pattern
-            if (IfPattern == null)
-            {
-                //we are reporting everything in this column? ok fair enough (no pattern just column name)
-                if (Action == RuleAction.Report)
-                    ((IList)badParts).Add(new FailurePart(fieldValue, As, 0));
+            return Action;
+        }
 
-                return Action;
-            }
+        // if the pattern matches the string we examined
+        var matches = IfPatternRegex?.Matches(fieldValue);
+        if (matches?.Count > 0)
+        {
+            //if we are reporting all failing regexes
+            if (Action == RuleAction.Report)
+                badParts.AddRange(matches
+                    .Select(match => new FailurePart(match.Value, As, match.Index)));
 
-            // if the pattern matches the string we examined
-            var matches = IfPatternRegex.Matches(fieldValue);
-            if (matches.Any())
-            {
-                //if we are reporting all failing regexes
-                if (Action == RuleAction.Report)
-                    foreach (Match match in matches.Cast<Match>())
-                        ((IList)badParts).Add(new FailurePart(match.Value, As, match.Index));
-
-                return Action;
-            }
+            return Action;
         }
 
         //our rule does not apply to the current value
@@ -124,8 +128,8 @@ public class RegexRule : MemberwiseEquatable<RegexRule>, IRegexRule
     public bool AreIdentical(IRegexRule other, bool requireIdenticalAction = true)
     {
         return
-            string.Equals(IfColumn, other.IfColumn, StringComparison.CurrentCultureIgnoreCase) &&
             (!requireIdenticalAction || Action == other.Action) &&
+            string.Equals(IfColumn, other.IfColumn, StringComparison.CurrentCultureIgnoreCase) &&
             string.Equals(IfPattern, other.IfPattern, StringComparison.CurrentCultureIgnoreCase);
     }
 }
