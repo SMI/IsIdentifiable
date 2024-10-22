@@ -16,5 +16,5 @@ public interface IAppliableRule
     /// <param name="fieldValue">The value that should be validated e.g. "0101010101"</param>
     /// <param name="badParts"></param>
     /// <returns>Action to take if any as a result of applying the rule</returns>
-    RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts);
+    RuleAction Apply(string fieldName, string fieldValue, out List<FailurePart>? badParts);
 }
