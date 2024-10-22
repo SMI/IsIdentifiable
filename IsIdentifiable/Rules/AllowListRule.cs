@@ -68,7 +68,7 @@ public class AllowlistRule : RegexRule
     /// A fake method due to inheriting IAppliableRule; never called.
     /// </summary>
     /// <exception cref="NotSupportedException"></exception>
-    public override RuleAction Apply(string fieldName, string fieldValue, out IEnumerable<FailurePart> badParts)
+    public override RuleAction Apply(string fieldName, string fieldValue, out List<FailurePart> badParts)
     {
         throw new NotSupportedException("This method should not be used for AllowlistRule, use ApplyAllowlistRule instead");
     }
