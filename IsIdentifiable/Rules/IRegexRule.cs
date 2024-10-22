@@ -26,7 +26,7 @@ public interface IRegexRule : IAppliableRule
     /// <summary>
     /// The Regex pattern which should be used to match values with
     /// </summary>
-    string IfPattern { get; }
+    string? IfPattern { get; }
 
     /// <summary>
     /// Whether the IfPattern match is case sensitive (default is false)
