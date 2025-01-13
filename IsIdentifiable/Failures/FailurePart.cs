@@ -1,5 +1,3 @@
-﻿using Equ;
-
 namespace IsIdentifiable.Failures;
 
 /// <summary>
@@ -7,7 +5,7 @@ namespace IsIdentifiable.Failures;
 /// A <see cref="Failure"/> can have multiple <see cref="FailurePart"/> e.g. if it is free text with multiple failing
 /// words.
 /// </summary>
-public class FailurePart : MemberwiseEquatable<FailurePart>
+public record FailurePart
 {
     /// <summary>
     /// The classification of the failure e.g. CHI, PERSON, TextInPixel

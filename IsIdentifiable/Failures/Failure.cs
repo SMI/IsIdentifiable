@@ -1,4 +1,3 @@
-﻿using Equ;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,7 +11,7 @@ namespace IsIdentifiable.Failures;
 /// along with the <see cref="ResourcePrimaryKey"/> (if any) so that the row on which
 /// the data was found can located (e.g. to perform  redaction).
 /// </summary>
-public class Failure : MemberwiseEquatable<Failure>
+public record Failure
 {
     /// <summary>
     /// Each sub part of <see cref="ProblemValue"/> that the system had a problem with

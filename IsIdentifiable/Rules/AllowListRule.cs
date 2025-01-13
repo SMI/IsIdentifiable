@@ -14,8 +14,17 @@ namespace IsIdentifiable.Rules;
 /// <summary>
 /// Expanded <see cref="RegexRule"/> which works only for <see cref="RuleAction.Ignore"/>.  Should be run after main rules have picked up failures.  This class is designed to perform final checks on failures and discard based on <see cref="RegexRule.IfPatternRegex"/> and/or <see cref="IfPartPatternRegex"/>
 /// </summary>
-public class AllowlistRule : RegexRule
+public record AllowlistRule : RegexRule
 {
+    /// <inheritdoc />
+    public virtual bool Equals(AllowlistRule? other)
+    {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return base.Equals(other) && _ifPartPatternString == other._ifPartPatternString;
+    }
+
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), _ifPartPatternString);
 
     /// <summary>
     /// Combination of <see cref="IfPartPattern"/> and <see cref="CaseSensitive"/>.  Use this to validate

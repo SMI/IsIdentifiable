@@ -1,7 +1,5 @@
-using Equ;
 using IsIdentifiable.Failures;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -17,8 +15,18 @@ namespace IsIdentifiable.Rules;
 /// A simple Regex based rule that allows flexible white listing or blacklisting of values
 /// either in all columns or only a single column
 /// </summary>
-public class RegexRule : MemberwiseEquatable<RegexRule>, IRegexRule
+public record RegexRule : IRegexRule
 {
+    /// <inheritdoc/>
+    public virtual bool Equals(RegexRule? other)
+    {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return _ifPatternString == other._ifPatternString && _caseSensitive == other._caseSensitive && Action == other.Action && IfColumn == other.IfColumn && As == other.As;
+    }
+
+    public override int GetHashCode() => HashCode.Combine(_ifPatternString, _caseSensitive, (int)Action, IfColumn, (int)As);
+
     /// <inheritdoc/>
     public RuleAction Action { get; set; }
 
@@ -32,7 +40,7 @@ public class RegexRule : MemberwiseEquatable<RegexRule>, IRegexRule
     /// Combination of <see cref="IfPattern"/> and <see cref="CaseSensitive"/>.  Use this to validate
     /// whether the rule should be applied.
     /// </summary>
-    [MemberwiseEqualityIgnore] // NOTE(rkm 2023-05-03) Exclude so equality comparer is valid
+    // [MemberwiseEqualityIgnore] // NOTE(rkm 2023-05-03) Exclude so equality comparer is valid - JAS 2025-01-13 moved to explicit Equals instead of Equ
     protected Regex? IfPatternRegex;
 
     private string? _ifPatternString;
