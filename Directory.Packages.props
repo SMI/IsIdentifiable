@@ -6,7 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />
-    <PackageVersion Include="coverlet.msbuild" Version="6.0.3" />
+    <PackageVersion Include="coverlet.msbuild" Version="6.0.4" />
     <PackageVersion Include="CsvHelper" Version="33.0.1" />
     <PackageVersion Include="fo-dicom.Imaging.ImageSharp" Version="5.1.5" />
     <PackageVersion Include="HIC.DicomTypeTranslation" Version="4.1.5" />
