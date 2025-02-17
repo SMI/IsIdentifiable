@@ -27,7 +27,7 @@
     <PackageVersion Include="Terminal.Gui" Version="1.17.1" />
     <PackageVersion Include="YamlDotNet" Version="16.2.1" />
     <!-- Test Packages -->
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="NUnit" Version="4.3.2" />
     <PackageVersion Include="NUnit3TestAdapter" Version="5.0.0" />
