@@ -15,7 +15,7 @@ namespace IsIdentifiable.Rules;
 /// A simple Regex based rule that allows flexible white listing or blacklisting of values
 /// either in all columns or only a single column
 /// </summary>
-public record RegexRule : IRegexRule
+public class RegexRule : IRegexRule
 {
     /// <inheritdoc/>
     public virtual bool Equals(RegexRule? other)

@@ -17,6 +17,8 @@ class RulesView : View
     public IgnoreRuleGenerator? Ignorer { get; private set; }
     public RowUpdater? Updater { get; private set; }
 
+    public List<string>? RemainingFiles { get; private set; }
+
     private readonly TreeView _treeView;
 
     /// <summary>
@@ -108,8 +110,7 @@ class RulesView : View
         Updater = updater;
         _bulkIgnorePatternFactory = bulkIgnorePatternFactory;
 
-        _lblInitialSummary.Text = $"There are {ignorer.Rules.Count} ignore rules and {updater.Rules.Count} update rules.  Current report contains {CurrentReport.Failures.Length:N0} Failures";
-
+        _lblInitialSummary.Text = $"There are {ignorer.Rules.Count - ignorer.PartRules_Temp.Count} ignore rules, {ignorer.PartRules_Temp.Count} PartPatternFilterRules, and {updater.Rules.Count} update rules. Current report contains {CurrentReport.Failures.Length:N0} Failures";
     }
 
     private void TreeView_ObjectActivated(ObjectActivatedEventArgs<ITreeNode> obj)
@@ -259,7 +260,14 @@ class RulesView : View
         using var cancel = new Button("Cancel");
         cancel.Clicked += () => { Application.RequestStop(); };
 
-        using var dlg = new Dialog("Failure", Constants.DlgWidth, Constants.DlgHeight, ignore, update, cancel);
+        using var dlg = new Dialog(
+            "Failure",
+            Math.Min(Constants.DlgWidth, Console.WindowWidth - (2 * Constants.DlgBoundary)),
+            Math.Min(Constants.DlgHeight, Console.WindowHeight - (2 * Constants.DlgBoundary)),
+            ignore,
+            update,
+            cancel
+        );
 
         var lbl = new FailureView()
         {
@@ -354,8 +362,17 @@ class RulesView : View
 
         var colliding = new TreeNodeWithCount("Colliding Rules");
         var ignore = new TreeNodeWithCount("Ignore Rules Used");
+
+        var partRulesused = new TreeNodeWithCount("IfPartPattern Rules Used") { OverrideCount = 0 };
+        foreach (var rule in Ignorer.PartRules_Temp.Where(x => x.UsedCount > 0).OrderByDescending(x => x.UsedCount))
+        {
+            partRulesused.OverrideCount += rule.UsedCount;
+            partRulesused.Children.Add(new TreeNode(rule.ToString()));
+        }
+
         var update = new TreeNodeWithCount("Update Rules Used");
-        var outstanding = new TreeNodeWithCount("Outstanding Failures");
+        var outstanding = new TreeNodeWithCount("Outstanding Failures", countSubChildren: true);
+
 
         var allRules = Ignorer.Rules.Union(Updater.Rules).ToList();
 
@@ -401,7 +418,7 @@ class RulesView : View
             cts.Dispose();
 
             _treeView.RebuildTree();
-            _treeView.AddObjects(new[] { colliding, ignore, update, outstanding });
+            _treeView.AddObjects(new[] { colliding, ignore, partRulesused, update, outstanding });
         }, SynchronizationContext.Current);
 
         Application.Run(dlg);
@@ -424,6 +441,7 @@ class RulesView : View
         var max = CurrentReport.Failures.Length;
         var lockObj = new object();
 
+        var remainingFiles = new ConcurrentBag<string>();
 
         var result = Parallel.ForEach(CurrentReport.Failures,
             (f) =>
@@ -435,6 +453,9 @@ class RulesView : View
 
                 var ignoreRule = Ignorer.Rules.FirstOrDefault(r => r.Apply(f.ProblemField, f.ProblemValue, out _) != RuleAction.None);
                 var updateRule = Updater.Rules.FirstOrDefault(r => r.Apply(f.ProblemField, f.ProblemValue, out _) != RuleAction.None);
+
+                if (updateRule != null)
+                    remainingFiles.Add($"{f.Resource},UpdateRule");
 
                 // record how often each reviewer rule was used with a failure
                 foreach (var r in new[] { ignoreRule, updateRule }.Where(r => r is not null).Cast<RegexRule>())
@@ -469,11 +490,15 @@ class RulesView : View
                             return v;
                         });
                     }
+
+                    remainingFiles.Add($"{f.Resource},NotCovered");
                 }
             });
 
         if (!result.IsCompleted)
             throw new OperationCanceledException();
+
+        RemainingFiles = remainingFiles.ToList();
 
         SetProgress(progress, textProgress, done, max);
 

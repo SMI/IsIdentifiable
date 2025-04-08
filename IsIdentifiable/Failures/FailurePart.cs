@@ -69,4 +69,7 @@ public record FailurePart
 
         return false;
     }
+
+    /// <inheritdoc/>
+    public override string ToString() => $"{nameof(FailurePart)}({Word},{Offset},{Classification})";
 }
