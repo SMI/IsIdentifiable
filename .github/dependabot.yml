@@ -18,3 +18,9 @@ updates:
       interval: weekly
     reviewers:
       - SMI/reviewers
+  - package-ecosystem: "dotnet-sdk"
+    directory: "/"
+    schedule:
+      interval: weekly
+    reviewers:
+      - SMI/reviewers
