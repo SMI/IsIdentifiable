@@ -34,7 +34,7 @@ class StoreReportTests
         var failure = new Failure(
             new FailurePart[]
             {
-                new("Kansas", FailureClassification.Location, 12),
+                new("Kansas", FailureClassification.Location, 13),
                 new("Toto", FailureClassification.Location, 28)
             })
         {

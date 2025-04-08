@@ -1,6 +1,8 @@
 using IsIdentifiable.Failures;
 using IsIdentifiable.Reporting.Reports;
+using IsIdentifiable.Rules;
 using System;
+using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
@@ -52,10 +54,10 @@ public class ReportReader
     /// <param name="loadedRows"></param>
     /// <param name="token"></param>
     /// <param name="fileSystem"></param>
-    public ReportReader(IFileInfo csvFile, Action<int> loadedRows, IFileSystem fileSystem, CancellationToken token)
+    public ReportReader(IFileInfo csvFile, Action<int> loadedRows, IFileSystem fileSystem, CancellationToken token, List<PartPatternFilterRule>? partRules = null)
     {
         var report = new FailureStoreReport("", 0, fileSystem);
-        Failures = FailureStoreReport.Deserialize(csvFile, loadedRows, token).ToArray();
+        Failures = FailureStoreReport.Deserialize(csvFile, loadedRows, token, partRules).ToArray();
     }
 
     /// <summary>
@@ -77,9 +79,11 @@ public class ReportReader
     /// by the total number of <see cref="Failures"/>
     /// </summary>
     /// <param name="index"></param>
-    public void GoTo(int index)
+    public bool GoTo(int index)
     {
+        var original = _current;
         _current = Math.Min(Math.Max(0, index), Failures.Length);
+        return _current != original && (_current != Failures.Length);
     }
 
     /// <summary>
@@ -87,8 +91,5 @@ public class ReportReader
     /// the <see cref="CurrentIndex"/> is.
     /// </summary>
     /// <returns></returns>
-    public string DescribeProgress()
-    {
-        return $"{_current}/{Failures.Length}";
-    }
+    public string DescribeProgress() => $"{_current + 1}/{Failures.Length}";
 }

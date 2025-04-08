@@ -14,7 +14,7 @@ namespace IsIdentifiable.Rules;
 /// <summary>
 /// Expanded <see cref="RegexRule"/> which works only for <see cref="RuleAction.Ignore"/>.  Should be run after main rules have picked up failures.  This class is designed to perform final checks on failures and discard based on <see cref="RegexRule.IfPatternRegex"/> and/or <see cref="IfPartPatternRegex"/>
 /// </summary>
-public record AllowlistRule : RegexRule
+public class AllowlistRule : RegexRule
 {
     /// <inheritdoc />
     public virtual bool Equals(AllowlistRule? other)

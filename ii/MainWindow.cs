@@ -6,6 +6,7 @@ using IsIdentifiable.Redacting;
 using IsIdentifiable.Rules;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
@@ -33,7 +34,7 @@ internal class MainWindow : IRulePatternFactory, IDisposable
     /// </summary>
     public RowUpdater Updater { get; }
 
-    private readonly FailureView _valuePane;
+    private readonly FailureView _failureView;
     private readonly Label _info;
     private readonly SpinnerView _spinner;
     private readonly TextField _gotoTextField;
@@ -86,7 +87,8 @@ G - creates a regex pattern that matches only the failing part(s)
         Menu = new MenuBar(new MenuBarItem[] {
             new("_File (F9)", new MenuItem [] {
                 new("_Open Report",null, OpenReport),
-                new("_Quit", null, static () => Application.RequestStop())
+                new("_Export Remaining Files", null, ExportRemainingFiles),
+                new("_Quit", null, static () => Application.RequestStop()),
             }),
             new("_Options", new MenuItem [] {
                 miCustomPatterns = new MenuItem("_Custom Patterns",null,ToggleCustomPatterns){CheckType = MenuItemCheckStyle.Checked,Checked = false}
@@ -107,18 +109,18 @@ G - creates a regex pattern that matches only the failing part(s)
             ColorScheme = _greyOnBlack
         };
 
-        _valuePane = new FailureView()
+        _failureView = new FailureView()
         {
             X = 0,
             Y = 1,
             Width = Dim.Fill(),
-            Height = 10,
+            Height = Dim.Fill(),
         };
 
         var frame = new FrameView("Options")
         {
             X = 0,
-            Y = 12,
+            Y = Console.WindowHeight * 2 / 3,
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
@@ -192,11 +194,16 @@ G - creates a regex pattern that matches only the failing part(s)
         viewMain.Add(_spinner);
         _spinner.Visible = false;
 
-        viewMain.Add(_valuePane);
+        viewMain.Add(_failureView);
         viewMain.Add(frame);
 
         if (!string.IsNullOrWhiteSpace(opts.FailuresCsv))
-            OpenReport(opts.FailuresCsv, (e) => throw e);
+        {
+            Exception? exc = null;
+            OpenReport(opts.FailuresCsv, (e) => exc = e);
+            if (exc != null)
+                Helpers.ShowException("Failed to Load", exc);
+        }
 
         var tabView = new TabView()
         {
@@ -283,9 +290,11 @@ G - creates a regex pattern that matches only the failing part(s)
             return;
         try
         {
-            CurrentReport.GoTo(page);
-            _info.Text = CurrentReport.DescribeProgress();
-            SetupToShow(CurrentReport.Current);
+            if (CurrentReport.GoTo(page))
+            {
+                _info.Text = CurrentReport.DescribeProgress();
+                SetupToShow(CurrentReport.Current);
+            }
         }
         catch (Exception e)
         {
@@ -296,7 +305,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
     private void SetupToShow(Failure? f)
     {
-        _valuePane.CurrentFailure = f;
+        _failureView.CurrentFailure = f;
 
         if (f != null)
         {
@@ -318,7 +327,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
     private void Next()
     {
-        if (_valuePane.CurrentFailure == null || CurrentReport == null)
+        if (_failureView.CurrentFailure == null || CurrentReport == null)
             return;
 
         _spinner.Visible = true;
@@ -372,7 +381,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
     private void Ignore()
     {
-        if (_valuePane.CurrentFailure == null || CurrentReport == null)
+        if (_failureView.CurrentFailure == null || CurrentReport == null)
             return;
 
         if (taskToLoadNext != null && !taskToLoadNext.IsCompleted)
@@ -383,7 +392,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
         try
         {
-            Ignorer.Add(_valuePane.CurrentFailure);
+            Ignorer.Add(_failureView.CurrentFailure);
             History.Push(new MainWindowHistory(CurrentReport.CurrentIndex, Ignorer));
         }
         catch (OperationCanceledException)
@@ -395,7 +404,7 @@ G - creates a regex pattern that matches only the failing part(s)
     }
     private void Update()
     {
-        if (_valuePane.CurrentFailure == null || CurrentReport == null)
+        if (_failureView.CurrentFailure == null || CurrentReport == null)
             return;
 
         if (taskToLoadNext != null && !taskToLoadNext.IsCompleted)
@@ -407,7 +416,7 @@ G - creates a regex pattern that matches only the failing part(s)
         try
         {
             // TODO(rkm 2021-04-09) Server always passed as null here, but Update seems to require it?
-            Updater.Update(null, _valuePane.CurrentFailure, null /*create one yourself*/);
+            Updater.Update(null, _failureView.CurrentFailure, null /*create one yourself*/);
 
             History.Push(new MainWindowHistory(CurrentReport.CurrentIndex, Updater));
         }
@@ -423,6 +432,30 @@ G - creates a regex pattern that matches only the failing part(s)
         }
 
         BeginNext();
+    }
+
+    private void ExportRemainingFiles()
+    {
+        if (rulesView.RemainingFiles == null)
+        {
+            Helpers.ShowMessage("Error", "You must evaluate the rules on a report first.");
+            return;
+        }
+
+        var now = DateTime.UtcNow.ToString("s").Replace(':', '-');
+        var fileName = $"ii-RemainingFiles-{now}.csv";
+        using var sw = new StreamWriter(fileName);
+
+        sw.WriteLine("File,Reason");
+
+        var count = 0;
+        foreach (var record in rulesView.RemainingFiles.Distinct().OrderBy(x => x))
+        {
+            sw.WriteLine(record);
+            ++count;
+        }
+
+        Helpers.ShowMessage("Complete", $"Wrote {count} unique item(s) to {fileName}");
     }
 
     private void OpenReport()
@@ -473,12 +506,15 @@ G - creates a regex pattern that matches only the failing part(s)
             return !done;
         });
 
+        _currentReportLabel.Text = $"Report:{_fileSystem.Path.GetFileName(path)}";
+        _currentReportLabel.SetNeedsDisplay();
+
         Task.Run(() =>
         {
             try
             {
                 CurrentReport = new ReportReader(_fileSystem.FileInfo.New(path), (s) =>
-                    rows.Text = $"Loaded: {s:N0} rows", _fileSystem, cts.Token);
+                    rows.Text = $"Loaded: {s:N0} rows", _fileSystem, cts.Token, Ignorer.PartRules_Temp);
                 SetupToShow(CurrentReport.Failures.FirstOrDefault());
                 BeginNext();
 
@@ -488,6 +524,7 @@ G - creates a regex pattern that matches only the failing part(s)
             {
                 exceptionHandler(e);
                 rows.Text = "Error";
+                _currentReportLabel.Text = "Report: <Not loaded>";
             }
 
         }
@@ -501,9 +538,6 @@ G - creates a regex pattern that matches only the failing part(s)
 
             cts.Dispose();
         });
-
-        _currentReportLabel.Text = $"Report:{_fileSystem.Path.GetFileName(path)}";
-        _currentReportLabel.SetNeedsDisplay();
 
         Application.Run(dlg);
         return;
@@ -666,7 +700,7 @@ G - creates a regex pattern that matches only the failing part(s)
 
     public void Dispose()
     {
-        _valuePane.Dispose();
+        _failureView.Dispose();
         _info.Dispose();
         _spinner.Dispose();
         _gotoTextField.Dispose();

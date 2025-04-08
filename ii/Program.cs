@@ -6,12 +6,14 @@ using FAnsi.Implementations.Oracle;
 using FAnsi.Implementations.PostgreSql;
 using FellowOakDicom;
 using IsIdentifiable.Options;
+using IsIdentifiable.Reporting.Reports;
 using IsIdentifiable.Runners;
 using Microsoft.Extensions.FileSystemGlobbing;
 using System;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
 using YamlDotNet.Serialization;
 
 namespace ii;
@@ -101,13 +103,15 @@ public static class Program
                 IsIdentifiableDicomFileOptions,
                 IsIdentifiableMongoOptions,
                 IsIdentifiableFileGlobOptions,
-                IsIdentifiableReviewerOptions>(args)
+                IsIdentifiableReviewerOptions,
+                IsIdentifiableReportValidatorOptions>(args)
             .MapResult(
                 (IsIdentifiableRelationalDatabaseOptions o) => Run(o, fileSystem),
                 (IsIdentifiableDicomFileOptions o) => Run(o, fileSystem),
                 (IsIdentifiableMongoOptions o) => Run(o, fileSystem),
                 (IsIdentifiableFileGlobOptions o) => Run(o, fileSystem),
                 (IsIdentifiableReviewerOptions o) => Run(o, fileSystem),
+                (IsIdentifiableReportValidatorOptions o) => Run(o, fileSystem),
 
                 // return exit code 0 for user requests for help
                 errors => args.Any(a => a.Equals("--help", StringComparison.InvariantCultureIgnoreCase)) ? 0 : 1);
@@ -128,10 +132,48 @@ public static class Program
     {
         Inherit(opts);
 
+        if (!fileSystem.File.Exists(opts.FailuresCsv))
+        {
+            Console.Error.WriteLine($"Error: Could not find {opts.FailuresCsv}");
+            return 1;
+        }
+
+        const string expectedHeader = "Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets";
+        var line = fileSystem.File.ReadLines(opts.FailuresCsv).FirstOrDefault();
+        if (line == null || Regex.Replace(line, @"\s+", "") != line)
+        {
+            Console.Error.WriteLine($"Error: Expected CSV Failure header {expectedHeader}");
+            return 1;
+        }
+
         var reviewer = new ReviewerRunner(GlobalOptions?.IsIdentifiableOptions, opts, fileSystem);
         return reviewer.Run();
     }
 
+    private static int Run(IsIdentifiableReportValidatorOptions opts, IFileSystem fileSystem)
+    {
+        if (GlobalOptions?.IsIdentifiableReviewerOptions != null)
+            opts.InheritValuesFrom(GlobalOptions.IsIdentifiableReviewerOptions);
+
+        if (!fileSystem.File.Exists(opts.FailuresCsv))
+        {
+            Console.Error.WriteLine($"Error: Could not find {opts.FailuresCsv}");
+            return 1;
+        }
+
+        const string expectedHeader = "Resource,ResourcePrimaryKey,ProblemField,ProblemValue,PartWords,PartClassifications,PartOffsets";
+        var line = fileSystem.File.ReadLines(opts.FailuresCsv).FirstOrDefault();
+        if (line == null || Regex.Replace(line, @"\s+", "") != line)
+        {
+            Console.Error.WriteLine($"Error: Expected CSV Failure header {expectedHeader}");
+            return 1;
+        }
+
+        var report = new FailureStoreReport("", 0, fileSystem);
+        var failures = FailureStoreReport.Deserialize(fileSystem.FileInfo.New(opts.FailuresCsv), (_) => { }, new CancellationTokenSource().Token, partRules: null, runParallel: false, opts.StopAtFirstError).ToArray();
+
+        return 0;
+    }
 
     private static int Run(IsIdentifiableDicomFileOptions opts, IFileSystem fileSystem)
     {

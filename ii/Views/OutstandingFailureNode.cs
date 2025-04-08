@@ -1,4 +1,4 @@
-﻿using IsIdentifiable.Failures;
+using IsIdentifiable.Failures;
 using Terminal.Gui.Trees;
 
 namespace ii.Views;
@@ -21,8 +21,5 @@ internal class OutstandingFailureNode : TreeNode
         NumberOfTimesReported = numberOfTimesReported;
     }
 
-    public override string ToString()
-    {
-        return $"{Failure.ProblemValue} x{NumberOfTimesReported:N0}";
-    }
+    public override string ToString() => $"({NumberOfTimesReported:N0}x) {Failure.ProblemValue}";
 }
