@@ -2,6 +2,15 @@
 
 # [Unreleased]
 
+# [0.5.0] - 2025-04-21
+
+- Fixup warnings & pre-compile some regexes (#535)
+- Tidy RegexRule, annotate some nullables (#573)
+- Remove Equ (#617)
+- Add dotnet-sdk dependabot updates (#656)
+- Re-apply changes from old hotfix/ifpartpattern branch (#660)
+- Bump .NET SDK to 9.0.203 and use in CI (#664)
+
 # [0.4.0] - 2024-07-17
 
 - Fix calling ii with file paths (#510)
@@ -173,4 +182,5 @@ Initial version
 [0.2.1]: https://github.com/SMI/IsIdentifiable/compare/v0.2.0..v0.2.1
 [0.3.0]: https://github.com/SMI/IsIdentifiable/compare/v0.2.1..v0.3.0
 [0.4.0]: https://github.com/SMI/IsIdentifiable/compare/v0.3.0..v0.4.0
-[unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.4.0..main
+[0.5.0]: https://github.com/SMI/IsIdentifiable/compare/v0.4.0..v0.5.0
+[unreleased]: https://github.com/SMI/IsIdentifiable/compare/v0.5.0..main
