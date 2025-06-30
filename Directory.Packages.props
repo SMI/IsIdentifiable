@@ -15,16 +15,16 @@
     <PackageVersion Include="HIC.Tesseract" Version="4.1.1" />
     <PackageVersion Include="IKVM" Version="8.10.2" />
     <PackageVersion Include="Magick.NET-Q16-AnyCPU" Version="14.6.0" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.5" />
-    <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="9.0.6" />
     <PackageVersion Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
-    <PackageVersion Include="NLog" Version="5.5.0" />
-    <PackageVersion Include="NUnit.Analyzers" Version="4.8.1" />
+    <PackageVersion Include="NLog" Version="6.0.1" />
+    <PackageVersion Include="NUnit.Analyzers" Version="4.9.2" />
     <PackageVersion Include="SecurityCodeScan.VS2019" Version="5.6.7" />
-    <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.9" />
+    <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.10" />
     <PackageVersion Include="System.IO.Abstractions" Version="22.0.14" />
     <PackageVersion Include="System.IO.FileSystem" Version="4.3.0" />
-    <PackageVersion Include="Terminal.Gui" Version="1.18.1" />
+    <PackageVersion Include="Terminal.Gui" Version="1.19.0" />
     <PackageVersion Include="YamlDotNet" Version="16.2.1" />
     <!-- Test Packages -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
