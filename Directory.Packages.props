@@ -18,6 +18,7 @@
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.5" />
     <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="9.0.5" />
     <PackageVersion Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
+    <PackageVersion Include="Microsoft.NET.ILLink.Tasks" Version="8.0.20" />
     <PackageVersion Include="NLog" Version="5.5.0" />
     <PackageVersion Include="NUnit.Analyzers" Version="4.8.1" />
     <PackageVersion Include="SecurityCodeScan.VS2019" Version="5.6.7" />
